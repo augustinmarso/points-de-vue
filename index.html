@@ -624,9 +624,9 @@ function ecran() {
     const L = [['participant', 'prénom', 'étape', 'question', 'réponse', 'note']];
     for (const [id, r] of Object.entries(S.rep)) for (const [pid, v] of Object.entries(r)) {
       const e = trouver(id), g = S.gens[pid] || {}; if (!e) continue;
-      L.push([g.n + 1, g.nom, e.p || (e.voteK != null ? 'atelier' : 'jeu'), e.voteK != null ? `Affiche ${e.voteK + 1} : ${e.q}` : e.q, e.o ? [].concat(v).map(x => e.o[x]).join(' | ') : v, e.t === 'echelle' ? v + 1 : '']);
+      L.push([g.n + 1, g.nom, e.p ? 'Étape ' + e.p : e.voteK != null ? 'Atelier' : "Jeu de l'œil", e.voteK != null ? `Affiche ${e.voteK + 1} : ${e.q}` : e.q, e.t === 'echelle' ? `${v + 1} sur 5` : e.o ? [].concat(v).map(x => e.o[x]).join(' | ') : v, e.t === 'echelle' ? v + 1 : '']);
     }
-    S.photos.forEach((p, k) => L.push([(S.gens[p.pid] || {}).n + 1, (S.gens[p.pid] || {}).nom, 'atelier', `Affiche ${k + 1}`, MISSIONS[S.mission] + (p.mot ? ' (' + p.mot + ')' : ''), '']));
+    S.photos.forEach((p, k) => L.push([(S.gens[p.pid] || {}).n + 1, (S.gens[p.pid] || {}).nom, 'Atelier', `Affiche ${k + 1} : information et binôme`, MISSIONS[S.mission] + (p.mot ? ' (' + p.mot + ')' : ''), '']));
     if (versSheets) return navigator.clipboard.writeText(L.map(l => l.map(c => String(c ?? '').replace(/[\t\n]/g, ' ').replace(/^[=+@-]/, "'$&")).join('\t')).join('\n')).then(() => alert('Réponses copiées. Dans le Google Sheet, cliquez sur la case A1 de l\'onglet « Données » puis collez (Ctrl + V).'));
     const a = document.createElement('a');
     a.href = URL.createObjectURL(new Blob(['﻿' + L.map(l => l.map(c => '"' + String(c ?? '').replace(/^[=+@-]/, "'$&").replace(/"/g, '""') + '"').join(';')).join('\r\n')], { type: 'text/csv' }));
