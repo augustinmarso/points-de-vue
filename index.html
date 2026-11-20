@@ -77,7 +77,8 @@ textarea.champ{min-height:150px;resize:none}
 .gauche>h1{max-width:60vw}.gauche>p{max-width:26em}
 .droite{flex:none;display:flex;gap:1.5vw;align-items:center}
 .droite img,.flash img{max-height:100%;max-width:30vw;border-radius:1.5vw;display:block}
-.droite.deux img{max-width:21vw}
+.droite.deux img{max-width:20vw}
+.droite figure{font-size:1.2em}
 .nb img{filter:grayscale(1)}
 .droite figure{margin:0;height:100%;display:flex;flex-direction:column;gap:.6vw;font-weight:800;justify-content:center}
 .cpt{font-weight:800;font-size:1.3em;letter-spacing:-.02em}
@@ -151,26 +152,27 @@ const PHASES = {
   3: { nom: 'Enquête sur le format', quoi: 'Affiche ou flyer, et les lieux de diffusion.' }
 };
 const ech = (id, p, q, a, b, x) => ({ id, p, t: 'echelle', q, o: ['1', '2', '3', '4', '5'], a, b, ...x });
-const ab = (id, p, q, note) => ({ id, p, t: 'ab', q, note, o: ['A', 'B', 'Aucune différence'], voir: 2 });
-// voir: 1 = l'affiche A reste à l'écran, 2 = A et B côte à côte ; nb = passage en noir et blanc
+const A = n => 'affiches/' + n + '.jpg';
+const ab = (id, p, q, note, a, b) => ({ id, p, t: 'ab', q, note, o: ['A', 'B', 'Aucune différence'], imgs: [A(a), A(b)] });
+// voir: 1 = l'affiche de l'étape reste à l'écran (référence aux étapes 1 et 2, version cercles + QR code à l'étape 3) ; imgs = d'autres affiches ; nb = noir et blanc
 const ETAPES = [
   { t: 'accueil' },
-  // le jeu de l'œil : deux vraies affiches santé de Granville Terre et Mer, 5 secondes, puis des questions précises (bon = la bonne réponse)
+  // le jeu de l'œil : deux affiches seniors transmises par Granville Terre et Mer, 5 secondes, puis des questions précises (bon = la bonne réponse)
   { t: 'info', s: "Pour commencer", h: "Le jeu de l'œil", x: "Une affiche apparaît 5 secondes. Ensuite, quelques questions très précises. Si peu de monde trouve, c'est l'affiche qui manque de clarté, pas vous." },
-  { t: 'flash', img: 'affiche-aidants.jpg' },
-  { id: 'jeu1', t: 'choix', jeu: 1, img: 'affiche-aidants.jpg', bon: 1, q: 'À quelle heure le rendez-vous commence-t-il ?', o: ['10 h', '14 h', '16 h', '20 h'] },
-  { id: 'jeu2', t: 'choix', jeu: 1, img: 'affiche-aidants.jpg', bon: 2, q: "Faut-il s'inscrire ?", o: ['Oui, par téléphone', 'Oui, par e-mail', 'Non', "Ce n'est pas écrit"] },
-  { id: 'jeu3', t: 'choix', jeu: 1, img: 'affiche-aidants.jpg', bon: 1, q: 'Où cela se passe-t-il ?', o: ['À la mairie', "À l'animathèque", 'À la médiathèque', "À l'hôpital"] },
-  { id: 'jeu4', t: 'choix', jeu: 1, img: 'affiche-aidants.jpg', bon: 2, q: 'Combien de dates sont proposées ?', o: ['2', '3', '4', '5'] },
+  { t: 'flash', img: 'affiches/lumeen.jpg' },
+  { id: 'jeu1', t: 'choix', jeu: 1, img: 'affiches/lumeen.jpg', bon: 1, q: "De quoi s'agit-il ?", o: ['Un cours de peinture', 'Un atelier de réalité virtuelle', 'Une sortie en forêt', 'Une séance de cinéma'] },
+  { id: 'jeu2', t: 'choix', jeu: 1, img: 'affiches/lumeen.jpg', bon: 2, q: 'À quelle heure cela commence-t-il ?', o: ['10 h', '14 h', '14 h 30', '16 h 30'] },
+  { id: 'jeu3', t: 'choix', jeu: 1, img: 'affiches/lumeen.jpg', bon: 0, q: "Faut-il s'inscrire ?", o: ['Oui, par téléphone ou par mail', 'Oui, sur place', 'Non', "Ce n'est pas écrit"] },
+  { id: 'jeu4', t: 'choix', jeu: 1, img: 'affiches/lumeen.jpg', bon: 3, q: 'Où cela se passe-t-il ?', o: ['À Granville', 'À Villedieu-les-Poêles', 'À Saint-Pois', 'À Saint-Martin-le-Bouillant'] },
   { t: 'info', s: "Le jeu de l'œil", h: 'Deuxième affiche', x: 'Même principe : 5 secondes, puis des questions précises.' },
-  { t: 'flash', img: 'affiche-conferences.jpg' },
-  { id: 'jeu5', t: 'choix', jeu: 1, img: 'affiche-conferences.jpg', bon: 1, q: 'Quel jour de la semaine les conférences ont-elles lieu ?', o: ['Le lundi', 'Le mardi', 'Le jeudi', 'Le samedi'] },
-  { id: 'jeu6', t: 'choix', jeu: 1, img: 'affiche-conferences.jpg', bon: 0, q: 'Combien cela coûte-t-il ?', o: ["C'est gratuit", '5 euros', 'Sur adhésion', "Ce n'est pas écrit"] },
-  { id: 'jeu7', t: 'choix', jeu: 1, img: 'affiche-conferences.jpg', bon: 1, q: 'Ont-elles toutes lieu au même endroit ?', o: ['Oui, à Granville', 'Non, le lieu change', "Ce n'est pas écrit"] },
-  { id: 'jeu8', t: 'choix', jeu: 1, img: 'affiche-conferences.jpg', bon: 1, q: 'Lequel de ces thèmes est au programme ?', o: ['Le sommeil', 'La douleur', "L'alimentation", 'Le diabète'] },
+  { t: 'flash', img: 'affiches/memoire.jpg' },
+  { id: 'jeu5', t: 'choix', jeu: 1, img: 'affiches/memoire.jpg', bon: 2, q: 'Quel est le sujet de la conférence ?', o: ['Les chutes', "L'alimentation", 'La mémoire', 'Le sommeil'] },
+  { id: 'jeu6', t: 'choix', jeu: 1, img: 'affiches/memoire.jpg', bon: 1, q: 'Dans quelle commune a-t-elle lieu ?', o: ['Bréhal', 'Cérences', 'Granville', 'Coutances'] },
+  { id: 'jeu7', t: 'choix', jeu: 1, img: 'affiches/memoire.jpg', bon: 0, q: 'Combien cela coûte-t-il ?', o: ["C'est gratuit", '5 euros', 'Sur adhésion', "Ce n'est pas écrit"] },
+  { id: 'jeu8', t: 'choix', jeu: 1, img: 'affiches/memoire.jpg', bon: 0, q: "À partir de quel âge ?", o: ['55 ans', '60 ans', '65 ans', "Ce n'est pas écrit"] },
   { t: 'scores' }, // les réussites de chacun au jeu de l'œil
   { t: 'phase', p: 1 },
-  { t: 'flash', p: 1 },
+  { t: 'flash', p: 1, img: A('reference') },
   { id: 'retenu', p: 1, t: 'multi', q: 'Après 5 secondes, que vous reste-t-il en tête ?', o: ['Le titre', 'Une image', 'Une couleur', 'La date', 'Le lieu', 'Un logo', 'Le sujet de santé', 'Une impression générale', 'Presque rien'] },
   { id: 'invite', p: 1, t: 'multi', q: 'À quoi cette affiche vous invite-t-elle ?', o: ['Participer à un atelier', 'Donner mon avis', "Assister à une réunion d'information", 'Faire un dépistage ou un bilan', 'Rencontrer des professionnels', "M'inscrire quelque part", 'Je ne vois pas'] },
   { id: 'infos', p: 1, t: 'multi', q: "Sans la regarder de nouveau, quelles informations avez-vous repérées ?", o: ['La date', "L'heure", 'Le lieu', 'Le prix', 'Qui organise', "Comment s'inscrire", 'Aucune'] },
@@ -183,35 +185,42 @@ const ETAPES = [
   ech('circule', 2, 'Votre regard trouve-t-il son chemin entre les éléments ?', 'Il se perd', 'Tout s\'enchaîne', { voir: 1 }),
   { id: 'mots', p: 2, t: 'multi', q: "Qu'est-ce qui gêne la lecture ?", o: ['Des mots trop techniques', 'Des phrases trop longues', 'Des sigles', 'Des lettres trop petites', 'Trop de texte', "Du texte posé sur l'image", 'Un manque de contraste', 'Rien, tout est clair'], voir: 1 },
   { id: 'distance', p: 2, t: 'multi', q: 'À deux mètres, que lisez-vous encore ?', o: ['Le titre', 'La date', 'Le lieu', 'Le texte', 'Plus rien'], voir: 1 },
-  ab('typo', 2, 'Laquelle se lit le plus facilement ?', 'Deux polices de caractères.'),
-  ab('titre', 2, 'Sur laquelle le titre se détache-t-il le mieux ?', 'Deux tailles de titre.'),
-  ab('couleurs', 2, 'Laquelle vous donne envie de vous approcher ?', 'Les couleurs d\'origine, puis deux ou trois couleurs seulement.'),
-  ab('clair', 2, 'Laquelle est la plus claire ?', 'La mise en page d\'origine, puis une version allégée.'),
+  // chaque paire ne change qu'une chose : l'ordre A / B est mélangé pour que la « bonne » ne soit pas toujours du même côté
+  ab('existant', 2, 'Laquelle comprenez-vous le plus vite ?', "L'affiche d'origine, puis une version refaite.", 'origine', 'reference'),
+  ab('structure', 2, 'Sur laquelle trouvez-vous la date le plus vite ?', 'Deux façons de ranger les mêmes informations.', 'reference', 'date'),
+  ab('typo', 2, 'Laquelle se lit le plus facilement ?', 'Deux polices de caractères.', 'typo-script', 'reference'),
+  ab('titre', 2, 'Sur laquelle le titre se détache-t-il le mieux ?', 'Deux tailles de titre.', 'reference', 'titre-petit'),
+  ab('taille', 2, 'Sur laquelle les informations pratiques se lisent-elles le mieux ?', 'Deux tailles de texte.', 'texte-petit', 'reference'),
+  ab('contraste', 2, 'Laquelle liriez-vous de loin ?', 'Deux contrastes.', 'reference', 'contraste-faible'),
+  ab('couleurs', 2, 'Laquelle vous donne envie de vous approcher ?', 'Beaucoup de couleurs, puis trois couleurs seulement.', 'couleurs-multi', 'reference'),
+  ab('clair', 2, 'Laquelle est la plus claire ?', 'Une version chargée, puis une version allégée.', 'dense', 'leger'),
+  ab('photo', 2, 'Quelle image attire le plus votre regard ?', 'La même photo, en couleurs puis en gros points.', 'image-couleur', 'reference'),
+  ab('dessin', 2, 'Quelle image vous parle le plus ?', 'Une photo, puis un dessin.', 'reference', 'image-dessin'),
   ech('nb', 2, 'En noir et blanc, reste-t-elle lisible ?', 'Plus du tout', 'Aussi bien', { voir: 1, nb: true }),
-  { id: 'image', p: 2, t: 'multi', q: "Que vous évoque l'image ?", o: ['La convivialité', 'Le travail en groupe', 'Le sérieux', 'La santé', "L'école", 'La fête', 'Autre chose que le sujet', 'Rien de précis'], voir: 1 },
-  { id: 'emotion', p: 2, t: 'multi', q: 'Quelle impression vous laisse cette affiche ?', o: ['De la curiosité', 'De la confiance', "De l'envie", 'De la surprise', "De l'indifférence", 'De la confusion', "De l'agacement"], voir: 1 },
+  { id: 'image', p: 2, t: 'multi', imgs: [A('reinette')], q: "Que vous évoque l'image de cette autre affiche ?", o: ['La convivialité', 'Le travail en groupe', 'Le sérieux', 'La santé', "L'école", 'La fête', 'Autre chose que le sujet', 'Rien de précis'] },
+  { id: 'emotion', p: 2, t: 'multi', imgs: [A('reinette')], q: 'Quelle impression vous laisse cette affiche ?', o: ['De la curiosité', 'De la confiance', "De l'envie", 'De la surprise', "De l'indifférence", 'De la confusion', "De l'agacement"] },
   ech('coherent', 2, "L'image et les couleurs vont-elles avec le sujet ?", 'Pas du tout', 'Tout à fait', { voir: 1 }),
   { t: 'phase', p: 3 },
   { id: 'lieux', p: 3, t: 'multi', q: 'Où auriez-vous une chance de croiser cette information ?', o: ["Salle d'attente", 'Pharmacie', 'Mairie', 'Association', 'Commerce', 'Marché', 'Boîte aux lettres', 'Journal local', 'Réseaux sociaux'] },
-  { id: 'format', p: 3, t: 'choix', q: 'Sous quelle forme vous serait-elle la plus utile ?', o: ['Grande affiche (A3)', 'Affiche (A4)', 'Flyer à emporter (A5)', 'Message sur le téléphone', 'De vive voix'] },
-  { id: 'emporter', p: 3, t: 'choix', q: "L'emporteriez-vous avec vous ?", o: ['Oui', 'Je la prendrais en photo', 'Non'] },
-  { id: 'qr', p: 3, t: 'choix', q: 'Pour en savoir plus, utiliseriez-vous le QR code ?', o: ['Oui', 'Je préfère téléphoner', 'Je préfère demander à quelqu\'un', 'Non'] },
+  { id: 'format', p: 3, t: 'choix', voir: 1, q: 'Sous quelle forme vous serait-elle la plus utile ?', o: ['Grande affiche (A3)', 'Affiche (A4)', 'Flyer à emporter (A5)', 'Message sur le téléphone', 'De vive voix'] },
+  { id: 'emporter', p: 3, t: 'choix', imgs: [A('gym-equilibre')], q: "Ce flyer, l'emporteriez-vous avec vous ?", o: ['Oui', 'Je la prendrais en photo', 'Non'] },
+  { id: 'qr', p: 3, t: 'choix', voir: 1, q: 'Pour en savoir plus, utiliseriez-vous le QR code ?', o: ['Oui', 'Je préfère téléphoner', 'Je préfère demander à quelqu\'un', 'Non'] },
   ech('affichage', 3, 'Lisez-vous les affichages dans les lieux publics ?', 'Jamais', 'Toujours'),
-  ech('utile', 3, 'Cette information vous serait-elle utile, à vous ou à un proche ?', 'Pas du tout', 'Tout à fait'),
+  ech('utile', 3, 'Cette information vous serait-elle utile, à vous ou à un proche ?', 'Pas du tout', 'Tout à fait', { voir: 1 }),
   { id: 'relais', p: 3, t: 'multi', q: 'En dehors de votre médecin, qui vous parle de santé ?', o: ['Mon pharmacien', 'Ma famille', 'Mes amis ou voisins', 'Une association', 'La mairie ou le CCAS', 'La télévision ou la radio', 'Le journal local', 'Internet', 'Personne'] },
-  { t: 'mission' }, // chaque binôme tire une information de santé à faire passer, puis compose son affiche avec les modules
+  { t: 'mission' }, // toute la salle reçoit la même information de santé à faire passer ; chaque binôme compose son affiche avec les modules
   { t: 'photo' },
   { t: 'vote', id: 'vote' }, // la batterie de tests (TESTS, plus bas), une fois par affiche photographiée
   { t: 'palmares' },
   { t: 'fin' }
 ];
 
-// les informations de santé à faire passer : une par binôme, gardée secrète, que la salle devra retrouver
+// les informations de santé possibles pour l'atelier : une seule par séance, la même pour tous les binômes (le grand écran peut en changer)
 const MISSIONS = ['Dépistage gratuit du cancer du sein', 'Atelier équilibre pour éviter les chutes', 'Un café pour souffler quand on aide un proche', 'Vaccin contre la grippe en pharmacie', 'Conférence sur les enfants et les écrans', 'Bilan de prévention gratuit à 60 ans', 'Marche collective du jeudi matin', 'Don du sang à la salle des fêtes'];
 // la batterie de tests passée par chaque affiche de binôme
 const note = (c, q, a, b) => ({ c, t: 'echelle', q, o: ['1', '2', '3', '4', '5'], a, b });
 const TESTS = [
-  { c: 'idee', t: 'choix', cinq: true, q: 'Vue 5 secondes : quelle information veut-elle faire passer ?', o: MISSIONS },
+  { ...note('passe', "Vue 5 secondes : l'information passe-t-elle ?", 'Pas du tout', 'Tout de suite'), cinq: true },
   note('clair', 'Le message est-il clair ?', 'Pas du tout', 'Tout à fait'),
   note('lisible', 'Se lit-elle facilement, même de loin ?', 'Difficilement', 'Très facilement'),
   note('envie', "Donne-t-elle envie d'y aller ?", 'Pas du tout', 'Tout à fait'),
@@ -236,6 +245,7 @@ const lire = (k, d) => { try { return JSON.parse(localStorage.getItem(SALLE + k)
 const ecrire = (k, v) => { try { localStorage.setItem(SALLE + k, JSON.stringify(v)); } catch (e) { /* stockage plein : la séance continue en mémoire */ } };
 const sur = e => e.p ? `Étape ${e.p} · ${h(PHASES[e.p].nom)}` : e.jeu || e.img ? "Le jeu de l'œil" : 'Atelier';
 const JEUX = () => ETAPES.filter(e => e.bon != null);
+let mission = 1; // l'information de l'atelier, la même pour tous
 let sous = 0; // pendant l'étape « vote » : numéro de l'affiche × 10 + numéro du test
 // la question réellement posée : l'étape elle-même, ou le test en cours pour l'affiche en cours
 const Q = e => { if (e.t !== 'vote') return e; const k = sous / 10 | 0, j = sous % 10; return { ...(TESTS[j] || TESTS[0]), id: 'vote' + k + '_' + (TESTS[j] ? j : 0), vote: true, k }; };
@@ -270,7 +280,7 @@ function placer() {
   }
   const a = e.p ? e.p - 1 : n % 3, autres = [0, 1, 2].filter(k => k !== a);
   if (e.t === 'phase') { // le cercle de l'étape zoome jusqu'à remplir l'écran
-    set(a, 0, 0, 1.5 * Math.hypot(W, H) / D); B[a].dataset.fixe = 1;
+    const g = 1.5 * Math.hypot(W, H); set(a, 0, 0, g / D); B[a].dataset.fixe = (ECRAN ? .25 * W : .06 * W) / g + ',' + (ECRAN ? .22 * H : .36 * H) / g;
     set(autres[0], W * .36, -H * .34, .55); set(autres[1], W * .43, -H * .16, .35); return;
   }
   const PR = ECRAN ? [[.36, .12, 1.9], [.4, -.3, 1.5], [.33, .34, 1.7], [.43, .02, 1.3]] : [[.42, .47, 1.4], [-.42, .47, 1.3], [.3, .5, 1.2], [-.3, .5, 1.5]];
@@ -290,7 +300,8 @@ function regards() {
   document.querySelectorAll('.yeux').forEach(y => {
     const [hx, hy, hr] = chezSoi(y);
     let ux = 0, uy = 0; // direction du regard : un petit décalage autour de la place des yeux
-    if (y.closest('[data-fixe]')) { y.style.setProperty('--rx', '.2em'); y.style.setProperty('--ry', '.1em'); y.style.setProperty('--rot', '0deg'); return; }
+    const fixe = y.closest('[data-fixe]');
+    if (fixe) { const [fx, fy] = fixe.dataset.fixe.split(','); y.style.setProperty('--rx', fx + 'em'); y.style.setProperty('--ry', fy + 'em'); y.style.setProperty('--rot', '0deg'); return; }
     if (!souris && y.style.getPropertyValue('--rx') && Math.random() < .55) return; // chacun son rythme : pas tous en même temps
     const vers = (x, yy) => { const b = y.parentNode.getBoundingClientRect(), dx = x - b.left - b.width / 2, dy = yy - b.top - b.height / 2, d = Math.hypot(dx, dy) || 1; ux = dx / d; uy = dy / d; };
     if (souris) vers(souris[0], souris[1]); // les yeux suivent la souris
@@ -346,12 +357,11 @@ function telephone() {
       c.on('data', d => {
         if (d.k === 'etat') {
           connu = true; vu = Date.now();
-          if (d.sid !== mes.sid) { mes.sid = d.sid; mes.rep = {}; mes.mission = null; garder(); }
+          if (d.sid !== mes.sid) { mes.sid = d.sid; mes.rep = {}; garder(); }
           else if (premier) for (const id in mes.rep) c.send({ k: 'rep', id, v: mes.rep[id] }); // réponses données hors connexion
-          premier = false; courant = ETAPES[d.i] ? d.i : 0; sous = d.n >= 0 && d.n < 999 ? d.n | 0 : 0; dessiner();
+          premier = false; courant = ETAPES[d.i] ? d.i : 0; sous = d.n >= 0 && d.n < 999 ? d.n | 0 : 0; if (MISSIONS[d.m] && d.m !== mission) { mission = d.m; cle = ''; } dessiner();
         }
         if (d.k === 'photo-ok' && photo) { photo.etat = 'ok'; dessiner(true); }
-        if (d.k === 'mission' && MISSIONS[d.m]) { mes.mission = d.m; garder(); dessiner(true); }
       });
       c.on('close', perdu); c.on('error', perdu);
     });
@@ -387,12 +397,11 @@ function telephone() {
     }
     else if (e.t === 'flash') x = `<div class="haut"></div><h1>Levez les yeux</h1><p><b>L'affiche va apparaître 5 secondes sur le grand écran. Regardez-la comme si vous la croisiez dans la rue.</b></p>`;
     else if (e.t === 'fin') x = `<div class="haut"></div><h1>Merci !</h1><p><b>Vos observations vont servir à retravailler l'affiche.</b></p><p>Nous vous montrerons ce qu'elles ont changé.</p>`;
-    else if (e.t === 'mission') x = mes.mission == null
-      ? `<p class="sur">Atelier</p><h2>À deux, fabriquez une affiche.</h2><p>Votre binôme reçoit une information de santé à faire passer. Un seul téléphone par binôme suffit.</p><button class="btn" data-a="mission">Découvrir notre mission</button>`
-      : `<p class="sur">Atelier · votre mission</p><h2>${h(MISSIONS[mes.mission])}</h2><p><b>Composez l'affiche qui fait le mieux passer cette information.</b></p><p>Servez-vous des modules sur la table : slogans, formes, illustrations, dates. Gardez votre mission secrète, la salle devra la retrouver.</p><button class="lien" data-a="mission">Tirer une autre mission</button>`;
+    else if (e.t === 'mission') x = `<p class="sur">Atelier · à deux</p><h2>Fabriquez l'affiche qui fait le mieux passer cette information :</h2><h1 style="font-size:40px;line-height:1">${h(MISSIONS[mission])}</h1>
+      <p>Servez-vous des modules sur la table : slogans, formes, illustrations, dates. Toute la salle a la même information, chaque binôme fait son affiche.</p>`;
     else if (e.t === 'palmares') x = `<div class="haut"></div><h1>Le palmarès</h1><p><b>Les résultats de vos affiches sont sur le grand écran.</b></p>`;
     else if (e.t === 'photo') {
-      x = `<p class="sur">Atelier</p><h2>Photographiez l'affiche de votre binôme.</h2>${mes.mission != null ? `<p class="note">Votre mission : ${h(MISSIONS[mes.mission])}</p>` : ''}`;
+      x = `<p class="sur">Atelier</p><h2>Photographiez l'affiche de votre binôme.</h2><p class="note">L'information à faire passer : ${h(MISSIONS[mission])}</p>`;
       if (!photo) x += `<p>Elle s'affichera sur le grand écran, puis la salle la testera.</p><label class="btn">Prendre une photo<input type="file" accept="image/*" capture="environment" hidden id="prise"></label>`;
       else if (photo.etat === 'ok') x += `<div class="fait">${tete(1 + courant % 3)}<p><b>Votre photo est sur le grand écran.</b></p><button class="lien" data-a="autre">Refaire la photo</button></div>`;
       else x += `<img class="apercu" src="${photo.img}" alt="Votre photo"><input class="champ" id="mot" maxlength="80" placeholder="Le nom de votre binôme (facultatif)">
@@ -421,11 +430,10 @@ function telephone() {
     if (act === 'texte') { const v = document.getElementById('txt').value.trim(); if (v) repondre(id, v); }
     if (act === 'autre') { photo = null; dessiner(true); }
     if (act === 'code') { const c = document.getElementById('code').value.replace(/\D/g, ''); if (c.length === 4) location.search = '?salle=' + c; }
-    if (act === 'mission') { if (lien) lien.send({ k: 'mission?' }); else { mes.mission = Math.random() * MISSIONS.length | 0; garder(); dessiner(true); } }
     if (act === 'photo') {
       if (!lien) return statut();
       photo.etat = 'envoi'; a.textContent = 'Envoi…';
-      lien.send({ k: 'photo', img: photo.img, mot: document.getElementById('mot').value, mission: mes.mission });
+      lien.send({ k: 'photo', img: photo.img, mot: document.getElementById('mot').value });
     }
   });
   app.addEventListener('change', async ev => {
@@ -437,35 +445,41 @@ function telephone() {
 
 // ================= GRAND ÉCRAN =================
 function ecran() {
-  const neuve = () => ({ sid: Math.random().toString(36).slice(2, 8), i: 0, k: 0, rev: false, gens: {}, rep: {}, missions: {}, photos: [] });
+  const neuve = () => ({ sid: Math.random().toString(36).slice(2, 8), i: 0, k: 0, rev: false, gens: {}, rep: {}, mission: 1, photos: [] });
   let S = lire('pdvSeance', null) || neuve();
-  S.photos = lire('pdvPhotos', []); sous = S.k = S.k || 0; S.missions = S.missions || {};
+  S.photos = lire('pdvPhotos', []); sous = S.k = S.k || 0; mission = S.mission = MISSIONS[S.mission] ? S.mission : 1;
   let affiches = lire('pdvAffiches', {}), conns = new Set(), cle = '', flash = false, souci = '', masque = false, tm, tAuto = 0;
   const garder = () => { const { photos, ...reste } = S; ecrire('pdvSeance', reste); ecrire('pdvPhotos', photos); };
-  const diffuser = () => conns.forEach(c => c.open && c.send({ k: 'etat', sid: S.sid, i: S.i, n: S.k }));
+  const diffuser = () => conns.forEach(c => c.open && c.send({ k: 'etat', sid: S.sid, i: S.i, n: S.k, m: S.mission }));
   const enLigne = () => new Set([...conns].filter(c => c.open && c.pid).map(c => c.pid));
   const texte = (s, n) => String(s ?? '').trim().slice(0, n);
+  // des nappes douces, façon chœur lointain, fabriquées par le navigateur : aucun fichier, aucune musique existante
+  let ac;
+  const son = (notes, att, dur, vol) => {
+    if (S.son === false) return;
+    try {
+      ac = ac || new AudioContext(); const t = ac.currentTime, g = ac.createGain(), f = ac.createBiquadFilter();
+      f.type = 'lowpass'; f.frequency.value = 1800; g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vol, t + att); g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+      f.connect(g).connect(ac.destination);
+      notes.forEach(n => [-6, 0, 6].forEach(d => { const o = ac.createOscillator(); o.type = d ? 'sine' : 'triangle'; o.frequency.value = n; o.detune.value = d; o.connect(f); o.start(t); o.stop(t + dur); }));
+    } catch (e) { /* pas de son : la séance continue */ }
+  };
+  const SONS = { entre: () => son([880, 1318.5], .01, .8, .05), suite: () => son([196, 293.7], .08, 1.2, .05), revele: () => son([146.8, 220, 293.7, 349.2, 440], .6, 3.6, .045), trouve: () => son([146.8, 220, 293.7, 370, 440, 587.3], .5, 3.6, .04) };
   const trouver = id => { const m = /^vote(\d{1,2})_(\d)$/.exec(id); return m ? TESTS[m[2]] && { ...TESTS[m[2]], voteK: +m[1] } : ETAPES.find(e => e.id && e.t !== 'vote' && e.id === id); };
-  // côté écran, la bonne réponse du test « idée » est la mission du binôme qui a fait l'affiche
-  const QH = e => { const q = Q(e); return q.c === 'idee' && S.photos[q.k] ? { ...q, bon: S.photos[q.k].mission ?? null } : q; };
+  const QH = Q;
   const bilan = k => { // résultats d'une affiche de binôme : part de la salle qui a retrouvé l'idée, moyenne des notes
-    const id = Object.values(S.rep['vote' + k + '_0'] || {}), m = S.photos[k].mission, notes = TESTS.flatMap((t, j) => t.t === 'echelle' ? Object.values(S.rep['vote' + k + '_' + j] || {}) : []);
-    return { idee: id.length && m != null ? Math.round(id.filter(v => v === m).length / id.length * 100) : null, note: notes.length ? notes.reduce((a, v) => a + v + 1, 0) / notes.length : null };
+    const notes = TESTS.flatMap((t, j) => t.t === 'echelle' ? Object.values(S.rep['vote' + k + '_' + j] || {}) : []);
+    return { note: notes.length ? notes.reduce((a, v) => a + v + 1, 0) / notes.length : null };
   };
 
   const peer = new Peer(HOTE);
   peer.on('connection', c => {
-    c.on('open', () => { conns.add(c); c.send({ k: 'etat', sid: S.sid, i: S.i, n: S.k }); });
+    c.on('open', () => { conns.add(c); c.send({ k: 'etat', sid: S.sid, i: S.i, n: S.k, m: S.mission }); });
     c.on('close', () => { conns.delete(c); maj(); });
     c.on('data', d => {
       if (!d || typeof d !== 'object') return;
-      if (d.k === 'salut') { c.pid = texte(d.pid, 20); S.gens[c.pid] = { nom: texte(d.nom, 24), n: S.gens[c.pid] ? S.gens[c.pid].n : Object.keys(S.gens).length }; }
+      if (d.k === 'salut') { if (!c.pid) SONS.entre(); c.pid = texte(d.pid, 20); S.gens[c.pid] = { nom: texte(d.nom, 24), n: S.gens[c.pid] ? S.gens[c.pid].n : Object.keys(S.gens).length }; }
       if (!c.pid) return;
-      if (d.k === 'mission?') { // la mission la moins distribuée, pour que les binômes aient des sujets différents
-        const pris = MISSIONS.map((_, m) => Object.entries(S.missions).filter(([pid, x]) => x === m && pid !== c.pid).length), mini = Math.min(...pris);
-        const libres = pris.map((n, m) => n === mini && m !== S.missions[c.pid] ? m : -1).filter(m => m >= 0);
-        S.missions[c.pid] = libres[Math.random() * libres.length | 0]; c.send({ k: 'mission', m: S.missions[c.pid] });
-      }
       if (d.k === 'rep') {
         const e = trouver(d.id); if (!e) return;
         const bon = x => Number.isInteger(x) && x >= 0 && x < e.o.length, t = e.t;
@@ -475,7 +489,7 @@ function ecran() {
         if (!(c.pid in dejaR)) dejaR[c.pid] = v; // une réponse donnée ne se change plus
       }
       if (d.k === 'photo' && typeof d.img === 'string' && d.img.length < 900000 && /^data:image\/jpeg;base64,[A-Za-z0-9+\/=]+$/.test(d.img)) {
-        const dej = S.photos.findIndex(p => p.pid === c.pid), ph = { img: d.img, mot: texte(d.mot, 80), pid: c.pid, mission: MISSIONS[d.mission] ? d.mission : null };
+        const dej = S.photos.findIndex(p => p.pid === c.pid), ph = { img: d.img, mot: texte(d.mot, 80), pid: c.pid };
         if (dej >= 0 && ETAPES[S.i].t === 'photo') S.photos[dej] = ph; else S.photos.push(ph); // refaire sa photo la remplace
         c.send({ k: 'photo-ok' }); cle = '';
       }
@@ -489,12 +503,12 @@ function ecran() {
 
   function aller(i, sens = 1) {
     while (ETAPES[i] && (ETAPES[i].t === 'vote' || ETAPES[i].t === 'palmares') && !S.photos.length) i += sens; // pas de photo : rien à tester
-    S.i = Math.max(0, Math.min(ETAPES.length - 1, i)); sous = S.k = 0; S.rev = false; flash = false; garder(); diffuser(); dessiner();
+    S.i = Math.max(0, Math.min(ETAPES.length - 1, i)); sous = S.k = 0; S.rev = false; flash = false; garder(); diffuser(); dessiner(); SONS.suite();
   }
   function suivant() {
     const e = ETAPES[S.i], id = ident(e);
     if (e.t === 'flash' && !flash) return montrer();
-    if (id && !S.rev && Object.keys(S.rep[id] || {}).length) { S.rev = true; garder(); return dessiner(); }
+    if (id && !S.rev && Object.keys(S.rep[id] || {}).length) { S.rev = true; garder(); QH(e).bon != null ? SONS.trouve() : SONS.revele(); return dessiner(); }
     if (e.t === 'vote') { // test suivant, puis affiche suivante
       const k = S.k / 10 | 0, j = S.k % 10;
       if (j < TESTS.length - 1) S.k++; else if (k < S.photos.length - 1) S.k = (k + 1) * 10; else return aller(S.i + 1);
@@ -510,7 +524,8 @@ function ecran() {
     if (k !== cle) { masque = false; clearTimeout(tm); clearTimeout(tAuto); tAuto = 0; }
     cle = k; courant = S.i;
     const q = QH(e);
-    const vues = e.voir === 2 ? ['A', 'B'].filter(l => affiches[l]) : e.voir && affiches.A ? ['A'] : [];
+    const im = e.imgs || (e.voir ? [A(e.p === 3 ? 'cercles-qr' : 'reference')] : []);
+    const vues = im.map((src, i) => ({ l: im.length > 1 ? 'AB'[i] : '', src: e.voir && affiches.A ? affiches.A : src })); // une affiche chargée à la main remplace celle de l'étape
     coin = S.rev || vues.length > 0 || ['scores', 'photo', 'flash', 'vote', 'palmares'].includes(e.t);
     placer();
     const url = location.origin + location.pathname + '?salle=' + SALLE;
@@ -525,12 +540,12 @@ function ecran() {
     else if (e.t === 'info') g = `<p class="sur">${h(e.s)}</p><h1>${h(e.h)}</h1><p><b>${h(e.x)}</b></p>`;
     else if (e.t === 'scores') g = `<p class="sur">Le jeu de l'œil</p><h1>Les réussites</h1><p><b>Un point noir par question trouvée, dans l'ordre des questions.</b></p><div class="scores"></div>`;
     else if (e.t === 'flash') g = flash
-      ? `<div class="flash">${e.img || affiches.A ? `<img src="${e.img || affiches.A}" alt="Affiche testée">` : '<h1>Regardez l\'affiche</h1>'}${tete(1)}</div>`
+      ? `<div class="flash">${e.img || affiches.A ? `<img src="${(e.p && affiches.A) || e.img || affiches.A}" alt="Affiche testée">` : '<h1>Regardez l\'affiche</h1>'}${tete(1)}</div>`
       : `<p class="sur">${sur(e)}</p><h1>Le test des 5 secondes</h1><p><b>L'affiche va apparaître 5 secondes. Regardez-la comme si vous la croisiez dans la rue.</b></p>`;
     else if (e.t === 'fin') g = `<h1>Merci !</h1><p><b>Vos observations vont servir à retravailler l'affiche.</b></p><p>Nous vous montrerons ce qu'elles ont changé.</p>`;
-    else if (e.t === 'mission') g = `<p class="sur">Atelier</p><h1>À deux, fabriquez une affiche</h1><p><b>Chaque binôme tire sur un téléphone une information de santé à faire passer, et la garde secrète.</b></p><p>Avec les modules sur la table (slogans, formes, illustrations, dates), composez l'affiche qui la transmet le mieux. La salle la testera ensuite.</p><p class="cpt"></p>`;
+    else if (e.t === 'mission') g = `<p class="sur">Atelier · à deux</p><h1>Fabriquez l'affiche qui fait le mieux passer cette information</h1><p class="cpt" style="font-size:2em">${h(MISSIONS[S.mission])}</p><p>Servez-vous des modules sur la table : slogans, formes, illustrations, dates. Toute la salle a la même information, chaque binôme fait son affiche. La salle les testera ensuite.</p><p><button data-a="mission" style="text-decoration:underline;font-weight:700">Changer d'information</button></p>`;
     else if (e.t === 'photo') g = `<p class="sur">Atelier</p><h1>Vos affiches</h1><p><b>Photographiez l'affiche de votre binôme : elle apparaît ici.</b></p><div class="mur"></div>`;
-    else if (e.t === 'palmares') g = `<p class="sur">Atelier</p><h1>Le palmarès</h1><p><b>L'affiche qui transmet le mieux son information, d'après vos réponses.</b></p><div class="mur palm"></div>`;
+    else if (e.t === 'palmares') g = `<p class="sur">Atelier</p><h1>Le palmarès</h1><p><b>L'affiche qui transmet le mieux l'information, d'après vos notes.</b></p><div class="mur palm"></div>`;
     else {
       const cache = q.cinq && masque && !S.rev;
       g = `<p class="sur">${sur(e)}${q.vote ? ` · affiche ${q.k + 1} sur ${S.photos.length} · test ${S.k % 10 + 1} sur ${TESTS.length}` : ''}</p><h1>${h(q.q)}</h1>${cache ? "<p>L'affiche revient avec les réponses.</p>" : q.note ? `<p>${h(q.note)}</p>` : ''}<div class="accord">${S.rev && q.t !== 'texte' ? `<div class="trio">${tete(1)}${tete(2)}${tete(3)}</div>` : ''}<p class="cpt"></p></div><div class="res">${!S.rev ? '' : q.t === 'texte' ? '<div class="mots"></div>'
@@ -538,15 +553,15 @@ function ecran() {
       if (q.vote && S.photos[q.k] && !cache) d = `<div class="droite"><figure><img src="${S.photos[q.k].img}" alt="Affiche d'un binôme">${h(S.photos[q.k].mot)}</figure></div>`;
       if (q.cinq && !S.rev && !masque) { clearTimeout(tm); tm = setTimeout(() => { masque = true; dessiner(true); }, 5000); } // vue 5 secondes, puis cachée
       if (e.img && S.rev) d = `<div class="droite"><figure><img src="${e.img}" alt="Affiche du jeu"></figure></div>`;
-      if (vues.length) d = `<div class="droite${vues.length > 1 ? ' deux' : ''}${e.nb ? ' nb' : ''}">${vues.map(l => `<figure>${vues.length > 1 ? l : ''}<img src="${affiches[l]}" alt="Affiche ${l}"></figure>`).join('')}</div>`;
+      if (vues.length) d = `<div class="droite${vues.length > 1 ? ' deux' : ''}${e.nb ? ' nb' : ''}">${vues.map(v => `<figure>${v.l}<img src="${v.src}" alt="Affiche ${v.l}"></figure>`).join('')}</div>`;
     }
     const prete = q.id && !S.rev && Object.keys(S.rep[q.id] || {}).length;
     app.innerHTML = `<div class="ecran"><div class="barre"><span class="sur">${souci ? h(souci) : ''}</span><div class="gens"></div></div><div class="corps"><div class="gauche">${g}</div>${d}</div></div>
       <div class="cmd"><button data-a="avant">← Retour</button><button class="fort" data-a="suite">${e.t === 'flash' && !flash ? 'Montrer 5 secondes' : prete ? 'Révéler les réponses' : 'Suite →'}</button>
       <span>${S.i + 1} / ${ETAPES.length}</span>
-      <label>Affiche A${affiches.A ? ' ✓' : ''}<input type="file" accept="image/*" hidden data-f="A"></label><label>Affiche B${affiches.B ? ' ✓' : ''}<input type="file" accept="image/*" hidden data-f="B"></label>
-      <button data-a="auto">Suite automatique : ${S.auto === false ? 'non' : 'oui'}</button><span class="auto"></span>
-      <button data-a="csv">Exporter les réponses</button><button data-a="neuve">Nouvelle séance</button><button data-a="plein">Plein écran</button></div>`;
+      <label>Tester une autre affiche${affiches.A ? ' ✓' : ''}<input type="file" accept="image/*" hidden data-f="A"></label>
+      <button data-a="son">Son : ${S.son === false ? 'non' : 'oui'}</button><button data-a="auto">Suite automatique : ${S.auto === false ? 'non' : 'oui'}</button><span class="auto"></span>
+      <button data-a="csv">Exporter les réponses</button><button data-a="sheets">Copier pour Google Sheets</button><button data-a="neuve">Nouvelle séance</button><button data-a="plein">Plein écran</button></div>`;
     maj(); regards();
   }
 
@@ -564,11 +579,10 @@ function ecran() {
       salle.innerHTML = [...la].map(pid => `<span>${tete(COUL[S.gens[pid].n % COUL.length])}${h(S.gens[pid].nom || 'Participant ' + (S.gens[pid].n + 1))}</span>`).join('');
     }
     const mur = app.querySelector('.mur');
-    if (e.t === 'mission') app.querySelector('.cpt').textContent = `${Object.keys(S.missions).length} mission${Object.keys(S.missions).length > 1 ? 's' : ''} distribuée${Object.keys(S.missions).length > 1 ? 's' : ''}`;
-    if (mur && mur.classList.contains('palm')) { // classement : d'abord l'idée retrouvée, puis la moyenne des notes
+    if (mur && mur.classList.contains('palm')) { // classement sur la moyenne des cinq notes
       const fr = x => x.toFixed(1).replace('.', ',');
-      mur.innerHTML = S.photos.map((p, k) => ({ p, k, ...bilan(k) })).sort((a, b) => (b.idee ?? -1) - (a.idee ?? -1) || (b.note ?? 0) - (a.note ?? 0))
-        .map((x, i) => `<figure><img src="${x.p.img}" alt="Affiche d'un binôme"><b>${i + 1}. ${h(x.p.mot || 'Affiche ' + (x.k + 1))}</b><br>${x.p.mission != null ? h(MISSIONS[x.p.mission]) + '<br>' : ''}${x.idee != null ? `Idée retrouvée par ${x.idee} %` : ''}${x.note != null ? ` · note ${fr(x.note)} sur 5` : ''}</figure>`).join('');
+      mur.innerHTML = S.photos.map((p, k) => ({ p, k, ...bilan(k) })).sort((a, b) => (b.note ?? 0) - (a.note ?? 0))
+        .map((x, i) => `<figure><img src="${x.p.img}" alt="Affiche d'un binôme"><b>${i + 1}. ${h(x.p.mot || 'Affiche ' + (x.k + 1))}</b><br>${x.note != null ? `Note moyenne : ${fr(x.note)} sur 5` : ''}</figure>`).join('');
     }
     else if (mur) S.photos.slice(mur.children.length).forEach(p => mur.insertAdjacentHTML('beforeend', `<figure><img src="${p.img}" alt="Affiche d'un participant">${h(p.mot)}</figure>`));
     const sc = app.querySelector('.scores');
@@ -606,13 +620,14 @@ function ecran() {
     if (q.t === 'echelle' && vals.length) cpt.textContent += ` · moyenne ${(vals.reduce((a, v) => a + v + 1, 0) / vals.length).toFixed(1).replace('.', ',')} sur 5`;
   }
 
-  function exporter() {
-    const L = [['participant', 'prénom', 'étape', 'question', 'réponse']];
+  function exporter(versSheets) {
+    const L = [['participant', 'prénom', 'étape', 'question', 'réponse', 'note']];
     for (const [id, r] of Object.entries(S.rep)) for (const [pid, v] of Object.entries(r)) {
       const e = trouver(id), g = S.gens[pid] || {}; if (!e) continue;
-      L.push([g.n + 1, g.nom, e.p || (e.voteK != null ? 'atelier' : 'jeu'), e.voteK != null ? `Affiche ${e.voteK + 1} : ${e.q}` : e.q, e.o ? [].concat(v).map(x => e.o[x]).join(' | ') : v]);
+      L.push([g.n + 1, g.nom, e.p || (e.voteK != null ? 'atelier' : 'jeu'), e.voteK != null ? `Affiche ${e.voteK + 1} : ${e.q}` : e.q, e.o ? [].concat(v).map(x => e.o[x]).join(' | ') : v, e.t === 'echelle' ? v + 1 : '']);
     }
-    S.photos.forEach((p, k) => L.push([(S.gens[p.pid] || {}).n + 1, (S.gens[p.pid] || {}).nom, 'atelier', `Affiche ${k + 1} : mission`, (p.mission != null ? MISSIONS[p.mission] : '') + (p.mot ? ' (' + p.mot + ')' : '')]));
+    S.photos.forEach((p, k) => L.push([(S.gens[p.pid] || {}).n + 1, (S.gens[p.pid] || {}).nom, 'atelier', `Affiche ${k + 1}`, MISSIONS[S.mission] + (p.mot ? ' (' + p.mot + ')' : ''), '']));
+    if (versSheets) return navigator.clipboard.writeText(L.map(l => l.map(c => String(c ?? '').replace(/[\t\n]/g, ' ').replace(/^[=+@-]/, "'$&")).join('\t')).join('\n')).then(() => alert('Réponses copiées. Dans le Google Sheet, cliquez sur la case A1 de l\'onglet « Données » puis collez (Ctrl + V).'));
     const a = document.createElement('a');
     a.href = URL.createObjectURL(new Blob(['﻿' + L.map(l => l.map(c => '"' + String(c ?? '').replace(/^[=+@-]/, "'$&").replace(/"/g, '""') + '"').join(';')).join('\r\n')], { type: 'text/csv' }));
     a.download = 'points-de-vue-reponses.csv'; a.click();
@@ -625,6 +640,9 @@ function ecran() {
     if (act === 'suite') suivant();
     if (act === 'avant') aller(S.i - 1, -1);
     if (act === 'csv') exporter();
+    if (act === 'sheets') exporter(true);
+    if (act === 'mission') { mission = S.mission = (S.mission + 1) % MISSIONS.length; garder(); diffuser(); dessiner(true); }
+    if (act === 'son') { S.son = S.son === false; garder(); dessiner(true); SONS.entre(); }
     if (act === 'auto') { S.auto = S.auto === false; garder(); dessiner(true); }
     if (act === 'plein') document.documentElement.requestFullscreen();
     if (act === 'neuve' && confirm('Effacer les réponses et les photos de cette séance ? Exportez-les avant.')) { // une nouvelle séance = un nouveau code et un nouveau QR code ; les affiches A et B chargées sont gardées
