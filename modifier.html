@@ -91,6 +91,7 @@ dialog h3{margin:0 0 6px;font-size:24px;font-weight:800;letter-spacing:-.03em}
   <a href="./" aria-label="Accueil" title="Accueil"><svg viewBox="0 0 24 24" width="1.35em" height="1.35em" fill="currentColor" aria-hidden="true" style="vertical-align:-.3em"><path d="M12 3 2.5 11.2h2.7V21h5.3v-6h3v6h5.3v-9.8h2.7z"/></svg></a>
   <h1>Modifier le test</h1>
   <a class="btn clair" href="papier.html" target="_blank" rel="noopener">Version papier</a>
+  <button class="btn clair" id="apercu">Prévisualiser</button>
   <span id="etat">Chargement…</span>
   <button class="btn clair" id="annuler" disabled>Annuler mes modifications</button>
   <button class="btn" id="enregistrer" disabled>Enregistrer</button>
@@ -272,6 +273,8 @@ async function enregistrer() {
   catch (err) { $('etat').textContent = "Pas enregistré : " + err.message + '.'; $('enregistrer').disabled = false; if (/jeton/.test(err.message)) $('jeton').showModal(); }
 }
 $('enregistrer').addEventListener('click', enregistrer);
+// prévisualiser : le grand écran s'ouvre dans un autre onglet avec les écrans tels qu'ils sont ici, enregistrés ou non. Rien ne part en ligne.
+$('apercu').addEventListener('click', () => { try { localStorage.setItem('pdvApercu', ecrireSeance(M)); localStorage.removeItem('apercupdvSeance'); } catch (e) { } open('./?ecran&papier&apercu&salle=apercu', '_blank'); });
 $('annuler').addEventListener('click', () => { if (confirm('Revenir à la dernière version enregistrée ?')) { lireSeance(depart); charger(); } });
 $('jeton').addEventListener('click', ev => {
   const a = (ev.target.closest('[data-a]') || {}).dataset; if (!a) return;

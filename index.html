@@ -184,6 +184,7 @@ body.plein.p3 #app{color:#fff}
 // ---------- outils ----------
 const P = new URLSearchParams(location.search);
 const ECRAN = P.has('ecran');
+const APERCU = P.has('apercu'); // ouvert depuis « Modifier le test » : la séance vient de l'éditeur, pas du fichier en ligne
 const PAPIER = ECRAN && P.has('papier'); // séance sur papier : le grand écran montre les affiches et les questions, chacun répond sur sa fiche A3
 // chaque séance a son code à 4 chiffres : le grand écran le crée et l'affiche (QR code + chiffres), le téléphone le reçoit par le QR code ou le tape
 const nouveauCode = () => String(1000 + Math.random() * 9000 | 0);
@@ -563,7 +564,7 @@ function ecran() {
     }
     if (vues.length) d = `<div class="droite${vues.length > 1 ? ' deux' : ''}${e.nb ? ' nb' : ''}">${vues.map(v => `<figure>${v.l}<img src="${v.src}" alt="Affiche ${v.l}"></figure>`).join('')}</div>`; // aussi pour une page de texte qui a une image
     const prete = q.id && !S.rev && Object.keys(S.rep[q.id] || {}).length;
-    app.innerHTML = `<div class="ecran"><div class="barre"><span class="sur">${souci ? h(souci) : ''}</span><div class="gens"></div></div><div class="corps"><div class="gauche">${g}</div>${d}</div></div>
+    app.innerHTML = `<div class="ecran"><div class="barre"><span class="sur">${h(souci || (APERCU ? 'Aperçu de vos modifications · flèches du clavier pour avancer · sans enregistrement' : ''))}</span><div class="gens"></div></div><div class="corps"><div class="gauche">${g}</div>${d}</div></div>
       <div class="cmd"><button class="home" data-a="menu">Menu</button><div class="liste">
         <span>Écran ${S.i + 1} sur ${ETAPES.length}</span>
         <button data-a="suite">${e.t === 'flash' && !flash ? 'Montrer 5 secondes' : prete ? 'Révéler les réponses' : 'Suite →'}</button><button data-a="avant">← Retour</button>
@@ -647,7 +648,7 @@ function ecran() {
 
   const annoncer = () => fetch(SHEET, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ seance: { code: SALLE, n: enLigne().size, i: S.i + 1, total: ETAPES.length } }) }).catch(() => { });
   if (!PAPIER) { annoncer(); setInterval(annoncer, 30000); } // une séance sur papier n'attend aucun téléphone
-  declarerVersion();
+  if (!APERCU) declarerVersion();
 
   function exporter() {
     const L = [['participant', 'prénom', 'étape', 'question', 'réponse', 'note', 'version']];
@@ -697,7 +698,7 @@ function ecran() {
 const lib = src => new Promise((ok, ko) => { const x = document.createElement('script'); x.src = src; x.onload = ok; x.onerror = ko; document.head.appendChild(x); });
 const libs = Promise.all([(ECRAN || SALLE) && lib('libs/peerjs.min.js'), ECRAN && lib('libs/qrcode.min.js')]).catch(() => { });
 // le contenu d'abord (seance.txt, relu à chaque ouverture), puis l'appli
-fetch('seance.txt?' + Date.now()).then(x => x.ok ? x.text() : Promise.reject()).then(t => lireSeance(t) || Promise.reject())
+(APERCU ? new Promise(ok => ok(localStorage.getItem('pdvApercu') || '')) : fetch('seance.txt?' + Date.now()).then(x => x.ok ? x.text() : Promise.reject())).then(t => lireSeance(t) || Promise.reject())
   .catch(() => { document.getElementById('statut').textContent = 'Le fichier seance.txt est introuvable ou vide.'; })
   .then(() => libs).then(() => ECRAN ? ecran() : SALLE || P.get('passer') ? telephone() : P.has('passer') ? choixPasser() : accueilSite());
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => { }); // garde le site en mémoire pour les visites suivantes
