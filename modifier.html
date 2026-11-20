@@ -74,7 +74,8 @@ dialog h3{margin:0 0 6px;font-size:24px;font-weight:800;letter-spacing:-.03em}
 .galerie button{border-radius:12px;overflow:hidden;background:var(--fond);text-align:center;font-size:12px;font-weight:700;padding-bottom:6px}
 .galerie img{width:100%;aspect-ratio:1000/1414;object-fit:cover;display:block;margin-bottom:4px}
 .ligne{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-@media (max-width:820px){.corps{grid-template-columns:1fr;grid-template-rows:38vh minmax(0,1fr)}}
+.retour{display:none;margin-bottom:14px}
+@media (max-width:900px){.corps{display:block}#liste,#zone{height:100%}#zone{display:none;padding:14px 16px 60px}body.detail #liste{display:none}body.detail #zone{display:block}.retour{display:inline-flex}header{padding:10px 14px;gap:10px}header h1{font-size:20px;flex-basis:auto}#annuler{display:none}}
 </style>
 </head>
 <body>
@@ -163,7 +164,7 @@ function zone() {
   else f = `<p class="verrou">Cet écran n'a pas de réglage : son contenu est fabriqué par l'appli pendant la séance.</p>`;
   if (!fixe(sel)) f += `<label class="case"><input type="checkbox" data-k="masque" ${e.masque ? 'checked' : ''}>Masquer cet écran pendant la séance</label>`;
   else f += `<p class="verrou">Cet écran reste à sa place : la séance commence et finit toujours par lui.</p>`;
-  $('zone').innerHTML = `<div id="vue">${apercu(e)}</div><form onsubmit="return false"><h3>${h(TYPE(e))}</h3>${f}</form>`;
+  $('zone').innerHTML = `<button type="button" class="btn clair retour" data-a="retour">← Tous les écrans</button><div id="vue">${apercu(e)}</div><form onsubmit="return false"><h3>${h(TYPE(e))}</h3>${f}</form>`;
 }
 const rafraichir = () => { $('vue').innerHTML = apercu(M.ecrans[sel]); liste(); change(); };
 
@@ -183,6 +184,7 @@ $('zone').addEventListener('input', ev => {
 });
 $('zone').addEventListener('click', ev => {
   const b = ev.target.closest('[data-a]'); if (!b) return; const e = M.ecrans[sel], a = b.dataset.a;
+  if (a === 'retour') { document.body.classList.remove('detail'); const li = $('liste').children[sel]; if (li) li.scrollIntoView({ block: 'center' }); return; }
   if (a === 'plus') e.o.push('Nouvelle réponse');
   if (a === 'moins') { const i = +b.dataset.i; e.o.splice(i, 1); if (e.jeu) e.bon = e.bon === i ? 0 : e.bon > i ? e.bon - 1 : e.bon; }
   if (a === 'sansAffiche') e.imgs = [];
@@ -192,7 +194,7 @@ $('zone').addEventListener('click', ev => {
 $('liste').addEventListener('click', ev => {
   const li = ev.target.closest('li'); if (!li) return; const i = +li.dataset.i, m = ev.target.closest('[data-m]');
   if (m) return deplacer(i, i + +m.dataset.m);
-  sel = i; liste(); zone();
+  sel = i; liste(); zone(); document.body.classList.add('detail'); $('zone').scrollTop = 0; // sur écran étroit, les réglages prennent toute la place
 });
 // glisser-déposer pour changer l'ordre
 let tire = null;
