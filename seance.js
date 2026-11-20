@@ -136,9 +136,7 @@ function connexion(page) { // rend une promesse tenue une fois la personne conne
   });
 }
 
-// ---------- le rond du profil : toujours en haut à droite des pages de l'équipe, un rond à deux yeux comme ceux du logo ; il mène à la page Profil ----------
-// Pas sur les écrans de séance (téléphone des participants, grand écran projeté).
-if (typeof document !== 'undefined') document.addEventListener('DOMContentLoaded', () => {
-  const p = new URLSearchParams(location.search); if (p.has('salle') || p.has('ecran') || p.get('passer')) return;
-  document.body.insertAdjacentHTML('beforeend', `<a href="profil.html" aria-label="Mon profil" title="${QUI() ? 'Mon profil · ' + QUI().replace(/[<>"&]/g, '') : 'Mon profil'}" style="position:fixed;top:12px;right:14px;z-index:20;width:46px;height:46px;border-radius:50%;background:#F5A0C6;display:flex;align-items:center;justify-content:center;gap:5px;box-shadow:0 2px 10px rgba(20,20,20,.18)"><i style="width:7px;height:7px;border-radius:50%;background:#141414"></i><i style="width:7px;height:7px;border-radius:50%;background:#141414"></i></a>`);
-});
+// ---------- le rond du profil : un petit rond à deux yeux, comme ceux du logo, à côté de la maison et de la même taille ; il mène à la page Profil ----------
+// Sur l'accueil du site, qui n'a pas de maison, il est seul en haut à droite. Il n'est pas sur les écrans de séance (téléphone, grand écran).
+const rondProfil = (seul = '') => `<a href="profil.html" aria-label="Mon profil" title="Mon profil" style="display:inline-flex;align-items:center;justify-content:center;gap:.14em;width:1.35em;height:1.35em;border-radius:50%;background:#F5A0C6;vertical-align:-.3em;margin-left:.5em;flex:none;${seul}"><i style="width:.2em;height:.2em;border-radius:50%;background:#141414"></i><i style="width:.2em;height:.2em;border-radius:50%;background:#141414"></i></a>`;
+if (typeof document !== 'undefined') document.addEventListener('DOMContentLoaded', () => document.querySelectorAll('a[aria-label="Accueil"]').forEach(a => a.insertAdjacentHTML('afterend', rondProfil(a.querySelector('[width="1.6em"]') ? 'font-size:1.19em;vertical-align:.1em' : ''))));

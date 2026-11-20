@@ -301,7 +301,7 @@ addEventListener('resize', placer);
 const carte = (lien, c, titre, texte) => `<a href="${lien}" style="--c:var(--c${c});--t:var(--t${c})">${tete(c)}<b>${titre}</b><span>${texte}</span></a>`;
 function choixPasser() { // passer le test : au téléphone ou sur papier, et la photo des fiches remplies
   placer();
-  app.innerHTML = `<div class="site"><p class="sur"><a href="./" aria-label="Accueil" title="Accueil"><svg viewBox="0 0 24 24" width="1.35em" height="1.35em" fill="currentColor" aria-hidden="true" style="vertical-align:-.3em"><path d="M12 3 2.5 11.2h2.7V21h5.3v-6h3v6h5.3v-9.8h2.7z"/></svg></a> · Passer le test</p><h1>Téléphone ou papier ?</h1><nav class="trois">
+  app.innerHTML = `<div class="site"><p class="sur"><a href="./" aria-label="Accueil" title="Accueil"><svg viewBox="0 0 24 24" width="1.35em" height="1.35em" fill="currentColor" aria-hidden="true" style="vertical-align:-.3em"><path d="M12 3 2.5 11.2h2.7V21h5.3v-6h3v6h5.3v-9.8h2.7z"/></svg></a>${rondProfil()} · Passer le test</p><h1>Téléphone ou papier ?</h1><nav class="trois">
     ${carte('?passer=tel', 1, 'Au téléphone', "Chacun répond sur son téléphone. Les réponses s'enregistrent toutes seules.")}
     ${carte('?ecran&papier', 2, 'Sur papier', "Chacun répond sur une fiche A3. Le grand écran montre les affiches et les questions, sans téléphone.")}
     ${carte('papier.html?vue=lire', 3, 'Photographier les fiches', "Après une séance sur papier : une photo par fiche remplie, et les réponses rejoignent les données à étudier.")}
@@ -310,7 +310,7 @@ function choixPasser() { // passer le test : au téléphone ou sur papier, et la
 }
 function accueilSite() {
   placer();
-  app.innerHTML = `<div class="site"><p class="sur">Points de vue · faites tester vos affiches par des habitants</p><h1>Que voulez-vous faire ?</h1><nav class="trois">
+  app.innerHTML = `<div class="site"><p class="sur">Points de vue · faites tester vos affiches par des habitants</p>${rondProfil('position:fixed;top:16px;right:18px;font-size:20px;margin:0')}<h1>Que voulez-vous faire ?</h1><nav class="trois">
     ${carte('?passer', 1, 'Passer le test', "Au téléphone ou sur papier : rejoindre une séance, l'animer sur le grand écran, photographier les fiches remplies.")}
     ${carte('modifier.html', 2, 'Modifier le test', "Ajouter vos affiches, choisir les questions posées sur chacune, régler l'ordre des écrans.")}
     ${carte('resultats.html', 3, 'Étudier les données', 'Les réponses question par question, la comparaison des séances, le Google Sheet.')}
