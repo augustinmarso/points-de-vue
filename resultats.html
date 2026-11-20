@@ -178,6 +178,11 @@ function dessiner() {
     const bloc = (titre, texte, html) => html && G.push(`<section style="--c:#141414"><h2><i></i>${h(titre)}</h2><p>${h(texte)}</p>${html}</section>`);
     const rang = (nom, part, val, c) => `<div class="barre"><span>${h(nom)}</span><b>${h(val)}</b><div class="piste"><i style="width:${part * 100}%;background:${c}"></i></div></div>`;
     const rangs = L => L.length ? `<div class="rangs">${L.join('')}</div>` : '';
+    // le contrôle : par séance, la part des réponses attendues (participants × questions du test actuel) qui sont bien arrivées
+    const nQ = QUESTIONS().length || 1;
+    bloc('Contrôle des séances', "Pour vérifier que tout s'enregistre. Une ligne par séance : ses participants, le nombre de réponses reçues, et leur part sur ce qui était attendu (participants × questions du test actuel). Une séance passée avec un ancien test peut dépasser ou rester loin de 100 %.",
+      rangs(codes.filter(c => !seance || c === seance).map(c => { const n = D.seances[c], recu = D.repondants.filter(l => l[0] === c).reduce((x, l) => x + l[3], 0), part = recu / (n * nQ);
+        return rang(`Séance ${c} · ${n} participant${n > 1 ? 's' : ''}`, Math.min(1, part), `${recu} réponse${recu > 1 ? 's' : ''} · ${pc(part)}`, '#141414'); })));
     // une affiche = les questions qui la montrent, plus celles qui commencent par son nom
     const nomA = x => x.split('/').pop().replace(/\.[^.]+$/, ''), A = {}, court = (q, k) => q.startsWith(k + ' : ') ? q.slice(k.length + 3).replace(/^./, c => c.toUpperCase()) : q;
     const de = e => e.t === 'ab' ? '' : e.img || (e.imgs || [])[0] || ''; // l'affiche montrée avec la question
