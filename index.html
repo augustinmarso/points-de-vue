@@ -230,7 +230,9 @@ const SALLE = (code || '').replace(/[^a-z0-9]/gi, '').toLowerCase().slice(0, 12)
 const HOTE = 'pointsdevue-gtm-' + SALLE;
 const app = document.getElementById('app');
 const h = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])).replace(/ ([?!:;»])/g, '&nbsp;$1').replace(/« /g, '«&nbsp;');
-const tete = (c, extra = '') => `<span class="tete ${extra}" style="--c:var(--c${c})"><span class="yeux"><i></i><i></i></span></span>`;
+// les participants ont leurs propres couleurs, différentes des trois couleurs du logo
+const COUL = ['#F08A4B', '#57B894', '#9C8CF0', '#4CC3D9', '#EE6B5B', '#B7D25A', '#E7A0E8', '#F2B880', '#6ED0A6', '#C9A0DC', '#8FB8F7', '#E58FA0', '#A8C7A0', '#D9A066', '#7FD1C7'];
+const tete = (c, extra = '') => `<span class="tete ${extra}" style="--c:${typeof c === 'number' ? `var(--c${c})` : c}"><span class="yeux"><i></i><i></i></span></span>`;
 const lire = (k, d) => { try { return JSON.parse(localStorage.getItem(SALLE + k)) || d; } catch (e) { return d; } };
 const ecrire = (k, v) => { try { localStorage.setItem(SALLE + k, JSON.stringify(v)); } catch (e) { /* stockage plein : la séance continue en mémoire */ } };
 const sur = e => e.p ? `Étape ${e.p} · ${h(PHASES[e.p].nom)}` : e.jeu || e.img ? "Le jeu de l'œil" : 'Atelier';
@@ -534,13 +536,13 @@ function ecran() {
     const e = ETAPES[S.i], q = QH(e), la = enLigne(), rep = q.id ? S.rep[q.id] || {} : {};
     const gens = app.querySelector('.gens'); if (!gens) return;
     for (const pid of la) if (!gens.querySelector(`[data-p="${CSS.escape(pid)}"]`)) {
-      gens.insertAdjacentHTML('beforeend', tete(1 + S.gens[pid].n % 3)); gens.lastChild.dataset.p = pid;
+      gens.insertAdjacentHTML('beforeend', tete(COUL[S.gens[pid].n % COUL.length])); gens.lastChild.dataset.p = pid;
     }
     gens.querySelectorAll('[data-p]').forEach(t => { if (!la.has(t.dataset.p)) t.remove(); else { t.classList.toggle('ok', !q.id || t.dataset.p in rep); t.title = S.gens[t.dataset.p].nom; } });
     const salle = app.querySelector('.salle');
     if (salle) { // la salle d'attente : qui est bien connecté
       app.querySelector('.cpt').textContent = la.size ? `${la.size} personne${la.size > 1 ? 's' : ''} connectée${la.size > 1 ? 's' : ''}` : 'En attente des téléphones…';
-      salle.innerHTML = [...la].map(pid => `<span>${tete(1 + S.gens[pid].n % 3)}${h(S.gens[pid].nom || 'Participant ' + (S.gens[pid].n + 1))}</span>`).join('');
+      salle.innerHTML = [...la].map(pid => `<span>${tete(COUL[S.gens[pid].n % COUL.length])}${h(S.gens[pid].nom || 'Participant ' + (S.gens[pid].n + 1))}</span>`).join('');
     }
     const mur = app.querySelector('.mur');
     if (e.t === 'mission') app.querySelector('.cpt').textContent = `${Object.keys(S.missions).length} mission${Object.keys(S.missions).length > 1 ? 's' : ''} distribuée${Object.keys(S.missions).length > 1 ? 's' : ''}`;
@@ -554,7 +556,7 @@ function ecran() {
     if (sc) { // les réussites de chacun, du meilleur score au plus petit
       const J = JEUX(), L = Object.entries(S.gens).map(([pid, g]) => ({ g, ok: J.map(j => (S.rep[j.id] || {})[pid] === j.bon), a: J.some(j => pid in (S.rep[j.id] || {})) }))
         .filter(x => x.a).map(x => ({ ...x, n: x.ok.filter(Boolean).length })).sort((a, b) => b.n - a.n);
-      sc.innerHTML = L.map(x => `<div class="sc">${tete(1 + x.g.n % 3)}<span>${h(x.g.nom || 'Participant ' + (x.g.n + 1))}</span><span class="pts">${x.ok.map(o => `<i${o ? ' class="o"' : ''}></i>`).join('')}</span><b>${x.n} / ${J.length}</b></div>`).join('')
+      sc.innerHTML = L.map(x => `<div class="sc">${tete(COUL[x.g.n % COUL.length])}<span>${h(x.g.nom || 'Participant ' + (x.g.n + 1))}</span><span class="pts">${x.ok.map(o => `<i${o ? ' class="o"' : ''}></i>`).join('')}</span><b>${x.n} / ${J.length}</b></div>`).join('')
         + `<div class="sc bilan"><span>Par question, part de la salle qui a trouvé :</span><span>${J.map((j, i) => { const v = Object.values(S.rep[j.id] || {}); return `${i + 1}. ${v.length ? Math.round(v.filter(z => z === j.bon).length / v.length * 100) : 0} %`; }).join(' · ')}</span></div>`;
     }
     if (!q.id) return;
