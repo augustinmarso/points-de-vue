@@ -465,7 +465,12 @@ function ecran() {
       notes.forEach(n => [-6, 0, 6].forEach(d => { const o = ac.createOscillator(); o.type = d ? 'sine' : 'triangle'; o.frequency.value = n; o.detune.value = d; o.connect(f); o.start(t); o.stop(t + dur); }));
     } catch (e) { /* pas de son : la séance continue */ }
   };
-  const SONS = { entre: () => son([880, 1318.5], .01, .8, .05), suite: () => son([196, 293.7], .08, 1.2, .05), revele: () => son([146.8, 220, 293.7, 349.2, 440], .6, 3.6, .045), trouve: () => son([146.8, 220, 293.7, 370, 440, 587.3], .5, 3.6, .04) };
+  // chaque nappe est tirée au hasard : une note de départ grave, un accord ouvert parmi plusieurs, une durée qui varie
+  const nappe = (voix, vol) => {
+    const base = [130.8, 146.8, 164.8, 174.6, 196][Math.random() * 5 | 0], formes = [[0, 7, 12, 15, 19], [0, 7, 12, 16, 19], [0, 5, 12, 17, 19], [0, 7, 14, 19, 24], [0, 7, 10, 15, 19], [0, 12, 19, 24, 28]];
+    son(formes[Math.random() * formes.length | 0].slice(0, voix).map(d => base * 2 ** (d / 12)), .4 + Math.random() * .6, 3 + Math.random() * 1.6, vol);
+  };
+  const SONS = { suite: () => nappe(2, .04), revele: () => nappe(5, .045), trouve: () => nappe(5, .045) };
   const trouver = id => { const m = /^vote(\d{1,2})_(\d)$/.exec(id); return m ? TESTS[m[2]] && { ...TESTS[m[2]], voteK: +m[1] } : ETAPES.find(e => e.id && e.t !== 'vote' && e.id === id); };
   const QH = Q;
   const bilan = k => { // résultats d'une affiche de binôme : part de la salle qui a retrouvé l'idée, moyenne des notes
@@ -479,7 +484,7 @@ function ecran() {
     c.on('close', () => { conns.delete(c); maj(); });
     c.on('data', d => {
       if (!d || typeof d !== 'object') return;
-      if (d.k === 'salut') { if (!c.pid) SONS.entre(); c.pid = texte(d.pid, 20); S.gens[c.pid] = { nom: texte(d.nom, 24), n: S.gens[c.pid] ? S.gens[c.pid].n : Object.keys(S.gens).length }; }
+      if (d.k === 'salut') { c.pid = texte(d.pid, 20); S.gens[c.pid] = { nom: texte(d.nom, 24), n: S.gens[c.pid] ? S.gens[c.pid].n : Object.keys(S.gens).length }; }
       if (!c.pid) return;
       if (d.k === 'rep') {
         const e = trouver(d.id); if (!e) return;
@@ -643,7 +648,7 @@ function ecran() {
     if (act === 'csv') exporter();
     if (act === 'sheets') exporter(true);
     if (act === 'mission') { mission = S.mission = (S.mission + 1) % MISSIONS.length; garder(); diffuser(); dessiner(true); }
-    if (act === 'son') { S.son = S.son === false; garder(); dessiner(true); SONS.entre(); }
+    if (act === 'son') { S.son = S.son === false; garder(); dessiner(true); SONS.revele(); }
     if (act === 'auto') { S.auto = S.auto === false; garder(); dessiner(true); }
     if (act === 'plein') document.documentElement.requestFullscreen();
     if (act === 'neuve' && confirm('Effacer les réponses et les photos de cette séance ? Exportez-les avant.')) { // une nouvelle séance = un nouveau code et un nouveau QR code ; les affiches A et B chargées sont gardées
