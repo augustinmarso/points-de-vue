@@ -1,0 +1,537 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Points de vue · séance</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Scoutie+Sans:wght@200..800&display=swap">
+<style>
+:root{--n:#141414;--c1:#F5A0C6;--c2:#F7C33B;--c3:#1F6FE0;--t1:#FDE7F1;--t2:#FDF0CC;--t3:#DCE9FB;--c:var(--c1);--t:var(--t1)}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%}
+body{background:#fff;color:var(--n);font-family:'Scoutie Sans',Helvetica,Arial,sans-serif;font-size:20px;line-height:1.25;-webkit-tap-highlight-color:transparent}
+body.p1{--c:var(--c1);--t:var(--t1)} body.p2{--c:var(--c2);--t:var(--t2)} body.p3{--c:var(--c3);--t:var(--t3)}
+button,input,textarea{font:inherit;color:inherit}
+button{border:0;cursor:pointer;background:none;padding:0}
+h1{margin:0;font-weight:800;letter-spacing:-.05em;line-height:.9}
+p{margin:0}
+
+/* les têtes : un cercle, deux yeux qui bougent et clignent */
+.tete{width:1em;height:1em;border-radius:50%;background:var(--c);position:relative;flex:none;display:block}
+.yeux{position:absolute;left:50%;top:50%;display:flex;gap:.09em;transform:translate(calc(-50% + var(--rx,0em)),calc(-50% + var(--ry,0em))) rotate(var(--rot,0deg));transition:transform 2.6s cubic-bezier(.45,0,.25,1)}
+.yeux i{display:block;width:.075em;height:.075em;border-radius:50%;background:var(--n);animation:cligne 7s infinite}
+@keyframes cligne{0%,95%,100%{transform:scaleY(1)}97.5%{transform:scaleY(.1)}}
+@keyframes flotte{from{transform:translate(-1%,.6%) scale(1)}to{transform:translate(1%,-1%) scale(1.02)}}
+@keyframes pop{from{transform:scale(.6);opacity:0}to{transform:scale(1);opacity:1}}
+
+/* le fond : trois cercles qui se rentrent dedans */
+#fond{position:fixed;inset:0;overflow:hidden;background:#fff;z-index:0}
+.blob{position:absolute;left:50%;top:50%;font-size:40vmin;margin:-.5em;mix-blend-mode:multiply;transition:transform 1.8s cubic-bezier(.45,0,.2,1);will-change:transform}
+.blob .tete{animation:flotte 9s ease-in-out infinite alternate}
+.blob:nth-child(2) .tete{animation-duration:11s}.blob:nth-child(3) .tete{animation-duration:8s}
+.blob:nth-child(2) i{animation-duration:8.6s}.blob:nth-child(3) i{animation-duration:6.1s}
+#app{position:relative;z-index:1}
+.sur{font-weight:700}
+.btn{display:inline-block;background:var(--n);color:#fff;font-weight:800;border-radius:99px;padding:.8em 1.4em;text-align:center;cursor:pointer}
+
+/* téléphone */
+.tel{min-height:100vh;min-height:100dvh;padding:28px 22px 70px;display:flex;flex-direction:column;gap:20px;max-width:560px;margin:0 auto}
+.tel h1{font-size:54px}
+.tel h2{margin:0;font-size:31px;line-height:1.05;font-weight:800;letter-spacing:-.03em}
+.tel .haut{height:30vh}
+.opts{display:flex;flex-direction:column;gap:12px}
+.opt{background:var(--t);border-radius:28px;padding:18px 22px;font-size:22px;font-weight:700;text-align:left;display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:68px;transition:background .25s,transform .15s}
+.opt:active{transform:scale(.97)}
+.opt.on{background:var(--c)} body.p3 .opt.on{color:#fff}
+.opt .tete{font-size:34px;background:#fff;display:none}.opt.on .tete{display:block;animation:pop .4s}
+.champ{background:var(--t);border:0;border-radius:28px;padding:18px 22px;font-size:22px;width:100%;outline-offset:3px}
+textarea.champ{min-height:150px;resize:none}
+.echelle{display:flex;align-items:center;justify-content:space-between}
+.echelle button{border-radius:50%;background:var(--t);font-weight:800;font-size:22px;transition:background .25s}
+.echelle button.on{background:var(--c)}
+.bouts{display:flex;justify-content:space-between;font-size:17px}
+.ab{display:flex;justify-content:center;gap:14px}
+.ab button{width:42vw;max-width:230px;aspect-ratio:1;border-radius:50%;font-size:80px;font-weight:800;letter-spacing:-.05em;transition:transform .2s}
+.ab button:first-child{background:var(--c1)}.ab button:last-child{background:var(--c3);color:#fff}
+.ab button:active{transform:scale(1.08)}
+.note{font-size:.85em}
+.fait{display:flex;flex-direction:column;gap:18px;align-items:flex-start;margin-top:8vh}
+.fait .tete{font-size:120px;animation:pop .5s}
+.lien{font-weight:700;text-decoration:underline;font-size:18px}
+.etapes{display:flex;flex-direction:column;gap:16px}
+.etapes div{display:flex;gap:14px;align-items:center}
+.etapes svg{width:56px;flex:none}
+.etapes b{display:block;font-size:22px;letter-spacing:-.02em}
+#statut{position:fixed;left:0;right:0;bottom:0;padding:10px 22px;font-size:15px;background:#fff;z-index:2}
+#statut:empty{display:none}
+.apercu{width:100%;border-radius:28px;display:block}
+
+/* grand écran */
+.ecran{height:100vh;padding:5vh 4vw calc(3vh + 44px);position:relative;display:flex;flex-direction:column;overflow:hidden;font-size:clamp(18px,1.7vw,34px)}
+.ecran h1{font-size:clamp(34px,4.3vw,92px)}
+.barre{position:absolute;top:2.5vh;left:4vw;right:4vw;display:flex;justify-content:space-between;align-items:flex-start;gap:2vw;font-size:.7em}
+.gens{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:.5vw;max-width:45vw}
+.gens .tete{font-size:2vw;opacity:.35;animation:pop .5s;transition:opacity .3s,transform .3s}
+.gens .tete.ok{opacity:1;transform:translateY(-.5vw)}
+.corps{flex:1;display:flex;gap:3vw;min-height:0;margin-top:3vh}
+.gauche{flex:1;min-width:0;display:flex;flex-direction:column;gap:2.2vh}
+.gauche>h1{max-width:60vw}.gauche>p{max-width:26em}
+.droite{flex:none;display:flex;gap:1.5vw;align-items:center}
+.droite img,.flash img{max-height:100%;max-width:30vw;border-radius:1.5vw;display:block}
+.droite.deux img{max-width:21vw}
+.nb img{filter:grayscale(1)}
+.droite figure{margin:0;height:100%;display:flex;flex-direction:column;gap:.6vw;font-weight:800;justify-content:center}
+.cpt{font-weight:800;font-size:1.3em;letter-spacing:-.02em}
+.accord{display:flex;align-items:center;gap:1.5vw}
+.trio{position:relative;width:7.2vw;height:6.4vw;flex:none;isolation:isolate}
+.trio .tete{position:absolute;left:2.1vw;top:2vw;font-size:3vw;mix-blend-mode:multiply;transition:transform 2s cubic-bezier(.45,0,.2,1)}
+.trio .tete:nth-child(1){transform:translate(0,-2vw)}.trio .tete:nth-child(2){transform:translate(1.73vw,1vw)}.trio .tete:nth-child(3){transform:translate(-1.73vw,1vw)}
+.res{flex:1;min-height:0;display:flex;flex-direction:column;justify-content:flex-end}
+.cols{display:flex}
+.col{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;text-align:center;gap:.5vh;font-size:.8em;line-height:1.1;padding:0 .4vw}
+.col>span{overflow-wrap:anywhere;hyphens:auto}
+.col .rond{height:26vh;display:flex;align-items:flex-end;justify-content:center;width:100%}
+.liste{display:grid;grid-template-columns:1fr 1fr;gap:1vh 2.5vw}
+.liste .col{flex-direction:row;text-align:left;gap:1vw;font-size:1.05em;padding:0}
+.liste .rond{width:8vh;height:8vh;flex:none;align-items:center}
+.liste .col b{width:1.3em;flex:none;text-align:right}
+.col .tete{transition:font-size 1.4s cubic-bezier(.45,0,.2,1);font-size:2vh}
+.col b{font-size:1.9em;letter-spacing:-.04em}
+.col.bon>span{font-weight:800;background:var(--n);color:#fff;border-radius:99px;padding:.25em .8em}
+.mots{display:flex;flex-wrap:wrap;gap:.7vw;align-content:flex-start;overflow:hidden;flex:1}
+.mots span{background:var(--t);border-radius:1.4em;padding:.45em .9em;font-weight:700;animation:pop .45s}
+.mots span:nth-child(3n+1){background:var(--t1)}.mots span:nth-child(3n+2){background:var(--t2)}.mots span:nth-child(3n){background:var(--t3)}
+.scores{flex:1;min-height:0;display:grid;grid-template-columns:repeat(2,1fr);gap:1.4vh 4vw;align-content:start;margin-top:1vh}
+.sc{display:flex;align-items:center;gap:1vw;font-weight:700;min-width:0}
+.sc .tete{font-size:2.2vw}
+.sc>span:nth-child(2){flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pts{display:flex;gap:.35vw}
+.pts i,.pt{width:1vw;height:1vw;border-radius:50%;background:var(--t2);flex:none;display:block}
+.pts i.o,.pt.o{background:var(--n)}
+.pt{width:22px;height:22px}
+.sc.bilan{grid-column:1/-1;flex-direction:column;align-items:flex-start;gap:.3vh;font-weight:400;margin-top:1vh}
+.qr{display:flex;align-items:center;gap:1.6vw;margin-top:auto;font-weight:700}
+.qr svg{width:15vw;height:15vw;display:block;background:#fff}
+.flash{position:fixed;inset:0;z-index:5;background:#fff;display:flex;align-items:center;justify-content:center;gap:4vw;padding:3vh 4vh 60px}
+.flash img{max-width:70vw}
+.flash .tete{font-size:16vh;animation:fond5 5s linear forwards}
+@keyframes fond5{to{transform:scale(0)}}
+.mur{flex:1;display:grid;grid-template-columns:repeat(auto-fill,minmax(17vw,1fr));gap:1.5vw;align-content:start;overflow:auto}
+.mur figure{margin:0;animation:pop .6s;font-size:.7em;font-weight:700;cursor:zoom-in}
+.mur img{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:2vw;display:block}
+.mur figure.zoom{position:fixed;inset:0;z-index:6;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1vh;padding:3vh;cursor:zoom-out;font-size:1em;animation:none}
+.mur figure.zoom img{width:auto;max-width:100%;height:86vh;aspect-ratio:auto;object-fit:contain}
+.cmd{position:fixed;left:0;right:0;bottom:0;z-index:7;display:flex;align-items:center;white-space:nowrap;overflow:hidden;gap:16px;height:44px;padding:0 4vw;font-size:13px;font-weight:700;opacity:.45;transition:opacity .2s;background:#fff}
+.cmd:hover{opacity:1}
+.cmd button,.cmd label{cursor:pointer;text-decoration:underline}
+.cmd .fort{background:var(--n);color:#fff;border-radius:99px;padding:2px 14px;text-decoration:none}
+body.plein.p3 #app{color:#fff}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div id="fond">
+<div class="blob" style="--c:var(--c1)"><span class="tete"><span class="yeux"><i></i><i></i></span></span></div>
+<div class="blob" style="--c:var(--c2)"><span class="tete"><span class="yeux"><i></i><i></i></span></span></div>
+<div class="blob" style="--c:var(--c3)"><span class="tete"><span class="yeux"><i></i><i></i></span></span></div>
+</div>
+<main id="app"></main>
+<div id="statut"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.4/peerjs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script>
+// ---------- le contenu de la séance (à modifier ici) ----------
+const PHASES = {
+  1: { nom: 'Étude du message', quoi: "Ce qu'une affiche fait comprendre en quelques secondes." },
+  2: { nom: 'Analyse du visuel', quoi: "La lisibilité des lettres, des couleurs et de l'image." },
+  3: { nom: 'Enquête sur le format', quoi: 'Affiche ou flyer, et les lieux de diffusion.' }
+};
+const ech = (id, p, q, a, b, x) => ({ id, p, t: 'echelle', q, o: ['1', '2', '3', '4', '5'], a, b, ...x });
+const ab = (id, p, q, note) => ({ id, p, t: 'ab', q, note, o: ['A', 'B', 'Aucune différence'], voir: 2 });
+// voir: 1 = l'affiche A reste à l'écran, 2 = A et B côte à côte ; nb = passage en noir et blanc
+const ETAPES = [
+  { t: 'accueil' },
+  // le jeu de l'œil : deux vraies affiches santé de Granville Terre et Mer, 5 secondes, puis des questions précises (bon = la bonne réponse)
+  { t: 'info', s: "Pour commencer", h: "Le jeu de l'œil", x: "Une affiche apparaît 5 secondes. Ensuite, quelques questions très précises. Si peu de monde trouve, c'est l'affiche qui manque de clarté, pas vous." },
+  { t: 'flash', img: 'affiche-aidants.jpg' },
+  { id: 'jeu1', t: 'choix', jeu: 1, img: 'affiche-aidants.jpg', bon: 1, q: 'À quelle heure le rendez-vous commence-t-il ?', o: ['10 h', '14 h', '16 h', '20 h'] },
+  { id: 'jeu2', t: 'choix', jeu: 1, img: 'affiche-aidants.jpg', bon: 2, q: "Faut-il s'inscrire ?", o: ['Oui, par téléphone', 'Oui, par e-mail', 'Non', "Ce n'est pas écrit"] },
+  { id: 'jeu3', t: 'choix', jeu: 1, img: 'affiche-aidants.jpg', bon: 1, q: 'Où cela se passe-t-il ?', o: ['À la mairie', "À l'animathèque", 'À la médiathèque', "À l'hôpital"] },
+  { id: 'jeu4', t: 'choix', jeu: 1, img: 'affiche-aidants.jpg', bon: 2, q: 'Combien de dates sont proposées ?', o: ['2', '3', '4', '5'] },
+  { t: 'info', s: "Le jeu de l'œil", h: 'Deuxième affiche', x: 'Même principe : 5 secondes, puis des questions précises.' },
+  { t: 'flash', img: 'affiche-conferences.jpg' },
+  { id: 'jeu5', t: 'choix', jeu: 1, img: 'affiche-conferences.jpg', bon: 1, q: 'Quel jour de la semaine les conférences ont-elles lieu ?', o: ['Le lundi', 'Le mardi', 'Le jeudi', 'Le samedi'] },
+  { id: 'jeu6', t: 'choix', jeu: 1, img: 'affiche-conferences.jpg', bon: 0, q: 'Combien cela coûte-t-il ?', o: ["C'est gratuit", '5 euros', 'Sur adhésion', "Ce n'est pas écrit"] },
+  { id: 'jeu7', t: 'choix', jeu: 1, img: 'affiche-conferences.jpg', bon: 1, q: 'Ont-elles toutes lieu au même endroit ?', o: ['Oui, à Granville', 'Non, le lieu change', "Ce n'est pas écrit"] },
+  { id: 'jeu8', t: 'choix', jeu: 1, img: 'affiche-conferences.jpg', bon: 1, q: 'Lequel de ces thèmes est au programme ?', o: ['Le sommeil', 'La douleur', "L'alimentation", 'Le diabète'] },
+  { t: 'scores' }, // les réussites de chacun au jeu de l'œil
+  { t: 'phase', p: 1 },
+  { t: 'flash', p: 1 },
+  { id: 'retenu', p: 1, t: 'multi', q: 'Après 5 secondes, que vous reste-t-il en tête ?', o: ['Le titre', 'Une image', 'Une couleur', 'La date', 'Le lieu', 'Un logo', 'Le sujet de santé', 'Une impression générale', 'Presque rien'] },
+  { id: 'invite', p: 1, t: 'multi', q: 'À quoi cette affiche vous invite-t-elle ?', o: ['Participer à un atelier', 'Donner mon avis', "Assister à une réunion d'information", 'Faire un dépistage ou un bilan', 'Rencontrer des professionnels', "M'inscrire quelque part", 'Je ne vois pas'] },
+  { id: 'infos', p: 1, t: 'multi', q: "Sans la regarder de nouveau, quelles informations avez-vous repérées ?", o: ['La date', "L'heure", 'Le lieu', 'Le prix', 'Qui organise', "Comment s'inscrire", 'Aucune'] },
+  { id: 'pourqui', p: 1, t: 'multi', q: "À votre avis, à qui s'adresse-t-elle ?", o: ['À moi', 'Aux personnes âgées', 'Aux familles', 'Aux jeunes', 'Aux professionnels', 'Difficile à dire'], voir: 1 },
+  { id: 'quoifaire', p: 1, t: 'choix', q: 'Après l\'avoir vue, savez-vous quoi faire ?', o: ["Oui, c'est évident", 'À peu près', 'Non'], voir: 1 },
+  ech('degre', 1, 'À quel point vous sentez-vous invité par cette affiche ?', 'Pas du tout', 'Tout à fait', { voir: 1 }),
+  { id: 'frein', p: 1, t: 'multi', q: "Qu'est-ce qui pourrait vous retenir d'y aller ?", o: ["L'horaire", 'Le trajet', 'Y aller seul', 'Ne pas me sentir concerné', 'Ne pas savoir ce qui va se passer', 'La crainte de mal répondre', "Devoir m'inscrire", 'Rien'], voir: 1 },
+  { t: 'phase', p: 2 },
+  { id: 'premier', p: 2, t: 'choix', q: 'Où votre regard s\'est-il posé en premier ?', o: ['Le titre', "L'image", 'Les couleurs', 'La date et le lieu', 'Les logos', 'Ailleurs'], voir: 1 },
+  ech('circule', 2, 'Votre regard trouve-t-il son chemin entre les éléments ?', 'Il se perd', 'Tout s\'enchaîne', { voir: 1 }),
+  { id: 'mots', p: 2, t: 'multi', q: "Qu'est-ce qui gêne la lecture ?", o: ['Des mots trop techniques', 'Des phrases trop longues', 'Des sigles', 'Des lettres trop petites', 'Trop de texte', "Du texte posé sur l'image", 'Un manque de contraste', 'Rien, tout est clair'], voir: 1 },
+  { id: 'distance', p: 2, t: 'multi', q: 'À deux mètres, que lisez-vous encore ?', o: ['Le titre', 'La date', 'Le lieu', 'Le texte', 'Plus rien'], voir: 1 },
+  ab('typo', 2, 'Laquelle se lit le plus facilement ?', 'Deux polices de caractères.'),
+  ab('titre', 2, 'Sur laquelle le titre se détache-t-il le mieux ?', 'Deux tailles de titre.'),
+  ab('couleurs', 2, 'Laquelle vous donne envie de vous approcher ?', 'Les couleurs d\'origine, puis deux ou trois couleurs seulement.'),
+  ab('clair', 2, 'Laquelle est la plus claire ?', 'La mise en page d\'origine, puis une version allégée.'),
+  { id: 'nb', p: 2, t: 'choix', q: 'En noir et blanc, reste-t-elle lisible ?', o: ['Oui', 'Moins bien', 'Non'], voir: 1, nb: true },
+  { id: 'image', p: 2, t: 'multi', q: "Que vous évoque l'image ?", o: ['La convivialité', 'Le travail en groupe', 'Le sérieux', 'La santé', "L'école", 'La fête', 'Autre chose que le sujet', 'Rien de précis'], voir: 1 },
+  { id: 'emotion', p: 2, t: 'multi', q: 'Quelle impression vous laisse cette affiche ?', o: ['De la curiosité', 'De la confiance', "De l'envie", 'De la surprise', "De l'indifférence", 'De la confusion', "De l'agacement"], voir: 1 },
+  ech('coherent', 2, "L'image et les couleurs vont-elles avec le sujet ?", 'Pas du tout', 'Tout à fait', { voir: 1 }),
+  { t: 'phase', p: 3 },
+  { id: 'lieux', p: 3, t: 'multi', q: 'Où auriez-vous une chance de croiser cette information ?', o: ["Salle d'attente", 'Pharmacie', 'Mairie', 'Association', 'Commerce', 'Marché', 'Boîte aux lettres', 'Journal local', 'Réseaux sociaux'] },
+  { id: 'format', p: 3, t: 'choix', q: 'Sous quelle forme vous serait-elle la plus utile ?', o: ['Grande affiche (A3)', 'Affiche (A4)', 'Flyer à emporter (A5)', 'Message sur le téléphone', 'De vive voix'] },
+  { id: 'emporter', p: 3, t: 'choix', q: "L'emporteriez-vous avec vous ?", o: ['Oui', 'Je la prendrais en photo', 'Non'] },
+  { id: 'qr', p: 3, t: 'choix', q: 'Pour en savoir plus, utiliseriez-vous le QR code ?', o: ['Oui', 'Je préfère téléphoner', 'Je préfère demander à quelqu\'un', 'Non'] },
+  { id: 'affichage', p: 3, t: 'choix', q: 'Lisez-vous les affichages dans les lieux publics ?', o: ['Souvent', 'Parfois', 'Rarement'] },
+  { id: 'relais', p: 3, t: 'multi', q: 'En dehors de votre médecin, qui vous parle de santé ?', o: ['Mon pharmacien', 'Ma famille', 'Mes amis ou voisins', 'Une association', 'La mairie ou le CCAS', 'La télévision ou la radio', 'Le journal local', 'Internet', 'Personne'] },
+  { t: 'photo' },
+  // une fois par affiche photographiée : la salle teste les affiches des participants
+  { t: 'vote', id: 'vote', q: 'Que diriez-vous de cette affiche ?', o: ['Le sujet se comprend vite', 'Le titre se lit de loin', 'Les infos pratiques sont claires', 'Elle donne envie de venir', 'Les couleurs sont agréables', "L'image parle", 'Trop de texte', 'On ne sait pas quoi faire ensuite'] },
+  { t: 'fin' }
+];
+
+// ---------- outils ----------
+const P = new URLSearchParams(location.search);
+const ECRAN = P.has('ecran');
+const SALLE = (P.get('salle') || 'granville').replace(/[^a-z0-9]/gi, '').toLowerCase();
+const HOTE = 'pointsdevue-gtm-' + SALLE;
+const app = document.getElementById('app');
+const h = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])).replace(/ ([?!:;»])/g, '&nbsp;$1').replace(/« /g, '«&nbsp;');
+const tete = (c, extra = '') => `<span class="tete ${extra}" style="--c:var(--c${c})"><span class="yeux"><i></i><i></i></span></span>`;
+const lire = (k, d) => { try { return JSON.parse(localStorage.getItem(SALLE + k)) || d; } catch (e) { return d; } };
+const ecrire = (k, v) => { try { localStorage.setItem(SALLE + k, JSON.stringify(v)); } catch (e) { /* stockage plein : la séance continue en mémoire */ } };
+const sur = e => e.p ? `Étape ${e.p} · ${h(PHASES[e.p].nom)}` : e.jeu || e.img ? "Le jeu de l'œil" : 'Atelier';
+const JEUX = () => ETAPES.filter(e => e.bon != null);
+let sous = 0; // numéro de l'affiche testée pendant l'étape « vote »
+const genre = e => e.t === 'vote' ? 'multi' : e.t;
+const ident = e => e.id && e.id + (e.t === 'vote' ? sous : '');
+function reduire(file, max) {
+  return new Promise(ok => {
+    const img = new Image();
+    img.onload = () => {
+      const k = Math.min(1, max / Math.max(img.width, img.height)), c = document.createElement('canvas');
+      c.width = img.width * k; c.height = img.height * k;
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      URL.revokeObjectURL(img.src); ok(c.toDataURL('image/jpeg', .72));
+    };
+    img.src = URL.createObjectURL(file);
+  });
+}
+const CERCLES = ['<circle cx="44" cy="46" r="40" fill="#F5A0C6" style="mix-blend-mode:multiply"/>', '<circle cx="86" cy="38" r="28" fill="#F7C33B" style="mix-blend-mode:multiply"/>', '<circle cx="74" cy="78" r="22" fill="#1F6FE0" style="mix-blend-mode:multiply"/>'];
+const listeEtapes = () => `<div class="etapes">${[1, 2, 3].map(p => `<div><svg viewBox="0 0 120 112">${CERCLES.slice(0, p).join('')}</svg><span><b>${h(PHASES[p].nom)}</b>${h(PHASES[p].quoi)}</span></div>`).join('')}</div>`;
+
+// ---------- les cercles du fond ----------
+let courant = 0, coin = false;
+function placer() {
+  const W = innerWidth, H = innerHeight, D = Math.min(W, H) * .4, e = ETAPES[courant], n = courant;
+  const B = [...document.querySelectorAll('.blob')];
+  const set = (k, x, y, s) => B[k].style.transform = `translate(${x}px,${y}px) scale(${s})`;
+  B.forEach(b => delete b.dataset.fixe);
+  document.body.className = (e.p ? 'p' + e.p : '') + (e.t === 'phase' ? ' plein' : '');
+  if (e.t === 'accueil' || e.t === 'fin') { // les trois cercles forment le logo
+    const s = ECRAN ? 1.5 : .95, r = D * s / 2, x = ECRAN ? W * .2 : W * .1, y = ECRAN ? -H * .06 : -H * .34;
+    set(0, x, y, s); set(1, x + 1.05 * r, y - .2 * r, s * .7); set(2, x + .75 * r, y + .8 * r, s * .55); return;
+  }
+  const a = e.p ? e.p - 1 : n % 3, autres = [0, 1, 2].filter(k => k !== a);
+  if (e.t === 'phase') { // le cercle de l'étape zoome jusqu'à remplir l'écran
+    set(a, 0, 0, 1.5 * Math.hypot(W, H) / D); B[a].dataset.fixe = 1;
+    set(autres[0], W * .36, -H * .34, .55); set(autres[1], W * .43, -H * .16, .35); return;
+  }
+  const PR = ECRAN ? [[.36, .12, 1.9], [.4, -.3, 1.5], [.33, .34, 1.7], [.43, .02, 1.3]] : [[.42, .47, 1.4], [-.42, .47, 1.3], [.3, .5, 1.2], [-.3, .5, 1.5]];
+  const [fx, fy, s] = coin ? [.49, .44, .6] : PR[n % 4], x = fx * W, y = fy * H, r = D * s / 2;
+  set(a, x, y, s);
+  autres.forEach((k, j) => { // plus ou moins rentrés dans le grand cercle
+    const ang = n * 1.3 + j * 2.4, d = r * (.55 + ((n * 7 + j * 3) % 5) * .13);
+    set(k, x + Math.cos(ang) * d, y + Math.sin(ang) * d, s * (.3 + ((n + j) % 3) * .12));
+  });
+}
+let souris = null;
+function regards() {
+  document.querySelectorAll('.yeux').forEach(y => {
+    let rx, ry, rot = 0;
+    if (y.closest('[data-fixe]')) { rx = .2; ry = .1; }
+    else if (!souris && y.style.getPropertyValue('--rx') && Math.random() < .55) return; // chacun son rythme : pas tous en même temps
+    else if (souris) { // les yeux suivent la souris
+      const b = y.parentNode.getBoundingClientRect(), dx = souris[0] - b.left - b.width / 2, dy = souris[1] - b.top - b.height / 2, d = Math.hypot(dx, dy) || 1;
+      rx = dx / d * .2; ry = dy / d * .2;
+    } else { rx = Math.random() * .34 - .17; ry = Math.random() * .3 - .15; rot = Math.random() * 16 - 8; }
+    y.style.setProperty('--rx', rx + 'em'); y.style.setProperty('--ry', ry + 'em'); y.style.setProperty('--rot', rot + 'deg');
+  });
+}
+setInterval(regards, 3800);
+let finSouris;
+addEventListener('pointermove', e => { souris = [e.clientX, e.clientY]; clearTimeout(finSouris); finSouris = setTimeout(() => souris = null, 2500); });
+addEventListener('resize', placer);
+
+// ================= TÉLÉPHONE =================
+function telephone() {
+  let mes = lire('pdvMoi', null) || { pid: Math.random().toString(36).slice(2, 10), nom: '', sid: '', rep: {} };
+  let peer, lien = null, minuteur, cle = '', photo = null, connu = false;
+  const garder = () => ecrire('pdvMoi', mes);
+  const statut = () => document.getElementById('statut').textContent = lien ? '' : connu ? 'Connexion à la séance…' : "La séance n'a pas encore commencé. Cette page se mettra à jour toute seule.";
+
+  function brancher() {
+    clearTimeout(minuteur);
+    if (peer) peer.destroy();
+    const p = peer = new Peer();
+    const perdu = () => { if (p !== peer) return; lien = null; statut(); clearTimeout(minuteur); minuteur = setTimeout(brancher, 3000); };
+    p.on('open', () => {
+      const c = p.connect(HOTE, { reliable: true });
+      let premier = true;
+      c.on('open', () => { if (p !== peer) return; lien = c; c.send({ k: 'salut', pid: mes.pid, nom: mes.nom }); statut(); });
+      c.on('data', d => {
+        if (d.k === 'etat') {
+          connu = true;
+          if (d.sid !== mes.sid) { mes.sid = d.sid; mes.rep = {}; garder(); }
+          else if (premier) for (const id in mes.rep) c.send({ k: 'rep', id, v: mes.rep[id] }); // réponses données hors connexion
+          premier = false; courant = d.i; sous = d.n || 0; dessiner();
+        }
+        if (d.k === 'photo-ok' && photo) { photo.etat = 'ok'; dessiner(true); }
+      });
+      c.on('close', perdu); c.on('error', perdu);
+    });
+    p.on('error', perdu); p.on('disconnected', perdu);
+  }
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !lien) brancher(); });
+
+  function repondre(id, v) { mes.rep[id] = v; garder(); if (lien) lien.send({ k: 'rep', id, v }); dessiner(); }
+
+  function dessiner(force) {
+    const e = ETAPES[courant], t = genre(e), id = ident(e), v = id ? mes.rep[id] : null;
+    const k = courant + '|' + sous + '|' + JSON.stringify(v ?? null);
+    if (k === cle && !force) return;
+    cle = k; placer(); scrollTo(0, 0);
+    let x = '';
+    if (e.t === 'accueil') x = `<div class="haut"></div><h1>Bienvenue !</h1>
+      <p><b>Vous participez à une recherche pour converger vers l'affiche la plus intéressante.</b></p>
+      <p>Trois activités vous attendent. Les questions arrivent ici, les réponses de la salle s'affichent sur le grand écran.</p>
+      ${listeEtapes()}
+      <input class="champ" id="nom" maxlength="24" placeholder="Votre prénom (facultatif)" value="${h(mes.nom)}" autocomplete="given-name">
+      <p class="note">Il n'y a pas de bonne ou de mauvaise réponse : c'est l'affiche que l'on teste.</p>`;
+    else if (e.t === 'phase') x = `<div class="haut"></div><p class="sur">Étape ${e.p}</p><h1>${h(PHASES[e.p].nom)}</h1><p><b>${h(PHASES[e.p].quoi)}</b></p>`;
+    else if (e.t === 'info') x = `<div class="haut"></div><p class="sur">${h(e.s)}</p><h1>${h(e.h)}</h1><p><b>${h(e.x)}</b></p>`;
+    else if (e.t === 'scores') {
+      const J = JEUX(), ok = J.map(j => mes.rep[j.id] === j.bon);
+      x = `<p class="sur">Le jeu de l'œil · vos réussites</p><h1>${ok.filter(Boolean).length} sur ${J.length}</h1>
+        <div class="etapes">${J.map((j, i) => `<div><span class="pt${ok[i] ? ' o' : ''}"></span><span>${h(j.q)}<br><b>${h(j.o[j.bon])}</b></span></div>`).join('')}</div>
+        <p class="note">Ce qui n'a pas été trouvé, c'est ce que l'affiche montre mal.</p>`;
+    }
+    else if (e.t === 'flash') x = `<div class="haut"></div><h1>Levez les yeux</h1><p><b>L'affiche va apparaître 5 secondes sur le grand écran. Regardez-la comme si vous la croisiez dans la rue.</b></p>`;
+    else if (e.t === 'fin') x = `<div class="haut"></div><h1>Merci !</h1><p><b>Vos observations vont servir à retravailler l'affiche.</b></p><p>Nous vous montrerons ce qu'elles ont changé.</p>`;
+    else if (e.t === 'photo') {
+      x = `<p class="sur">Atelier</p><h2>Photographiez l'affiche que vous avez retravaillée.</h2>`;
+      if (!photo) x += `<p>Elle s'affichera sur le grand écran.</p><label class="btn">Prendre une photo<input type="file" accept="image/*" capture="environment" hidden id="prise"></label>`;
+      else if (photo.etat === 'ok') x += `<div class="fait">${tete(1 + courant % 3)}<p><b>Votre photo est sur le grand écran.</b></p><button class="lien" data-a="autre">Envoyer une autre photo</button></div>`;
+      else x += `<img class="apercu" src="${photo.img}" alt="Votre photo"><input class="champ" id="mot" maxlength="80" placeholder="Ce que vous avez changé (facultatif)">
+        <button class="btn" data-a="photo">${photo.etat === 'envoi' ? 'Envoi…' : 'Envoyer sur le grand écran'}</button><button class="lien" data-a="autre">Reprendre la photo</button>`;
+    }
+    else if (v != null) x = `<p class="sur">${sur(e)}</p><div class="fait">${tete(e.p || 1 + sous % 3)}<h2>C'est noté.</h2><p>Les réponses de la salle arrivent sur le grand écran.</p><button class="lien" data-a="modifier">Modifier ma réponse</button></div>`;
+    else {
+      x = `<p class="sur">${sur(e)}</p><h2>${h(e.q)}</h2>${e.t === 'vote' ? `<p class="note">Affiche ${sous + 1}, sur le grand écran.</p>` : e.note ? `<p class="note">${h(e.note)}</p>` : ''}`;
+      if (t === 'texte') x += `<textarea class="champ" id="txt" maxlength="200" placeholder="Votre réponse"></textarea><button class="btn" data-a="texte">Valider</button>`;
+      if (t === 'choix' || t === 'multi') x += `<div class="opts">${e.o.map((o, i) => `<button class="opt" data-o="${i}">${h(o)}${tete(e.p || 1)}</button>`).join('')}</div>`;
+      if (t === 'multi') x += `<p class="note">Plusieurs réponses possibles.</p><button class="btn" data-a="multi">Valider</button>`;
+      if (t === 'echelle') x += `<div class="echelle">${e.o.map((o, i) => `<button data-o="${i}" style="width:${36 + i * 11}px;height:${36 + i * 11}px">${o}</button>`).join('')}</div><div class="bouts"><span>${h(e.a)}</span><span>${h(e.b)}</span></div>`;
+      if (t === 'ab') x += `<p class="note">Regardez les deux affiches A et B.</p><div class="ab"><button data-o="0">A</button><button data-o="1">B</button></div><div class="opts"><button class="opt" data-o="2">${h(e.o[2])}${tete(e.p)}</button></div>`;
+    }
+    app.innerHTML = `<div class="tel">${x}</div>`;
+    regards();
+  }
+
+  app.addEventListener('click', ev => {
+    const e = ETAPES[courant], id = ident(e), o = ev.target.closest('[data-o]'), a = ev.target.closest('[data-a]');
+    if (o && genre(e) === 'multi') return o.classList.toggle('on');
+    if (o) { o.classList.add('on'); return setTimeout(() => repondre(id, +o.dataset.o), 350); }
+    if (!a) return;
+    const act = a.dataset.a;
+    if (act === 'multi') { const v = [...app.querySelectorAll('.opt.on')].map(b => +b.dataset.o); if (v.length) repondre(id, v); }
+    if (act === 'texte') { const v = document.getElementById('txt').value.trim(); if (v) repondre(id, v); }
+    if (act === 'modifier') { delete mes.rep[id]; garder(); dessiner(); }
+    if (act === 'autre') { photo = null; dessiner(true); }
+    if (act === 'photo') {
+      if (!lien) return statut();
+      photo.etat = 'envoi'; a.textContent = 'Envoi…';
+      lien.send({ k: 'photo', img: photo.img, mot: document.getElementById('mot').value });
+    }
+  });
+  app.addEventListener('change', async ev => {
+    if (ev.target.id === 'nom') { mes.nom = ev.target.value.trim(); garder(); if (lien) lien.send({ k: 'salut', pid: mes.pid, nom: mes.nom }); }
+    if (ev.target.id === 'prise' && ev.target.files[0]) { photo = { img: await reduire(ev.target.files[0], 1100), etat: 'pret' }; dessiner(true); }
+  });
+  dessiner(); statut(); brancher();
+}
+
+// ================= GRAND ÉCRAN =================
+function ecran() {
+  const neuve = () => ({ sid: Math.random().toString(36).slice(2, 8), i: 0, k: 0, rev: false, gens: {}, rep: {}, photos: [] });
+  let S = lire('pdvSeance', null) || neuve();
+  S.photos = lire('pdvPhotos', []); sous = S.k = S.k || 0;
+  let affiches = lire('pdvAffiches', {}), conns = new Set(), cle = '', flash = false, souci = '';
+  const garder = () => { const { photos, ...reste } = S; ecrire('pdvSeance', reste); ecrire('pdvPhotos', photos); };
+  const diffuser = () => conns.forEach(c => c.open && c.send({ k: 'etat', sid: S.sid, i: S.i, n: S.k }));
+  const enLigne = () => new Set([...conns].filter(c => c.open && c.pid).map(c => c.pid));
+  const texte = (s, n) => String(s ?? '').trim().slice(0, n);
+  const trouver = id => ETAPES.find(e => e.id && (e.id === id || e.t === 'vote' && /^vote\d{1,3}$/.test(id)));
+
+  const peer = new Peer(HOTE);
+  peer.on('connection', c => {
+    c.on('open', () => { conns.add(c); c.send({ k: 'etat', sid: S.sid, i: S.i, n: S.k }); });
+    c.on('close', () => { conns.delete(c); maj(); });
+    c.on('data', d => {
+      if (!d || typeof d !== 'object') return;
+      if (d.k === 'salut') { c.pid = texte(d.pid, 20); S.gens[c.pid] = { nom: texte(d.nom, 24), n: S.gens[c.pid] ? S.gens[c.pid].n : Object.keys(S.gens).length }; }
+      if (!c.pid) return;
+      if (d.k === 'rep') {
+        const e = trouver(d.id); if (!e) return;
+        const bon = x => Number.isInteger(x) && x >= 0 && x < e.o.length, t = genre(e);
+        const v = t === 'texte' ? texte(d.v, 200) : t === 'multi' ? (Array.isArray(d.v) ? d.v.filter(bon) : []) : bon(d.v) ? d.v : null;
+        if (v == null || v.length === 0) return;
+        (S.rep[d.id] = S.rep[d.id] || {})[c.pid] = v;
+      }
+      if (d.k === 'photo' && typeof d.img === 'string' && d.img.startsWith('data:image/jpeg;base64,') && d.img.length < 900000) {
+        S.photos.push({ img: d.img, mot: texte(d.mot, 80), pid: c.pid }); c.send({ k: 'photo-ok' });
+      }
+      garder(); maj();
+    });
+  });
+  peer.on('disconnected', () => peer.reconnect());
+  peer.on('error', e => { souci = e.type === 'unavailable-id' ? 'Le grand écran est déjà ouvert dans une autre fenêtre.' : e.type === 'network' || e.type === 'server-error' ? 'Pas de connexion internet.' : souci; dessiner(true); });
+
+  function aller(i, sens = 1) {
+    if (ETAPES[i] && ETAPES[i].t === 'vote' && !S.photos.length) i += sens; // pas de photo : rien à tester
+    S.i = Math.max(0, Math.min(ETAPES.length - 1, i)); sous = S.k = 0; S.rev = false; flash = false; garder(); diffuser(); dessiner();
+  }
+  function suivant() {
+    const e = ETAPES[S.i], id = ident(e);
+    if (e.t === 'flash' && !flash) return montrer();
+    if (id && !S.rev && Object.keys(S.rep[id] || {}).length) { S.rev = true; garder(); return dessiner(); }
+    if (e.t === 'vote' && S.k < S.photos.length - 1) { sous = ++S.k; S.rev = false; garder(); diffuser(); return dessiner(); } // affiche suivante
+    aller(S.i + 1);
+  }
+  function montrer() { flash = true; dessiner(true); setTimeout(() => { if (flash && ETAPES[S.i].t === 'flash') aller(S.i + 1); }, 5000); }
+
+  function dessiner(force) {
+    const e = ETAPES[S.i], k = S.i + '|' + S.k + '|' + S.rev;
+    if (k === cle && !force) return maj();
+    cle = k; courant = S.i;
+    const vues = e.voir === 2 ? ['A', 'B'].filter(l => affiches[l]) : e.voir && affiches.A ? ['A'] : [];
+    coin = S.rev || vues.length > 0 || e.t === 'scores' || e.t === 'photo' || e.t === 'flash' || e.t === 'vote';
+    placer();
+    const url = location.origin + location.pathname + (SALLE !== 'granville' ? '?salle=' + SALLE : '');
+    let g = '', d = '';
+    if (e.t === 'accueil') {
+      const q = qrcode(0, 'M'); q.addData(url); q.make();
+      g = `<p class="sur">Points de vue · habitants testeurs</p><h1>Bienvenue !</h1><p><b>Vous participez à une recherche pour converger vers l'affiche la plus intéressante.</b></p>
+        <div class="qr">${q.createSvgTag({ scalable: true, margin: 0 })}<span>Pour répondre depuis votre téléphone,<br>photographiez ce code.<br>Sans téléphone, les fiches papier sont là.</span></div>`;
+    }
+    else if (e.t === 'phase') g = `<p class="sur">Étape ${e.p} sur 3</p><h1>${h(PHASES[e.p].nom)}</h1><p><b>${h(PHASES[e.p].quoi)}</b></p>`;
+    else if (e.t === 'info') g = `<p class="sur">${h(e.s)}</p><h1>${h(e.h)}</h1><p><b>${h(e.x)}</b></p>`;
+    else if (e.t === 'scores') g = `<p class="sur">Le jeu de l'œil</p><h1>Les réussites</h1><p><b>Un point noir par question trouvée, dans l'ordre des questions.</b></p><div class="scores"></div>`;
+    else if (e.t === 'flash') g = flash
+      ? `<div class="flash">${e.img || affiches.A ? `<img src="${e.img || affiches.A}" alt="Affiche testée">` : '<h1>Regardez l\'affiche</h1>'}${tete(1)}</div>`
+      : `<p class="sur">${sur(e)}</p><h1>Le test des 5 secondes</h1><p><b>L'affiche va apparaître 5 secondes. Regardez-la comme si vous la croisiez dans la rue.</b></p>`;
+    else if (e.t === 'fin') g = `<h1>Merci !</h1><p><b>Vos observations vont servir à retravailler l'affiche.</b></p><p>Nous vous montrerons ce qu'elles ont changé.</p>`;
+    else if (e.t === 'photo') g = `<p class="sur">Atelier</p><h1>Vos affiches</h1><p><b>Photographiez votre affiche avec votre téléphone : elle apparaît ici.</b></p><div class="mur"></div>`;
+    else {
+      g = `<p class="sur">${sur(e)}${e.t === 'vote' ? ` · affiche ${S.k + 1} sur ${S.photos.length}` : ''}</p><h1>${h(e.q)}</h1>${e.note ? `<p>${h(e.note)}</p>` : ''}<div class="accord">${S.rev && e.t !== 'texte' ? `<div class="trio">${tete(1)}${tete(2)}${tete(3)}</div>` : ''}<p class="cpt"></p></div><div class="res">${!S.rev ? '' : e.t === 'texte' ? '<div class="mots"></div>'
+        : `<div class="cols${e.o.length > 5 ? ' liste' : ''}">${e.o.map((o, i) => `<div class="col"><div class="rond">${tete(1 + i % 3)}</div><b>0</b><span>${h(o)}${e.t === 'echelle' && (i === 0 || i === 4) ? '<br>' + h(i ? e.b : e.a) : ''}</span></div>`).join('')}</div>`}</div>`;
+      if (e.t === 'vote' && S.photos[S.k]) d = `<div class="droite"><figure><img src="${S.photos[S.k].img}" alt="Affiche d'un participant">${h(S.photos[S.k].mot)}</figure></div>`;
+      if (e.img && S.rev) d = `<div class="droite"><figure><img src="${e.img}" alt="Affiche du jeu"></figure></div>`;
+      if (vues.length) d = `<div class="droite${vues.length > 1 ? ' deux' : ''}${e.nb ? ' nb' : ''}">${vues.map(l => `<figure>${vues.length > 1 ? l : ''}<img src="${affiches[l]}" alt="Affiche ${l}"></figure>`).join('')}</div>`;
+    }
+    const prete = e.id && !S.rev && Object.keys(S.rep[ident(e)] || {}).length;
+    app.innerHTML = `<div class="ecran"><div class="barre"><span class="sur">${souci ? h(souci) : ''}</span><div class="gens"></div></div><div class="corps"><div class="gauche">${g}</div>${d}</div></div>
+      <div class="cmd"><button data-a="avant">← Retour</button><button class="fort" data-a="suite">${e.t === 'flash' && !flash ? 'Montrer 5 secondes' : prete ? 'Révéler les réponses' : 'Suite →'}</button>
+      <span>${S.i + 1} / ${ETAPES.length}</span>
+      <label>Affiche A${affiches.A ? ' ✓' : ''}<input type="file" accept="image/*" hidden data-f="A"></label><label>Affiche B${affiches.B ? ' ✓' : ''}<input type="file" accept="image/*" hidden data-f="B"></label>
+      <button data-a="csv">Exporter les réponses</button><button data-a="neuve">Nouvelle séance</button><button data-a="plein">Plein écran</button></div>`;
+    maj(); regards();
+  }
+
+  // met à jour les chiffres sans tout redessiner, pour que les cercles grossissent en douceur
+  function maj() {
+    const e = ETAPES[S.i], la = enLigne(), rep = e.id ? S.rep[ident(e)] || {} : {};
+    const gens = app.querySelector('.gens'); if (!gens) return;
+    for (const pid of la) if (!gens.querySelector(`[data-p="${CSS.escape(pid)}"]`)) {
+      gens.insertAdjacentHTML('beforeend', tete(1 + S.gens[pid].n % 3)); gens.lastChild.dataset.p = pid;
+    }
+    gens.querySelectorAll('[data-p]').forEach(t => { if (!la.has(t.dataset.p)) t.remove(); else { t.classList.toggle('ok', !e.id || t.dataset.p in rep); t.title = S.gens[t.dataset.p].nom; } });
+    const mur = app.querySelector('.mur');
+    if (mur) S.photos.slice(mur.children.length).forEach(p => mur.insertAdjacentHTML('beforeend', `<figure><img src="${p.img}" alt="Affiche d'un participant">${h(p.mot)}</figure>`));
+    const sc = app.querySelector('.scores');
+    if (sc) { // les réussites de chacun, du meilleur score au plus petit
+      const J = JEUX(), L = Object.entries(S.gens).map(([pid, g]) => ({ g, ok: J.map(j => (S.rep[j.id] || {})[pid] === j.bon), a: J.some(j => pid in (S.rep[j.id] || {})) }))
+        .filter(x => x.a).map(x => ({ ...x, n: x.ok.filter(Boolean).length })).sort((a, b) => b.n - a.n);
+      sc.innerHTML = L.map(x => `<div class="sc">${tete(1 + x.g.n % 3)}<span>${h(x.g.nom || 'Participant ' + (x.g.n + 1))}</span><span class="pts">${x.ok.map(o => `<i${o ? ' class="o"' : ''}></i>`).join('')}</span><b>${x.n} / ${J.length}</b></div>`).join('')
+        + `<div class="sc bilan"><span>Par question, part de la salle qui a trouvé :</span><span>${J.map((j, i) => { const v = Object.values(S.rep[j.id] || {}); return `${i + 1}. ${v.length ? Math.round(v.filter(z => z === j.bon).length / v.length * 100) : 0} %`; }).join(' · ')}</span></div>`;
+    }
+    if (!e.id) return;
+    const vals = Object.values(rep), cpt = app.querySelector('.cpt');
+    cpt.textContent = `${vals.length} réponse${vals.length > 1 ? 's' : ''} sur ${Math.max(la.size, vals.length)} participant${Math.max(la.size, vals.length) > 1 ? 's' : ''}`;
+    if (!S.rev) return;
+    if (e.t === 'texte') { const m = app.querySelector('.mots'); vals.slice(m.children.length).forEach(v => m.insertAdjacentHTML('beforeend', `<span>${h(v)}</span>`)); return; }
+    const n = e.o.map(() => 0); vals.forEach(v => [].concat(v).forEach(x => n[x]++));
+    const max = Math.max(1, ...n), cols = app.querySelectorAll('.col'), rond = cols[0].querySelector('.rond'), base = Math.min(rond.clientWidth, rond.clientHeight) * .9; // jamais superposés
+    requestAnimationFrame(() => cols.forEach((c, i) => {
+      c.querySelector('.tete').style.fontSize = base * (.16 + .84 * Math.sqrt(n[i] / max)) + 'px';
+      c.querySelector('.tete').style.opacity = n[i] ? 1 : .35; c.querySelector('b').textContent = n[i];
+    }));
+    if (e.bon != null) { cols.forEach((c, i) => c.classList.toggle('bon', i === e.bon)); cpt.textContent = `${n[e.bon]} sur ${vals.length} ${n[e.bon] > 1 ? 'ont' : 'a'} trouvé`; }
+    // l'accord de la salle : plus les réponses se rejoignent, plus les trois personnages du logo se superposent
+    const top = n.indexOf(Math.max(...n)), acc = vals.length ? n[e.bon ?? top] / vals.length : 0;
+    requestAnimationFrame(() => app.querySelectorAll('.trio .tete').forEach((t, k) => {
+      const ang = (-90 + 120 * k) * Math.PI / 180, d = (1 - acc) * 3;
+      t.style.transform = `translate(${Math.cos(ang) * d}vw,${Math.sin(ang) * d}vw)`;
+    }));
+    if (e.bon == null && vals.length) cpt.textContent += ` · ${Math.round(acc * 100)} % d'accord : ${e.o[top]}`;
+    if (e.t === 'echelle' && vals.length) cpt.textContent += ` · moyenne ${(vals.reduce((a, v) => a + v + 1, 0) / vals.length).toFixed(1).replace('.', ',')} sur 5`;
+  }
+
+  function exporter() {
+    const L = [['participant', 'prénom', 'étape', 'question', 'réponse']];
+    for (const [id, r] of Object.entries(S.rep)) for (const [pid, v] of Object.entries(r)) {
+      const e = trouver(id), g = S.gens[pid] || {}; if (!e) continue;
+      L.push([g.n + 1, g.nom, e.p || 'atelier', e.t === 'vote' ? `Affiche ${+id.slice(4) + 1} : ${e.q}` : e.q, e.o ? [].concat(v).map(x => e.o[x]).join(' | ') : v]);
+    }
+    S.photos.forEach(p => L.push([(S.gens[p.pid] || {}).n + 1, (S.gens[p.pid] || {}).nom, 'atelier', 'photo', p.mot]));
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob(['﻿' + L.map(l => l.map(c => '"' + String(c ?? '').replace(/"/g, '""') + '"').join(';')).join('\r\n')], { type: 'text/csv' }));
+    a.download = 'points-de-vue-reponses.csv'; a.click();
+  }
+
+  document.addEventListener('click', ev => {
+    const fig = ev.target.closest('.mur figure'); if (fig) return fig.classList.toggle('zoom');
+    const a = ev.target.closest('[data-a]'); if (!a) return;
+    const act = a.dataset.a;
+    if (act === 'suite') suivant();
+    if (act === 'avant') aller(S.i - 1, -1);
+    if (act === 'csv') exporter();
+    if (act === 'plein') document.documentElement.requestFullscreen();
+    if (act === 'neuve' && confirm('Effacer les réponses et les photos de cette séance ? Exportez-les avant.')) { S = neuve(); sous = 0; garder(); cle = ''; diffuser(); dessiner(); }
+  });
+  document.addEventListener('change', async ev => {
+    const l = ev.target.dataset.f; if (!l || !ev.target.files[0]) return;
+    affiches[l] = await reduire(ev.target.files[0], 1600); ecrire('pdvAffiches', affiches); dessiner(true);
+  });
+  addEventListener('keydown', ev => {
+    if (['ArrowRight', 'PageDown', ' '].includes(ev.key)) { ev.preventDefault(); suivant(); }
+    if (['ArrowLeft', 'PageUp'].includes(ev.key)) aller(S.i - 1, -1);
+  });
+  addEventListener('resize', () => dessiner(true));
+  dessiner();
+}
+
+ECRAN ? ecran() : telephone();
+</script>
+</body>
+</html>
