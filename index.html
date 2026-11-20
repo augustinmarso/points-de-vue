@@ -193,6 +193,7 @@ const nouveauCode = () => String(1000 + Math.random() * 9000 | 0);
 let code = P.get('salle');
 if (ECRAN && !code) { try { code = localStorage.getItem('pdvCode') || nouveauCode(); localStorage.setItem('pdvCode', code); } catch (e) { code = nouveauCode(); } }
 const SALLE = (code || '').replace(/[^a-z0-9]/gi, '').toLowerCase().slice(0, 12);
+try { if (SALLE && !ECRAN && !localStorage.getItem('pdvQui')) localStorage.setItem('pdvParticipant', '1'); } catch (e) { } // entré par le QR code ou le code : ce téléphone est un participant
 const HOTE = 'pointsdevue-gtm-' + SALLE + (APERCU ? '-' + Math.random().toString(36).slice(2, 8) : ''); // chaque aperçu a sa propre adresse : aucun téléphone ne s'y branche
 const SHEET = SCRIPT_GOOGLE;
 // les séances en cours : chaque grand écran donne signe de vie toutes les 30 secondes, la liste oublie une séance après 2 minutes de silence
@@ -376,7 +377,7 @@ function telephone() {
         ? `<div id="salons" class="bloc"><p>Recherche de la séance…</p></div>
            <label class="lab" for="code">Vous avez un code à 4 chiffres ?</label><input class="champ code" id="code" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="0000" autocomplete="off" aria-describedby="aide">
            <p class="note" id="aide">Il est écrit sur le grand écran.</p>
-           <p class="note"><a href="?ecran">Animer une séance sur le grand écran</a> · <a href="./" aria-label="Accueil" title="Accueil"><svg viewBox="0 0 24 24" width="1.35em" height="1.35em" fill="currentColor" aria-hidden="true" style="vertical-align:-.3em"><path d="M12 3 2.5 11.2h2.7V21h5.3v-6h3v6h5.3v-9.8h2.7z"/></svg></a></p>`
+           ${estParticipant() ? '' : `<p class="note"><a href="?ecran">Animer une séance sur le grand écran</a> · <a href="./" aria-label="Accueil" title="Accueil"><svg viewBox="0 0 24 24" width="1.35em" height="1.35em" fill="currentColor" aria-hidden="true" style="vertical-align:-.3em"><path d="M12 3 2.5 11.2h2.7V21h5.3v-6h3v6h5.3v-9.8h2.7z"/></svg></a></p>`}`
         : mes.inscrit ? `<div class="fait" style="margin-top:0">${tete(1)}<h2>${mes.nom ? h(mes.nom) + ', vous êtes inscrit.' : 'Vous êtes inscrit.'}</h2><p>Gardez ce téléphone en main et regardez le grand écran : la séance va commencer.</p></div>`
         : `<label class="lab" for="nom">Votre prénom</label><input class="champ" id="nom" maxlength="24" value="${h(mes.nom)}" autocomplete="given-name" autocapitalize="words" enterkeyhint="done">
            <button class="btn" data-a="inscrire">Je m'inscris</button><p class="note">Séance ${h(SALLE)}. Il n'y a pas de bonne ou de mauvaise réponse.</p>`);
@@ -557,7 +558,7 @@ function ecran() {
     else if (e.t === 'palmares') g = `<p class="sur">Atelier</p><h1>Le palmarès</h1><p><b>L'affiche qui transmet le mieux l'information, d'après vos notes.</b></p><div class="mur palm"></div>`;
     else {
       const cache = q.cinq && masque && !S.rev;
-      g = `<p class="sur">${sur(e)}${PAPIER && NUM[q.id] ? ' · question ' + NUM[q.id] : ''}${q.vote ? ` · affiche ${q.k + 1} sur ${S.photos.length} · test ${S.k % 10 + 1} sur ${TESTS.length}` : ''}</p><h1>${h(q.q)}</h1>${cache ? "<p>L'affiche revient avec les réponses.</p>" : q.note ? `<p>${h(q.note)}</p>` : ''}<div class="accord">${S.rev && q.t !== 'texte' ? `<div class="trio">${tete(1)}${tete(2)}${tete(3)}</div>` : ''}<p class="cpt"></p></div><div class="res">${PAPIER ? (q.t === 'texte' ? '<p><b>Écrivez votre réponse sur la fiche.</b></p>' : `<div class="lettres${q.t === 'ab' ? ' ab' : ''}" style="--k:${q.t === 'echelle' ? 5 : q.o.length <= 4 ? 2 : 3}">${q.o.map((o, i) => `<span><b>${q.t === 'echelle' ? i + 1 : q.t === 'ab' ? 'AB='[i] : 'ABCDEFGHIJ'[i]}</b>${q.t === 'echelle' ? h(i === 0 ? q.a : i === 4 ? q.b : '') : q.t === 'ab' && i < 2 ? '' : h(o)}</span>`).join('')}</div>`)
+      g = `<p class="sur">${sur(e)}${PAPIER && NUM[q.id] ? ' · question ' + NUM[q.id] : ''}${q.vote ? ` · affiche ${q.k + 1} sur ${S.photos.length} · test ${S.k % 10 + 1} sur ${TESTS.length}` : ''}</p><h1>${h(q.q)}</h1>${cache ? "<p>L'affiche revient avec les réponses.</p>" : q.note ? `<p>${h(q.note)}</p>` : ''}<div class="accord">${S.rev && q.t !== 'texte' ? `<div class="trio">${tete(1)}${tete(2)}${tete(3)}</div>` : ''}<p class="cpt"></p></div><div class="res">${PAPIER ? (q.t === 'texte' ? '<p><b>Écrivez votre réponse sur la fiche.</b></p>' : `<div class="lettres${q.t === 'ab' ? ' ab' : ''}" style="--k:${q.t === 'echelle' ? 5 : q.o.length === 2 || q.o.length === 4 ? 2 : 3}">${q.o.map((o, i) => `<span><b>${q.t === 'echelle' ? i + 1 : q.t === 'ab' ? 'AB='[i] : 'ABCDEFGHIJ'[i]}</b>${q.t === 'echelle' ? h(i === 0 ? q.a : i === 4 ? q.b : '') : q.t === 'ab' && i < 2 ? '' : h(o)}</span>`).join('')}</div>`)
         : !S.rev ? '' : q.t === 'texte' ? '<div class="mots"></div>'
         : `<div class="cols${q.o.length > 5 ? ' liste' : ''}">${q.o.map((o, i) => `<div class="col"><div class="rond">${tete(1 + i % 3)}</div><b>0</b><span>${h(o)}${q.t === 'echelle' && (i === 0 || i === 4) ? '<br>' + h(i ? q.b : q.a) : ''}</span></div>`).join('')}</div>`}</div>`;
       if (q.vote && S.photos[q.k] && !cache) d = `<div class="droite"><figure><img src="${S.photos[q.k].img}" alt="Affiche d'un binôme">${h(S.photos[q.k].mot)}</figure></div>`;
@@ -687,7 +688,8 @@ const libs = Promise.all([(ECRAN || SALLE) && lib('libs/peerjs.min.js'), ECRAN &
 // le contenu d'abord (seance.txt, relu à chaque ouverture), puis l'appli
 (APERCU ? new Promise(ok => ok(localStorage.getItem('pdvApercu') || '')) : fetch('seance.txt?' + Date.now()).then(x => x.ok ? x.text() : Promise.reject())).then(t => lireSeance(t) || Promise.reject())
   .catch(() => { document.getElementById('statut').textContent = 'Le fichier seance.txt est introuvable ou vide.'; })
-  .then(() => libs).then(() => ECRAN ? ecran() : SALLE || P.get('passer') ? telephone() : P.has('passer') ? choixPasser() : accueilSite());
+  .then(() => libs).then(() => estParticipant() && (ECRAN || !(SALLE || P.get('passer'))) ? location.replace('./?passer=tel') // un participant ne va ni à l'accueil du site ni au grand écran
+    : ECRAN ? ecran() : SALLE || P.get('passer') ? telephone() : P.has('passer') ? choixPasser() : accueilSite());
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => { }); // garde le site en mémoire pour les visites suivantes
 </script>
 </body>

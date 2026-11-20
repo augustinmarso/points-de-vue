@@ -5,6 +5,8 @@ Le site : https://augustinmarso.github.io/points-de-vue/ propose trois entrées.
 - **Passer le test** : rejoindre une séance avec son téléphone, ou l'animer sur le grand écran (`?ecran`).
 - **Modifier le test** : `modifier.html`, l'éditeur des écrans (ordre, textes, réponses, affiches, écran masqué).
 - **Passer le test** : `?passer` propose le téléphone, le papier, ou la photo des fiches remplies. En mode papier (`?ecran&papier`), le grand écran montre les affiches et les questions numérotées, sans téléphone.
+- **Cloisonnement** : un téléphone entré dans une séance (QR code ou code) ne voit plus que la séance ; les pages de l'équipe le renvoient vers l'entrée des participants. Pour rendre un appareil à l'équipe : ajouter `?equipe` à l'adresse du site. Ce n'est pas un mot de passe (site public).
+- **Participants automatiques** : `bots.html?salle=CODE&n=100` fait entrer de faux téléphones dans une séance pour l'éprouver.
 - **Version papier** : `papier.html`, la fiche A3 (questions et ronds, sans image), la présentation à imprimer, et la lecture des fiches par photo.
 - **Étudier les données** : `resultats.html`, les totaux anonymes, la comparaison de séances et le lien vers le Google Sheet.
 

@@ -120,3 +120,11 @@ function connexion(page) { // demande le prénom s'il manque, puis note la conne
   d.addEventListener('close', () => { const v = d.querySelector('input').value.trim(); if (!v) return d.showModal(); try { localStorage.setItem('pdvQui', v); } catch (e) { } d.remove(); noter(); });
   d.showModal();
 }
+
+// ---------- le cloisonnement : un appareil entré dans une séance comme participant (QR code ou code) ne voit que la séance ----------
+// Le téléphone est marqué à son entrée (voir index.html). Les pages de l'équipe (accueil, grand écran, modifier, données, papier)
+// le renvoient alors vers l'entrée des participants. Un appareil de l'équipe (qui a déjà donné son prénom) n'est jamais marqué.
+// Pour rendre un appareil à l'équipe : ouvrir le site avec « ?equipe » à la fin de l'adresse.
+try { if (new URLSearchParams(location.search).has('equipe')) localStorage.removeItem('pdvParticipant'); } catch (e) { }
+const estParticipant = () => { try { return !!localStorage.getItem('pdvParticipant') && !localStorage.getItem('pdvQui'); } catch (e) { return false; } };
+if (estParticipant() && !/\/(index\.html)?$/.test(location.pathname)) location.replace('./?passer=tel');
