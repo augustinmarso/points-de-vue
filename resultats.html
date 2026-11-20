@@ -2,11 +2,13 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
+<link rel="preconnect" href="https://script.google.com">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Points de vue · étudier les données</title>
 <link rel="apple-touch-icon" href="icone.png">
 <link rel="icon" href="icone.png">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Scoutie+Sans:wght@200..800&display=swap">
+<link rel="preload" href="polices/scoutie.woff2" as="font" type="font/woff2" crossorigin>
+<style>@font-face{font-family:'Scoutie Sans';font-weight:200 800;font-display:swap;src:url(polices/scoutie.woff2) format('woff2')}</style>
 <style>
 :root{--n:#141414;--gris:#6B6B6B;--fond:#F3F3F3}
 *{box-sizing:border-box}
@@ -58,6 +60,13 @@ article .n{color:var(--gris);font-size:15px;margin:4px 0 12px}
 .legende{display:flex;gap:18px;flex-wrap:wrap;font-size:15px;font-weight:700;margin-top:16px}
 .legende i{display:inline-block;width:1.6em;height:.7em;border-radius:99px;background:var(--n);margin-right:6px;vertical-align:middle}
 .legende i.a{background:linear-gradient(90deg,#F5A0C6,#F7C33B,#1F6FE0)}
+.colonnes{display:flex;align-items:flex-end;gap:3px;height:190px;margin-top:24px;border-bottom:2px solid var(--n)}
+.colonnes i{flex:1;min-width:2px;min-height:3px;border-radius:5px 5px 0 0}
+.rangs{max-width:780px;margin-top:14px}
+.duel{margin-top:16px;max-width:780px;font-size:16px}
+.duel div{display:grid;grid-template-columns:5.2em 1fr 5.2em;gap:10px;align-items:center;font-weight:800;margin-top:4px}
+.duel div span:last-child{text-align:right}
+.duel .piste{grid-column:auto;background:#1F6FE0}.duel .piste i{background:#F5A0C6;border-radius:7px 0 0 7px}
 .vide{margin-top:40px;font-size:22px;font-weight:700}
 .bornes{display:flex;justify-content:space-between;color:var(--gris);font-size:14px;margin-top:6px}
 @media (max-width:520px){.chiffres{gap:10px}}
@@ -79,6 +88,7 @@ article .n{color:var(--gris);font-size:15px;margin:4px 0 12px}
   <label>Chercher une question<input type="search" id="chercher" placeholder="Un mot de la question"></label>
   <label>Ranger les questions<select id="tri"><option value="">Dans l'ordre de la séance</option><option value="fort">Les plus unanimes d'abord</option><option value="faible">Les plus partagées d'abord</option></select></label>
 </div>
+<div class="choix" id="mode" role="group" aria-label="Choisir l'affichage"><button data-m="" aria-pressed="true">Question par question</button><button data-m="g" aria-pressed="false">En graphiques</button></div>
 <div id="vue"></div>
 </main>
 <script src="seance.js"></script>
@@ -91,7 +101,7 @@ const COUL = { 'Étape 1': '#F5A0C6', 'Étape 2': '#F7C33B', 'Étape 3': '#1F6FE
 const h = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])).replace(/ ([?!:;»])/g, '&nbsp;$1').replace(/« /g, '«&nbsp;');
 const fr = (x, d = 1) => x.toFixed(d).replace('.', ','), pc = x => Math.round(x * 100) + ' %';
 const $ = id => document.getElementById(id), plat = x => x.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
-let D = null, seance = new URLSearchParams(location.search).get('seance') || '';
+let D = null, mode = '', seance = new URLSearchParams(location.search).get('seance') || '';
 
 // les totaux d'une séance ('' = toutes) : par question, le nombre de répondants, le détail des réponses, la moyenne des notes
 function totaux(code) {
@@ -115,10 +125,12 @@ function dessiner() {
   if (!total) { $('vue').innerHTML = `<p class="vide">Pas encore de réponses. Cette page se met à jour toute seule pendant la séance.</p>`; return; }
 
   const carte = (g, q, opts, bon, bornes) => { // une question : ses réponses en barres, dans l'ordre du questionnaire
-    const c = T.compte[q] || {}, n = T.rep[q] || 0, liste = opts || Object.keys(c).sort((a, b) => c[b] - c[a]), nt = T.notes[q], cu = U && U.compte[q] || {}, nu = U && U.rep[q] || 0, ntu = U && U.notes[q];
+    const c = T.compte[q] || {}, n = T.rep[q] || 0, liste = opts || Object.keys(c).sort((a, b) => c[b] - c[a]), nt = T.notes[q], cu = U && U.compte[q] || {}, nu = U && U.rep[q] || 0, ntu = U && U.notes[q], oubli = [];
     return `<article><h3>${h(q)}</h3><p class="n">${n} réponse${n > 1 ? 's' : ''}${U ? ` · ${nu} dans l'autre séance` : ''}</p>${nt ? `<div class="moy">${fr(nt[0] / nt[1])} <small>sur 5 en moyenne${ntu ? ` · ${fr(ntu[0] / ntu[1])} dans l'autre séance` : ''}</small></div>` : ''}`
       + liste.map((o, i) => { const k = c[o] || 0, p = n ? k / n : 0, pu = nu ? (cu[o] || 0) / nu : 0;
+        if (!k && !nt && i !== bon && !cu[o]) { oubli.push(o); return ''; } // personne ne l'a choisie : citée en une ligne, sans barre
         return `<div class="barre${k ? '' : ' zero'}${i === bon ? ' bon' : ''}"><span>${h(o)}${i === bon ? ' (bonne réponse)' : ''}</span><b>${k} · ${pc(p)}${U ? ' / ' + pc(pu) : ''}</b><div class="piste"><i style="width:${p * 100}%${bon != null && i !== bon ? ';background:#BDBDBD' : ''}"></i></div>${U ? `<div class="piste autre"><i style="width:${pu * 100}%"></i></div>` : ''}</div>`; }).join('')
+      + (oubli.length ? `<p class="n" style="margin:10px 0 0">Personne n'a choisi : ${h(oubli.join(', '))}.</p>` : '')
       + (bornes ? `<div class="bornes"><span>1 = ${h(bornes[0])}</span><span>5 = ${h(bornes[1])}</span></div>` : '') + `</article>`;
   };
   // les questions de la séance, dans l'ordre de seance.txt ; puis celles de l'atelier et celles qui ne sont plus dans la séance
@@ -146,6 +158,32 @@ function dessiner() {
   const mieux = Object.entries(aff).map(([k, x]) => [x[0] / x[1], k]).sort((a, b) => b[0] - a[0])[0];
   if (mieux) ajoute("L'affiche de binôme la mieux notée", fr(mieux[0]) + ' sur 5', mieux[1] + ', toutes notes confondues');
 
+  // ---------- les graphiques : la même sélection, vue d'ensemble ----------
+  if (mode) {
+    const G = [], ok = q => !mot || plat(q).includes(mot), Qm = Q.filter(e => ok(e.q)), coul = g => COUL[g] || '#141414';
+    const bloc = (titre, texte, html) => html && G.push(`<section style="--c:#141414"><h2><i></i>${h(titre)}</h2><p>${h(texte)}</p>${html}</section>`);
+    const rang = (nom, part, val, c) => `<div class="barre"><span>${h(nom)}</span><b>${h(val)}</b><div class="piste"><i style="width:${part * 100}%;background:${c}"></i></div></div>`;
+    const rangs = L => L.length ? `<div class="rangs">${L.join('')}</div>` : '';
+    const max = Math.max(1, ...Qm.map(e => T.rep[e.q]));
+    bloc('La participation, question après question', "Une colonne par question, dans l'ordre de la séance. Plus elle est haute, plus il y a eu de réponses : une baisse montre où le groupe décroche.",
+      Qm.length > 1 ? `<div class="colonnes" role="img" aria-label="Nombre de réponses par question, de ${Math.min(...Qm.map(e => T.rep[e.q]))} à ${max}">${Qm.map(e => `<i title="${h(e.q)} : ${T.rep[e.q]}" style="height:${T.rep[e.q] / max * 100}%;background:${coul(e.p ? 'Étape ' + e.p : '')}"></i>`).join('')}</div>
+        <div class="bornes"><span>Début</span><span>Colonne la plus haute : ${max} réponse${max > 1 ? 's' : ''}</span><span>Fin</span></div>
+        <div class="legende">${[['', "Jeu de l'œil"], ['Étape 1', PHASES[1].nom], ['Étape 2', PHASES[2].nom], ['Étape 3', PHASES[3].nom]].map(([g, nom]) => `<span><i style="background:${coul(g)}"></i>${h(nom)}</span>`).join('')}</div>` : '');
+    bloc('Ce que le regard a retenu', "Le jeu de l'œil : la part de bonnes réponses après 5 secondes devant l'affiche, de la mieux retenue à la moins retenue.",
+      rangs(jeux.filter(x => ok(x[1])).map(([p, q]) => rang(q, p, pc(p), '#141414'))));
+    bloc('Toutes les notes, de la meilleure à la plus basse', 'La moyenne de chaque note de 1 à 5. La barre est pleine à 5 et vide à 1.',
+      rangs(T.ordre.filter(q => T.notes[q] && ok(q)).map(q => [T.notes[q][0] / T.notes[q][1], q]).sort((a, b) => b[0] - a[0]).map(([m, q]) => rang(q, (m - 1) / 4, fr(m) + ' sur 5', coul(T.groupe[q])))));
+    bloc('A ou B : qui gagne', "Chaque ligne est une comparaison de deux affiches. Le rose est la part de A, le bleu la part de B.",
+      Qm.filter(e => e.t === 'ab').map(e => { const c = T.compte[e.q] || {}, a = c.A || 0, b = c.B || 0, t = a + b || 1;
+        return `<div class="duel"><span>${h(e.q)}${e.note ? ' (' + h(e.note) + ')' : ''}</span><div><span>A · ${pc(a / t)}</span><div class="piste"><i style="width:${a / t * 100}%"></i></div><span>B · ${pc(b / t)}</span></div></div>`; }).join(''));
+    bloc("D'accord ou partagés", "Pour chaque question à choix, la part de la réponse la plus donnée. Une barre longue : le groupe est d'accord. Une barre courte : les avis sont partagés.",
+      rangs(Qm.filter(e => (e.t === 'choix' || e.t === 'multi') && e.bon == null).map(e => [accord(T, e.q), e]).sort((a, b) => b[0] - a[0]).map(([p, e]) => {
+        const c = T.compte[e.q] || {}, tete = Object.keys(c).sort((a, b) => c[b] - c[a])[0];
+        return rang(e.q + ' → ' + tete, Math.min(1, p), pc(Math.min(1, p)), coul('Étape ' + e.p)); })));
+    $('vue').innerHTML = `<div class="chiffres"><div><b>${gens}</b>participant${gens > 1 ? 's' : ''}</div><div><b>${seance ? 1 : codes.length}</b>séance${!seance && codes.length > 1 ? 's' : ''}</div><div><b>${total}</b>réponse${total > 1 ? 's' : ''}</div></div>`
+      + (G.join('') || `<p class="vide">Pas encore assez de réponses pour tracer un graphique.</p>`);
+    return;
+  }
   const titres = { "Jeu de l'œil": ["Le jeu de l'œil", 'Une affiche vue 5 secondes, puis des questions précises.'], 'Étape 1': [PHASES[1].nom, PHASES[1].quoi], 'Étape 2': [PHASES[2].nom, PHASES[2].quoi], 'Étape 3': [PHASES[3].nom, PHASES[3].quoi], Atelier: ["L'atelier", 'Les affiches fabriquées en binômes, notées par la salle.'], 'Autres questions': ['Autres questions', 'Des questions qui ne sont plus dans la séance actuelle.'] };
   $('vue').innerHTML =
     `<div class="chiffres"><div><b>${gens}</b>participant${gens > 1 ? 's' : ''}</div><div><b>${seance ? 1 : codes.length}</b>séance${!seance && codes.length > 1 ? 's' : ''}</div><div><b>${total}</b>réponse${total > 1 ? 's' : ''}</div></div>`
@@ -165,9 +203,11 @@ function charger() {
     .catch(() => { $('maj').textContent = 'Les résultats ne se chargent pas. Vérifiez la connexion internet.'; });
 }
 $('choix').addEventListener('click', ev => { const b = ev.target.closest('[data-s]'); if (b) { seance = b.dataset.s; history.replaceState(null, '', seance ? '?seance=' + seance : location.pathname); dessiner(); } });
+$('mode').addEventListener('click', ev => { const b = ev.target.closest('[data-m]'); if (b) { mode = b.dataset.m; $('mode').querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x === b)); dessiner(); } });
 ['comparer', 'tri'].forEach(id => $(id).addEventListener('change', dessiner));
 $('chercher').addEventListener('input', dessiner);
 fetch('seance.txt?' + Date.now()).then(x => x.text()).then(lireSeance).catch(() => { }).then(() => { charger(); setInterval(charger, 20000); });
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => { }); // garde le site en mémoire pour les visites suivantes
 </script>
 </body>
 </html>

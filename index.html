@@ -2,12 +2,14 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
+<link rel="preconnect" href="https://script.google.com">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Points de vue · séance</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'><rect width='120' height='120' fill='%23fff'/><g style='mix-blend-mode:multiply'><circle cx='44' cy='50' r='40' fill='%23F5A0C6'/></g><g style='mix-blend-mode:multiply'><circle cx='86' cy='42' r='28' fill='%23F7C33B'/></g><g style='mix-blend-mode:multiply'><circle cx='74' cy='82' r='22' fill='%231F6FE0'/></g><circle cx='22' cy='40' r='3.6' fill='%23141414'/><circle cx='34' cy='38' r='3.6' fill='%23141414'/><circle cx='93' cy='28' r='2.9' fill='%23141414'/><circle cx='103' cy='30' r='2.9' fill='%23141414'/><circle cx='73' cy='95' r='2.4' fill='%23141414'/><circle cx='81' cy='95' r='2.4' fill='%23141414'/></svg>">
 <link rel="apple-touch-icon" href="icone.png">
 <meta name="theme-color" content="#ffffff">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Scoutie+Sans:wght@200..800&display=swap">
+<link rel="preload" href="polices/scoutie.woff2" as="font" type="font/woff2" crossorigin>
+<style>@font-face{font-family:'Scoutie Sans';font-weight:200 800;font-display:swap;src:url(polices/scoutie.woff2) format('woff2')}</style>
 <style>
 :root{--n:#141414;--c1:#F5A0C6;--c2:#F7C33B;--c3:#1F6FE0;--t1:#FDE7F1;--t2:#FDF0CC;--t3:#DCE9FB;--c:var(--c1);--t:var(--t1)}
 *{box-sizing:border-box}
@@ -174,8 +176,6 @@ body.plein.p3 #app{color:#fff}
 </div>
 <main id="app"></main>
 <div id="statut"></div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.4/peerjs.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
 <script src="seance.js"></script>
 <script>
 // ---------- outils ----------
@@ -557,6 +557,7 @@ function ecran() {
         <button data-a="plein">Plein écran</button><button data-a="csv">Télécharger les réponses</button><button data-a="neuve">Nouvelle séance</button>
       </div></div><span class="auto"></span>`;
     maj(); regards();
+    const apres = ETAPES[S.i + 1]; if (apres) [...(apres.imgs || []), apres.img].filter(Boolean).forEach(u => { new Image().src = u; }); // l'affiche de l'écran suivant est déjà là quand on y arrive
   }
 
   // met à jour les chiffres sans tout redessiner, pour que les cercles grossissent en douceur
@@ -674,10 +675,15 @@ function ecran() {
   dessiner();
 }
 
+// les bibliothèques ne sont chargées que si l'écran en a besoin : la liaison entre appareils pour une séance, le QR code pour le grand écran ;
+// l'accueil du site et la page sans code n'en chargent aucune. Elles arrivent en même temps que le contenu de la séance.
+const lib = src => new Promise((ok, ko) => { const x = document.createElement('script'); x.src = src; x.onload = ok; x.onerror = ko; document.head.appendChild(x); });
+const libs = Promise.all([(ECRAN || SALLE) && lib('libs/peerjs.min.js'), ECRAN && lib('libs/qrcode.min.js')]).catch(() => { });
 // le contenu d'abord (seance.txt, relu à chaque ouverture), puis l'appli
 fetch('seance.txt?' + Date.now()).then(x => x.ok ? x.text() : Promise.reject()).then(t => lireSeance(t) || Promise.reject())
   .catch(() => { document.getElementById('statut').textContent = 'Le fichier seance.txt est introuvable ou vide.'; })
-  .then(() => ECRAN ? ecran() : SALLE || P.has('passer') ? telephone() : accueilSite());
+  .then(() => libs).then(() => ECRAN ? ecran() : SALLE || P.has('passer') ? telephone() : accueilSite());
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => { }); // garde le site en mémoire pour les visites suivantes
 </script>
 </body>
 </html>

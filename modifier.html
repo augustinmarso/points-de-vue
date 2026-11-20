@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Points de vue · modifier le test</title>
 <link rel="icon" href="icone.png"><link rel="apple-touch-icon" href="icone.png">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Scoutie+Sans:wght@200..800&display=swap">
+<link rel="preload" href="polices/scoutie.woff2" as="font" type="font/woff2" crossorigin>
+<style>@font-face{font-family:'Scoutie Sans';font-weight:200 800;font-display:swap;src:url(polices/scoutie.woff2) format('woff2')}</style>
 <style>
 :root{--n:#141414;--gris:#6B6B6B;--fond:#F3F3F3;--c1:#F5A0C6;--c2:#F7C33B;--c3:#1F6FE0;--t1:#FDE7F1;--t2:#FDF0CC;--t3:#DCE9FB}
 *{box-sizing:border-box}
@@ -78,11 +79,9 @@ dialog h3{margin:0 0 6px;font-size:24px;font-weight:800;letter-spacing:-.03em}
 .types button{background:var(--fond);border-radius:18px;padding:16px;text-align:left;display:flex;flex-direction:column;gap:6px;min-height:104px}
 .types b{font-size:18px;font-weight:800;letter-spacing:-.02em}
 .types span{font-size:14px;color:var(--gris)}
-#liste .ajout{position:sticky;top:0;z-index:1;background:var(--fond);padding:6px 0 10px;margin:0;border:0;display:none}
+#liste .ajout{position:sticky;top:0;z-index:1;background:var(--fond);padding:6px 0 10px;margin:0;border:0;display:block}
 #liste .ajout .btn{width:100%;justify-content:center}
-body.creatif #liste .ajout{display:block}
-.crea{display:none}
-body.creatif .crea{display:flex}
+.crea{display:flex}
 .retour{display:none;margin-bottom:14px}
 @media (max-width:900px){.corps{display:block}#liste,#zone{height:100%}#zone{display:none;padding:14px 16px 60px}body.detail #liste{display:none}body.detail #zone{display:block}.retour{display:inline-flex}header{padding:10px 14px;gap:10px}header h1{font-size:20px;flex-basis:auto}#annuler{display:none}}
 </style>
@@ -92,7 +91,6 @@ body.creatif .crea{display:flex}
   <a href="./">← Accueil</a>
   <h1>Modifier le test</h1>
   <a class="btn clair" href="papier.html" target="_blank" rel="noopener">Version papier</a>
-  <label class="case" style="font-size:15px"><input type="checkbox" id="creatif">Mode créatif</label>
   <span id="etat">Chargement…</span>
   <button class="btn clair" id="annuler" disabled>Annuler mes modifications</button>
   <button class="btn" id="enregistrer" disabled>Enregistrer</button>
@@ -122,7 +120,7 @@ const $ = id => document.getElementById(id);
 let M = null, depart = '', sel = 0, images = [], cible = null; // cible = le champ d'affiche en cours de choix
 
 const TYPE = e => ({ accueil: "Salle d'attente", scores: 'Scores du jeu', mission: "Atelier : la consigne", photo: "Atelier : les photos", vote: "Atelier : les tests", palmares: "Atelier : le palmarès", fin: 'Fin', info: 'Texte', flash: 'Affiche 5 secondes', echelle: 'Note de 1 à 5', ab: 'Comparaison A / B' }[e.t]
-  || (e.t === 'phase' ? "Titre d'étape" : e.jeu ? 'Question du jeu' : 'Question à choix'));
+  || (e.t === 'phase' ? "Titre d'étape" : e.jeu ? 'Question du jeu' : e.t === 'texte' ? 'Avis libre' : 'Question à choix'));
 const TITRE = e => e.q || e.h || (e.t === 'phase' ? M.phases[e.p].nom : e.t === 'flash' ? (e.img || '').split('/').pop() : TYPE(e));
 const COUL = e => e.p ? `var(--c${e.p})` : '#141414';
 const fixe = i => (i === 0 && M.ecrans[0].t === 'accueil') || (i === M.ecrans.length - 1 && M.ecrans[i].t === 'fin'); // le début et la fin ne bougent pas
@@ -149,7 +147,7 @@ function apercu(e) {
   else if (e.t === 'info') g = `<div class="sur">${h(e.s)}</div><h2>${h(e.h)}</h2><b>${h(e.x)}</b>`;
   else if (e.t === 'flash') g = `<div class="sur">Affiche montrée 5 secondes</div><h2>Le test des 5 secondes</h2>`;
   else if (e.q != null) g = `<div class="sur">${e.p ? 'Étape ' + e.p + ' · ' + h(M.phases[e.p].nom) : e.jeu ? "Le jeu de l'œil" : ''}</div><h2>${h(e.q)}</h2>${e.note ? `<div>${h(e.note)}</div>` : ''}
-    <div class="opts">${(e.t === 'echelle' ? ['1 · ' + e.a, '2', '3', '4', '5 · ' + e.b] : e.o).map((o, i) => `<span class="${e.jeu && i === e.bon ? 'bon' : ''}">${h(o)}</span>`).join('')}</div>`;
+    <div class="opts">${(e.t === 'echelle' ? ['1 · ' + e.a, '2', '3', '4', '5 · ' + e.b] : e.o || ['Chacun écrit sa réponse']).map((o, i) => `<span class="${e.jeu && i === e.bon ? 'bon' : ''}">${h(o)}</span>`).join('')}</div>`;
   else g = `<div class="sur">${h(TYPE(e))}</div><h2>${h({ accueil: 'Bienvenue !', scores: 'Les réussites', mission: "Fabriquez l'affiche qui fait le mieux passer cette information", photo: 'Vos affiches', vote: 'Les tests des affiches', palmares: 'Le palmarès', fin: 'Merci !' }[e.t])}</h2>${e.t === 'mission' ? `<b>${h(M.missions[0])}</b>` : ''}`;
   return `<div class="apercu${cls}${e.masque ? ' cache' : ''}" style="${t}"><div class="in"><div class="g">${g}</div>${im.length ? `<div class="d${im.length > 1 ? ' deux' : ''}">${im.map(s => `<img src="${h(s)}" alt="">`).join('')}</div>` : ''}</div></div>`;
 }
@@ -167,6 +165,7 @@ function zone() {
     f = champ('La question', 'q', e.q);
     if (!e.jeu) f += champ('Précision sous la question', 'note', e.note || '', 'Facultatif.');
     if (e.t === 'echelle') f += `<div class="rep">${champ('La note 1 veut dire', 'a', e.a)}${champ('La note 5 veut dire', 'b', e.b)}</div>`;
+    else if (e.t === 'texte') f += `<p class="verrou">Chacun écrit sa réponse sur son téléphone. Sur la version papier, la réponse s'écrit à la main et n'est pas lue par la photo.</p>`;
     else if (e.t !== 'ab') f += `<div class="c"><b>Les réponses</b>${e.jeu ? '<small class="aide">Cochez la bonne réponse.</small>' : ''}${e.o.map((o, i) => `<div class="rep">${e.jeu ? `<input type="radio" name="bon" data-bon="${i}" ${i === e.bon ? 'checked' : ''} aria-label="Bonne réponse">` : ''}<input type="text" data-o="${i}" value="${h(o)}" aria-label="Réponse ${i + 1}"><button type="button" data-a="moins" data-i="${i}" aria-label="Retirer cette réponse" ${e.o.length < 3 ? 'disabled' : ''}>×</button></div>`).join('')}
       <button type="button" class="btn clair" data-a="plus" ${e.o.length > 8 ? 'disabled' : ''} style="align-self:flex-start">Ajouter une réponse</button></div>`;
     if (e.t === 'choix' && !e.jeu || e.t === 'multi') f += `<label class="case"><input type="checkbox" data-k="multi" ${e.t === 'multi' ? 'checked' : ''}>Plusieurs réponses possibles</label>`;
@@ -175,7 +174,7 @@ function zone() {
     if (e.t === 'echelle') f += `<label class="case"><input type="checkbox" data-k="nb" ${e.nb ? 'checked' : ''}>Montrer l'affiche en noir et blanc</label>`;
   }
   else f = `<p class="verrou">Cet écran n'a pas de réglage : son contenu est fabriqué par l'appli pendant la séance.</p>`;
-  const libre = ['info', 'flash', 'choix', 'multi', 'echelle', 'ab'].includes(e.t); // les écrans qu'on peut créer, copier, supprimer
+  const libre = ['info', 'flash', 'choix', 'multi', 'echelle', 'ab', 'texte'].includes(e.t); // les écrans qu'on peut créer, copier, supprimer
   if (libre && e.t !== 'flash' && !e.jeu) f += `<label class="c crea">Couleur de l'étape<select data-k="p"><option value="">Sans étape (noir)</option>${[1, 2, 3].map(p => `<option value="${p}" ${e.p === p ? 'selected' : ''}>Étape ${p} · ${h(M.phases[p].nom)}</option>`).join('')}</select></label>`;
   if (libre) f += `<div class="ligne crea"><button type="button" class="btn clair" data-a="dupliquer">Dupliquer cet écran</button><button type="button" class="btn clair" data-a="supprimer">Supprimer cet écran</button></div>`;
   if (!fixe(sel)) f += `<label class="case"><input type="checkbox" data-k="masque" ${e.masque ? 'checked' : ''}>Masquer cet écran pendant la séance</label>`;
@@ -281,11 +280,14 @@ $('jeton').addEventListener('click', ev => {
 });
 addEventListener('beforeunload', ev => { if (M && ecrireSeance(M) !== depart) ev.preventDefault(); });
 
-// ---------- mode créatif : ajouter des écrans à partir de modèles ----------
+// ---------- ajouter un écran à partir d'un modèle ----------
 const MODELES = [
   ['Page libre', 'Un petit titre, un grand titre, une phrase et une image si vous voulez.', () => ({ t: 'info', s: 'Petit titre', h: 'Grand titre', x: 'Votre phrase.' })],
   ['Question à choix', 'Une question, plusieurs réponses au choix.', p => ({ t: 'choix', q: 'Votre question ?', o: ['Réponse 1', 'Réponse 2', 'Réponse 3'], ...p })],
   ['Note de 1 à 5', 'Les participants donnent une note.', p => ({ t: 'echelle', q: 'Votre question ?', o: ['1', '2', '3', '4', '5'], a: 'Pas du tout', b: 'Tout à fait', ...p })],
+  ['Avis libre', 'Chacun écrit son avis en quelques mots. Les réponses apparaissent sur le grand écran.', p => ({ t: 'texte', q: 'Que changeriez-vous sur cette affiche ?', ...p })],
+  ['Oui ou non', 'Une question rapide, trois réponses toutes prêtes.', p => ({ t: 'choix', q: 'Votre question ?', o: ['Oui', 'Non', 'Je ne sais pas'], ...p })],
+  ['Ressenti', 'Ce que l\'affiche fait ressentir, plusieurs réponses possibles.', p => ({ t: 'multi', q: 'Que ressentez-vous devant cette affiche ?', o: ['De la curiosité', 'De la confiance', "De l'envie", 'De la surprise', "De l'indifférence", 'De la confusion', "De l'agacement"], ...p })],
   ['Comparaison A / B', 'Deux affiches côte à côte, on choisit.', p => ({ t: 'ab', q: 'Laquelle préférez-vous ?', o: ['A', 'B', 'Aucune différence'], imgs: [images[0], images[1] || images[0]], ...p })],
   ['Affiche 5 secondes', 'Une affiche montrée 5 secondes, puis cachée.', () => ({ t: 'flash', img: images[0] })],
   ['Question du jeu', 'Une question avec une bonne réponse, qui compte dans les scores.', () => ({ t: 'choix', jeu: 1, q: 'Votre question ?', o: ['La bonne réponse', 'Une autre réponse', 'Une autre réponse'], bon: 0, img: images[0] })]
@@ -299,10 +301,6 @@ $('nouveau').addEventListener('click', ev => {
   $('nouveau').close(); liste(); zone(); change(); document.body.classList.add('detail');
   const li = $('liste').querySelector(`[data-i="${sel}"]`); if (li) li.scrollIntoView({ block: 'center' });
 });
-const modeCreatif = oui => { document.body.classList.toggle('creatif', oui); $('creatif').checked = oui; try { localStorage.setItem('pdvCreatif', oui ? '1' : ''); } catch (e) { } };
-$('creatif').addEventListener('change', ev => modeCreatif(ev.target.checked));
-try { modeCreatif(!!localStorage.getItem('pdvCreatif')); } catch (e) { }
-
 // ---------- démarrage ----------
 function charger() { M = { phases: PHASES, missions: MISSIONS.slice(), tests: TESTS, ecrans: TOUS }; sel = Math.min(sel, M.ecrans.length - 1); liste(); zone(); change(); }
 fetch('seance.txt?' + Date.now()).then(x => x.text()).then(t => {
@@ -310,6 +308,7 @@ fetch('seance.txt?' + Date.now()).then(x => x.text()).then(t => {
   images = [...new Set(M.ecrans.flatMap(e => [e.img, ...(e.imgs || [])]).filter(Boolean))].sort();
   fetch(DEPOT + 'affiches').then(x => x.json()).then(l => { if (Array.isArray(l)) images = [...new Set([...l.filter(f => /\.(jpe?g|png)$/i.test(f.name)).map(f => 'affiches/' + f.name), ...images])].sort(); }).catch(() => { });
 }).catch(() => { $('etat').textContent = 'Le fichier de la séance ne se charge pas.'; });
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => { }); // garde le site en mémoire pour les visites suivantes
 </script>
 </body>
 </html>

@@ -25,6 +25,7 @@ function lireSeance(texte) {
       else if (mot === 'note') e = { id: id(reste), t: 'echelle', q: reste, o: cinq, a: '', b: '' };
       else if (mot === 'a ou b') e = { id: id(reste), t: 'ab', q: reste, o: ['A', 'B', 'Aucune différence'], imgs: [] };
       else if (mot === 'question') e = { id: id(reste), t: 'choix', q: reste, o: [] };
+      else if (mot === 'avis') e = { id: id(reste), t: 'texte', q: reste };
       else { e = null; continue; } // mot inconnu : l'écran est ignoré plutôt que de bloquer la séance
       E.push(e); continue;
     }
@@ -36,7 +37,7 @@ function lireSeance(texte) {
     else if (/^test/.test(k) && !e) T.push({ c: 't' + T.length, t: 'echelle', q: part[0], o: cinq, a: part[1] || '', b: part[2] || '', cinq: /5 secondes/.test(k) });
     else if (!e) continue;
     else if (k === 'etape') e.p = +v || undefined;
-    else if (k === 'reponses') e.t = /plusieurs/.test(sans(v)) ? 'multi' : 'choix';
+    else if (k === 'reponses' && e.o) e.t = /plusieurs/.test(sans(v)) ? 'multi' : 'choix';
     else if (k === 'precision') e.note = v;
     else if (k === 'de') e.a = v; else if (k === 'a') e.b = v;
     else if (k === 'noir et blanc') e.nb = /oui/.test(sans(v));
@@ -51,7 +52,7 @@ function lireSeance(texte) {
 }
 
 // réécrit seance.txt à partir du contenu en mémoire (utilisé par l'éditeur)
-const AIDE = "# LA SÉANCE « POINTS DE VUE », ÉCRAN PAR ÉCRAN\n# ------------------------------------------------------------------\n# Le plus simple pour le modifier : la page « Modifier le test » du site.\n# Il se modifie aussi directement sur GitHub : bouton crayon en haut à droite,\n# puis bouton vert « Commit changes ». Le site est à jour une à deux minutes après.\n#\n# Chaque écran commence par un mot entre crochets. L'ordre du fichier est l'ordre de la séance.\n# Pour retirer un écran : supprimez ses lignes. Pour en déplacer un : coupez-collez ses lignes.\n# Une ligne qui commence par # est un commentaire, l'appli ne la lit pas.\n#\n#   [accueil]              la salle d'attente (QR code, code, participants connectés)\n#   [texte] petit titre | grand titre | phrase\n#   [5 secondes] image     une affiche montrée 5 secondes   (ajoutez « | étape 1 » pour la rattacher à une étape)\n#   [jeu] question         question avec une bonne réponse : « + » devant la bonne, « - » devant les autres\n#   [scores]               les réussites de chacun au jeu\n#   [étape 1]              l'écran de titre d'une étape (1, 2 ou 3)\n#   [question] question    question à choix : « - » devant chaque réponse\n#                          ligne « réponses : une » ou « réponses : plusieurs »\n#   [note] question        note de 1 à 5, avec les lignes « de : » et « à : »\n#   [a ou b] question      comparaison de deux affiches, avec « affiche a : » et « affiche b : »\n#   [mission] [photos] [tests] [palmarès] [fin]   l'atelier en binômes et la fin\n#\n# Lignes possibles sous une question :\n#   étape : 1                      (1, 2 ou 3 : donne la couleur et le titre de l'étape)\n#   affiche : affiches/nom.jpg     (l'affiche montrée à côté de la question)\n#   précision : une phrase sous la question\n#   noir et blanc : oui            (l'affiche passe en noir et blanc)\n#   masqué : oui                   (l'écran reste dans le fichier mais ne passe pas pendant la séance)\n#\n# Les images sont dans le dossier « affiches » du dépôt.\n# ------------------------------------------------------------------";
+const AIDE = "# LA SÉANCE « POINTS DE VUE », ÉCRAN PAR ÉCRAN\n# ------------------------------------------------------------------\n# Le plus simple pour le modifier : la page « Modifier le test » du site.\n# Il se modifie aussi directement sur GitHub : bouton crayon en haut à droite,\n# puis bouton vert « Commit changes ». Le site est à jour une à deux minutes après.\n#\n# Chaque écran commence par un mot entre crochets. L'ordre du fichier est l'ordre de la séance.\n# Pour retirer un écran : supprimez ses lignes. Pour en déplacer un : coupez-collez ses lignes.\n# Une ligne qui commence par # est un commentaire, l'appli ne la lit pas.\n#\n#   [accueil]              la salle d'attente (QR code, code, participants connectés)\n#   [texte] petit titre | grand titre | phrase\n#   [5 secondes] image     une affiche montrée 5 secondes   (ajoutez « | étape 1 » pour la rattacher à une étape)\n#   [jeu] question         question avec une bonne réponse : « + » devant la bonne, « - » devant les autres\n#   [scores]               les réussites de chacun au jeu\n#   [étape 1]              l'écran de titre d'une étape (1, 2 ou 3)\n#   [question] question    question à choix : « - » devant chaque réponse\n#                          ligne « réponses : une » ou « réponses : plusieurs »\n#   [note] question        note de 1 à 5, avec les lignes « de : » et « à : »\n#   [a ou b] question      comparaison de deux affiches, avec « affiche a : » et « affiche b : »\n#   [avis] question        avis libre : chacun écrit sa réponse (quelques mots)\n#   [mission] [photos] [tests] [palmarès] [fin]   l'atelier en binômes et la fin\n#\n# Lignes possibles sous une question :\n#   étape : 1                      (1, 2 ou 3 : donne la couleur et le titre de l'étape)\n#   affiche : affiches/nom.jpg     (l'affiche montrée à côté de la question)\n#   précision : une phrase sous la question\n#   noir et blanc : oui            (l'affiche passe en noir et blanc)\n#   masqué : oui                   (l'écran reste dans le fichier mais ne passe pas pendant la séance)\n#\n# Les images sont dans le dossier « affiches » du dépôt.\n# ------------------------------------------------------------------";
 function ecrireSeance(m) { // m = { phases, missions, tests, ecrans }
   const net = x => String(x ?? '').replace(/[|\r\n]+/g, ' ').replace(/\s+/g, ' ').trim(); // une valeur tient sur une ligne, sans barre verticale
   const L = [AIDE, '', "# Les trois étapes : nom | phrase d'explication"];
@@ -68,7 +69,7 @@ function ecrireSeance(m) { // m = { phases, missions, tests, ecrans }
     else if (e.t === 'info') { L.push(`[texte] ${net(e.s)} | ${net(e.h)} | ${net(e.x)}`); if (e.p) L.push('étape : ' + e.p); if (net((e.imgs || [])[0])) L.push('affiche : ' + net(e.imgs[0])); }
     else if (e.t === 'flash') L.push(`[5 secondes] ${net(e.img)}${e.p ? ' | étape ' + e.p : ''}`);
     else {
-      L.push(`[${e.jeu ? 'jeu' : e.t === 'echelle' ? 'note' : e.t === 'ab' ? 'a ou b' : 'question'}] ${net(e.q)}`);
+      L.push(`[${e.jeu ? 'jeu' : e.t === 'echelle' ? 'note' : e.t === 'ab' ? 'a ou b' : e.t === 'texte' ? 'avis' : 'question'}] ${net(e.q)}`);
       if (e.p) L.push('étape : ' + e.p);
       if (!e.jeu && (e.t === 'choix' || e.t === 'multi')) L.push('réponses : ' + (e.t === 'multi' ? 'plusieurs' : 'une'));
       if (net(e.note)) L.push('précision : ' + net(e.note));
@@ -76,7 +77,7 @@ function ecrireSeance(m) { // m = { phases, missions, tests, ecrans }
       if (e.t === 'ab') L.push('affiche a : ' + net(im[0]), 'affiche b : ' + net(im[1])); else if (net(im[0])) L.push('affiche : ' + net(im[0]));
       if (e.nb) L.push('noir et blanc : oui');
       if (e.t === 'echelle') L.push('de : ' + net(e.a), 'à : ' + net(e.b));
-      else if (e.t !== 'ab') e.o.forEach((o, i) => { if (net(o)) L.push((e.jeu && i === e.bon ? '+ ' : '- ') + net(o)); });
+      else if (e.t !== 'ab') (e.o || []).forEach((o, i) => { if (net(o)) L.push((e.jeu && i === e.bon ? '+ ' : '- ') + net(o)); });
     }
     if (e.masque) L.push('masqué : oui');
     L.push('');

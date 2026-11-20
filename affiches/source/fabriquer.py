@@ -191,6 +191,6 @@ for nom, (compo, classes, img) in AFFICHES.items():
     subprocess.run([CHROME, '--headless=new', '--disable-gpu', '--hide-scrollbars', '--force-device-scale-factor=1', '--window-size=1000,1414', '--virtual-time-budget=7000',
                     '--user-data-dir=' + os.path.join(TMP, 'chrome'), '--screenshot=' + png, 'file:///' + html.replace('\\', '/')], check=True, capture_output=True)
     im = Image.open(png).convert('RGB'); assert im.size == (1000, 1414), im.size
-    im.save(os.path.join(SORTIE, nom + '.jpg'), quality=84); pages.append(im); print(nom, 'ok')
+    im.save(os.path.join(SORTIE, nom + '.jpg'), quality=76, optimize=True, progressive=True); pages.append(im); print(nom, 'ok')
 pages[0].save(os.path.join(PDF, 'affiches-test-A4.pdf'), save_all=True, append_images=pages[1:], resolution=120.9)  # 1000 px sur 210 mm
 shutil.rmtree(os.path.join(TMP, 'chrome'), ignore_errors=True)
