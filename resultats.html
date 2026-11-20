@@ -56,16 +56,6 @@ article .n{color:var(--gris);font-size:15px;margin:4px 0 12px}
 .legende{display:flex;gap:18px;flex-wrap:wrap;font-size:15px;font-weight:700;margin-top:16px}
 .legende i{display:inline-block;width:1.6em;height:.7em;border-radius:99px;background:var(--n);margin-right:6px;vertical-align:middle}
 .legende i.a{background:linear-gradient(90deg,#F5A0C6,#F7C33B,#1F6FE0)}
-.colonnes{display:flex;align-items:flex-end;gap:3px;height:190px;margin-top:24px;border-bottom:2px solid var(--n)}
-.colonnes i{flex:1;min-width:2px;min-height:3px;border-radius:5px 5px 0 0}
-.rangs{max-width:780px;margin-top:14px}
-.duel{margin-top:16px;max-width:780px;font-size:16px}
-.duel div{display:grid;grid-template-columns:5.2em 1fr 5.2em;gap:10px;align-items:center;font-weight:800;margin-top:4px}
-.duel div span:last-child{text-align:right}
-.duel .piste{grid-column:auto;background:#1F6FE0}.duel .piste i{background:#F5A0C6;border-radius:7px 0 0 7px}
-.aff{display:grid;grid-template-columns:minmax(90px,150px) 1fr;gap:20px;margin-top:30px;max-width:820px;break-inside:avoid}
-.aff img{width:100%;border-radius:10px;background:var(--fond)}
-.aff h3{margin:0;font-size:24px;font-weight:800;letter-spacing:-.02em}
 .vide{margin-top:40px;font-size:22px;font-weight:700}
 .bornes{display:flex;justify-content:space-between;color:var(--gris);font-size:14px;margin-top:6px}
 @media (max-width:520px){.chiffres{gap:10px}}
@@ -87,7 +77,6 @@ article .n{color:var(--gris);font-size:15px;margin:4px 0 12px}
   <label>Chercher une question<input type="search" id="chercher" placeholder="Un mot de la question"></label>
   <label>Ranger les questions<select id="tri"><option value="">Dans l'ordre de la séance</option><option value="fort">Les plus unanimes d'abord</option><option value="faible">Les plus partagées d'abord</option></select></label>
 </div>
-<div class="choix" id="mode" role="group" aria-label="Choisir l'affichage"><button data-m="" aria-pressed="true">Question par question</button><button data-m="g" aria-pressed="false">En graphiques</button></div>
 <div id="vue"></div>
 </main>
 <script src="seance.js"></script>
@@ -100,7 +89,7 @@ const COUL = { 'Étape 1': '#F5A0C6', 'Étape 2': '#F7C33B', 'Étape 3': '#1F6FE
 const h = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])).replace(/ ([?!:;»])/g, '&nbsp;$1').replace(/« /g, '«&nbsp;');
 const fr = (x, d = 1) => x.toFixed(d).replace('.', ','), pc = x => Math.round(x * 100) + ' %';
 const $ = id => document.getElementById(id), plat = x => x.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
-let D = null, mode = '', seance = new URLSearchParams(location.search).get('seance') || '';
+let D = null, seance = new URLSearchParams(location.search).get('seance') || '';
 
 // les totaux d'une séance ('' = toutes) : par question, le nombre de répondants, le détail des réponses, la moyenne des notes
 function totaux(code) {
@@ -140,52 +129,8 @@ function dessiner() {
   T.ordre.filter(q => !vues.has(q)).forEach(q => { const g = T.groupe[q] === 'Atelier' ? 'Atelier' : 'Autres questions'; ranger(g, q, carte(g, q, T.notes[q] ? ['1', '2', '3', '4', '5'].map(x => x + ' sur 5') : null)); });
   if (tri) Object.values(blocs).forEach(b => b.sort((x, y) => tri === 'fort' ? y[0] - x[0] : x[0] - y[0]));
 
-  // la part de bonnes réponses de chaque question du jeu, de la mieux retenue à la moins retenue (pour les graphiques)
-  const jeux = Q.filter(e => e.bon != null).map(e => [((T.compte[e.q] || {})[e.o[e.bon]] || 0) / T.rep[e.q], e.q]).sort((a, b) => b[0] - a[0]);
   Q.filter(e => e.t === 'ab').map(e => { const c = T.compte[e.q] || {}, x = c.A || 0, y = c.B || 0; return [Math.abs(x - y) / T.rep[e.q], x > y ? 'A' : 'B', Math.max(x, y) / T.rep[e.q], e]; })
 
-  // ---------- les graphiques : la même sélection, vue d'ensemble ----------
-  if (mode) {
-    const G = [], ok = q => !mot || plat(q).includes(mot), Qm = Q.filter(e => ok(e.q)), coul = g => COUL[g] || '#141414';
-    const bloc = (titre, texte, html) => html && G.push(`<section style="--c:#141414"><h2><i></i>${h(titre)}</h2><p>${h(texte)}</p>${html}</section>`);
-    const rang = (nom, part, val, c) => `<div class="barre"><span>${h(nom)}</span><b>${h(val)}</b><div class="piste"><i style="width:${part * 100}%;background:${c}"></i></div></div>`;
-    const rangs = L => L.length ? `<div class="rangs">${L.join('')}</div>` : '';
-    // le contrôle : par séance, la part des réponses attendues (participants × questions du test actuel) qui sont bien arrivées
-    const nQ = QUESTIONS().length || 1;
-    bloc('Contrôle des séances', "Pour vérifier que tout s'enregistre. Une ligne par séance : ses participants, le nombre de réponses reçues, et leur part sur ce qui était attendu (participants × questions du test actuel). Une séance passée avec un ancien test peut dépasser ou rester loin de 100 %.",
-      rangs(codes.filter(c => !seance || c === seance).map(c => { const n = D.seances[c], recu = D.repondants.filter(l => l[0] === c).reduce((x, l) => x + l[3], 0), part = recu / (n * nQ);
-        return rang(`Séance ${c} · ${n} participant${n > 1 ? 's' : ''}`, Math.min(1, part), `${recu} réponse${recu > 1 ? 's' : ''} · ${pc(part)}`, '#141414'); })));
-    // une affiche = les questions qui la montrent, plus celles qui commencent par son nom
-    const nomA = x => x.split('/').pop().replace(/\.[^.]+$/, ''), A = {}, court = (q, k) => q.startsWith(k + ' : ') ? q.slice(k.length + 3).replace(/^./, c => c.toUpperCase()) : q;
-    const de = e => e.t === 'ab' ? '' : e.img || (e.imgs || [])[0] || ''; // l'affiche montrée avec la question
-    Qm.filter(de).forEach(e => (A[nomA(de(e))] = A[nomA(de(e))] || { img: de(e), Q: [] }).Q.push(e));
-    Qm.filter(e => !de(e) && e.t !== 'ab' && A[e.q.split(' : ')[0]]).forEach(e => A[e.q.split(' : ')[0]].Q.push(e));
-    const fiches = Object.entries(A).map(([k, a]) => { const N = a.Q.filter(e => T.notes[e.q]), s = N.reduce((x, e) => [x[0] + T.notes[e.q][0], x[1] + T.notes[e.q][1]], [0, 0]); return [s[1] ? s[0] / s[1] : 0, k, a, N]; }).sort((x, y) => y[0] - x[0]);
-    bloc('Affiche par affiche', "Chaque affiche testée, de la mieux notée à la moins bien notée, avec le détail de ses notes et la réponse la plus donnée à chaque question.",
-      fiches.map(([m, k, a, N]) => `<div class="aff"><img src="${h(a.img)}" alt="" loading="lazy"><div><h3>${h(k)}</h3>${m ? `<div class="moy">${fr(m)} <small>sur 5, toutes notes confondues</small></div>` : ''}`
-        + N.map(e => { const x = T.notes[e.q][0] / T.notes[e.q][1]; return rang(court(e.q, k), (x - 1) / 4, fr(x) + ' sur 5', coul(e.p ? 'Étape ' + e.p : '')); }).join('')
-        + a.Q.filter(e => !T.notes[e.q] && e.t !== 'texte').map(e => { const c = T.compte[e.q] || {}, tete = Object.keys(c).sort((x, y) => c[y] - c[x])[0]; return `<p class="n" style="margin:10px 0 0">${h(court(e.q, k))} <b style="color:var(--n)">${h(tete)}</b> (${pc(Math.min(1, accord(T, e.q)))})</p>`; }).join('')
-        + `</div></div>`).join(''));
-    const max = Math.max(1, ...Qm.map(e => T.rep[e.q]));
-    bloc('La participation, question après question', "Une colonne par question, dans l'ordre de la séance. Plus elle est haute, plus il y a eu de réponses : une baisse montre où le groupe décroche.",
-      Qm.length > 1 ? `<div class="colonnes" role="img" aria-label="Nombre de réponses par question, de ${Math.min(...Qm.map(e => T.rep[e.q]))} à ${max}">${Qm.map(e => `<i title="${h(e.q)} : ${T.rep[e.q]}" style="height:${T.rep[e.q] / max * 100}%;background:${coul(e.p ? 'Étape ' + e.p : '')}"></i>`).join('')}</div>
-        <div class="bornes"><span>Début</span><span>Colonne la plus haute : ${max} réponse${max > 1 ? 's' : ''}</span><span>Fin</span></div>
-        <div class="legende">${[['', "Jeu de l'œil"], ['Étape 1', PHASES[1].nom], ['Étape 2', PHASES[2].nom], ['Étape 3', PHASES[3].nom]].map(([g, nom]) => `<span><i style="background:${coul(g)}"></i>${h(nom)}</span>`).join('')}</div>` : '');
-    bloc('Ce que le regard a retenu', "Le jeu de l'œil : la part de bonnes réponses après 5 secondes devant l'affiche, de la mieux retenue à la moins retenue.",
-      rangs(jeux.filter(x => ok(x[1])).map(([p, q]) => rang(q, p, pc(p), '#141414'))));
-    bloc('Toutes les notes, de la meilleure à la plus basse', 'La moyenne de chaque note de 1 à 5. La barre est pleine à 5 et vide à 1.',
-      rangs(T.ordre.filter(q => T.notes[q] && ok(q)).map(q => [T.notes[q][0] / T.notes[q][1], q]).sort((a, b) => b[0] - a[0]).map(([m, q]) => rang(q, (m - 1) / 4, fr(m) + ' sur 5', coul(T.groupe[q])))));
-    bloc('A ou B : qui gagne', "Chaque ligne est une comparaison de deux affiches. Le rose est la part de A, le bleu la part de B.",
-      Qm.filter(e => e.t === 'ab').map(e => { const c = T.compte[e.q] || {}, a = c.A || 0, b = c.B || 0, t = a + b || 1;
-        return `<div class="duel"><span>${h(e.q)}${e.note ? ' (' + h(e.note) + ')' : ''}</span><div><span>A · ${pc(a / t)}</span><div class="piste"><i style="width:${a / t * 100}%"></i></div><span>B · ${pc(b / t)}</span></div></div>`; }).join(''));
-    bloc("D'accord ou partagés", "Pour chaque question à choix, la part de la réponse la plus donnée. Une barre longue : le groupe est d'accord. Une barre courte : les avis sont partagés.",
-      rangs(Qm.filter(e => (e.t === 'choix' || e.t === 'multi') && e.bon == null).map(e => [accord(T, e.q), e]).sort((a, b) => b[0] - a[0]).map(([p, e]) => {
-        const c = T.compte[e.q] || {}, tete = Object.keys(c).sort((a, b) => c[b] - c[a])[0];
-        return rang(e.q + ' → ' + tete, Math.min(1, p), pc(Math.min(1, p)), coul('Étape ' + e.p)); })));
-    $('vue').innerHTML = `<div class="chiffres"><div><b>${gens}</b>participant${gens > 1 ? 's' : ''}</div><div><b>${seance ? 1 : codes.length}</b>séance${!seance && codes.length > 1 ? 's' : ''}</div><div><b>${total}</b>réponse${total > 1 ? 's' : ''}</div></div>`
-      + (G.join('') || `<p class="vide">Pas encore assez de réponses pour tracer un graphique.</p>`);
-    return;
-  }
   const titres = { "Jeu de l'œil": ["Le jeu de l'œil", 'Une affiche vue 5 secondes, puis des questions précises.'], 'Étape 1': [PHASES[1].nom, PHASES[1].quoi], 'Étape 2': [PHASES[2].nom, PHASES[2].quoi], 'Étape 3': [PHASES[3].nom, PHASES[3].quoi], Atelier: ["L'atelier", 'Les affiches fabriquées en binômes, notées par la salle.'], 'Autres questions': ['Autres questions', 'Des questions qui ne sont plus dans la séance actuelle.'] };
   $('vue').innerHTML =
     `<div class="chiffres"><div><b>${gens}</b>participant${gens > 1 ? 's' : ''}</div><div><b>${seance ? 1 : codes.length}</b>séance${!seance && codes.length > 1 ? 's' : ''}</div><div><b>${total}</b>réponse${total > 1 ? 's' : ''}</div></div>`
@@ -204,7 +149,6 @@ function charger() {
     .catch(() => { $('maj').textContent = 'Les résultats ne se chargent pas. Vérifiez la connexion internet.'; });
 }
 $('choix').addEventListener('click', ev => { const b = ev.target.closest('[data-s]'); if (b) { seance = b.dataset.s; history.replaceState(null, '', seance ? '?seance=' + seance : location.pathname); dessiner(); } });
-$('mode').addEventListener('click', ev => { const b = ev.target.closest('[data-m]'); if (b) { mode = b.dataset.m; $('mode').querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x === b)); dessiner(); } });
 ['comparer', 'tri'].forEach(id => $(id).addEventListener('change', dessiner));
 $('chercher').addEventListener('input', dessiner);
 connexion('Étudier les données').then(() => fetch('seance.txt?' + Date.now())).then(x => x.text()).then(lireSeance).catch(() => { }).then(() => { dessiner(); charger(); setInterval(charger, 20000); });
