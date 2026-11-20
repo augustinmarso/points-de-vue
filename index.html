@@ -191,7 +191,7 @@ const nouveauCode = () => String(1000 + Math.random() * 9000 | 0);
 let code = P.get('salle');
 if (ECRAN && !code) { try { code = localStorage.getItem('pdvCode') || nouveauCode(); localStorage.setItem('pdvCode', code); } catch (e) { code = nouveauCode(); } }
 const SALLE = (code || '').replace(/[^a-z0-9]/gi, '').toLowerCase().slice(0, 12);
-const HOTE = 'pointsdevue-gtm-' + SALLE;
+const HOTE = 'pointsdevue-gtm-' + SALLE + (APERCU ? '-' + Math.random().toString(36).slice(2, 8) : ''); // chaque aperçu a sa propre adresse : aucun téléphone ne s'y branche
 const SHEET = SCRIPT_GOOGLE;
 // les séances en cours : chaque grand écran donne signe de vie toutes les 30 secondes, la liste oublie une séance après 2 minutes de silence
 const seancesEnCours = () => fetch(SHEET).then(x => x.json()).then(l => (Array.isArray(l) ? l : []).filter(x => /^[a-z0-9]{1,12}$/.test(x.code))).catch(() => []);
@@ -640,14 +640,14 @@ function ecran() {
   const noter = l => { if (l) { (S.file = S.file || []).push(l); garder(); } };
   let envoi = false;
   setInterval(() => {
-    if (envoi || !S.file || !S.file.length) return;
+    if (envoi || APERCU || !S.file || !S.file.length) return; // un aperçu n'enregistre rien
     const lot = S.file.slice(0, 200); envoi = true;
     fetch(SHEET, { method: 'POST', mode: 'no-cors', body: JSON.stringify(lot) })
       .then(() => { S.file = S.file.slice(lot.length); garder(); }).catch(() => { }).finally(() => { envoi = false; });
   }, 4000);
 
   const annoncer = () => fetch(SHEET, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ seance: { code: SALLE, n: enLigne().size, i: S.i + 1, total: ETAPES.length } }) }).catch(() => { });
-  if (!PAPIER) { annoncer(); setInterval(annoncer, 30000); } // une séance sur papier n'attend aucun téléphone
+  if (!PAPIER && !APERCU) { annoncer(); setInterval(annoncer, 30000); } // une séance sur papier n'attend aucun téléphone
   if (!APERCU) declarerVersion();
 
   function exporter() {

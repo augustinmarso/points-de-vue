@@ -104,6 +104,8 @@ dialog h3{margin:0 0 6px;font-size:24px;font-weight:800;letter-spacing:-.03em}
   <div class="ligne"><label class="btn clair">Ajouter une image<input type="file" accept="image/*" hidden id="ajout"></label><button class="btn clair" data-a="fermer">Fermer</button><span class="aide" id="etatImage"></span></div></dialog>
 <dialog id="nouveau"><h3>Ajouter un écran</h3><p class="aide">Il se place juste après l'écran choisi. Vous pourrez ensuite le déplacer.</p><div class="types" id="types"></div>
   <div class="ligne"><button class="btn clair" data-a="fermer">Fermer</button></div></dialog>
+<dialog id="choixApercu"><h3>Prévisualiser</h3><p class="aide">Le diaporama du grand écran, avec vos modifications même non enregistrées. Rien ne part en ligne.</p>
+  <p style="display:flex;gap:10px;flex-wrap:wrap;margin:16px 0 0"><button class="btn" data-mode="&papier">Présentation papier</button><button class="btn" data-mode="">Présentation téléphone</button><button class="btn clair" data-mode="x">Fermer</button></p></dialog>
 <dialog id="jeton"><h3>Enregistrer sur le site</h3>
   <p>Pour écrire sur le site, cette page a besoin d'une clé GitHub (un « jeton »). Elle reste dans ce navigateur, sur cet ordinateur.</p>
   <ol class="aide"><li>Ouvrez <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">la création d'un jeton GitHub</a>.</li><li>Accès au dépôt : seulement « points-de-vue ». Permission « Contents » : lecture et écriture.</li><li>Copiez le jeton et collez-le ici.</li></ol>
@@ -274,7 +276,9 @@ async function enregistrer() {
 }
 $('enregistrer').addEventListener('click', enregistrer);
 // prévisualiser : le grand écran s'ouvre dans un autre onglet avec les écrans tels qu'ils sont ici, enregistrés ou non. Rien ne part en ligne.
-$('apercu').addEventListener('click', () => { try { localStorage.setItem('pdvApercu', ecrireSeance(M)); localStorage.removeItem('apercupdvSeance'); } catch (e) { } open('./?ecran&papier&apercu&salle=apercu', '_blank'); });
+$('apercu').addEventListener('click', () => $('choixApercu').showModal());
+$('choixApercu').addEventListener('click', ev => { const b = ev.target.closest('[data-mode]'); if (!b) return; $('choixApercu').close(); if (b.dataset.mode === 'x') return;
+  try { localStorage.setItem('pdvApercu', ecrireSeance(M)); localStorage.removeItem('apercupdvSeance'); } catch (e) { } open('./?ecran' + b.dataset.mode + '&apercu&salle=apercu', '_blank'); });
 $('annuler').addEventListener('click', () => { if (confirm('Revenir à la dernière version enregistrée ?')) { lireSeance(depart); charger(); } });
 $('jeton').addEventListener('click', ev => {
   const a = (ev.target.closest('[data-a]') || {}).dataset; if (!a) return;
