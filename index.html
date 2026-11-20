@@ -294,7 +294,7 @@ function telephone() {
           connu = true;
           if (d.sid !== mes.sid) { mes.sid = d.sid; mes.rep = {}; garder(); }
           else if (premier) for (const id in mes.rep) c.send({ k: 'rep', id, v: mes.rep[id] }); // réponses données hors connexion
-          premier = false; courant = d.i; sous = d.n || 0; dessiner();
+          premier = false; courant = ETAPES[d.i] ? d.i : 0; sous = d.n >= 0 && d.n < 999 ? d.n | 0 : 0; dessiner();
         }
         if (d.k === 'photo-ok' && photo) { photo.etat = 'ok'; dessiner(true); }
       });
@@ -398,7 +398,7 @@ function ecran() {
         if (v == null || v.length === 0) return;
         (S.rep[d.id] = S.rep[d.id] || {})[c.pid] = v;
       }
-      if (d.k === 'photo' && typeof d.img === 'string' && d.img.startsWith('data:image/jpeg;base64,') && d.img.length < 900000) {
+      if (d.k === 'photo' && typeof d.img === 'string' && d.img.length < 900000 && /^data:image\/jpeg;base64,[A-Za-z0-9+\/=]+$/.test(d.img)) {
         S.photos.push({ img: d.img, mot: texte(d.mot, 80), pid: c.pid }); c.send({ k: 'photo-ok' });
       }
       garder(); maj();
@@ -505,7 +505,7 @@ function ecran() {
     }
     S.photos.forEach(p => L.push([(S.gens[p.pid] || {}).n + 1, (S.gens[p.pid] || {}).nom, 'atelier', 'photo', p.mot]));
     const a = document.createElement('a');
-    a.href = URL.createObjectURL(new Blob(['﻿' + L.map(l => l.map(c => '"' + String(c ?? '').replace(/"/g, '""') + '"').join(';')).join('\r\n')], { type: 'text/csv' }));
+    a.href = URL.createObjectURL(new Blob(['﻿' + L.map(l => l.map(c => '"' + String(c ?? '').replace(/^[=+\-@	]/, "'$&").replace(/"/g, '""') + '"').join(';')).join('\r\n')], { type: 'text/csv' }));
     a.download = 'points-de-vue-reponses.csv'; a.click();
   }
 
