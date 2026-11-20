@@ -73,7 +73,7 @@ textarea.champ{min-height:150px;resize:none}
 .apercu{width:100%;border-radius:28px;display:block}
 
 /* grand écran */
-.ecran{height:100vh;padding:5vh 4vw calc(3vh + 44px);position:relative;display:flex;flex-direction:column;overflow:hidden;font-size:clamp(18px,1.7vw,34px)}
+.ecran{height:100vh;padding:5vh 4vw 5vh;position:relative;display:flex;flex-direction:column;overflow:hidden;font-size:clamp(18px,1.7vw,34px)}
 .ecran h1{font-size:clamp(34px,4.3vw,92px)}
 .barre{position:absolute;top:2.5vh;left:4vw;right:4vw;display:flex;justify-content:space-between;align-items:flex-start;gap:2vw;font-size:.7em}
 .gens{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:.5vw;max-width:45vw}
@@ -124,7 +124,7 @@ textarea.champ{min-height:150px;resize:none}
 .qr{display:flex;align-items:center;gap:1.6vw;margin-top:auto;font-weight:700}
 .qr svg{width:15vw;height:15vw;display:block;background:#fff;flex:none}
 .qr .code{font-size:2.6em;font-weight:800;letter-spacing:.04em;vertical-align:middle}
-.flash{position:fixed;inset:0;z-index:5;background:#fff;display:flex;align-items:center;justify-content:center;gap:4vw;padding:3vh 4vh 60px}
+.flash{position:fixed;inset:0;z-index:5;background:#fff;display:flex;align-items:center;justify-content:center;gap:4vw;padding:3vh 4vh}
 .flash img{max-width:70vw}
 .flash .tete{font-size:16vh;animation:fond5 5s linear forwards}
 @keyframes fond5{to{transform:scale(0)}}
@@ -134,10 +134,13 @@ textarea.champ{min-height:150px;resize:none}
 .palm figure{font-size:.85em;font-weight:400;line-height:1.2}.palm figure b{font-weight:800}
 .mur figure.zoom{position:fixed;inset:0;z-index:6;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1vh;padding:3vh;cursor:zoom-out;font-size:1em;animation:none}
 .mur figure.zoom img{width:auto;max-width:100%;height:86vh;aspect-ratio:auto;object-fit:contain}
-.cmd{position:fixed;left:0;right:0;bottom:0;z-index:7;display:flex;align-items:center;white-space:nowrap;overflow:hidden;gap:16px;height:44px;padding:0 4vw;font-size:13px;font-weight:700;opacity:.45;transition:opacity .2s;background:#fff}
-.cmd:hover{opacity:1}
-.cmd button,.cmd label{cursor:pointer;text-decoration:underline}
-.cmd .fort{background:var(--n);color:#fff;border-radius:99px;padding:2px 14px;text-decoration:none}
+.cmd{position:fixed;left:1vw;bottom:1vh;z-index:7;font-size:13px;font-weight:700}
+.cmd .home{opacity:.22;padding:6px 10px;transition:opacity .2s}
+.cmd .home:hover,.cmd.ouvert .home{opacity:1}
+.cmd .liste{display:none;position:absolute;left:0;bottom:100%;flex-direction:column;align-items:flex-start;gap:12px;white-space:nowrap;background:#fff;color:var(--n);border-radius:18px;padding:16px 20px;box-shadow:0 4px 24px rgba(20,20,20,.2)}
+.cmd.ouvert .liste{display:flex}
+.cmd .liste button,.cmd .liste label{cursor:pointer;text-decoration:underline}
+.auto{position:fixed;right:1.5vw;bottom:1.4vh;z-index:7;font-size:13px;font-weight:700;opacity:.5}
 body.plein.p3 #app{color:#fff}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
@@ -495,11 +498,11 @@ function ecran() {
         const v = t === 'texte' ? texte(d.v, 200) : t === 'multi' ? (Array.isArray(d.v) ? d.v.filter(bon) : []) : bon(d.v) ? d.v : null;
         if (v == null || v.length === 0) return;
         const dejaR = S.rep[d.id] = S.rep[d.id] || {};
-        if (!(c.pid in dejaR)) dejaR[c.pid] = v; // une réponse donnée ne se change plus
+        if (!(c.pid in dejaR)) { dejaR[c.pid] = v; noter(ligneRep(d.id, c.pid, v)); } // une réponse donnée ne se change plus
       }
       if (d.k === 'photo' && typeof d.img === 'string' && d.img.length < 900000 && /^data:image\/jpeg;base64,[A-Za-z0-9+\/=]+$/.test(d.img)) {
         const dej = S.photos.findIndex(p => p.pid === c.pid), ph = { img: d.img, mot: texte(d.mot, 80), pid: c.pid };
-        if (dej >= 0 && ETAPES[S.i].t === 'photo') S.photos[dej] = ph; else S.photos.push(ph); // refaire sa photo la remplace
+        if (dej >= 0 && ETAPES[S.i].t === 'photo') S.photos[dej] = ph; else { S.photos.push(ph); noter(lignePhoto(ph, S.photos.length - 1)); } // refaire sa photo la remplace
         c.send({ k: 'photo-ok' }); cle = '';
       }
       garder(); cle ? maj() : dessiner();
@@ -566,11 +569,13 @@ function ecran() {
     }
     const prete = q.id && !S.rev && Object.keys(S.rep[q.id] || {}).length;
     app.innerHTML = `<div class="ecran"><div class="barre"><span class="sur">${souci ? h(souci) : ''}</span><div class="gens"></div></div><div class="corps"><div class="gauche">${g}</div>${d}</div></div>
-      <div class="cmd"><button data-a="avant">← Retour</button><button class="fort" data-a="suite">${e.t === 'flash' && !flash ? 'Montrer 5 secondes' : prete ? 'Révéler les réponses' : 'Suite →'}</button>
-      <span>${S.i + 1} / ${ETAPES.length}</span>
-      <label>Tester une autre affiche${affiches.A ? ' ✓' : ''}<input type="file" accept="image/*" hidden data-f="A"></label>
-      <button data-a="son">Son : ${S.son === false ? 'non' : 'oui'}</button><button data-a="auto">Suite automatique : ${S.auto === false ? 'non' : 'oui'}</button><span class="auto"></span>
-      <button data-a="csv">Exporter les réponses</button><button data-a="sheets">Copier pour Google Sheets</button><button data-a="neuve">Nouvelle séance</button><button data-a="plein">Plein écran</button></div>`;
+      <div class="cmd"><button class="home" data-a="menu">Menu</button><div class="liste">
+        <span>Écran ${S.i + 1} sur ${ETAPES.length} · code ${h(SALLE)}</span>
+        <button data-a="suite">${e.t === 'flash' && !flash ? 'Montrer 5 secondes' : prete ? 'Révéler les réponses' : 'Suite →'} (flèche droite)</button><button data-a="avant">← Retour (flèche gauche)</button>
+        <button data-a="auto">Suite automatique : ${S.auto === false ? 'non' : 'oui'}</button><button data-a="son">Son : ${S.son === false ? 'non' : 'oui'}</button>
+        <label>Tester une autre affiche${affiches.A ? ' ✓' : ''}<input type="file" accept="image/*" hidden data-f="A"></label>
+        <button data-a="plein">Plein écran</button><button data-a="csv">Télécharger les réponses</button><button data-a="neuve">Nouvelle séance</button>
+      </div></div><span class="auto"></span>`;
     maj(); regards();
   }
 
@@ -629,14 +634,25 @@ function ecran() {
     if (q.t === 'echelle' && vals.length) cpt.textContent += ` · moyenne ${(vals.reduce((a, v) => a + v + 1, 0) / vals.length).toFixed(1).replace('.', ',')} sur 5`;
   }
 
-  function exporter(versSheets) {
+  // chaque réponse part toute seule vers le Google Sheet de synthèse (onglet Données), par petits paquets toutes les 4 secondes ;
+  // ce qui n'a pas pu partir (coupure d'internet) reste en file et repart dès que possible
+  const SHEET = 'https://script.google.com/macros/s/AKfycbzPof8sEj8tZLlA-MtVDYyODv32y8lXxc9hLVmaW5zCvHLilyRIxpk4Ix6TPhzJczjn/exec';
+  const qui = pid => { const g = S.gens[pid] || {}; return [SALLE + '-' + (g.n + 1), g.nom || '']; };
+  const ligneRep = (id, pid, v) => { const e = trouver(id); return e && [...qui(pid), e.p ? 'Étape ' + e.p : e.voteK != null ? 'Atelier' : "Jeu de l'œil", e.voteK != null ? `Affiche ${e.voteK + 1} : ${e.q}` : e.q, e.t === 'echelle' ? `${v + 1} sur 5` : e.o ? [].concat(v).map(x => e.o[x]).join(' | ') : v, e.t === 'echelle' ? v + 1 : '']; };
+  const lignePhoto = (p, k) => [...qui(p.pid), 'Atelier', `Affiche ${k + 1} : information et binôme`, MISSIONS[S.mission] + (p.mot ? ' (' + p.mot + ')' : ''), ''];
+  const noter = l => { if (l) { (S.file = S.file || []).push(l); garder(); } };
+  let envoi = false;
+  setInterval(() => {
+    if (envoi || !S.file || !S.file.length) return;
+    const lot = S.file.slice(0, 200); envoi = true;
+    fetch(SHEET, { method: 'POST', mode: 'no-cors', body: JSON.stringify(lot) })
+      .then(() => { S.file = S.file.slice(lot.length); garder(); }).catch(() => { }).finally(() => { envoi = false; });
+  }, 4000);
+
+  function exporter() {
     const L = [['participant', 'prénom', 'étape', 'question', 'réponse', 'note']];
-    for (const [id, r] of Object.entries(S.rep)) for (const [pid, v] of Object.entries(r)) {
-      const e = trouver(id), g = S.gens[pid] || {}; if (!e) continue;
-      L.push([g.n + 1, g.nom, e.p ? 'Étape ' + e.p : e.voteK != null ? 'Atelier' : "Jeu de l'œil", e.voteK != null ? `Affiche ${e.voteK + 1} : ${e.q}` : e.q, e.t === 'echelle' ? `${v + 1} sur 5` : e.o ? [].concat(v).map(x => e.o[x]).join(' | ') : v, e.t === 'echelle' ? v + 1 : '']);
-    }
-    S.photos.forEach((p, k) => L.push([(S.gens[p.pid] || {}).n + 1, (S.gens[p.pid] || {}).nom, 'Atelier', `Affiche ${k + 1} : information et binôme`, MISSIONS[S.mission] + (p.mot ? ' (' + p.mot + ')' : ''), '']));
-    if (versSheets) return navigator.clipboard.writeText(L.map(l => l.map(c => String(c ?? '').replace(/[\t\n]/g, ' ').replace(/^[=+@-]/, "'$&")).join('\t')).join('\n')).then(() => alert('Réponses copiées. Dans le Google Sheet, cliquez sur la case A1 de l\'onglet « Données » puis collez (Ctrl + V).'));
+    for (const [id, r] of Object.entries(S.rep)) for (const [pid, v] of Object.entries(r)) { const l = ligneRep(id, pid, v); if (l) L.push(l); }
+    S.photos.forEach((p, k) => L.push(lignePhoto(p, k)));
     const a = document.createElement('a');
     a.href = URL.createObjectURL(new Blob(['﻿' + L.map(l => l.map(c => '"' + String(c ?? '').replace(/^[=+@-]/, "'$&").replace(/"/g, '""') + '"').join(';')).join('\r\n')], { type: 'text/csv' }));
     a.download = 'points-de-vue-reponses.csv'; a.click();
@@ -646,10 +662,10 @@ function ecran() {
     const fig = ev.target.closest('.mur figure'); if (fig) return fig.classList.toggle('zoom');
     const a = ev.target.closest('[data-a]'); if (!a) return;
     const act = a.dataset.a;
+    if (act === 'menu') return a.parentNode.classList.toggle('ouvert');
     if (act === 'suite') suivant();
     if (act === 'avant') aller(S.i - 1, -1);
     if (act === 'csv') exporter();
-    if (act === 'sheets') exporter(true);
     if (act === 'mission') { mission = S.mission = (S.mission + 1) % MISSIONS.length; garder(); diffuser(); dessiner(true); }
     if (act === 'son') { S.son = S.son === false; garder(); dessiner(true); SONS.revele(); }
     if (act === 'auto') { S.auto = S.auto === false; garder(); dessiner(true); }

@@ -8,7 +8,7 @@ window.__v = () => {
   const txt = [...document.querySelectorAll('#app *')].filter(e => !e.closest('.cmd') && vis(e) && [...e.childNodes].some(n => n.nodeType === 3 && n.textContent.trim()))
     .map(e => { const b = [...e.childNodes].filter(n => n.nodeType === 3 && n.textContent.trim()).flatMap(n => { const r = document.createRange(); r.selectNode(n); return [...r.getClientRects()]; }).filter(b => b.width > 1 && b.height > 1); return { e, b }; }).filter(x => x.b.length);
   const croise = (a, b, m) => Math.min(a.right, b.right) - Math.max(a.left, b.left) > m && Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top) > Math.min(a.height, b.height) * .3;
-  const cmd = document.querySelector('.cmd'), bas = cmd ? cmd.getBoundingClientRect().top : vh;
+  const cmd = document.querySelector('.cmd'), bas = vh; // grand écran : rien ne doit sortir par le bas
   const imgs = [...document.querySelectorAll('#app img, #app .qr svg')].filter(vis).map(e => e.getBoundingClientRect());
   const yeux = [...document.querySelectorAll('#fond .yeux i')].map(e => e.getBoundingClientRect());
   const bleu = document.querySelectorAll('#fond .blob')[2].getBoundingClientRect(), rb = bleu.width / 2;
@@ -36,7 +36,7 @@ window.__parcours = async (lent = 0) => {
     await pause(document.body.classList.contains('plein') ? 2400 : 900);
     while (document.querySelector('.flash')) await pause(600);
     await pause(300 + lent);
-    const h1 = (document.querySelector('.gauche h1') || {}).textContent || '', nom = (document.querySelector('.cmd span') || {}).textContent + ' ' + h1.slice(0, 44) + (document.querySelector('.cols,.mots') ? ' [réponses]' : '');
+    const h1 = (document.querySelector('.gauche h1') || {}).textContent || '', nom = ((document.querySelector('.cmd .liste span') || {}).textContent || '').slice(0, 16) + ' ' + h1.slice(0, 44) + (document.querySelector('.cols,.mots') ? ' [réponses]' : '');
     const pb = __v(); if (pb.length) res[nom] = pb;
     window.__vus = n + 1;
     if (h1.startsWith('Merci')) break;
