@@ -97,7 +97,12 @@ function dessiner() {
     + Object.keys(titres).filter(g => blocs[g]).map(g => `<section style="--c:${COUL[g] || '#141414'}"><h2><i></i>${h(titres[g][0])}</h2><p>${h(titres[g][1])}</p><div class="grille">${blocs[g].join('')}</div></section>`).join('');
 }
 function charger() {
-  fetch(SOURCE).then(x => x.json()).then(d => { D = d; document.getElementById('maj').textContent = 'Mis à jour à ' + new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) + '. Résultats anonymes, actualisés toutes les 20 secondes.'; dessiner(); })
+  const nb = x => Number(x) || 0, texte = x => String(x ?? '');
+  const propre = d => ({ seances: Object.fromEntries(Object.entries(d.seances || {}).map(([c, n]) => [texte(c), nb(n)])),
+    lignes: (d.lignes || []).map(l => [texte(l[0]), texte(l[1]), texte(l[2]), texte(l[3]), nb(l[4])]),
+    notes: (d.notes || []).map(l => [texte(l[0]), texte(l[1]), texte(l[2]), nb(l[3]), nb(l[4])]),
+    repondants: (d.repondants || []).map(l => [texte(l[0]), texte(l[1]), texte(l[2]), nb(l[3])]) });
+  fetch(SOURCE).then(x => x.json()).then(d => { D = propre(d); document.getElementById('maj').textContent = 'Mis à jour à ' + new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) + '. Résultats anonymes, actualisés toutes les 20 secondes.'; dessiner(); })
     .catch(() => { document.getElementById('maj').textContent = 'Les résultats ne se chargent pas. Vérifiez la connexion internet.'; });
 }
 document.getElementById('choix').addEventListener('click', ev => { const b = ev.target.closest('[data-s]'); if (b) { seance = b.dataset.s; history.replaceState(null, '', seance ? '?seance=' + seance : location.pathname); dessiner(); } });
