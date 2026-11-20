@@ -298,7 +298,7 @@ addEventListener('resize', placer);
 const carte = (lien, c, titre, texte) => `<a href="${lien}" style="--c:var(--c${c});--t:var(--t${c})">${tete(c)}<b>${titre}</b><span>${texte}</span></a>`;
 function choixPasser() { // passer le test : au téléphone ou sur papier, et la photo des fiches remplies
   placer();
-  app.innerHTML = `<div class="site"><p class="sur"><a href="./">← Accueil</a> · Passer le test</p><h1>Téléphone ou papier ?</h1><nav class="trois">
+  app.innerHTML = `<div class="site"><p class="sur"><a href="./" aria-label="Accueil" title="Accueil"><svg viewBox="0 0 24 24" width="1.35em" height="1.35em" fill="currentColor" aria-hidden="true" style="vertical-align:-.3em"><path d="M12 3 2.5 11.2h2.7V21h5.3v-6h3v6h5.3v-9.8h2.7z"/></svg></a> · Passer le test</p><h1>Téléphone ou papier ?</h1><nav class="trois">
     ${carte('?passer=tel', 1, 'Au téléphone', "Chacun répond sur son téléphone. Les réponses s'enregistrent toutes seules.")}
     ${carte('?ecran&papier', 2, 'Sur papier', "Chacun répond sur une fiche A3. Le grand écran montre les affiches et les questions, sans téléphone.")}
     ${carte('papier.html?vue=lire', 3, 'Photographier les fiches', "Après une séance sur papier : une photo par fiche remplie, et les réponses rejoignent les données à étudier.")}
@@ -373,7 +373,7 @@ function telephone() {
         ? `<div id="salons" class="bloc"><p>Recherche de la séance…</p></div>
            <label class="lab" for="code">Vous avez un code à 4 chiffres ?</label><input class="champ code" id="code" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="0000" autocomplete="off" aria-describedby="aide">
            <p class="note" id="aide">Il est écrit sur le grand écran.</p>
-           <p class="note"><a href="?ecran">Animer une séance sur le grand écran</a> · <a href="papier.html">Version papier</a> · <a href="./">Accueil du site</a></p>`
+           <p class="note"><a href="?ecran">Animer une séance sur le grand écran</a> · <a href="papier.html">Version papier</a> · <a href="./" aria-label="Accueil" title="Accueil"><svg viewBox="0 0 24 24" width="1.35em" height="1.35em" fill="currentColor" aria-hidden="true" style="vertical-align:-.3em"><path d="M12 3 2.5 11.2h2.7V21h5.3v-6h3v6h5.3v-9.8h2.7z"/></svg></a></p>`
         : mes.inscrit ? `<div class="fait" style="margin-top:0">${tete(1)}<h2>${mes.nom ? h(mes.nom) + ', vous êtes inscrit.' : 'Vous êtes inscrit.'}</h2><p>Gardez ce téléphone en main et regardez le grand écran : la séance va commencer.</p></div>`
         : `<label class="lab" for="nom">Votre prénom</label><input class="champ" id="nom" maxlength="24" value="${h(mes.nom)}" autocomplete="given-name" autocapitalize="words" enterkeyhint="done">
            <button class="btn" data-a="inscrire">Je m'inscris</button><p class="note">Séance ${h(SALLE)}. Il n'y a pas de bonne ou de mauvaise réponse.</p>`);
@@ -571,7 +571,7 @@ function ecran() {
         <label>Tester une autre affiche${affiches.A ? ' ✓' : ''}<input type="file" accept="image/*" hidden data-f="A"></label>
         <span class="autres"></span>
         <a href="resultats.html?seance=${h(SALLE)}" target="_blank" rel="noopener">Voir les résultats</a>
-        <a href="./">Accueil du site</a>
+        <a href="./" aria-label="Accueil" title="Accueil"><svg viewBox="0 0 24 24" width="1.35em" height="1.35em" fill="currentColor" aria-hidden="true" style="vertical-align:-.3em"><path d="M12 3 2.5 11.2h2.7V21h5.3v-6h3v6h5.3v-9.8h2.7z"/></svg></a>
         <a href="?ecran${PAPIER ? '' : '&papier'}">Passer en mode ${PAPIER ? 'téléphone' : 'papier'}</a>${PAPIER ? `<a href="papier.html" target="_blank" rel="noopener">Imprimer les fiches A3</a><a href="papier.html?vue=lire&seance=${h(SALLE)}" target="_blank" rel="noopener">Photographier les fiches</a>` : ''}
         <button data-a="plein">Plein écran</button><button data-a="csv">Télécharger les réponses</button><button data-a="neuve">Nouvelle séance</button>
       </div></div><span class="auto"></span>`;
