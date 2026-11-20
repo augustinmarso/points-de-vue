@@ -42,7 +42,6 @@ h2+p{margin:8px 0 0;color:var(--gris)}
 .retenir{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:14px;margin-top:22px}
 .retenir div{background:var(--fond);border-radius:22px;padding:16px 18px;font-size:16px;display:flex;gap:16px;align-items:center}
 .retenir span{min-width:0}
-.nuage{display:block;width:100%;max-width:1080px;height:auto;margin-top:18px}
 .retenir small{display:block;font-weight:800;font-size:14px;color:var(--gris)}
 .retenir b{display:block;font-size:24px;line-height:1;font-weight:800;letter-spacing:-.04em;margin:6px 0}
 .grille{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,440px),1fr));gap:34px 44px;margin-top:28px}
@@ -164,17 +163,6 @@ function dessiner() {
   if (tri) Object.values(blocs).forEach(b => b.sort((x, y) => tri === 'fort' ? y[0] - x[0] : x[0] - y[0]));
 
   // ---------- à retenir : quelques constats calculés sur la sélection ----------
-  // le nuage : un point par question, relié au centre de son étape. Près du centre, la salle est d'accord ; loin, les avis sont partagés.
-  // La taille du point suit le nombre de réponses ; son numéro est celui de la question sur la fiche.
-  const NQ = Object.fromEntries(QUESTIONS().map(e => [e.q, e.n])), W = 270;
-  const groupes = [[0, "Jeu de l'œil", '#141414'], [1, PHASES[1].nom, '#F5A0C6'], [2, PHASES[2].nom, '#F7C33B'], [3, PHASES[3].nom, '#1F6FE0']].map(([p, nom, c]) => ({ nom, c, L: Q.filter(e => (e.p || 0) === p) })).filter(g => g.L.length);
-  const maxRep = Math.max(1, ...Q.map(e => T.rep[e.q]));
-  const nuage = !groupes.length ? '' : `<svg class="nuage" viewBox="0 0 ${groupes.length * W} 300" role="img" aria-label="Nuage de points : pour chaque étape, les questions placées selon l'accord de la salle">` + groupes.map((g, k) => { const cx = k * W + W / 2, cy = 135, clair = g.c === '#1F6FE0' || g.c === '#141414';
-    return [110, 68].map(ry => `<circle cx="${cx}" cy="${cy}" r="${ry}" fill="none" stroke="#D8D8D8" stroke-width="1" stroke-dasharray="2 5"/>`).join('')
-      + g.L.map((e, i) => { const an = i / g.L.length * 2 * Math.PI - Math.PI / 2, acc = Math.min(1, accord(T, e.q)), d = 26 + (1 - acc) * 84; return { e, acc, x: cx + Math.cos(an) * d, y: cy + Math.sin(an) * d, ry: 7 + 8 * Math.sqrt(T.rep[e.q] / maxRep) }; })
-        .map(n => `<line x1="${cx}" y1="${cy}" x2="${n.x}" y2="${n.y}" stroke="${g.c}" stroke-width="1.3" opacity=".55"/><g><title>${h(n.e.q)} : ${pc(n.acc)} d'accord, ${T.rep[n.e.q]} réponse${T.rep[n.e.q] > 1 ? 's' : ''}</title><circle cx="${n.x}" cy="${n.y}" r="${n.ry}" fill="${g.c}"/><text x="${n.x}" y="${n.y + 3.6}" text-anchor="middle" font-size="10" font-weight="800" fill="${clair ? '#fff' : '#141414'}">${NQ[n.e.q] || ''}</text></g>`).join('')
-      + `<circle cx="${cx}" cy="${cy}" r="8" fill="${g.c}"/><text x="${cx}" y="284" text-anchor="middle" font-size="14" font-weight="800" fill="#141414">${h(g.nom)}</text>`; }).join('') + '</svg>'
-    + `<p style="margin:6px 0 0;color:var(--gris);font-size:15px;max-width:900px">Un point par question, avec son numéro. Près du centre : la salle est d'accord. Sur le cercle du milieu : une personne sur deux. Au bord : les avis sont partagés. Plus le point est gros, plus il a reçu de réponses. Passez la souris sur un point pour lire la question.</p>`;
   const R = [], ajoute = (titre, valeur, texte, L, centre) => R.push(`<div><span><small>${h(titre)}</small><b>${h(valeur)}</b>${h(texte)}</span></div>`);
   const jeux = Q.filter(e => e.bon != null).map(e => [((T.compte[e.q] || {})[e.o[e.bon]] || 0) / T.rep[e.q], e.q]).sort((a, b) => b[0] - a[0]);
   if (jeux.length) ajoute("L'information la mieux retenue", pc(jeux[0][0]) + ' de bonnes réponses', jeux[0][1], [[jeux[0][0], '#141414']], pc(jeux[0][0]));
@@ -237,7 +225,7 @@ function dessiner() {
   $('vue').innerHTML =
     `<div class="chiffres"><div><b>${gens}</b>participant${gens > 1 ? 's' : ''}</div><div><b>${seance ? 1 : codes.length}</b>séance${!seance && codes.length > 1 ? 's' : ''}</div><div><b>${total}</b>réponse${total > 1 ? 's' : ''}</div></div>`
     + (U ? `<div class="legende"><span><i class="a"></i>${seance ? 'Séance ' + h(seance) : 'Toutes les séances'}</span><span><i></i>Séance ${h($('comparer').value)} (barre fine, second pourcentage)</span></div>` : '')
-    + (R.length && !mot ? `<section style="--c:#141414"><h2><i></i>À retenir</h2><p>Calculé sur ${seance ? 'la séance ' + h(seance) : 'toutes les séances'}.</p>${nuage}<div class="retenir">${R.join('')}</div></section>` : '')
+    + (R.length && !mot ? `<section style="--c:#141414"><h2><i></i>À retenir</h2><p>Calculé sur ${seance ? 'la séance ' + h(seance) : 'toutes les séances'}.</p><div class="retenir">${R.join('')}</div></section>` : '')
     + (Object.keys(blocs).length ? '' : `<p class="vide">Aucune question ne contient « ${h($('chercher').value)} ».</p>`)
     + Object.keys(titres).filter(g => blocs[g]).map(g => `<section style="--c:${COUL[g] || '#141414'}"><h2><i></i>${h(titres[g][0])}</h2><p>${h(titres[g][1])}</p><div class="grille">${blocs[g].map(x => x[1]).join('')}</div></section>`).join('');
 }
