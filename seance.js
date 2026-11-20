@@ -109,7 +109,7 @@ const QUI = () => (COMPTE() || {}).mail || '';
 const JETON = () => (COMPTE() || {}).jeton || '';
 function deconnexion() { try { localStorage.removeItem('pdvCompte'); } catch (e) { } location.reload(); }
 function journal(quoi, detail = '') {
-  if (QUI()) fetch(SCRIPT_GOOGLE, { method: 'POST', mode: 'no-cors', keepalive: true, body: JSON.stringify({ journal: { qui: QUI(), quoi, detail } }) }).catch(() => { });
+  if (QUI()) fetch(SCRIPT_GOOGLE, { method: 'POST', mode: 'no-cors', keepalive: true, body: JSON.stringify({ journal: { jeton: JETON(), quoi, detail } }) }).catch(() => { });
 }
 function connexion(page) { // rend une promesse tenue une fois la personne connectée ; note la connexion (une fois par onglet et par page)
   const noter = () => { try { if (sessionStorage.getItem('pdvVu' + page)) return; sessionStorage.setItem('pdvVu' + page, 1); } catch (e) { } journal('Connexion', page); };
@@ -135,3 +135,7 @@ function connexion(page) { // rend une promesse tenue une fois la personne conne
     d.showModal();
   });
 }
+
+// ---------- le rond du profil : à côté de la maison, l'initiale de la personne connectée (ou une silhouette) ; il mène à la page Profil ----------
+const rondProfil = () => `<a href="profil.html" aria-label="Mon profil" title="Mon profil" style="display:inline-grid;place-items:center;width:1.9em;height:1.9em;border-radius:50%;background:#141414;color:#fff;font-weight:800;font-size:.85em;line-height:1;text-decoration:none;vertical-align:middle;margin-left:.5em;flex:none">${QUI() ? QUI()[0].toUpperCase() : '<svg viewBox="0 0 24 24" width="1.1em" height="1.1em" fill="currentColor" aria-hidden="true"><circle cx="12" cy="8.5" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7z"/></svg>'}</a>`;
+if (typeof document !== 'undefined') document.addEventListener('DOMContentLoaded', () => document.querySelectorAll('a[aria-label="Accueil"]').forEach(a => a.insertAdjacentHTML('afterend', rondProfil())));
