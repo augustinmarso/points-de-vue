@@ -10,7 +10,7 @@ addEventListener('load', () => setTimeout(() => {
   const out = [], page = document.querySelector('.a'), bas = document.querySelector('.bandeau').getBoundingClientRect().top;
   const court = e => e.textContent.trim().replace(/\s+/g, ' ').slice(0, 34);
   const txt = [...page.querySelectorAll('*')].filter(e => [...e.childNodes].some(n => n.nodeType === 3 && n.textContent.trim()) && getComputedStyle(e).display !== 'none' && e.offsetParent !== null)
-    .map(e => { const r = document.createRange(); r.selectNodeContents(e); return { e, b: [...r.getClientRects()].filter(b => b.width > 1 && b.height > 1) }; }).filter(x => x.b.length);
+    .map(e => { const b = [...e.childNodes].filter(n => n.nodeType === 3 && n.textContent.trim()).flatMap(n => { const r = document.createRange(); r.selectNode(n); return [...r.getClientRects()]; }).filter(b => b.width > 1 && b.height > 1); return { e, b }; }).filter(x => x.b.length);
   const img = [...page.querySelectorAll('img')].filter(e => e.offsetParent !== null && !e.closest('.bandeau')).map(e => ({ e, b: e.getBoundingClientRect() }));
   const croise = (a, b, m) => Math.min(a.right, b.right) - Math.max(a.left, b.left) > m && Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top) > Math.min(a.height, b.height) * .3;
   for (const t of txt) for (const b of t.b) {

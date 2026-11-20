@@ -6,7 +6,7 @@ window.__v = () => {
   const court = e => e.textContent.trim().replace(/\s+/g, ' ').slice(0, 30);
   const vis = e => { const s = getComputedStyle(e); return s.display !== 'none' && s.visibility !== 'hidden' && e.getClientRects().length; };
   const txt = [...document.querySelectorAll('#app *')].filter(e => !e.closest('.cmd') && vis(e) && [...e.childNodes].some(n => n.nodeType === 3 && n.textContent.trim()))
-    .map(e => { const r = document.createRange(); r.selectNodeContents(e); return { e, b: [...r.getClientRects()].filter(b => b.width > 1 && b.height > 1) }; }).filter(x => x.b.length);
+    .map(e => { const b = [...e.childNodes].filter(n => n.nodeType === 3 && n.textContent.trim()).flatMap(n => { const r = document.createRange(); r.selectNode(n); return [...r.getClientRects()]; }).filter(b => b.width > 1 && b.height > 1); return { e, b }; }).filter(x => x.b.length);
   const croise = (a, b, m) => Math.min(a.right, b.right) - Math.max(a.left, b.left) > m && Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top) > Math.min(a.height, b.height) * .3;
   const cmd = document.querySelector('.cmd'), bas = cmd ? cmd.getBoundingClientRect().top : vh;
   const imgs = [...document.querySelectorAll('#app img, #app .qr svg')].filter(vis).map(e => e.getBoundingClientRect());
