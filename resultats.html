@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Points de vue · résultats</title>
+<link rel="apple-touch-icon" href="icone.png">
+<link rel="icon" href="icone.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Scoutie+Sans:wght@200..800&display=swap">
+<style>
+:root{--n:#141414;--gris:#6B6B6B;--fond:#F3F3F3}
+*{box-sizing:border-box}
+body{margin:0;background:#fff;color:var(--n);font-family:'Scoutie Sans',Helvetica,Arial,sans-serif;font-size:18px;line-height:1.3}
+main{max-width:1040px;margin:0 auto;padding:36px 22px 80px}
+header{display:flex;align-items:center;gap:14px}
+header svg{width:64px;flex:none}
+header b{font-size:26px;line-height:.86;font-weight:800;letter-spacing:-.05em}
+h1{margin:34px 0 0;font-size:clamp(44px,8vw,84px);line-height:.9;font-weight:800;letter-spacing:-.05em}
+.maj{color:var(--gris);font-size:15px;margin-top:10px}
+.choix{display:flex;flex-wrap:wrap;gap:10px;margin-top:26px}
+.choix button{font:inherit;font-weight:700;border:0;cursor:pointer;background:var(--fond);color:var(--n);border-radius:99px;padding:10px 18px;min-height:44px}
+.choix button[aria-pressed=true]{background:var(--n);color:#fff}
+.choix button:focus-visible{outline:3px solid #1F6FE0;outline-offset:3px}
+.chiffres{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:34px}
+.chiffres div{font-size:16px;font-weight:700}
+.chiffres b{display:block;font-size:clamp(46px,9vw,92px);line-height:.9;font-weight:800;letter-spacing:-.05em}
+section{margin-top:64px}
+h2{display:flex;align-items:center;gap:14px;margin:0;font-size:clamp(28px,4.4vw,44px);line-height:1;font-weight:800;letter-spacing:-.04em}
+h2 i{width:.9em;height:.9em;border-radius:50%;background:var(--c);flex:none}
+h2+p{margin:8px 0 0;color:var(--gris)}
+.grille{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,440px),1fr));gap:34px 44px;margin-top:28px}
+article h3{margin:0;font-size:22px;line-height:1.12;font-weight:800;letter-spacing:-.02em}
+article .n{color:var(--gris);font-size:15px;margin:4px 0 12px}
+.moy{font-size:40px;font-weight:800;letter-spacing:-.04em;line-height:1;margin:8px 0 12px}
+.moy small{font-size:16px;font-weight:700;letter-spacing:0}
+.barre{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 12px;align-items:center;margin-top:8px;font-size:16px}
+.barre span{overflow-wrap:anywhere}
+.barre b{font-weight:800;white-space:nowrap}
+.barre .piste{grid-column:1/-1;height:14px;border-radius:7px;background:var(--fond);overflow:hidden}
+.barre .piste i{display:block;height:100%;border-radius:7px;background:var(--c);min-width:0;transition:width .8s cubic-bezier(.45,0,.2,1)}
+.barre.zero{color:var(--gris)}
+.barre.bon span{font-weight:800}
+.vide{margin-top:40px;font-size:22px;font-weight:700}
+.bornes{display:flex;justify-content:space-between;color:var(--gris);font-size:14px;margin-top:6px}
+@media (max-width:520px){.chiffres{gap:10px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<main>
+<header><svg viewBox="0 0 120 112" aria-hidden="true"><circle cx="44" cy="46" r="40" fill="#F5A0C6" style="mix-blend-mode:multiply"/><circle cx="86" cy="38" r="28" fill="#F7C33B" style="mix-blend-mode:multiply"/><circle cx="74" cy="78" r="22" fill="#1F6FE0" style="mix-blend-mode:multiply"/><circle cx="22" cy="36" r="3.4" fill="#141414"/><circle cx="34" cy="34" r="3.4" fill="#141414"/><circle cx="93" cy="24" r="2.7" fill="#141414"/><circle cx="103" cy="26" r="2.7" fill="#141414"/><circle cx="73" cy="91" r="2.2" fill="#141414"/><circle cx="81" cy="91" r="2.2" fill="#141414"/></svg><b>Points<br>de vue</b></header>
+<h1>Résultats des séances</h1>
+<p class="maj" id="maj">Chargement…</p>
+<div class="choix" id="choix" role="group" aria-label="Choisir une séance"></div>
+<div id="vue"></div>
+</main>
+<script src="seance.js"></script>
+<script>
+// Page de visualisation : lit les totaux anonymes calculés par le script Google (jamais de prénom, jamais de ligne individuelle)
+// et les présente dans l'ordre de la séance (seance.txt). Se met à jour toute seule toutes les 20 secondes.
+const SOURCE = 'https://script.google.com/macros/s/AKfycbzPof8sEj8tZLlA-MtVDYyODv32y8lXxc9hLVmaW5zCvHLilyRIxpk4Ix6TPhzJczjn/exec?vue=resultats';
+const COUL = { 'Étape 1': '#F5A0C6', 'Étape 2': '#F7C33B', 'Étape 3': '#1F6FE0' };
+const h = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])).replace(/ ([?!:;»])/g, '&nbsp;$1').replace(/« /g, '«&nbsp;');
+const fr = (x, d = 1) => x.toFixed(d).replace('.', ',');
+let D = null, seance = new URLSearchParams(location.search).get('seance') || '';
+
+function dessiner() {
+  if (!D) return;
+  const codes = Object.keys(D.seances).sort(), garde = l => !seance || l[0] === seance;
+  if (seance && !D.seances[seance]) seance = '';
+  document.getElementById('choix').innerHTML = [['', 'Toutes les séances'], ...codes.map(c => [c, 'Séance ' + c])]
+    .map(([c, nom]) => `<button data-s="${h(c)}" aria-pressed="${c === seance}">${h(nom)}</button>`).join('');
+  // totaux par question et par réponse, pour la ou les séances choisies
+  const compte = {}, rep = {}, notes = {}, groupe = {}, ordre = [];
+  D.lignes.filter(garde).forEach(([, g, q, r, n]) => { (compte[q] = compte[q] || {})[r] = ((compte[q] || {})[r] || 0) + n; if (!(q in groupe)) { groupe[q] = g; ordre.push(q); } });
+  D.repondants.filter(garde).forEach(([, , q, n]) => rep[q] = (rep[q] || 0) + n);
+  D.notes.filter(garde).forEach(([, , q, s, n]) => { const x = notes[q] = notes[q] || [0, 0]; x[0] += s; x[1] += n; });
+  const gens = codes.filter(c => !seance || c === seance).reduce((a, c) => a + D.seances[c], 0), total = Object.values(rep).reduce((a, n) => a + n, 0);
+  if (!total) { document.getElementById('vue').innerHTML = `<p class="vide">Pas encore de réponses. Cette page se met à jour toute seule pendant la séance.</p>`; return; }
+
+  const carte = (q, opts, bon, bornes) => { // une question : ses réponses en barres, dans l'ordre du questionnaire
+    const c = compte[q] || {}, n = rep[q] || 0, liste = opts || Object.keys(c).sort((a, b) => c[b] - c[a]), nt = notes[q];
+    return `<article><h3>${h(q)}</h3><p class="n">${n} réponse${n > 1 ? 's' : ''}</p>${nt ? `<div class="moy">${fr(nt[0] / nt[1])} <small>sur 5 en moyenne</small></div>` : ''}`
+      + liste.map((o, i) => { const k = c[o] || 0, p = n ? k / n : 0;
+        return `<div class="barre${k ? '' : ' zero'}${i === bon ? ' bon' : ''}"><span>${h(o)}${i === bon ? ' (bonne réponse)' : ''}</span><b>${k} · ${Math.round(p * 100)} %</b><div class="piste"><i style="width:${p * 100}%${bon != null && i !== bon ? ';background:#BDBDBD' : ''}"></i></div></div>`; }).join('')
+      + (bornes ? `<div class="bornes"><span>1 = ${h(bornes[0])}</span><span>5 = ${h(bornes[1])}</span></div>` : '') + `</article>`;
+  };
+  // les questions de la séance, dans l'ordre de seance.txt ; puis celles qui n'y sont plus ou qui viennent de l'atelier
+  const vues = new Set(), blocs = {};
+  const ranger = (g, html) => (blocs[g] = blocs[g] || []).push(html);
+  ETAPES.filter(e => e.id && e.t !== 'vote' && rep[e.q]).forEach(e => { vues.add(e.q);
+    ranger(e.p ? 'Étape ' + e.p : "Jeu de l'œil", carte(e.q, e.t === 'echelle' ? e.o.map(x => x + ' sur 5') : e.o, e.bon, e.t === 'echelle' ? [e.a, e.b] : null)); });
+  ordre.filter(q => !vues.has(q)).forEach(q => ranger(groupe[q] === 'Atelier' ? 'Atelier' : 'Autres questions', carte(q, notes[q] ? ['1', '2', '3', '4', '5'].map(x => x + ' sur 5') : null)));
+  const titres = { "Jeu de l'œil": ["Le jeu de l'œil", 'Une affiche vue 5 secondes, puis des questions précises.'], 'Étape 1': [PHASES[1].nom, PHASES[1].quoi], 'Étape 2': [PHASES[2].nom, PHASES[2].quoi], 'Étape 3': [PHASES[3].nom, PHASES[3].quoi], Atelier: ["L'atelier", 'Les affiches fabriquées en binômes, notées par la salle.'], 'Autres questions': ['Autres questions', 'Des questions qui ne sont plus dans la séance actuelle.'] };
+  document.getElementById('vue').innerHTML =
+    `<div class="chiffres"><div><b>${gens}</b>participant${gens > 1 ? 's' : ''}</div><div><b>${seance ? 1 : codes.length}</b>séance${!seance && codes.length > 1 ? 's' : ''}</div><div><b>${total}</b>réponse${total > 1 ? 's' : ''}</div></div>`
+    + Object.keys(titres).filter(g => blocs[g]).map(g => `<section style="--c:${COUL[g] || '#141414'}"><h2><i></i>${h(titres[g][0])}</h2><p>${h(titres[g][1])}</p><div class="grille">${blocs[g].join('')}</div></section>`).join('');
+}
+function charger() {
+  fetch(SOURCE).then(x => x.json()).then(d => { D = d; document.getElementById('maj').textContent = 'Mis à jour à ' + new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) + '. Résultats anonymes, actualisés toutes les 20 secondes.'; dessiner(); })
+    .catch(() => { document.getElementById('maj').textContent = 'Les résultats ne se chargent pas. Vérifiez la connexion internet.'; });
+}
+document.getElementById('choix').addEventListener('click', ev => { const b = ev.target.closest('[data-s]'); if (b) { seance = b.dataset.s; history.replaceState(null, '', seance ? '?seance=' + seance : location.pathname); dessiner(); } });
+fetch('seance.txt?' + Date.now()).then(x => x.text()).then(lireSeance).catch(() => { }).then(() => { charger(); setInterval(charger, 20000); });
+</script>
+</body>
+</html>

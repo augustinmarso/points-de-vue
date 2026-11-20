@@ -164,54 +164,8 @@ body.plein.p3 #app{color:#fff}
 <div id="statut"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.4/peerjs.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script src="seance.js"></script>
 <script>
-// ---------- le contenu de la séance : il est dans le fichier seance.txt, modifiable directement sur GitHub ----------
-let PHASES = { 1: { nom: 'Étape 1', quoi: '' }, 2: { nom: 'Étape 2', quoi: '' }, 3: { nom: 'Étape 3', quoi: '' } };
-let ETAPES = [{ t: 'accueil' }], MISSIONS = ["L'information à faire passer"], TESTS = [];
-// lit seance.txt : un écran par mot entre crochets, des lignes « clé : valeur » et des réponses « - » ou « + » dessous
-function lireSeance(texte) {
-  const E = [], M = [], T = [], P = {}, ids = {};
-  const sans = x => x.normalize('NFD').replace(/[^a-zA-Z0-9 ]/g, '').toLowerCase().trim();
-  const id = q => { let k = sans(q).replace(/ /g, '').slice(0, 20) || 'q'; ids[k] = (ids[k] || 0) + 1; return ids[k] > 1 ? k + ids[k] : k; };
-  const cinq = ['1', '2', '3', '4', '5'], fixes = { accueil: 'accueil', scores: 'scores', mission: 'mission', photos: 'photo', photo: 'photo', tests: 'vote', palmares: 'palmares', fin: 'fin' };
-  let e = null;
-  for (let l of texte.split(/\r?\n/)) {
-    l = l.trim(); if (!l || l[0] === '#') continue;
-    const tete = /^\[([^\]]+)\]\s*(.*)$/.exec(l);
-    if (tete) {
-      const mot = sans(tete[1]), reste = tete[2].trim(), part = reste.split('|').map(x => x.trim());
-      if (fixes[mot]) e = mot === 'tests' ? { t: 'vote', id: 'vote' } : { t: fixes[mot] };
-      else if (/^etape [123]$/.test(mot)) e = { t: 'phase', p: +mot.slice(-1) };
-      else if (mot === 'texte') e = { t: 'info', s: part[0] || '', h: part[1] || '', x: part[2] || '' };
-      else if (mot === '5 secondes') { e = { t: 'flash', img: part[0] }; const p = /([123])/.exec(sans(part[1] || '')); if (p) e.p = +p[1]; }
-      else if (mot === 'jeu') e = { id: id(reste), t: 'choix', jeu: 1, q: reste, o: [] };
-      else if (mot === 'note') e = { id: id(reste), t: 'echelle', q: reste, o: cinq, a: '', b: '' };
-      else if (mot === 'a ou b') e = { id: id(reste), t: 'ab', q: reste, o: ['A', 'B', 'Aucune différence'], imgs: [] };
-      else if (mot === 'question') e = { id: id(reste), t: 'choix', q: reste, o: [] };
-      else { e = null; continue; } // mot inconnu : l'écran est ignoré plutôt que de bloquer la séance
-      E.push(e); continue;
-    }
-    if (/^[-+]\s/.test(l) && e && e.o && e.o !== cinq && e.t !== 'ab') { if (l[0] === '+') e.bon = e.o.length; e.o.push(l.slice(1).trim()); continue; }
-    const kv = /^([^:=]+?)\s*[:=]\s*(.*)$/.exec(l); if (!kv) continue;
-    const k = sans(kv[1]), v = kv[2].trim(), part = v.split('|').map(x => x.trim());
-    if (/^etape [123]$/.test(k) && !e) P[k.slice(-1)] = { nom: part[0], quoi: part[1] || '' };
-    else if (k === 'mission' && !e) M.push(v);
-    else if (/^test/.test(k) && !e) T.push({ c: 't' + T.length, t: 'echelle', q: part[0], o: cinq, a: part[1] || '', b: part[2] || '', cinq: /5 secondes/.test(k) });
-    else if (!e) continue;
-    else if (k === 'etape') e.p = +v || undefined;
-    else if (k === 'reponses') e.t = /plusieurs/.test(sans(v)) ? 'multi' : 'choix';
-    else if (k === 'precision') e.note = v;
-    else if (k === 'de') e.a = v; else if (k === 'a') e.b = v;
-    else if (k === 'noir et blanc') e.nb = /oui/.test(sans(v));
-    else if (k === 'affiche a' && e.imgs) e.imgs[0] = v; else if (k === 'affiche b' && e.imgs) e.imgs[1] = v;
-    else if (k === 'affiche') { if (e.jeu) e.img = v; else e.imgs = [v]; }
-  }
-  // une question sans réponse ne peut pas être posée : on la retire
-  const bons = E.filter(x => !x.o || x.o.length > 1);
-  if (bons.length) { ETAPES = bons; if (M.length) MISSIONS = M; TESTS = T; PHASES = { ...PHASES, ...P }; }
-  return bons.length;
-}
-
 // ---------- outils ----------
 const P = new URLSearchParams(location.search);
 const ECRAN = P.has('ecran');
@@ -573,6 +527,7 @@ function ecran() {
         <button data-a="auto">Suite automatique : ${S.auto === false ? 'non' : 'oui'}</button><button data-a="son">Son : ${S.son === false ? 'non' : 'oui'}</button>
         <label>Tester une autre affiche${affiches.A ? ' ✓' : ''}<input type="file" accept="image/*" hidden data-f="A"></label>
         <span class="autres"></span>
+        <a href="resultats.html?seance=${h(SALLE)}" target="_blank" rel="noopener">Voir les résultats</a>
         <button data-a="plein">Plein écran</button><button data-a="csv">Télécharger les réponses</button><button data-a="neuve">Nouvelle séance</button>
       </div></div><span class="auto"></span>`;
     maj(); regards();
@@ -635,7 +590,7 @@ function ecran() {
 
   // chaque réponse part toute seule vers le Google Sheet de synthèse (onglet Données), par petits paquets toutes les 4 secondes ;
   // ce qui n'a pas pu partir (coupure d'internet) reste en file et repart dès que possible
-  const qui = pid => { const g = S.gens[pid] || {}; return [SALLE + '-' + (g.n + 1), g.nom || '']; };
+  const qui = pid => { const g = S.gens[pid] || {}; return ['S' + SALLE + '-P' + (g.n + 1), g.nom || '']; };
   const ligneRep = (id, pid, v) => { const e = trouver(id); return e && [...qui(pid), e.p ? 'Étape ' + e.p : e.voteK != null ? 'Atelier' : "Jeu de l'œil", e.voteK != null ? `Affiche ${e.voteK + 1} : ${e.q}` : e.q, e.t === 'echelle' ? `${v + 1} sur 5` : e.o ? [].concat(v).map(x => e.o[x]).join(' | ') : v, e.t === 'echelle' ? v + 1 : '']; };
   const lignePhoto = (p, k) => [...qui(p.pid), 'Atelier', `Affiche ${k + 1} : information et binôme`, MISSIONS[S.mission] + (p.mot ? ' (' + p.mot + ')' : ''), ''];
   const noter = l => { if (l) { (S.file = S.file || []).push(l); garder(); } };
