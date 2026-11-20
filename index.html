@@ -41,8 +41,8 @@ p{margin:0}
 .tel h1{font-size:54px}
 .tel h2{margin:0;font-size:31px;line-height:1.05;font-weight:800;letter-spacing:-.03em}
 .tel .haut{height:12vh;flex:none}
-.tel.fixe{gap:14px;padding-top:22px;padding-bottom:50px}
-.tel.fixe .haut{height:24vh}
+.tel.fixe{gap:12px;padding-top:22px;padding-bottom:44px}
+.tel.fixe .haut{height:21vh}
 .tel.fixe h1{font-size:46px}
 .tel.fixe p{font-size:18px}
 .tel .btn{display:block;width:100%;min-height:64px;font-size:22px;border-radius:32px;transition:transform .15s}
@@ -50,7 +50,7 @@ p{margin:0}
 .tel .lab{font-weight:800;font-size:20px;margin:6px 0 -6px;display:block}
 .tel .champ{min-height:64px;font-weight:700}
 .tel .champ:focus,.tel .btn:focus-visible,.tel .opt:focus-visible{outline:3px solid var(--c3);outline-offset:3px}
-.tel .code{text-align:center;font-size:34px;letter-spacing:.45em;padding-left:.45em;font-weight:800}
+.tel .code{text-align:center;font-size:28px;letter-spacing:.45em;padding:8px 0 8px .45em;font-weight:800}
 .tel .bloc{display:flex;flex-direction:column;gap:12px}
 .tel small{font-weight:400;font-size:.75em}
 .opts{display:flex;flex-direction:column;gap:12px}
@@ -417,7 +417,7 @@ function telephone() {
         // sans code : on propose la séance en cours (un seul appui), et le code à 4 chiffres en secours
         ? `<div id="salons" class="bloc"><p>Recherche de la séance…</p></div>
            <label class="lab" for="code">Vous avez un code à 4 chiffres ?</label><input class="champ code" id="code" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="0000" autocomplete="off" aria-describedby="aide">
-           <p class="note" id="aide">Il est écrit sur le grand écran. Vous entrez dès le quatrième chiffre.</p>`
+           <p class="note" id="aide">Il est écrit sur le grand écran.</p>`
         : mes.inscrit ? `<div class="fait" style="margin-top:0">${tete(1)}<h2>${mes.nom ? h(mes.nom) + ', vous êtes inscrit.' : 'Vous êtes inscrit.'}</h2><p>Gardez ce téléphone en main et regardez le grand écran : la séance va commencer.</p></div>`
         : `<label class="lab" for="nom">Votre prénom</label><input class="champ" id="nom" maxlength="24" value="${h(mes.nom)}" autocomplete="given-name" autocapitalize="words" enterkeyhint="done">
            <button class="btn" data-a="inscrire">Je m'inscris</button><p class="note">Séance ${h(SALLE)}. Il n'y a pas de bonne ou de mauvaise réponse.</p>`);
