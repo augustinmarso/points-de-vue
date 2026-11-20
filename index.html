@@ -165,88 +165,52 @@ body.plein.p3 #app{color:#fff}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.4/peerjs.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
 <script>
-// ---------- le contenu de la séance (à modifier ici) ----------
-const PHASES = {
-  1: { nom: 'Étude du message', quoi: "Ce qu'une affiche fait comprendre en quelques secondes." },
-  2: { nom: 'Analyse du visuel', quoi: "La lisibilité des lettres, des couleurs et de l'image." },
-  3: { nom: 'Enquête sur le format', quoi: 'Affiche ou flyer, et les lieux de diffusion.' }
-};
-const ech = (id, p, q, a, b, x) => ({ id, p, t: 'echelle', q, o: ['1', '2', '3', '4', '5'], a, b, ...x });
-const A = n => 'affiches/' + n + '.jpg';
-const ab = (id, p, q, note, a, b) => ({ id, p, t: 'ab', q, note, o: ['A', 'B', 'Aucune différence'], imgs: [A(a), A(b)] });
-// voir: 1 = l'affiche de l'étape reste à l'écran (référence aux étapes 1 et 2, version cercles + QR code à l'étape 3) ; imgs = d'autres affiches ; nb = noir et blanc
-const ETAPES = [
-  { t: 'accueil' },
-  // le jeu de l'œil : deux affiches seniors transmises par Granville Terre et Mer, 5 secondes, puis des questions précises (bon = la bonne réponse)
-  { t: 'info', s: "Pour commencer", h: "Le jeu de l'œil", x: "Une affiche apparaît 5 secondes. Ensuite, quelques questions très précises. Si peu de monde trouve, c'est l'affiche qui manque de clarté, pas vous." },
-  { t: 'flash', img: 'affiches/lumeen.jpg' },
-  { id: 'jeu1', t: 'choix', jeu: 1, img: 'affiches/lumeen.jpg', bon: 1, q: "De quoi s'agit-il ?", o: ['Un cours de peinture', 'Un atelier de réalité virtuelle', 'Une sortie en forêt', 'Une séance de cinéma'] },
-  { id: 'jeu2', t: 'choix', jeu: 1, img: 'affiches/lumeen.jpg', bon: 2, q: 'À quelle heure cela commence-t-il ?', o: ['10 h', '14 h', '14 h 30', '16 h 30'] },
-  { id: 'jeu3', t: 'choix', jeu: 1, img: 'affiches/lumeen.jpg', bon: 0, q: "Faut-il s'inscrire ?", o: ['Oui, par téléphone ou par mail', 'Oui, sur place', 'Non', "Ce n'est pas écrit"] },
-  { id: 'jeu4', t: 'choix', jeu: 1, img: 'affiches/lumeen.jpg', bon: 3, q: 'Où cela se passe-t-il ?', o: ['À Granville', 'À Villedieu-les-Poêles', 'À Saint-Pois', 'À Saint-Martin-le-Bouillant'] },
-  { t: 'info', s: "Le jeu de l'œil", h: 'Deuxième affiche', x: 'Même principe : 5 secondes, puis des questions précises.' },
-  { t: 'flash', img: 'affiches/memoire.jpg' },
-  { id: 'jeu5', t: 'choix', jeu: 1, img: 'affiches/memoire.jpg', bon: 2, q: 'Quel est le sujet de la conférence ?', o: ['Les chutes', "L'alimentation", 'La mémoire', 'Le sommeil'] },
-  { id: 'jeu6', t: 'choix', jeu: 1, img: 'affiches/memoire.jpg', bon: 1, q: 'Dans quelle commune a-t-elle lieu ?', o: ['Bréhal', 'Cérences', 'Granville', 'Coutances'] },
-  { id: 'jeu7', t: 'choix', jeu: 1, img: 'affiches/memoire.jpg', bon: 0, q: 'Combien cela coûte-t-il ?', o: ["C'est gratuit", '5 euros', 'Sur adhésion', "Ce n'est pas écrit"] },
-  { id: 'jeu8', t: 'choix', jeu: 1, img: 'affiches/memoire.jpg', bon: 0, q: "À partir de quel âge ?", o: ['55 ans', '60 ans', '65 ans', "Ce n'est pas écrit"] },
-  { t: 'scores' }, // les réussites de chacun au jeu de l'œil
-  { t: 'phase', p: 1 },
-  { t: 'flash', p: 1, img: A('reference') },
-  { id: 'retenu', p: 1, t: 'multi', q: 'Après 5 secondes, que vous reste-t-il en tête ?', o: ['Le titre', 'Une image', 'Une couleur', 'La date', 'Le lieu', 'Un logo', 'Le sujet de santé', 'Une impression générale', 'Presque rien'] },
-  { id: 'invite', p: 1, t: 'multi', q: 'À quoi cette affiche vous invite-t-elle ?', o: ['Participer à un atelier', 'Donner mon avis', "Assister à une réunion d'information", 'Faire un dépistage ou un bilan', 'Rencontrer des professionnels', "M'inscrire quelque part", 'Je ne vois pas'] },
-  { id: 'infos', p: 1, t: 'multi', q: "Sans la regarder de nouveau, quelles informations avez-vous repérées ?", o: ['La date', "L'heure", 'Le lieu', 'Le prix', 'Qui organise', "Comment s'inscrire", 'Aucune'] },
-  { id: 'pourqui', p: 1, t: 'multi', q: "À votre avis, à qui s'adresse-t-elle ?", o: ['À moi', 'Aux personnes âgées', 'Aux familles', 'Aux jeunes', 'Aux professionnels', 'Difficile à dire'], voir: 1 },
-  ech('quoifaire', 1, "Après l'avoir vue, savez-vous quoi faire ?", 'Pas du tout', 'Parfaitement', { voir: 1 }),
-  ech('degre', 1, 'À quel point vous sentez-vous invité par cette affiche ?', 'Pas du tout', 'Tout à fait', { voir: 1 }),
-  { id: 'frein', p: 1, t: 'multi', q: "Qu'est-ce qui pourrait vous retenir d'y aller ?", o: ["L'horaire", 'Le trajet', 'Y aller seul', 'Ne pas me sentir concerné', 'Ne pas savoir ce qui va se passer', 'La crainte de mal répondre', "Devoir m'inscrire", 'Rien'], voir: 1 },
-  { t: 'phase', p: 2 },
-  { id: 'premier', p: 2, t: 'choix', q: 'Où votre regard s\'est-il posé en premier ?', o: ['Le titre', "L'image", 'Les couleurs', 'La date et le lieu', 'Les logos', 'Ailleurs'], voir: 1 },
-  ech('circule', 2, 'Votre regard trouve-t-il son chemin entre les éléments ?', 'Il se perd', 'Tout s\'enchaîne', { voir: 1 }),
-  { id: 'mots', p: 2, t: 'multi', q: "Qu'est-ce qui gêne la lecture ?", o: ['Des mots trop techniques', 'Des phrases trop longues', 'Des sigles', 'Des lettres trop petites', 'Trop de texte', "Du texte posé sur l'image", 'Un manque de contraste', 'Rien, tout est clair'], voir: 1 },
-  { id: 'distance', p: 2, t: 'multi', q: 'À deux mètres, que lisez-vous encore ?', o: ['Le titre', 'La date', 'Le lieu', 'Le texte', 'Plus rien'], voir: 1 },
-  // chaque paire ne change qu'une chose : l'ordre A / B est mélangé pour que la « bonne » ne soit pas toujours du même côté
-  ab('existant', 2, 'Laquelle comprenez-vous le plus vite ?', "L'affiche d'origine, puis une version refaite.", 'origine', 'reference'),
-  ab('structure', 2, 'Sur laquelle trouvez-vous la date le plus vite ?', 'Deux façons de ranger les mêmes informations.', 'reference', 'date'),
-  ab('typo', 2, 'Laquelle se lit le plus facilement ?', 'Deux polices de caractères.', 'typo-script', 'reference'),
-  ab('titre', 2, 'Sur laquelle le titre se détache-t-il le mieux ?', 'Deux tailles de titre.', 'reference', 'titre-petit'),
-  ab('taille', 2, 'Sur laquelle les informations pratiques se lisent-elles le mieux ?', 'Deux tailles de texte.', 'texte-petit', 'reference'),
-  ab('contraste', 2, 'Laquelle liriez-vous de loin ?', 'Deux contrastes.', 'reference', 'contraste-faible'),
-  ab('couleurs', 2, 'Laquelle vous donne envie de vous approcher ?', 'Beaucoup de couleurs, puis trois couleurs seulement.', 'couleurs-multi', 'reference'),
-  ab('clair', 2, 'Laquelle est la plus claire ?', 'Une version chargée, puis une version allégée.', 'dense', 'leger'),
-  ab('fond', 2, 'Laquelle remarqueriez-vous dans la rue ?', 'Fond blanc, puis fond de couleur.', 'image-couleur', 'fond-couleur'),
-  ab('photo', 2, 'Quelle image attire le plus votre regard ?', 'La même photo, en couleurs puis en gros points.', 'image-couleur', 'reference'),
-  ab('dessin', 2, 'Quelle image vous parle le plus ?', 'Une photo, puis un dessin.', 'reference', 'image-dessin'),
-  ech('nb', 2, 'En noir et blanc, reste-t-elle lisible ?', 'Plus du tout', 'Aussi bien', { voir: 1, nb: true }),
-  { id: 'image', p: 2, t: 'multi', imgs: [A('reinette')], q: "Que vous évoque l'image de cette autre affiche ?", o: ['La convivialité', 'Le travail en groupe', 'Le sérieux', 'La santé', "L'école", 'La fête', 'Autre chose que le sujet', 'Rien de précis'] },
-  { id: 'emotion', p: 2, t: 'multi', imgs: [A('reinette')], q: 'Quelle impression vous laisse cette affiche ?', o: ['De la curiosité', 'De la confiance', "De l'envie", 'De la surprise', "De l'indifférence", 'De la confusion', "De l'agacement"] },
-  ech('coherent', 2, "L'image et les couleurs vont-elles avec le sujet ?", 'Pas du tout', 'Tout à fait', { voir: 1 }),
-  { t: 'phase', p: 3 },
-  { id: 'lieux', p: 3, t: 'multi', q: 'Où auriez-vous une chance de croiser cette information ?', o: ["Salle d'attente", 'Pharmacie', 'Mairie', 'Association', 'Commerce', 'Marché', 'Boîte aux lettres', 'Journal local', 'Réseaux sociaux'] },
-  { id: 'format', p: 3, t: 'choix', voir: 1, q: 'Sous quelle forme vous serait-elle la plus utile ?', o: ['Grande affiche (A3)', 'Affiche (A4)', 'Flyer à emporter (A5)', 'Message sur le téléphone', 'De vive voix'] },
-  { id: 'emporter', p: 3, t: 'choix', imgs: [A('gym-equilibre')], q: "Ce flyer, l'emporteriez-vous avec vous ?", o: ['Oui', 'Je la prendrais en photo', 'Non'] },
-  { id: 'qr', p: 3, t: 'choix', voir: 1, q: 'Pour en savoir plus, utiliseriez-vous le QR code ?', o: ['Oui', 'Je préfère téléphoner', 'Je préfère demander à quelqu\'un', 'Non'] },
-  ech('affichage', 3, 'Lisez-vous les affichages dans les lieux publics ?', 'Jamais', 'Toujours'),
-  ech('utile', 3, 'Cette information vous serait-elle utile, à vous ou à un proche ?', 'Pas du tout', 'Tout à fait', { voir: 1 }),
-  { id: 'relais', p: 3, t: 'multi', q: 'En dehors de votre médecin, qui vous parle de santé ?', o: ['Mon pharmacien', 'Ma famille', 'Mes amis ou voisins', 'Une association', 'La mairie ou le CCAS', 'La télévision ou la radio', 'Le journal local', 'Internet', 'Personne'] },
-  { t: 'mission' }, // toute la salle reçoit la même information de santé à faire passer ; chaque binôme compose son affiche avec les modules
-  { t: 'photo' },
-  { t: 'vote', id: 'vote' }, // la batterie de tests (TESTS, plus bas), une fois par affiche photographiée
-  { t: 'palmares' },
-  { t: 'fin' }
-];
-
-// les informations de santé possibles pour l'atelier : une seule par séance, la même pour tous les binômes (le grand écran peut en changer)
-const MISSIONS = ['Dépistage gratuit du cancer du sein', 'Atelier équilibre pour éviter les chutes', 'Un café pour souffler quand on aide un proche', 'Vaccin contre la grippe en pharmacie', 'Conférence sur les enfants et les écrans', 'Bilan de prévention gratuit à 60 ans', 'Marche collective du jeudi matin', 'Don du sang à la salle des fêtes'];
-// la batterie de tests passée par chaque affiche de binôme
-const note = (c, q, a, b) => ({ c, t: 'echelle', q, o: ['1', '2', '3', '4', '5'], a, b });
-const TESTS = [
-  { ...note('passe', "Vue 5 secondes : l'information passe-t-elle ?", 'Pas du tout', 'Tout de suite'), cinq: true },
-  note('clair', 'Le message est-il clair ?', 'Pas du tout', 'Tout à fait'),
-  note('lisible', 'Se lit-elle facilement, même de loin ?', 'Difficilement', 'Très facilement'),
-  note('envie', "Donne-t-elle envie d'y aller ?", 'Pas du tout', 'Tout à fait'),
-  note('memoire', 'Vous en souviendrez-vous demain ?', 'Sûrement pas', 'Sûrement')
-];
+// ---------- le contenu de la séance : il est dans le fichier seance.txt, modifiable directement sur GitHub ----------
+let PHASES = { 1: { nom: 'Étape 1', quoi: '' }, 2: { nom: 'Étape 2', quoi: '' }, 3: { nom: 'Étape 3', quoi: '' } };
+let ETAPES = [{ t: 'accueil' }], MISSIONS = ["L'information à faire passer"], TESTS = [];
+// lit seance.txt : un écran par mot entre crochets, des lignes « clé : valeur » et des réponses « - » ou « + » dessous
+function lireSeance(texte) {
+  const E = [], M = [], T = [], P = {}, ids = {};
+  const sans = x => x.normalize('NFD').replace(/[^a-zA-Z0-9 ]/g, '').toLowerCase().trim();
+  const id = q => { let k = sans(q).replace(/ /g, '').slice(0, 20) || 'q'; ids[k] = (ids[k] || 0) + 1; return ids[k] > 1 ? k + ids[k] : k; };
+  const cinq = ['1', '2', '3', '4', '5'], fixes = { accueil: 'accueil', scores: 'scores', mission: 'mission', photos: 'photo', photo: 'photo', tests: 'vote', palmares: 'palmares', fin: 'fin' };
+  let e = null;
+  for (let l of texte.split(/\r?\n/)) {
+    l = l.trim(); if (!l || l[0] === '#') continue;
+    const tete = /^\[([^\]]+)\]\s*(.*)$/.exec(l);
+    if (tete) {
+      const mot = sans(tete[1]), reste = tete[2].trim(), part = reste.split('|').map(x => x.trim());
+      if (fixes[mot]) e = mot === 'tests' ? { t: 'vote', id: 'vote' } : { t: fixes[mot] };
+      else if (/^etape [123]$/.test(mot)) e = { t: 'phase', p: +mot.slice(-1) };
+      else if (mot === 'texte') e = { t: 'info', s: part[0] || '', h: part[1] || '', x: part[2] || '' };
+      else if (mot === '5 secondes') { e = { t: 'flash', img: part[0] }; const p = /([123])/.exec(sans(part[1] || '')); if (p) e.p = +p[1]; }
+      else if (mot === 'jeu') e = { id: id(reste), t: 'choix', jeu: 1, q: reste, o: [] };
+      else if (mot === 'note') e = { id: id(reste), t: 'echelle', q: reste, o: cinq, a: '', b: '' };
+      else if (mot === 'a ou b') e = { id: id(reste), t: 'ab', q: reste, o: ['A', 'B', 'Aucune différence'], imgs: [] };
+      else if (mot === 'question') e = { id: id(reste), t: 'choix', q: reste, o: [] };
+      else { e = null; continue; } // mot inconnu : l'écran est ignoré plutôt que de bloquer la séance
+      E.push(e); continue;
+    }
+    if (/^[-+]\s/.test(l) && e && e.o && e.o !== cinq && e.t !== 'ab') { if (l[0] === '+') e.bon = e.o.length; e.o.push(l.slice(1).trim()); continue; }
+    const kv = /^([^:=]+?)\s*[:=]\s*(.*)$/.exec(l); if (!kv) continue;
+    const k = sans(kv[1]), v = kv[2].trim(), part = v.split('|').map(x => x.trim());
+    if (/^etape [123]$/.test(k) && !e) P[k.slice(-1)] = { nom: part[0], quoi: part[1] || '' };
+    else if (k === 'mission' && !e) M.push(v);
+    else if (/^test/.test(k) && !e) T.push({ c: 't' + T.length, t: 'echelle', q: part[0], o: cinq, a: part[1] || '', b: part[2] || '', cinq: /5 secondes/.test(k) });
+    else if (!e) continue;
+    else if (k === 'etape') e.p = +v || undefined;
+    else if (k === 'reponses') e.t = /plusieurs/.test(sans(v)) ? 'multi' : 'choix';
+    else if (k === 'precision') e.note = v;
+    else if (k === 'de') e.a = v; else if (k === 'a') e.b = v;
+    else if (k === 'noir et blanc') e.nb = /oui/.test(sans(v));
+    else if (k === 'affiche a' && e.imgs) e.imgs[0] = v; else if (k === 'affiche b' && e.imgs) e.imgs[1] = v;
+    else if (k === 'affiche') { if (e.jeu) e.img = v; else e.imgs = [v]; }
+  }
+  // une question sans réponse ne peut pas être posée : on la retire
+  const bons = E.filter(x => !x.o || x.o.length > 1);
+  if (bons.length) { ETAPES = bons; if (M.length) MISSIONS = M; TESTS = T; PHASES = { ...PHASES, ...P }; }
+  return bons.length;
+}
 
 // ---------- outils ----------
 const P = new URLSearchParams(location.search);
@@ -270,7 +234,7 @@ const lire = (k, d) => { try { return JSON.parse(localStorage.getItem(SALLE + k)
 const ecrire = (k, v) => { try { localStorage.setItem(SALLE + k, JSON.stringify(v)); } catch (e) { /* stockage plein : la séance continue en mémoire */ } };
 const sur = e => e.p ? `Étape ${e.p} · ${h(PHASES[e.p].nom)}` : e.jeu || e.img ? "Le jeu de l'œil" : 'Atelier';
 const JEUX = () => ETAPES.filter(e => e.bon != null);
-let mission = 1; // l'information de l'atelier, la même pour tous
+let mission = 0; // l'information de l'atelier, la même pour tous (la première de la liste par défaut)
 let sous = 0; // pendant l'étape « vote » : numéro de l'affiche × 10 + numéro du test
 // la question réellement posée : l'étape elle-même, ou le test en cours pour l'affiche en cours
 const Q = e => { if (e.t !== 'vote') return e; const k = sous / 10 | 0, j = sous % 10; return { ...(TESTS[j] || TESTS[0]), id: 'vote' + k + '_' + (TESTS[j] ? j : 0), vote: true, k }; };
@@ -486,9 +450,9 @@ function telephone() {
 
 // ================= GRAND ÉCRAN =================
 function ecran() {
-  const neuve = () => ({ sid: Math.random().toString(36).slice(2, 8), i: 0, k: 0, rev: false, gens: {}, rep: {}, mission: 1, photos: [] });
+  const neuve = () => ({ sid: Math.random().toString(36).slice(2, 8), i: 0, k: 0, rev: false, gens: {}, rep: {}, mission: 0, photos: [] });
   let S = lire('pdvSeance', null) || neuve();
-  S.photos = lire('pdvPhotos', []); sous = S.k = S.k || 0; mission = S.mission = MISSIONS[S.mission] ? S.mission : 1;
+  S.photos = lire('pdvPhotos', []); sous = S.k = S.k || 0; mission = S.mission = MISSIONS[S.mission] ? S.mission : 0; if (!ETAPES[S.i]) S.i = 0;
   let affiches = lire('pdvAffiches', {}), conns = new Set(), cle = '', flash = false, souci = '', masque = false, tm, tAuto = 0;
   const garder = () => { const { photos, ...reste } = S; ecrire('pdvSeance', reste); ecrire('pdvPhotos', photos); };
   const diffuser = () => conns.forEach(c => c.open && c.send({ k: 'etat', sid: S.sid, i: S.i, n: S.k, m: S.mission }));
@@ -570,8 +534,8 @@ function ecran() {
     if (k !== cle) { masque = false; clearTimeout(tm); clearTimeout(tAuto); tAuto = 0; }
     cle = k; courant = S.i;
     const q = QH(e);
-    const im = e.imgs || (e.voir ? [A(e.p === 3 ? 'cercles-qr' : 'reference')] : []);
-    const vues = im.map((src, i) => ({ l: im.length > 1 ? 'AB'[i] : '', src: e.voir && affiches.A ? affiches.A : src })); // une affiche chargée à la main remplace celle de l'étape
+    const im = (e.imgs || []).filter(Boolean);
+    const vues = im.map((src, i) => ({ l: im.length > 1 ? 'AB'[i] : '', src: im.length === 1 && e.p && affiches.A ? affiches.A : src })); // une affiche chargée à la main remplace celle de l'étape
     coin = S.rev || vues.length > 0 || ['scores', 'photo', 'flash', 'vote', 'palmares'].includes(e.t);
     placer();
     const url = location.origin + location.pathname + '?salle=' + SALLE;
@@ -729,7 +693,10 @@ function ecran() {
   dessiner();
 }
 
-ECRAN ? ecran() : telephone();
+// le contenu d'abord (seance.txt, relu à chaque ouverture), puis l'appli
+fetch('seance.txt?' + Date.now()).then(x => x.ok ? x.text() : Promise.reject()).then(t => lireSeance(t) || Promise.reject())
+  .catch(() => { document.getElementById('statut').textContent = 'Le fichier seance.txt est introuvable ou vide.'; })
+  .then(() => ECRAN ? ecran() : telephone());
 </script>
 </body>
 </html>
