@@ -4,6 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Points de vue · séance</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'><rect width='120' height='120' fill='%23fff'/><g style='mix-blend-mode:multiply'><circle cx='44' cy='50' r='40' fill='%23F5A0C6'/></g><g style='mix-blend-mode:multiply'><circle cx='86' cy='42' r='28' fill='%23F7C33B'/></g><g style='mix-blend-mode:multiply'><circle cx='74' cy='82' r='22' fill='%231F6FE0'/></g><circle cx='22' cy='40' r='3.6' fill='%23141414'/><circle cx='34' cy='38' r='3.6' fill='%23141414'/><circle cx='93' cy='28' r='2.9' fill='%23141414'/><circle cx='103' cy='30' r='2.9' fill='%23141414'/><circle cx='73' cy='95' r='2.4' fill='%23141414'/><circle cx='81' cy='95' r='2.4' fill='%23141414'/></svg>">
+<link rel="apple-touch-icon" href="icone.png">
+<meta name="theme-color" content="#ffffff">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Scoutie+Sans:wght@200..800&display=swap">
 <style>
 :root{--n:#141414;--c1:#F5A0C6;--c2:#F7C33B;--c3:#1F6FE0;--t1:#FDE7F1;--t2:#FDF0CC;--t3:#DCE9FB;--c:var(--c1);--t:var(--t1)}
@@ -37,7 +40,9 @@ p{margin:0}
 .tel{min-height:100vh;min-height:100dvh;padding:28px 22px 70px;display:flex;flex-direction:column;gap:20px;max-width:560px;margin:0 auto}
 .tel h1{font-size:54px}
 .tel h2{margin:0;font-size:31px;line-height:1.05;font-weight:800;letter-spacing:-.03em}
-.tel .haut{height:30vh}
+.tel .haut{height:30vh;flex:none}
+.tel.fixe{height:100vh;height:100dvh;min-height:0;overflow:hidden;gap:16px;padding-bottom:56px}
+.tel.fixe .haut{height:26vh}
 .opts{display:flex;flex-direction:column;gap:12px}
 .opt{background:var(--t);border-radius:28px;padding:18px 22px;font-size:22px;font-weight:700;text-align:left;display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:68px;transition:background .25s,transform .15s}
 .opt:active{transform:scale(.97)}
@@ -264,9 +269,6 @@ function reduire(file, max) {
     img.src = URL.createObjectURL(file);
   });
 }
-const CERCLES = ['<circle cx="44" cy="46" r="40" fill="#F5A0C6" style="mix-blend-mode:multiply"/>', '<circle cx="86" cy="38" r="28" fill="#F7C33B" style="mix-blend-mode:multiply"/>', '<circle cx="74" cy="78" r="22" fill="#1F6FE0" style="mix-blend-mode:multiply"/>'];
-const listeEtapes = () => `<div class="etapes">${[1, 2, 3].map(p => `<div><svg viewBox="0 0 120 112">${CERCLES.slice(0, p).join('')}</svg><span><b>${h(PHASES[p].nom)}</b>${h(PHASES[p].quoi)}</span></div>`).join('')}</div>`;
-
 // ---------- les cercles du fond ----------
 let courant = 0, coin = false;
 function placer() {
@@ -354,11 +356,11 @@ function telephone() {
     p.on('open', () => {
       const c = p.connect(HOTE, { reliable: true });
       let premier = true;
-      c.on('open', () => { if (p !== peer) return; lien = c; vu = Date.now(); c.send({ k: 'salut', pid: mes.pid, nom: mes.nom }); statut(); });
+      c.on('open', () => { if (p !== peer) return; lien = c; vu = Date.now(); c.send({ k: 'salut', pid: mes.pid, nom: mes.inscrit ? mes.nom : '' }); statut(); });
       c.on('data', d => {
         if (d.k === 'etat') {
           connu = true; vu = Date.now();
-          if (d.sid !== mes.sid) { mes.sid = d.sid; mes.rep = {}; garder(); }
+          if (d.sid !== mes.sid) { mes.sid = d.sid; mes.rep = {}; mes.inscrit = false; garder(); }
           else if (premier) for (const id in mes.rep) c.send({ k: 'rep', id, v: mes.rep[id] }); // réponses données hors connexion
           premier = false; courant = ETAPES[d.i] ? d.i : 0; sous = d.n >= 0 && d.n < 999 ? d.n | 0 : 0; if (MISSIONS[d.m] && d.m !== mission) { mission = d.m; cle = ''; } dessiner();
         }
@@ -377,17 +379,15 @@ function telephone() {
 
   function dessiner(force) {
     const e = ETAPES[courant], q = Q(e), t = q.t, id = q.id, v = id ? mes.rep[id] : null;
-    const k = courant + '|' + sous + '|' + JSON.stringify(v ?? null);
+    const k = courant + '|' + sous + '|' + JSON.stringify(v ?? null) + '|' + !!mes.inscrit;
     if (k === cle && !force) return;
     cle = k; placer(); scrollTo(0, 0);
     let x = '';
     if (e.t === 'accueil') x = `<div class="haut"></div><h1>Bienvenue !</h1>
-      <p><b>Vous participez à une recherche pour converger vers l'affiche la plus intéressante.</b></p>
-      <p>Trois activités vous attendent. Les questions arrivent ici, les réponses de la salle s'affichent sur le grand écran.</p>
-      ${listeEtapes()}
-      ${SALLE ? `<input class="champ" id="nom" maxlength="24" placeholder="Votre prénom (facultatif)" value="${h(mes.nom)}" autocomplete="given-name">`
-        : `<p><b>Pour rejoindre la séance, tapez le code affiché sur le grand écran.</b></p><input class="champ" id="code" inputmode="numeric" maxlength="4" placeholder="Code à 4 chiffres" autocomplete="off"><button class="btn" data-a="code">Rejoindre la séance</button>`}
-      <p class="note">Il n'y a pas de bonne ou de mauvaise réponse : c'est l'affiche que l'on teste.</p>`;
+      <p><b>Vous participez à une recherche pour converger vers l'affiche la plus intéressante.</b></p>` + (!SALLE
+        ? `<p>Tapez le code affiché sur le grand écran.</p><input class="champ" id="code" inputmode="numeric" maxlength="4" placeholder="Code à 4 chiffres" autocomplete="off"><button class="btn" data-a="code">Rejoindre la séance</button>`
+        : mes.inscrit ? `<div class="fait" style="margin-top:0">${tete(1)}<h2>${mes.nom ? h(mes.nom) + ', vous êtes inscrit.' : 'Vous êtes inscrit.'}</h2><p>Votre prénom est sur le grand écran. La séance va commencer.</p></div>`
+        : `<p>Il n'y a pas de bonne ou de mauvaise réponse : c'est l'affiche que l'on teste.</p><input class="champ" id="nom" maxlength="24" placeholder="Votre prénom" value="${h(mes.nom)}" autocomplete="given-name"><button class="btn" data-a="inscrire">Je m'inscris à la séance</button>`);
     else if (e.t === 'phase') x = `<div class="haut"></div><p class="sur">Étape ${e.p}</p><h1>${h(PHASES[e.p].nom)}</h1><p><b>${h(PHASES[e.p].quoi)}</b></p>`;
     else if (e.t === 'info') x = `<div class="haut"></div><p class="sur">${h(e.s)}</p><h1>${h(e.h)}</h1><p><b>${h(e.x)}</b></p>`;
     else if (e.t === 'scores') {
@@ -417,7 +417,7 @@ function telephone() {
       if (t === 'echelle') x += `<div class="echelle">${q.o.map((o, i) => `<button data-o="${i}" style="width:${36 + i * 11}px;height:${36 + i * 11}px">${o}</button>`).join('')}</div><div class="bouts"><span>${h(q.a)}</span><span>${h(q.b)}</span></div>`;
       if (t === 'ab') x += `<p class="note">Regardez les deux affiches A et B.</p><div class="ab"><button data-o="0">A</button><button data-o="1">B</button></div><div class="opts"><button class="opt" data-o="2">${h(q.o[2])}${tete(e.p)}</button></div>`;
     }
-    app.innerHTML = `<div class="tel">${x}</div>`;
+    app.innerHTML = `<div class="tel${e.t === 'accueil' ? ' fixe' : ''}">${x}</div>`;
     regards(); statut();
   }
 
@@ -430,6 +430,7 @@ function telephone() {
     if (act === 'multi') { const v = [...app.querySelectorAll('.opt.on')].map(b => +b.dataset.o); if (v.length) repondre(id, v); }
     if (act === 'texte') { const v = document.getElementById('txt').value.trim(); if (v) repondre(id, v); }
     if (act === 'autre') { photo = null; dessiner(true); }
+    if (act === 'inscrire') { mes.nom = document.getElementById('nom').value.trim(); mes.inscrit = true; garder(); if (lien) lien.send({ k: 'salut', pid: mes.pid, nom: mes.nom }); dessiner(); }
     if (act === 'code') { const c = document.getElementById('code').value.replace(/\D/g, ''); if (c.length === 4) location.search = '?salle=' + c; }
     if (act === 'photo') {
       if (!lien) return statut();
@@ -438,7 +439,6 @@ function telephone() {
     }
   });
   app.addEventListener('change', async ev => {
-    if (ev.target.id === 'nom') { mes.nom = ev.target.value.trim(); garder(); if (lien) lien.send({ k: 'salut', pid: mes.pid, nom: mes.nom }); }
     if (ev.target.id === 'prise' && ev.target.files[0]) { photo = { img: await reduire(ev.target.files[0], 1100), etat: 'pret' }; dessiner(true); }
   });
   dessiner(); statut(); if (SALLE) brancher();

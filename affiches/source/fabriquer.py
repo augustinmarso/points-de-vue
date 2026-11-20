@@ -65,7 +65,9 @@ p{margin:0}
 
 .typo-script h1{font-family:'Pacifico',cursive;font-weight:400;letter-spacing:0;font-size:124px!important;line-height:1.02!important}
 .typo-script .chapo,.typo-script .gratuit,.typo-script .date,.typo-script .heure,.typo-script .rt,.typo-script .n{font-family:'Pacifico',cursive;font-weight:400!important;letter-spacing:0!important}
-.typo-script .date{font-size:60px!important}
+.typo-script .date{font-size:60px!important;line-height:1.1!important}
+.typo-script .heure{margin-top:20px!important}
+.typo-script .chapo{margin-top:52px!important}
 .typo-script .rs,.typo-script .lieu{font-weight:300;font-style:italic}
 
 .texte-petit .chapo{font-size:14px!important;max-width:300px!important}
@@ -112,8 +114,8 @@ p{margin:0}
 .c2 .photo{right:-150px;top:70px;width:580px;height:580px;border-radius:50%%}
 .c2 .sur{font-size:28px;font-weight:800;letter-spacing:-.02em;max-width:400px;line-height:1.1}
 .c2 .jour{margin-top:34px;font-size:66px;font-weight:800;letter-spacing:-.04em;line-height:1}
-.c2 .num{font-size:420px;font-weight:800;letter-spacing:-.07em;line-height:.78;margin-left:-14px}
-.c2 .mois{font-size:112px;font-weight:800;letter-spacing:-.055em;line-height:.9;margin-top:8px}
+.c2 .num{font-size:400px;font-weight:800;letter-spacing:-.07em;line-height:.8;margin:18px 0 0 -14px}
+.c2 .mois{font-size:112px;font-weight:800;letter-spacing:-.055em;line-height:.9;margin-top:30px}
 .c2 .heure{font-size:44px;font-weight:700;letter-spacing:-.02em;margin-top:18px}
 .c2 h1{font-size:88px;margin-top:54px}
 .c2 .rows{display:grid;grid-template-columns:1fr 1fr;gap:16px 30px;margin-top:34px;max-width:800px}
