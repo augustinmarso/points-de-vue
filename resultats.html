@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Points de vue · résultats</title>
+<title>Points de vue · étudier les données</title>
 <link rel="apple-touch-icon" href="icone.png">
 <link rel="icon" href="icone.png">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Scoutie+Sans:wght@200..800&display=swap">
@@ -11,26 +11,38 @@
 :root{--n:#141414;--gris:#6B6B6B;--fond:#F3F3F3}
 *{box-sizing:border-box}
 body{margin:0;background:#fff;color:var(--n);font-family:'Scoutie Sans',Helvetica,Arial,sans-serif;font-size:18px;line-height:1.3}
-main{max-width:1040px;margin:0 auto;padding:36px 22px 80px}
+main{max-width:1040px;margin:0 auto;padding:28px 22px 80px}
+a{color:inherit}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:3px solid #1F6FE0;outline-offset:3px}
 header{display:flex;align-items:center;gap:14px}
 header svg{width:64px;flex:none}
-header b{font-size:26px;line-height:.86;font-weight:800;letter-spacing:-.05em}
-h1{margin:34px 0 0;font-size:clamp(44px,8vw,84px);line-height:.9;font-weight:800;letter-spacing:-.05em}
-.maj{color:var(--gris);font-size:15px;margin-top:10px}
-.sheet{display:inline-block;background:var(--n);color:#fff;font-weight:800;text-decoration:none;border-radius:99px;padding:12px 22px;min-height:44px;margin-top:6px}
-.sheet:focus-visible{outline:3px solid #1F6FE0;outline-offset:3px}
+header b{font-size:26px;line-height:.86;font-weight:800;letter-spacing:-.05em;flex:1}
+header a{font-weight:700}
+h1{margin:30px 0 0;font-size:clamp(44px,8vw,84px);line-height:.9;font-weight:800;letter-spacing:-.05em}
+.maj{color:var(--gris);font-size:15px;margin:10px 0 0}
+.outils{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px;align-items:center}
+.btn{display:inline-flex;align-items:center;background:var(--n);color:#fff;font-weight:800;text-decoration:none;border:0;border-radius:99px;padding:10px 20px;min-height:44px;cursor:pointer}
+.btn.clair,.choix button{background:var(--fond);color:var(--n)}
 .choix{display:flex;flex-wrap:wrap;gap:10px;margin-top:26px}
-.choix button{font:inherit;font-weight:700;border:0;cursor:pointer;background:var(--fond);color:var(--n);border-radius:99px;padding:10px 18px;min-height:44px}
+.choix button{font-weight:700;border:0;cursor:pointer;border-radius:99px;padding:10px 18px;min-height:44px}
 .choix button[aria-pressed=true]{background:var(--n);color:#fff}
-.choix button:focus-visible{outline:3px solid #1F6FE0;outline-offset:3px}
+.reglages{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-top:18px}
+.reglages label{display:flex;flex-direction:column;gap:6px;font-weight:800;font-size:15px}
+.reglages input,.reglages select{background:var(--fond);border:0;border-radius:14px;padding:11px 14px;min-height:46px;font-weight:400;font-size:17px;width:100%}
 .chiffres{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:34px}
 .chiffres div{font-size:16px;font-weight:700}
 .chiffres b{display:block;font-size:clamp(46px,9vw,92px);line-height:.9;font-weight:800;letter-spacing:-.05em}
-section{margin-top:64px}
+section{margin-top:60px}
 h2{display:flex;align-items:center;gap:14px;margin:0;font-size:clamp(28px,4.4vw,44px);line-height:1;font-weight:800;letter-spacing:-.04em}
 h2 i{width:.9em;height:.9em;border-radius:50%;background:var(--c);flex:none}
 h2+p{margin:8px 0 0;color:var(--gris)}
+.retenir{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:14px;margin-top:22px}
+.retenir div{background:var(--fond);border-radius:22px;padding:18px 20px;font-size:16px}
+.retenir small{display:block;font-weight:800;font-size:14px;color:var(--gris)}
+.retenir b{display:block;font-size:34px;line-height:1;font-weight:800;letter-spacing:-.04em;margin:6px 0}
 .grille{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,440px),1fr));gap:34px 44px;margin-top:28px}
+article{break-inside:avoid}
 article h3{margin:0;font-size:22px;line-height:1.12;font-weight:800;letter-spacing:-.02em}
 article .n{color:var(--gris);font-size:15px;margin:4px 0 12px}
 .moy{font-size:40px;font-weight:800;letter-spacing:-.04em;line-height:1;margin:8px 0 12px}
@@ -38,77 +50,132 @@ article .n{color:var(--gris);font-size:15px;margin:4px 0 12px}
 .barre{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 12px;align-items:center;margin-top:8px;font-size:16px}
 .barre span{overflow-wrap:anywhere}
 .barre b{font-weight:800;white-space:nowrap}
-.barre .piste{grid-column:1/-1;height:14px;border-radius:7px;background:var(--fond);overflow:hidden}
-.barre .piste i{display:block;height:100%;border-radius:7px;background:var(--c);min-width:0;transition:width .8s cubic-bezier(.45,0,.2,1)}
+.piste{grid-column:1/-1;height:14px;border-radius:7px;background:var(--fond);overflow:hidden}
+.piste i{display:block;height:100%;border-radius:7px;background:var(--c);transition:width .8s cubic-bezier(.45,0,.2,1)}
+.piste.autre{height:8px;margin-top:2px}.piste.autre i{background:var(--n)}
 .barre.zero{color:var(--gris)}
 .barre.bon span{font-weight:800}
+.legende{display:flex;gap:18px;flex-wrap:wrap;font-size:15px;font-weight:700;margin-top:16px}
+.legende i{display:inline-block;width:1.6em;height:.7em;border-radius:99px;background:var(--n);margin-right:6px;vertical-align:middle}
+.legende i.a{background:linear-gradient(90deg,#F5A0C6,#F7C33B,#1F6FE0)}
 .vide{margin-top:40px;font-size:22px;font-weight:700}
 .bornes{display:flex;justify-content:space-between;color:var(--gris);font-size:14px;margin-top:6px}
 @media (max-width:520px){.chiffres{gap:10px}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+@media print{.outils,.choix,.reglages,header a{display:none!important}main{padding:0}section{margin-top:30px}}
 </style>
 </head>
 <body>
 <main>
-<header><svg viewBox="0 0 120 112" aria-hidden="true"><circle cx="44" cy="46" r="40" fill="#F5A0C6" style="mix-blend-mode:multiply"/><circle cx="86" cy="38" r="28" fill="#F7C33B" style="mix-blend-mode:multiply"/><circle cx="74" cy="78" r="22" fill="#1F6FE0" style="mix-blend-mode:multiply"/><circle cx="22" cy="36" r="3.4" fill="#141414"/><circle cx="34" cy="34" r="3.4" fill="#141414"/><circle cx="93" cy="24" r="2.7" fill="#141414"/><circle cx="103" cy="26" r="2.7" fill="#141414"/><circle cx="73" cy="91" r="2.2" fill="#141414"/><circle cx="81" cy="91" r="2.2" fill="#141414"/></svg><b>Points<br>de vue</b></header>
-<h1>Résultats des séances</h1>
+<header><svg viewBox="0 0 120 112" aria-hidden="true"><circle cx="44" cy="46" r="40" fill="#F5A0C6" style="mix-blend-mode:multiply"/><circle cx="86" cy="38" r="28" fill="#F7C33B" style="mix-blend-mode:multiply"/><circle cx="74" cy="78" r="22" fill="#1F6FE0" style="mix-blend-mode:multiply"/><circle cx="22" cy="36" r="3.4" fill="#141414"/><circle cx="34" cy="34" r="3.4" fill="#141414"/><circle cx="93" cy="24" r="2.7" fill="#141414"/><circle cx="103" cy="26" r="2.7" fill="#141414"/><circle cx="73" cy="91" r="2.2" fill="#141414"/><circle cx="81" cy="91" r="2.2" fill="#141414"/></svg><b>Points<br>de vue</b><a href="./">← Accueil</a></header>
+<h1>Étudier les données</h1>
 <p class="maj" id="maj">Chargement…</p>
-<p><a class="sheet" href="https://docs.google.com/spreadsheets/d/14uvOfNQwjgMOH83hJhnWea9Df3Cidhhs4rUefRrQ2wk" target="_blank" rel="noopener">Ouvrir le Google Sheet</a></p>
+<div class="outils">
+  <a class="btn" href="https://docs.google.com/spreadsheets/d/14uvOfNQwjgMOH83hJhnWea9Df3Cidhhs4rUefRrQ2wk" target="_blank" rel="noopener">Ouvrir le Google Sheet</a>
+  <button class="btn clair" id="csv">Télécharger ce tableau (CSV)</button>
+  <button class="btn clair" id="imprimer">Imprimer ou enregistrer en PDF</button>
+</div>
 <div class="choix" id="choix" role="group" aria-label="Choisir une séance"></div>
+<div class="reglages">
+  <label>Comparer avec<select id="comparer"><option value="">Aucune comparaison</option></select></label>
+  <label>Chercher une question<input type="search" id="chercher" placeholder="Un mot de la question"></label>
+  <label>Ranger les questions<select id="tri"><option value="">Dans l'ordre de la séance</option><option value="fort">Les plus unanimes d'abord</option><option value="faible">Les plus partagées d'abord</option></select></label>
+</div>
 <div id="vue"></div>
 </main>
 <script src="seance.js"></script>
 <script>
-// Page de visualisation : lit les totaux anonymes calculés par le script Google (jamais de prénom, jamais de ligne individuelle)
-// et les présente dans l'ordre de la séance (seance.txt). Se met à jour toute seule toutes les 20 secondes.
+// Étude des données : lit les totaux anonymes calculés par le script Google (jamais de prénom, jamais de ligne individuelle)
+// et les présente dans l'ordre de la séance (seance.txt). Outils : choix d'une séance, comparaison de deux séances,
+// points à retenir calculés, recherche, tri par accord, export CSV, impression. Mise à jour toutes les 20 secondes.
 const SOURCE = 'https://script.google.com/macros/s/AKfycbzPof8sEj8tZLlA-MtVDYyODv32y8lXxc9hLVmaW5zCvHLilyRIxpk4Ix6TPhzJczjn/exec?vue=resultats';
 const COUL = { 'Étape 1': '#F5A0C6', 'Étape 2': '#F7C33B', 'Étape 3': '#1F6FE0' };
 const h = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])).replace(/ ([?!:;»])/g, '&nbsp;$1').replace(/« /g, '«&nbsp;');
-const fr = (x, d = 1) => x.toFixed(d).replace('.', ',');
-let D = null, seance = new URLSearchParams(location.search).get('seance') || '';
+const fr = (x, d = 1) => x.toFixed(d).replace('.', ','), pc = x => Math.round(x * 100) + ' %';
+const $ = id => document.getElementById(id), plat = x => x.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+let D = null, seance = new URLSearchParams(location.search).get('seance') || '', tableau = [];
+
+// les totaux d'une séance ('' = toutes) : par question, le nombre de répondants, le détail des réponses, la moyenne des notes
+function totaux(code) {
+  const garde = l => !code || l[0] === code, T = { compte: {}, rep: {}, notes: {}, groupe: {}, ordre: [] };
+  D.lignes.filter(garde).forEach(([, g, q, r, n]) => { (T.compte[q] = T.compte[q] || {})[r] = ((T.compte[q] || {})[r] || 0) + n; if (!(q in T.groupe)) { T.groupe[q] = g; T.ordre.push(q); } });
+  D.repondants.filter(garde).forEach(([, , q, n]) => T.rep[q] = (T.rep[q] || 0) + n);
+  D.notes.filter(garde).forEach(([, , q, s, n]) => { const x = T.notes[q] = T.notes[q] || [0, 0]; x[0] += s; x[1] += n; });
+  return T;
+}
+const accord = (T, q) => T.rep[q] ? Math.max(0, ...Object.values(T.compte[q] || {})) / T.rep[q] : 0; // part de la réponse la plus donnée
 
 function dessiner() {
   if (!D) return;
-  const codes = Object.keys(D.seances).sort(), garde = l => !seance || l[0] === seance;
+  const codes = Object.keys(D.seances).sort();
   if (seance && !D.seances[seance]) seance = '';
-  document.getElementById('choix').innerHTML = [['', 'Toutes les séances'], ...codes.map(c => [c, 'Séance ' + c])]
-    .map(([c, nom]) => `<button data-s="${h(c)}" aria-pressed="${c === seance}">${h(nom)}</button>`).join('');
-  // totaux par question et par réponse, pour la ou les séances choisies
-  const compte = {}, rep = {}, notes = {}, groupe = {}, ordre = [];
-  D.lignes.filter(garde).forEach(([, g, q, r, n]) => { (compte[q] = compte[q] || {})[r] = ((compte[q] || {})[r] || 0) + n; if (!(q in groupe)) { groupe[q] = g; ordre.push(q); } });
-  D.repondants.filter(garde).forEach(([, , q, n]) => rep[q] = (rep[q] || 0) + n);
-  D.notes.filter(garde).forEach(([, , q, s, n]) => { const x = notes[q] = notes[q] || [0, 0]; x[0] += s; x[1] += n; });
-  const gens = codes.filter(c => !seance || c === seance).reduce((a, c) => a + D.seances[c], 0), total = Object.values(rep).reduce((a, n) => a + n, 0);
-  if (!total) { document.getElementById('vue').innerHTML = `<p class="vide">Pas encore de réponses. Cette page se met à jour toute seule pendant la séance.</p>`; return; }
+  $('choix').innerHTML = [['', 'Toutes les séances'], ...codes.map(c => [c, 'Séance ' + c])].map(([c, nom]) => `<button data-s="${h(c)}" aria-pressed="${c === seance}">${h(nom)}</button>`).join('');
+  const autre = $('comparer').value;
+  $('comparer').innerHTML = '<option value="">Aucune comparaison</option>' + codes.filter(c => c !== seance).map(c => `<option value="${h(c)}" ${c === autre ? 'selected' : ''}>Séance ${h(c)}</option>`).join('');
+  const T = totaux(seance), U = $('comparer').value ? totaux($('comparer').value) : null, mot = plat($('chercher').value.trim()), tri = $('tri').value;
+  const gens = codes.filter(c => !seance || c === seance).reduce((a, c) => a + D.seances[c], 0), total = Object.values(T.rep).reduce((a, n) => a + n, 0);
+  if (!total) { tableau = []; $('vue').innerHTML = `<p class="vide">Pas encore de réponses. Cette page se met à jour toute seule pendant la séance.</p>`; return; }
 
-  const carte = (q, opts, bon, bornes) => { // une question : ses réponses en barres, dans l'ordre du questionnaire
-    const c = compte[q] || {}, n = rep[q] || 0, liste = opts || Object.keys(c).sort((a, b) => c[b] - c[a]), nt = notes[q];
-    return `<article><h3>${h(q)}</h3><p class="n">${n} réponse${n > 1 ? 's' : ''}</p>${nt ? `<div class="moy">${fr(nt[0] / nt[1])} <small>sur 5 en moyenne</small></div>` : ''}`
-      + liste.map((o, i) => { const k = c[o] || 0, p = n ? k / n : 0;
-        return `<div class="barre${k ? '' : ' zero'}${i === bon ? ' bon' : ''}"><span>${h(o)}${i === bon ? ' (bonne réponse)' : ''}</span><b>${k} · ${Math.round(p * 100)} %</b><div class="piste"><i style="width:${p * 100}%${bon != null && i !== bon ? ';background:#BDBDBD' : ''}"></i></div></div>`; }).join('')
+  tableau = [['étape', 'question', 'réponse', 'nombre', 'part']];
+  const carte = (g, q, opts, bon, bornes) => { // une question : ses réponses en barres, dans l'ordre du questionnaire
+    const c = T.compte[q] || {}, n = T.rep[q] || 0, liste = opts || Object.keys(c).sort((a, b) => c[b] - c[a]), nt = T.notes[q], cu = U && U.compte[q] || {}, nu = U && U.rep[q] || 0, ntu = U && U.notes[q];
+    liste.forEach(o => tableau.push([g, q, o, c[o] || 0, n ? Math.round((c[o] || 0) / n * 100) + ' %' : '']));
+    return `<article><h3>${h(q)}</h3><p class="n">${n} réponse${n > 1 ? 's' : ''}${U ? ` · ${nu} dans l'autre séance` : ''}</p>${nt ? `<div class="moy">${fr(nt[0] / nt[1])} <small>sur 5 en moyenne${ntu ? ` · ${fr(ntu[0] / ntu[1])} dans l'autre séance` : ''}</small></div>` : ''}`
+      + liste.map((o, i) => { const k = c[o] || 0, p = n ? k / n : 0, pu = nu ? (cu[o] || 0) / nu : 0;
+        return `<div class="barre${k ? '' : ' zero'}${i === bon ? ' bon' : ''}"><span>${h(o)}${i === bon ? ' (bonne réponse)' : ''}</span><b>${k} · ${pc(p)}${U ? ' / ' + pc(pu) : ''}</b><div class="piste"><i style="width:${p * 100}%${bon != null && i !== bon ? ';background:#BDBDBD' : ''}"></i></div>${U ? `<div class="piste autre"><i style="width:${pu * 100}%"></i></div>` : ''}</div>`; }).join('')
       + (bornes ? `<div class="bornes"><span>1 = ${h(bornes[0])}</span><span>5 = ${h(bornes[1])}</span></div>` : '') + `</article>`;
   };
-  // les questions de la séance, dans l'ordre de seance.txt ; puis celles qui n'y sont plus ou qui viennent de l'atelier
-  const vues = new Set(), blocs = {};
-  const ranger = (g, html) => (blocs[g] = blocs[g] || []).push(html);
-  ETAPES.filter(e => e.id && e.t !== 'vote' && rep[e.q]).forEach(e => { vues.add(e.q);
-    ranger(e.p ? 'Étape ' + e.p : "Jeu de l'œil", carte(e.q, e.t === 'echelle' ? e.o.map(x => x + ' sur 5') : e.o, e.bon, e.t === 'echelle' ? [e.a, e.b] : null)); });
-  ordre.filter(q => !vues.has(q)).forEach(q => ranger(groupe[q] === 'Atelier' ? 'Atelier' : 'Autres questions', carte(q, notes[q] ? ['1', '2', '3', '4', '5'].map(x => x + ' sur 5') : null)));
+  // les questions de la séance, dans l'ordre de seance.txt ; puis celles de l'atelier et celles qui ne sont plus dans la séance
+  const vues = new Set(), blocs = {}, Q = ETAPES.filter(e => e.id && e.t !== 'vote' && T.rep[e.q]);
+  const ranger = (g, q, html) => { if (!mot || plat(q).includes(mot)) (blocs[g] = blocs[g] || []).push([accord(T, q), html]); };
+  Q.forEach(e => { vues.add(e.q); const g = e.p ? 'Étape ' + e.p : "Jeu de l'œil";
+    ranger(g, e.q, carte(g, e.q, e.t === 'echelle' ? e.o.map(x => x + ' sur 5') : e.o, e.bon, e.t === 'echelle' ? [e.a, e.b] : null)); });
+  T.ordre.filter(q => !vues.has(q)).forEach(q => { const g = T.groupe[q] === 'Atelier' ? 'Atelier' : 'Autres questions'; ranger(g, q, carte(g, q, T.notes[q] ? ['1', '2', '3', '4', '5'].map(x => x + ' sur 5') : null)); });
+  if (tri) Object.values(blocs).forEach(b => b.sort((x, y) => tri === 'fort' ? y[0] - x[0] : x[0] - y[0]));
+
+  // ---------- à retenir : quelques constats calculés sur la sélection ----------
+  const R = [], ajoute = (titre, valeur, texte) => R.push(`<div><small>${h(titre)}</small><b>${h(valeur)}</b>${h(texte)}</div>`);
+  const jeux = Q.filter(e => e.bon != null).map(e => [((T.compte[e.q] || {})[e.o[e.bon]] || 0) / T.rep[e.q], e.q]).sort((a, b) => b[0] - a[0]);
+  if (jeux.length) ajoute("L'information la mieux retenue", pc(jeux[0][0]) + ' de bonnes réponses', jeux[0][1]);
+  if (jeux.length > 1) ajoute("L'information la moins retenue", pc(jeux[jeux.length - 1][0]) + ' de bonnes réponses', jeux[jeux.length - 1][1]);
+  const notes = Q.filter(e => e.t === 'echelle' && T.notes[e.q]).map(e => [T.notes[e.q][0] / T.notes[e.q][1], e.q]).sort((a, b) => b[0] - a[0]);
+  if (notes.length) ajoute('La meilleure note', fr(notes[0][0]) + ' sur 5', notes[0][1]);
+  if (notes.length > 1) ajoute('La note la plus basse', fr(notes[notes.length - 1][0]) + ' sur 5', notes[notes.length - 1][1]);
+  Q.filter(e => e.t === 'ab').forEach(e => { const c = T.compte[e.q] || {}, a = c.A || 0, b = c.B || 0; if (a + b) ajoute('Comparaison A / B', a === b ? 'Égalité' : (a > b ? 'A' : 'B') + ' préférée à ' + pc(Math.max(a, b) / T.rep[e.q]), e.q + (e.note ? ' (' + e.note + ')' : '')); });
+  const partage = Q.filter(e => e.t === 'choix' && e.bon == null && T.rep[e.q] > 2).map(e => [accord(T, e.q), e.q]).sort((a, b) => a[0] - b[0])[0];
+  if (partage) ajoute('La question qui divise le plus', pc(partage[0]) + ' pour la réponse en tête', partage[1]);
+  const aff = {}; T.ordre.filter(q => T.groupe[q] === 'Atelier' && T.notes[q]).forEach(q => { const k = q.split(' : ')[0], x = aff[k] = aff[k] || [0, 0]; x[0] += T.notes[q][0]; x[1] += T.notes[q][1]; });
+  const mieux = Object.entries(aff).map(([k, x]) => [x[0] / x[1], k]).sort((a, b) => b[0] - a[0])[0];
+  if (mieux) ajoute("L'affiche de binôme la mieux notée", fr(mieux[0]) + ' sur 5', mieux[1] + ', toutes notes confondues');
+
   const titres = { "Jeu de l'œil": ["Le jeu de l'œil", 'Une affiche vue 5 secondes, puis des questions précises.'], 'Étape 1': [PHASES[1].nom, PHASES[1].quoi], 'Étape 2': [PHASES[2].nom, PHASES[2].quoi], 'Étape 3': [PHASES[3].nom, PHASES[3].quoi], Atelier: ["L'atelier", 'Les affiches fabriquées en binômes, notées par la salle.'], 'Autres questions': ['Autres questions', 'Des questions qui ne sont plus dans la séance actuelle.'] };
-  document.getElementById('vue').innerHTML =
+  $('vue').innerHTML =
     `<div class="chiffres"><div><b>${gens}</b>participant${gens > 1 ? 's' : ''}</div><div><b>${seance ? 1 : codes.length}</b>séance${!seance && codes.length > 1 ? 's' : ''}</div><div><b>${total}</b>réponse${total > 1 ? 's' : ''}</div></div>`
-    + Object.keys(titres).filter(g => blocs[g]).map(g => `<section style="--c:${COUL[g] || '#141414'}"><h2><i></i>${h(titres[g][0])}</h2><p>${h(titres[g][1])}</p><div class="grille">${blocs[g].join('')}</div></section>`).join('');
+    + (U ? `<div class="legende"><span><i class="a"></i>${seance ? 'Séance ' + h(seance) : 'Toutes les séances'}</span><span><i></i>Séance ${h($('comparer').value)} (barre fine, second pourcentage)</span></div>` : '')
+    + (R.length && !mot ? `<section style="--c:#141414"><h2><i></i>À retenir</h2><p>Calculé sur ${seance ? 'la séance ' + h(seance) : 'toutes les séances'}.</p><div class="retenir">${R.join('')}</div></section>` : '')
+    + (Object.keys(blocs).length ? '' : `<p class="vide">Aucune question ne contient « ${h($('chercher').value)} ».</p>`)
+    + Object.keys(titres).filter(g => blocs[g]).map(g => `<section style="--c:${COUL[g] || '#141414'}"><h2><i></i>${h(titres[g][0])}</h2><p>${h(titres[g][1])}</p><div class="grille">${blocs[g].map(x => x[1]).join('')}</div></section>`).join('');
 }
 function charger() {
+  // tout ce qui doit être un nombre le devient avant d'entrer dans la page
   const nb = x => Number(x) || 0, texte = x => String(x ?? '');
   const propre = d => ({ seances: Object.fromEntries(Object.entries(d.seances || {}).map(([c, n]) => [texte(c), nb(n)])),
     lignes: (d.lignes || []).map(l => [texte(l[0]), texte(l[1]), texte(l[2]), texte(l[3]), nb(l[4])]),
     notes: (d.notes || []).map(l => [texte(l[0]), texte(l[1]), texte(l[2]), nb(l[3]), nb(l[4])]),
     repondants: (d.repondants || []).map(l => [texte(l[0]), texte(l[1]), texte(l[2]), nb(l[3])]) });
-  fetch(SOURCE).then(x => x.json()).then(d => { D = propre(d); document.getElementById('maj').textContent = 'Mis à jour à ' + new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) + '. Résultats anonymes, actualisés toutes les 20 secondes.'; dessiner(); })
-    .catch(() => { document.getElementById('maj').textContent = 'Les résultats ne se chargent pas. Vérifiez la connexion internet.'; });
+  fetch(SOURCE).then(x => x.json()).then(d => { D = propre(d); $('maj').textContent = 'Mis à jour à ' + new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) + '. Résultats anonymes, actualisés toutes les 20 secondes.'; if (document.activeElement !== $('chercher')) dessiner(); })
+    .catch(() => { $('maj').textContent = 'Les résultats ne se chargent pas. Vérifiez la connexion internet.'; });
 }
-document.getElementById('choix').addEventListener('click', ev => { const b = ev.target.closest('[data-s]'); if (b) { seance = b.dataset.s; history.replaceState(null, '', seance ? '?seance=' + seance : location.pathname); dessiner(); } });
+$('choix').addEventListener('click', ev => { const b = ev.target.closest('[data-s]'); if (b) { seance = b.dataset.s; history.replaceState(null, '', seance ? '?seance=' + seance : location.pathname); dessiner(); } });
+['comparer', 'tri'].forEach(id => $(id).addEventListener('change', dessiner));
+$('chercher').addEventListener('input', dessiner);
+$('imprimer').addEventListener('click', () => print());
+$('csv').addEventListener('click', () => { // le tableau affiché, pour un tableur
+  if (tableau.length < 2) return;
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob(['﻿' + tableau.map(l => l.map(c => '"' + String(c).replace(/^[=+@-]/, "'$&").replace(/"/g, '""') + '"').join(';')).join('\r\n')], { type: 'text/csv' }));
+  a.download = 'points-de-vue-resultats' + (seance ? '-' + seance : '') + '.csv'; a.click();
+});
 fetch('seance.txt?' + Date.now()).then(x => x.text()).then(lireSeance).catch(() => { }).then(() => { charger(); setInterval(charger, 20000); });
 </script>
 </body>
