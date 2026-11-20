@@ -74,13 +74,6 @@ affiche : affiches/lumeen.jpg
 + 14 h 30
 - 16 h 30
 
-[jeu] Faut-il s'inscrire ?
-affiche : affiches/lumeen.jpg
-+ Oui, par téléphone ou par mail
-- Oui, sur place
-- Non
-- Ce n'est pas écrit
-
 [jeu] Où cela se passe-t-il ?
 affiche : affiches/lumeen.jpg
 - À Granville
@@ -111,13 +104,6 @@ affiche : affiches/memoire.jpg
 + C'est gratuit
 - 5 euros
 - Sur adhésion
-- Ce n'est pas écrit
-
-[jeu] À partir de quel âge ?
-affiche : affiches/memoire.jpg
-+ 55 ans
-- 60 ans
-- 65 ans
 - Ce n'est pas écrit
 
 [scores]
@@ -152,17 +138,6 @@ réponses : plusieurs
 - M'inscrire quelque part
 - Je ne vois pas
 
-[question] Sans la regarder de nouveau, quelles informations avez-vous repérées ?
-étape : 1
-réponses : plusieurs
-- La date
-- L'heure
-- Le lieu
-- Le prix
-- Qui organise
-- Comment s'inscrire
-- Aucune
-
 [question] À votre avis, à qui s'adresse-t-elle ?
 étape : 1
 réponses : plusieurs
@@ -179,12 +154,6 @@ affiche : affiches/reference.jpg
 affiche : affiches/reference.jpg
 de : Pas du tout
 à : Parfaitement
-
-[note] À quel point vous sentez-vous invité par cette affiche ?
-étape : 1
-affiche : affiches/reference.jpg
-de : Pas du tout
-à : Tout à fait
 
 [question] Qu'est-ce qui pourrait vous retenir d'y aller ?
 étape : 1
@@ -214,12 +183,6 @@ affiche : affiches/reference.jpg
 - Les logos
 - Ailleurs
 
-[note] Votre regard trouve-t-il son chemin entre les éléments ?
-étape : 2
-affiche : affiches/reference.jpg
-de : Il se perd
-à : Tout s'enchaîne
-
 [question] Qu'est-ce qui gêne la lecture ?
 étape : 2
 réponses : plusieurs
@@ -232,16 +195,6 @@ affiche : affiches/reference.jpg
 - Du texte posé sur l'image
 - Un manque de contraste
 - Rien, tout est clair
-
-[question] À deux mètres, que lisez-vous encore ?
-étape : 2
-réponses : plusieurs
-affiche : affiches/reference.jpg
-- Le titre
-- La date
-- Le lieu
-- Le texte
-- Plus rien
 
 [a ou b] Laquelle comprenez-vous le plus vite ?
 étape : 2
@@ -267,23 +220,11 @@ précision : Deux tailles de titre.
 affiche a : affiches/reference.jpg
 affiche b : affiches/titre-petit.jpg
 
-[a ou b] Sur laquelle les informations pratiques se lisent-elles le mieux ?
-étape : 2
-précision : Deux tailles de texte.
-affiche a : affiches/texte-petit.jpg
-affiche b : affiches/reference.jpg
-
 [a ou b] Laquelle liriez-vous de loin ?
 étape : 2
 précision : Deux contrastes.
 affiche a : affiches/reference.jpg
 affiche b : affiches/contraste-faible.jpg
-
-[a ou b] Laquelle vous donne envie de vous approcher ?
-étape : 2
-précision : Beaucoup de couleurs, puis trois couleurs seulement.
-affiche a : affiches/couleurs-multi.jpg
-affiche b : affiches/reference.jpg
 
 [a ou b] Laquelle est la plus claire ?
 étape : 2
@@ -297,24 +238,11 @@ précision : Fond blanc, puis fond de couleur.
 affiche a : affiches/image-couleur.jpg
 affiche b : affiches/fond-couleur.jpg
 
-[a ou b] Quelle image attire le plus votre regard ?
-étape : 2
-précision : La même photo, en couleurs puis en gros points.
-affiche a : affiches/image-couleur.jpg
-affiche b : affiches/reference.jpg
-
 [a ou b] Quelle image vous parle le plus ?
 étape : 2
 précision : Une photo, puis un dessin.
 affiche a : affiches/reference.jpg
 affiche b : affiches/image-dessin.jpg
-
-[note] En noir et blanc, reste-t-elle lisible ?
-étape : 2
-affiche : affiches/reference.jpg
-noir et blanc : oui
-de : Plus du tout
-à : Aussi bien
 
 [question] Que vous évoque l'image de cette autre affiche ?
 étape : 2
@@ -328,18 +256,6 @@ affiche : affiches/reinette.jpg
 - La fête
 - Autre chose que le sujet
 - Rien de précis
-
-[question] Quelle impression vous laisse cette affiche ?
-étape : 2
-réponses : plusieurs
-affiche : affiches/reinette.jpg
-- De la curiosité
-- De la confiance
-- De l'envie
-- De la surprise
-- De l'indifférence
-- De la confusion
-- De l'agacement
 
 [note] L'image et les couleurs vont-elles avec le sujet ?
 étape : 2
@@ -382,38 +298,11 @@ affiche : affiches/gym-equilibre.jpg
 - Je la prendrais en photo
 - Non
 
-[question] Pour en savoir plus, utiliseriez-vous le QR code ?
-étape : 3
-réponses : une
-affiche : affiches/cercles-qr.jpg
-- Oui
-- Je préfère téléphoner
-- Je préfère demander à quelqu'un
-- Non
-
-[note] Lisez-vous les affichages dans les lieux publics ?
-étape : 3
-de : Jamais
-à : Toujours
-
 [note] Cette information vous serait-elle utile, à vous ou à un proche ?
 étape : 3
 affiche : affiches/cercles-qr.jpg
 de : Pas du tout
 à : Tout à fait
-
-[question] En dehors de votre médecin, qui vous parle de santé ?
-étape : 3
-réponses : plusieurs
-- Mon pharmacien
-- Ma famille
-- Mes amis ou voisins
-- Une association
-- La mairie ou le CCAS
-- La télévision ou la radio
-- Le journal local
-- Internet
-- Personne
 
 [mission]
 
