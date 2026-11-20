@@ -218,11 +218,11 @@ $('vue').addEventListener('click', ev => {
   if (ev.target.id === 'envoyer' && lu) {
     const L = lignes(); ev.target.disabled = true; $('etat').textContent = 'Enregistrement…'; declarerVersion();
     fetch(SCRIPT_GOOGLE, { method: 'POST', mode: 'no-cors', body: JSON.stringify(L) })
-      .then(() => { $('etat').textContent = `${L.length} réponses enregistrées pour le participant ${$('numero').value}. Passez à la fiche suivante.`; $('numero').value = +$('numero').value + 1; lu = null; $('photo').hidden = true; })
+      .then(() => { journal('Fiche photographiée', `séance ${$('seance').value} · participant ${$('numero').value} · ${L.length} réponses`); $('etat').textContent = `${L.length} réponses enregistrées pour le participant ${$('numero').value}. Passez à la fiche suivante.`; $('numero').value = +$('numero').value + 1; lu = null; $('photo').hidden = true; })
       .catch(() => { ev.target.disabled = false; $('etat').textContent = "Pas enregistré : vérifiez la connexion internet, puis réessayez."; });
   }
 });
-fetch('seance.txt?' + Date.now()).then(x => x.text()).then(t => { if (!lireSeance(t)) throw 0; dessiner(); }).catch(() => { $('vue').innerHTML = '<p>Le fichier de la séance ne se charge pas.</p>'; });
+fetch('seance.txt?' + Date.now()).then(x => x.text()).then(t => { if (!lireSeance(t)) throw 0; dessiner(); connexion('Version papier'); }).catch(() => { $('vue').innerHTML = '<p>Le fichier de la séance ne se charge pas.</p>'; });
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => { }); // garde le site en mémoire pour les visites suivantes
 </script>
 </body>

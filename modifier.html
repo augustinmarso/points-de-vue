@@ -271,10 +271,11 @@ async function enregistrer() {
   const pb = verifier(); if (pb) { sel = pb[0]; liste(); zone(); return $('etat').textContent = pb[1]; }
   if (!cle()) return $('jeton').showModal();
   $('etat').textContent = 'Enregistrement…'; $('enregistrer').disabled = true;
-  try { const t = ecrireSeance(M); await ecrire('seance.txt', b64(t), "Séance modifiée depuis l'éditeur"); depart = t; lireSeance(t); charger(); declarerVersion(); $('etat').textContent = 'Enregistré (version ' + VERSION + '). Le site sera à jour dans une à deux minutes.'; }
+  try { const t = ecrireSeance(M); await ecrire('seance.txt', b64(t), "Séance modifiée depuis l'éditeur" + (QUI() ? ' par ' + QUI() : '')); depart = t; lireSeance(t); charger(); declarerVersion(); journal('Test enregistré', 'version ' + VERSION + ' · ' + QUESTIONS().length + ' questions'); $('etat').textContent = 'Enregistré (version ' + VERSION + '). Le site sera à jour dans une à deux minutes.'; }
   catch (err) { $('etat').textContent = "Pas enregistré : " + err.message + '.'; $('enregistrer').disabled = false; if (/jeton/.test(err.message)) $('jeton').showModal(); }
 }
 $('enregistrer').addEventListener('click', enregistrer);
+connexion('Modifier le test');
 // prévisualiser : le grand écran s'ouvre dans un autre onglet avec les écrans tels qu'ils sont ici, enregistrés ou non. Rien ne part en ligne.
 $('apercu').addEventListener('click', () => $('choixApercu').showModal());
 $('choixApercu').addEventListener('click', ev => { const b = ev.target.closest('[data-mode]'); if (!b) return; $('choixApercu').close(); if (b.dataset.mode === 'x') return;

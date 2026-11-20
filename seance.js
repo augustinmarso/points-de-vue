@@ -99,3 +99,24 @@ function declarerVersion() {
 }
 // les questions dans l'ordre, numérotées : sert au test papier, à la fiche réponse et à sa lecture
 const QUESTIONS = () => ETAPES.filter(e => e.id && e.t !== 'vote').map((e, i) => ({ ...e, n: i + 1 }));
+
+// ---------- qui est là : un prénom demandé une fois par appareil, et un journal des actions (onglet « Journal » du Google Sheet) ----------
+// Ce n'est pas un mot de passe : le site est public, le prénom sert seulement à savoir qui a fait quoi.
+const QUI = () => { try { return localStorage.getItem('pdvQui') || ''; } catch (e) { return ''; } };
+function journal(quoi, detail = '') {
+  if (QUI()) fetch(SCRIPT_GOOGLE, { method: 'POST', mode: 'no-cors', keepalive: true, body: JSON.stringify({ journal: { qui: QUI(), quoi, detail } }) }).catch(() => { });
+}
+function connexion(page) { // demande le prénom s'il manque, puis note la connexion (une fois par onglet et par page)
+  const noter = () => { try { if (sessionStorage.getItem('pdvVu' + page)) return; sessionStorage.setItem('pdvVu' + page, 1); } catch (e) { } journal('Connexion', page); };
+  if (QUI()) return noter();
+  const d = document.createElement('dialog');
+  d.style.cssText = 'border:0;border-radius:22px;padding:24px;width:min(420px,92vw);color:#141414;box-shadow:0 10px 60px rgba(20,20,20,.35)';
+  d.innerHTML = `<form method="dialog" style="display:flex;flex-direction:column;gap:12px"><b style="font-size:26px;letter-spacing:-.03em;line-height:1">Qui êtes-vous ?</b>
+    <span>Votre prénom sert à savoir qui a modifié ou lancé quoi. Il est noté dans l'historique.</span>
+    <input required maxlength="40" autocomplete="given-name" placeholder="Votre prénom" aria-label="Votre prénom" style="font:inherit;background:#F3F3F3;border:0;border-radius:14px;padding:12px 14px;min-height:46px">
+    <button style="font:inherit;font-weight:800;background:#141414;color:#fff;border:0;border-radius:99px;padding:10px 20px;min-height:46px;cursor:pointer">Continuer</button></form>`;
+  document.body.appendChild(d);
+  d.addEventListener('cancel', ev => ev.preventDefault());
+  d.addEventListener('close', () => { const v = d.querySelector('input').value.trim(); if (!v) return d.showModal(); try { localStorage.setItem('pdvQui', v); } catch (e) { } d.remove(); noter(); });
+  d.showModal();
+}
