@@ -136,6 +136,9 @@ function connexion(page) { // rend une promesse tenue une fois la personne conne
   });
 }
 
-// ---------- le rond du profil : à côté de la maison, l'initiale de la personne connectée (ou une silhouette) ; il mène à la page Profil ----------
-const rondProfil = () => `<a href="profil.html" aria-label="Mon profil" title="Mon profil" style="display:inline-grid;place-items:center;width:1.9em;height:1.9em;border-radius:50%;background:#141414;color:#fff;font-weight:800;font-size:.85em;line-height:1;text-decoration:none;vertical-align:middle;margin-left:.5em;flex:none">${QUI() ? QUI()[0].toUpperCase() : '<svg viewBox="0 0 24 24" width="1.1em" height="1.1em" fill="currentColor" aria-hidden="true"><circle cx="12" cy="8.5" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7z"/></svg>'}</a>`;
-if (typeof document !== 'undefined') document.addEventListener('DOMContentLoaded', () => document.querySelectorAll('a[aria-label="Accueil"]').forEach(a => a.insertAdjacentHTML('afterend', rondProfil())));
+// ---------- le rond du profil : toujours en haut à droite des pages de l'équipe, un rond à deux yeux comme ceux du logo ; il mène à la page Profil ----------
+// Pas sur les écrans de séance (téléphone des participants, grand écran projeté).
+if (typeof document !== 'undefined') document.addEventListener('DOMContentLoaded', () => {
+  const p = new URLSearchParams(location.search); if (p.has('salle') || p.has('ecran') || p.get('passer')) return;
+  document.body.insertAdjacentHTML('beforeend', `<a href="profil.html" aria-label="Mon profil" title="${QUI() ? 'Mon profil · ' + QUI().replace(/[<>"&]/g, '') : 'Mon profil'}" style="position:fixed;top:12px;right:14px;z-index:20;width:46px;height:46px;border-radius:50%;background:#F5A0C6;display:flex;align-items:center;justify-content:center;gap:5px;box-shadow:0 2px 10px rgba(20,20,20,.18)"><i style="width:7px;height:7px;border-radius:50%;background:#141414"></i><i style="width:7px;height:7px;border-radius:50%;background:#141414"></i></a>`);
+});
