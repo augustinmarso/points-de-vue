@@ -377,7 +377,7 @@ function telephone() {
       else x += `<img class="apercu" src="${photo.img}" alt="Votre photo"><input class="champ" id="mot" maxlength="80" placeholder="Le nom de votre binôme (facultatif)">
         <button class="btn" data-a="photo">${photo.etat === 'envoi' ? 'Envoi…' : 'Envoyer sur le grand écran'}</button><button class="lien" data-a="autre">Reprendre la photo</button>`;
     }
-    else if (v != null) x = `<p class="sur">${sur(e)}</p><div class="fait">${tete(e.p || 1 + sous % 3)}<h2>C'est noté.</h2><p>Les réponses de la salle arrivent sur le grand écran.</p><button class="lien" data-a="modifier">Modifier ma réponse</button></div>`;
+    else if (v != null) x = `<p class="sur">${sur(e)}</p><div class="fait">${tete(e.p || 1 + sous % 3)}<h2>C'est noté.</h2><p>Les réponses de la salle arrivent sur le grand écran.</p></div>`;
     else {
       x = `<p class="sur">${sur(e)}</p><h2>${h(q.q)}</h2>${q.vote ? `<p class="note">Affiche ${q.k + 1}, sur le grand écran.</p>` : q.note ? `<p class="note">${h(q.note)}</p>` : ''}`;
       if (t === 'texte') x += `<textarea class="champ" id="txt" maxlength="200" placeholder="Votre réponse"></textarea><button class="btn" data-a="texte">Valider</button>`;
@@ -398,7 +398,6 @@ function telephone() {
     const act = a.dataset.a;
     if (act === 'multi') { const v = [...app.querySelectorAll('.opt.on')].map(b => +b.dataset.o); if (v.length) repondre(id, v); }
     if (act === 'texte') { const v = document.getElementById('txt').value.trim(); if (v) repondre(id, v); }
-    if (act === 'modifier') { delete mes.rep[id]; garder(); dessiner(); }
     if (act === 'autre') { photo = null; dessiner(true); }
     if (act === 'code') { const c = document.getElementById('code').value.replace(/\D/g, ''); if (c.length === 4) location.search = '?salle=' + c; }
     if (act === 'mission') { if (lien) lien.send({ k: 'mission?' }); else { mes.mission = Math.random() * MISSIONS.length | 0; garder(); dessiner(true); } }
@@ -451,7 +450,8 @@ function ecran() {
         const bon = x => Number.isInteger(x) && x >= 0 && x < e.o.length, t = e.t;
         const v = t === 'texte' ? texte(d.v, 200) : t === 'multi' ? (Array.isArray(d.v) ? d.v.filter(bon) : []) : bon(d.v) ? d.v : null;
         if (v == null || v.length === 0) return;
-        (S.rep[d.id] = S.rep[d.id] || {})[c.pid] = v;
+        const dejaR = S.rep[d.id] = S.rep[d.id] || {};
+        if (!(c.pid in dejaR)) dejaR[c.pid] = v; // une réponse donnée ne se change plus
       }
       if (d.k === 'photo' && typeof d.img === 'string' && d.img.length < 900000 && /^data:image\/jpeg;base64,[A-Za-z0-9+\/=]+$/.test(d.img)) {
         const dej = S.photos.findIndex(p => p.pid === c.pid), ph = { img: d.img, mot: texte(d.mot, 80), pid: c.pid, mission: MISSIONS[d.mission] ? d.mission : null };
