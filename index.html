@@ -143,8 +143,9 @@ textarea.champ{min-height:150px;resize:none}
 .salle{display:flex;flex-wrap:wrap;gap:1vh 1.4vw;max-width:48vw;font-size:.8em;font-weight:700}
 .salle span:not(.tete):not(.yeux){display:flex;align-items:center;gap:.5vw}
 .salle .tete{font-size:2.2vw}
-.lettres{display:grid;grid-template-columns:repeat(auto-fit,minmax(11em,1fr));gap:.5em;font-size:.85em;font-weight:700}
-.lettres span{background:#fff;border-radius:1.2em;padding:.45em .9em;display:flex;gap:.6em;align-items:baseline}
+.lettres{display:flex;flex-direction:column;gap:.3em;font-size:1.15em;font-weight:700;max-width:30em}
+.lettres.long{font-size:.92em}
+.lettres span{background:#EBEBEB;border-radius:1.2em;padding:.3em .9em;display:flex;gap:.7em;align-items:baseline}
 .lettres b{font-weight:800}
 .qr{display:flex;align-items:center;gap:1.6vw;margin-top:auto;font-weight:700}
 .qr svg{width:15vw;height:15vw;display:block;background:#fff;flex:none}
@@ -555,7 +556,7 @@ function ecran() {
     else if (e.t === 'palmares') g = `<p class="sur">Atelier</p><h1>Le palmarès</h1><p><b>L'affiche qui transmet le mieux l'information, d'après vos notes.</b></p><div class="mur palm"></div>`;
     else {
       const cache = q.cinq && masque && !S.rev;
-      g = `<p class="sur">${sur(e)}${PAPIER && NUM[q.id] ? ' · question ' + NUM[q.id] : ''}${q.vote ? ` · affiche ${q.k + 1} sur ${S.photos.length} · test ${S.k % 10 + 1} sur ${TESTS.length}` : ''}</p><h1>${h(q.q)}</h1>${cache ? "<p>L'affiche revient avec les réponses.</p>" : q.note ? `<p>${h(q.note)}</p>` : ''}<div class="accord">${S.rev && q.t !== 'texte' ? `<div class="trio">${tete(1)}${tete(2)}${tete(3)}</div>` : ''}<p class="cpt"></p></div><div class="res">${PAPIER ? (q.t === 'texte' ? '<p><b>Écrivez votre réponse sur la fiche.</b></p>' : `<div class="lettres">${q.o.map((o, i) => `<span><b>${q.t === 'echelle' ? i + 1 : q.t === 'ab' ? 'AB='[i] : 'ABCDEFGHIJ'[i]}</b>${q.t === 'echelle' ? h(i === 0 ? q.a : i === 4 ? q.b : '') : h(o)}</span>`).join('')}</div>`)
+      g = `<p class="sur">${sur(e)}${PAPIER && NUM[q.id] ? ' · question ' + NUM[q.id] : ''}${q.vote ? ` · affiche ${q.k + 1} sur ${S.photos.length} · test ${S.k % 10 + 1} sur ${TESTS.length}` : ''}</p><h1>${h(q.q)}</h1>${cache ? "<p>L'affiche revient avec les réponses.</p>" : q.note ? `<p>${h(q.note)}</p>` : ''}<div class="accord">${S.rev && q.t !== 'texte' ? `<div class="trio">${tete(1)}${tete(2)}${tete(3)}</div>` : ''}<p class="cpt"></p></div><div class="res">${PAPIER ? (q.t === 'texte' ? '<p><b>Écrivez votre réponse sur la fiche.</b></p>' : `<div class="lettres${q.o.length > 6 ? ' long' : ''}">${q.o.map((o, i) => `<span><b>${q.t === 'echelle' ? i + 1 : q.t === 'ab' ? 'AB='[i] : 'ABCDEFGHIJ'[i]}</b>${q.t === 'echelle' ? h(i === 0 ? q.a : i === 4 ? q.b : '') : h(o)}</span>`).join('')}</div>`)
         : !S.rev ? '' : q.t === 'texte' ? '<div class="mots"></div>'
         : `<div class="cols${q.o.length > 5 ? ' liste' : ''}">${q.o.map((o, i) => `<div class="col"><div class="rond">${tete(1 + i % 3)}</div><b>0</b><span>${h(o)}${q.t === 'echelle' && (i === 0 || i === 4) ? '<br>' + h(i ? q.b : q.a) : ''}</span></div>`).join('')}</div>`}</div>`;
       if (q.vote && S.photos[q.k] && !cache) d = `<div class="droite"><figure><img src="${S.photos[q.k].img}" alt="Affiche d'un binôme">${h(S.photos[q.k].mot)}</figure></div>`;
