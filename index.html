@@ -41,10 +41,18 @@ p{margin:0}
 .tel h1{font-size:54px}
 .tel h2{margin:0;font-size:31px;line-height:1.05;font-weight:800;letter-spacing:-.03em}
 .tel .haut{height:12vh;flex:none}
-.tel.fixe{height:100vh;height:100dvh;min-height:0;overflow:hidden;gap:14px;padding-top:22px;padding-bottom:50px}
+.tel.fixe{gap:14px;padding-top:22px;padding-bottom:50px}
 .tel.fixe .haut{height:24vh}
 .tel.fixe h1{font-size:46px}
 .tel.fixe p{font-size:18px}
+.tel .btn{display:block;width:100%;min-height:64px;font-size:22px;border-radius:32px;transition:transform .15s}
+.tel .btn:active{transform:scale(.97)}
+.tel .lab{font-weight:800;font-size:20px;margin:6px 0 -6px;display:block}
+.tel .champ{min-height:64px;font-weight:700}
+.tel .champ:focus,.tel .btn:focus-visible,.tel .opt:focus-visible{outline:3px solid var(--c3);outline-offset:3px}
+.tel .code{text-align:center;font-size:34px;letter-spacing:.45em;padding-left:.45em;font-weight:800}
+.tel .bloc{display:flex;flex-direction:column;gap:12px}
+.tel small{font-weight:400;font-size:.75em}
 .opts{display:flex;flex-direction:column;gap:12px}
 .opt{background:var(--t);border-radius:28px;padding:18px 22px;font-size:22px;font-weight:700;text-align:left;display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:68px;transition:background .25s,transform .15s}
 .opt:active{transform:scale(.97)}
@@ -386,10 +394,13 @@ function telephone() {
   document.addEventListener('visibilitychange', () => { if (!document.hidden && (!lien || muet())) brancher(); });
   setInterval(() => { if (lien && muet() && !document.hidden) brancher(); }, 4000);
 
-  function salons() { // sans code : on montre les séances ouvertes, et on y entre d'un appui
-    seancesEnCours().then(l => { const z = document.getElementById('salons'); if (z) z.innerHTML = l.length
-      ? l.map(x => `<button class="opt" data-s="${h(x.code)}"><span>Séance ${h(x.code)}<br><small style="font-weight:400">${h(libelle(x))}</small></span></button>`).join('')
-      : `<p class="note">Aucune séance en cours pour l'instant.</p>`; });
+  function salons() { // sans code : une séance en cours = un gros bouton pour entrer ; plusieurs = on choisit ; aucune = on attend
+    seancesEnCours().then(l => {
+      const z = document.getElementById('salons'); if (!z) return;
+      z.innerHTML = l.length === 1 ? `<button class="btn" data-s="${h(l[0].code)}">Entrer dans la séance</button><p class="note">Séance ${h(l[0].code)} · ${h(libelle(l[0]))}</p>`
+        : l.length ? `<p class="lab">Choisissez votre séance</p><div class="opts">${l.map(x => `<button class="opt" data-s="${h(x.code)}"><span>Séance ${h(x.code)}<br><small>${h(libelle(x))}</small></span></button>`).join('')}</div>`
+        : `<p><b>La séance n'a pas encore commencé.</b></p><p class="note">Cette page se met à jour toute seule, vous n'avez rien à faire.</p>`;
+    });
   }
   if (!SALLE) setInterval(salons, 10000);
 
@@ -403,9 +414,13 @@ function telephone() {
     let x = '';
     if (e.t === 'accueil') x = `<div class="haut"></div><h1>Bienvenue !</h1>
       <p><b>Vous participez à une recherche pour converger vers l'affiche la plus intéressante.</b></p>` + (!SALLE
-        ? `<h2>Séances en cours</h2><div class="opts" id="salons"><p class="note">Recherche des séances…</p></div><p>Ou tapez le code affiché sur le grand écran.</p><input class="champ" id="code" inputmode="numeric" maxlength="4" placeholder="Code à 4 chiffres" autocomplete="off"><button class="btn" data-a="code">Rejoindre la séance</button>`
-        : mes.inscrit ? `<div class="fait" style="margin-top:0">${tete(1)}<h2>${mes.nom ? h(mes.nom) + ', vous êtes inscrit.' : 'Vous êtes inscrit.'}</h2><p>Votre prénom est sur le grand écran. Il n'y a pas de bonne ou de mauvaise réponse : c'est l'affiche que l'on teste.</p></div>`
-        : `<input class="champ" id="nom" maxlength="24" placeholder="Votre prénom" value="${h(mes.nom)}" autocomplete="given-name"><button class="btn" data-a="inscrire">Je m'inscris à la séance</button>`);
+        // sans code : on propose la séance en cours (un seul appui), et le code à 4 chiffres en secours
+        ? `<div id="salons" class="bloc"><p>Recherche de la séance…</p></div>
+           <label class="lab" for="code">Vous avez un code à 4 chiffres ?</label><input class="champ code" id="code" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="0000" autocomplete="off" aria-describedby="aide">
+           <p class="note" id="aide">Il est écrit sur le grand écran. Vous entrez dès le quatrième chiffre.</p>`
+        : mes.inscrit ? `<div class="fait" style="margin-top:0">${tete(1)}<h2>${mes.nom ? h(mes.nom) + ', vous êtes inscrit.' : 'Vous êtes inscrit.'}</h2><p>Gardez ce téléphone en main et regardez le grand écran : la séance va commencer.</p></div>`
+        : `<label class="lab" for="nom">Votre prénom</label><input class="champ" id="nom" maxlength="24" value="${h(mes.nom)}" autocomplete="given-name" autocapitalize="words" enterkeyhint="done">
+           <button class="btn" data-a="inscrire">Je m'inscris</button><p class="note">Séance ${h(SALLE)}. Il n'y a pas de bonne ou de mauvaise réponse.</p>`);
     else if (e.t === 'phase') x = `<div class="haut"></div><p class="sur">Étape ${e.p}</p><h1>${h(PHASES[e.p].nom)}</h1><p><b>${h(PHASES[e.p].quoi)}</b></p>`;
     else if (e.t === 'info') x = `<div class="haut"></div><p class="sur">${h(e.s)}</p><h1>${h(e.h)}</h1><p><b>${h(e.x)}</b></p>`;
     else if (e.t === 'scores') {
@@ -435,7 +450,7 @@ function telephone() {
       if (t === 'echelle') x += `<div class="echelle">${q.o.map((o, i) => `<button data-o="${i}" style="width:${36 + i * 11}px;height:${36 + i * 11}px">${o}</button>`).join('')}</div><div class="bouts"><span>${h(q.a)}</span><span>${h(q.b)}</span></div>`;
       if (t === 'ab') x += `<p class="note">Regardez les deux affiches A et B.</p><div class="ab"><button data-o="0">A</button><button data-o="1">B</button></div><div class="opts"><button class="opt" data-o="2">${h(q.o[2])}${tete(e.p)}</button></div>`;
     }
-    app.innerHTML = `<div class="tel${e.t === 'accueil' && SALLE ? ' fixe' : ''}">${x}</div>`;
+    app.innerHTML = `<div class="tel${e.t === 'accueil' ? ' fixe' : ''}">${x}</div>`;
     if (!SALLE) salons();
     regards(); statut();
   }
@@ -451,13 +466,18 @@ function telephone() {
     if (act === 'texte') { const v = document.getElementById('txt').value.trim(); if (v) repondre(id, v); }
     if (act === 'autre') { photo = null; dessiner(true); }
     if (act === 'inscrire') { mes.nom = document.getElementById('nom').value.trim(); mes.inscrit = true; garder(); if (lien) lien.send({ k: 'salut', pid: mes.pid, nom: mes.nom }); dessiner(); }
-    if (act === 'code') { const c = document.getElementById('code').value.replace(/\D/g, ''); if (c.length === 4) location.search = '?salle=' + c; }
     if (act === 'photo') {
       if (!lien) return statut();
       photo.etat = 'envoi'; a.textContent = 'Envoi…';
       lien.send({ k: 'photo', img: photo.img, mot: document.getElementById('mot').value });
     }
   });
+  app.addEventListener('input', ev => { // le code : des chiffres seulement, et on entre dès le quatrième
+    if (ev.target.id !== 'code') return;
+    const c = ev.target.value.replace(/[^0-9]/g, '').slice(0, 4); ev.target.value = c;
+    if (c.length === 4) location.search = '?salle=' + c;
+  });
+  app.addEventListener('keydown', ev => { if (ev.key === 'Enter' && ev.target.id === 'nom') { ev.preventDefault(); app.querySelector('[data-a=inscrire]').click(); } });
   app.addEventListener('change', async ev => {
     if (ev.target.id === 'prise' && ev.target.files[0]) { photo = { img: await reduire(ev.target.files[0], 1100), etat: 'pret' }; dessiner(true); }
   });
