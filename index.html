@@ -139,7 +139,8 @@ textarea.champ{min-height:150px;resize:none}
 .cmd .home:hover,.cmd.ouvert .home{opacity:1}
 .cmd .liste{display:none;position:absolute;left:0;bottom:100%;flex-direction:column;align-items:flex-start;gap:12px;white-space:nowrap;background:#fff;color:var(--n);border-radius:18px;padding:16px 20px;box-shadow:0 4px 24px rgba(20,20,20,.2)}
 .cmd.ouvert .liste{display:flex}
-.cmd .liste button,.cmd .liste label{cursor:pointer;text-decoration:underline}
+.cmd .liste button,.cmd .liste label,.cmd .liste a{cursor:pointer;text-decoration:underline;color:inherit}
+.cmd .autres{white-space:normal;max-width:36em;font-weight:400}
 .auto{position:fixed;right:1.5vw;bottom:1.4vh;z-index:7;font-size:13px;font-weight:700;opacity:.5}
 body.plein.p3 #app{color:#fff}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
@@ -248,6 +249,10 @@ let code = P.get('salle');
 if (ECRAN && !code) { try { code = localStorage.getItem('pdvCode') || nouveauCode(); localStorage.setItem('pdvCode', code); } catch (e) { code = nouveauCode(); } }
 const SALLE = (code || '').replace(/[^a-z0-9]/gi, '').toLowerCase().slice(0, 12);
 const HOTE = 'pointsdevue-gtm-' + SALLE;
+const SHEET = 'https://script.google.com/macros/s/AKfycbzPof8sEj8tZLlA-MtVDYyODv32y8lXxc9hLVmaW5zCvHLilyRIxpk4Ix6TPhzJczjn/exec';
+// les séances en cours : chaque grand écran donne signe de vie toutes les 30 secondes, la liste oublie une séance après 2 minutes de silence
+const seancesEnCours = () => fetch(SHEET).then(x => x.json()).then(l => (Array.isArray(l) ? l : []).filter(x => /^[a-z0-9]{1,12}$/.test(x.code))).catch(() => []);
+const libelle = x => `${x.n} participant${x.n > 1 ? 's' : ''} · écran ${x.i} sur ${x.total}`;
 const app = document.getElementById('app');
 const h = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])).replace(/ ([?!:;»])/g, '&nbsp;$1').replace(/« /g, '«&nbsp;');
 // les participants ont leurs propres couleurs, différentes des trois couleurs du logo
@@ -381,6 +386,13 @@ function telephone() {
   document.addEventListener('visibilitychange', () => { if (!document.hidden && (!lien || muet())) brancher(); });
   setInterval(() => { if (lien && muet() && !document.hidden) brancher(); }, 4000);
 
+  function salons() { // sans code : on montre les séances ouvertes, et on y entre d'un appui
+    seancesEnCours().then(l => { const z = document.getElementById('salons'); if (z) z.innerHTML = l.length
+      ? l.map(x => `<button class="opt" data-s="${h(x.code)}"><span>Séance ${h(x.code)}<br><small style="font-weight:400">${h(libelle(x))}</small></span></button>`).join('')
+      : `<p class="note">Aucune séance en cours pour l'instant.</p>`; });
+  }
+  if (!SALLE) setInterval(salons, 10000);
+
   function repondre(id, v) { mes.rep[id] = v; garder(); if (lien) lien.send({ k: 'rep', id, v }); dessiner(); }
 
   function dessiner(force) {
@@ -391,7 +403,7 @@ function telephone() {
     let x = '';
     if (e.t === 'accueil') x = `<div class="haut"></div><h1>Bienvenue !</h1>
       <p><b>Vous participez à une recherche pour converger vers l'affiche la plus intéressante.</b></p>` + (!SALLE
-        ? `<p>Tapez le code affiché sur le grand écran.</p><input class="champ" id="code" inputmode="numeric" maxlength="4" placeholder="Code à 4 chiffres" autocomplete="off"><button class="btn" data-a="code">Rejoindre la séance</button>`
+        ? `<h2>Séances en cours</h2><div class="opts" id="salons"><p class="note">Recherche des séances…</p></div><p>Ou tapez le code affiché sur le grand écran.</p><input class="champ" id="code" inputmode="numeric" maxlength="4" placeholder="Code à 4 chiffres" autocomplete="off"><button class="btn" data-a="code">Rejoindre la séance</button>`
         : mes.inscrit ? `<div class="fait" style="margin-top:0">${tete(1)}<h2>${mes.nom ? h(mes.nom) + ', vous êtes inscrit.' : 'Vous êtes inscrit.'}</h2><p>Votre prénom est sur le grand écran. Il n'y a pas de bonne ou de mauvaise réponse : c'est l'affiche que l'on teste.</p></div>`
         : `<input class="champ" id="nom" maxlength="24" placeholder="Votre prénom" value="${h(mes.nom)}" autocomplete="given-name"><button class="btn" data-a="inscrire">Je m'inscris à la séance</button>`);
     else if (e.t === 'phase') x = `<div class="haut"></div><p class="sur">Étape ${e.p}</p><h1>${h(PHASES[e.p].nom)}</h1><p><b>${h(PHASES[e.p].quoi)}</b></p>`;
@@ -423,11 +435,13 @@ function telephone() {
       if (t === 'echelle') x += `<div class="echelle">${q.o.map((o, i) => `<button data-o="${i}" style="width:${36 + i * 11}px;height:${36 + i * 11}px">${o}</button>`).join('')}</div><div class="bouts"><span>${h(q.a)}</span><span>${h(q.b)}</span></div>`;
       if (t === 'ab') x += `<p class="note">Regardez les deux affiches A et B.</p><div class="ab"><button data-o="0">A</button><button data-o="1">B</button></div><div class="opts"><button class="opt" data-o="2">${h(q.o[2])}${tete(e.p)}</button></div>`;
     }
-    app.innerHTML = `<div class="tel${e.t === 'accueil' ? ' fixe' : ''}">${x}</div>`;
+    app.innerHTML = `<div class="tel${e.t === 'accueil' && SALLE ? ' fixe' : ''}">${x}</div>`;
+    if (!SALLE) salons();
     regards(); statut();
   }
 
   app.addEventListener('click', ev => {
+    const sl = ev.target.closest('[data-s]'); if (sl) return location.search = '?salle=' + sl.dataset.s;
     const e = ETAPES[courant], id = ident(e), o = ev.target.closest('[data-o]'), a = ev.target.closest('[data-a]');
     if (o && genre(e) === 'multi') return o.classList.toggle('on');
     if (o) { o.classList.add('on'); return setTimeout(() => repondre(id, +o.dataset.o), 350); }
@@ -574,6 +588,7 @@ function ecran() {
         <button data-a="suite">${e.t === 'flash' && !flash ? 'Montrer 5 secondes' : prete ? 'Révéler les réponses' : 'Suite →'} (flèche droite)</button><button data-a="avant">← Retour (flèche gauche)</button>
         <button data-a="auto">Suite automatique : ${S.auto === false ? 'non' : 'oui'}</button><button data-a="son">Son : ${S.son === false ? 'non' : 'oui'}</button>
         <label>Tester une autre affiche${affiches.A ? ' ✓' : ''}<input type="file" accept="image/*" hidden data-f="A"></label>
+        <span class="autres"></span>
         <button data-a="plein">Plein écran</button><button data-a="csv">Télécharger les réponses</button><button data-a="neuve">Nouvelle séance</button>
       </div></div><span class="auto"></span>`;
     maj(); regards();
@@ -636,7 +651,6 @@ function ecran() {
 
   // chaque réponse part toute seule vers le Google Sheet de synthèse (onglet Données), par petits paquets toutes les 4 secondes ;
   // ce qui n'a pas pu partir (coupure d'internet) reste en file et repart dès que possible
-  const SHEET = 'https://script.google.com/macros/s/AKfycbzPof8sEj8tZLlA-MtVDYyODv32y8lXxc9hLVmaW5zCvHLilyRIxpk4Ix6TPhzJczjn/exec';
   const qui = pid => { const g = S.gens[pid] || {}; return [SALLE + '-' + (g.n + 1), g.nom || '']; };
   const ligneRep = (id, pid, v) => { const e = trouver(id); return e && [...qui(pid), e.p ? 'Étape ' + e.p : e.voteK != null ? 'Atelier' : "Jeu de l'œil", e.voteK != null ? `Affiche ${e.voteK + 1} : ${e.q}` : e.q, e.t === 'echelle' ? `${v + 1} sur 5` : e.o ? [].concat(v).map(x => e.o[x]).join(' | ') : v, e.t === 'echelle' ? v + 1 : '']; };
   const lignePhoto = (p, k) => [...qui(p.pid), 'Atelier', `Affiche ${k + 1} : information et binôme`, MISSIONS[S.mission] + (p.mot ? ' (' + p.mot + ')' : ''), ''];
@@ -648,6 +662,9 @@ function ecran() {
     fetch(SHEET, { method: 'POST', mode: 'no-cors', body: JSON.stringify(lot) })
       .then(() => { S.file = S.file.slice(lot.length); garder(); }).catch(() => { }).finally(() => { envoi = false; });
   }, 4000);
+
+  const annoncer = () => fetch(SHEET, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ seance: { code: SALLE, n: enLigne().size, i: S.i + 1, total: ETAPES.length } }) }).catch(() => { });
+  annoncer(); setInterval(annoncer, 30000);
 
   function exporter() {
     const L = [['participant', 'prénom', 'étape', 'question', 'réponse', 'note']];
@@ -662,7 +679,11 @@ function ecran() {
     const fig = ev.target.closest('.mur figure'); if (fig) return fig.classList.toggle('zoom');
     const a = ev.target.closest('[data-a]'); if (!a) return;
     const act = a.dataset.a;
-    if (act === 'menu') return a.parentNode.classList.toggle('ouvert');
+    if (act === 'menu') { // à l'ouverture, le menu va chercher les autres séances en cours
+      if (a.parentNode.classList.toggle('ouvert')) seancesEnCours().then(l => { const z = app.querySelector('.autres'), autres = l.filter(x => x.code !== SALLE); if (z) z.innerHTML = 'Autres séances en cours : ' + (autres.length
+        ? autres.map(x => `<a href="?salle=${h(x.code)}" target="_blank" rel="noopener">${h(x.code)}</a> (${h(libelle(x))})`).join(', ') : 'aucune'); });
+      return;
+    }
     if (act === 'suite') suivant();
     if (act === 'avant') aller(S.i - 1, -1);
     if (act === 'csv') exporter();
