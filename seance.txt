@@ -170,6 +170,10 @@ affiche : affiches/reference.jpg
 
 
 # ---------- Étape 2 : Analyse du visuel ----------
+[avis] Avec vos mots, que dit cette affiche ?
+étape : 1
+affiche : affiches/reference.jpg
+
 [étape 2]
 
 [question] Où votre regard s'est-il posé en premier ?
@@ -265,6 +269,14 @@ de : Pas du tout
 
 
 # ---------- Étape 3 : Enquête sur le format ----------
+[avis] Qu'est-ce qui vous plaît le plus sur cette affiche ?
+étape : 2
+affiche : affiches/reference.jpg
+
+[avis] Que changeriez-vous sur cette affiche ?
+étape : 2
+affiche : affiches/reference.jpg
+
 [étape 3]
 
 [question] Où auriez-vous une chance de croiser cette information ?
@@ -303,6 +315,9 @@ affiche : affiches/gym-equilibre.jpg
 affiche : affiches/cercles-qr.jpg
 de : Pas du tout
 à : Tout à fait
+
+[avis] Près de chez vous, où faudrait-il l'afficher ?
+étape : 3
 
 [mission]
 
