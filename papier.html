@@ -22,22 +22,18 @@ nav a.lien{font-weight:700}
 .btn.on,.btn.noir{background:var(--n);color:#fff}
 #vue{padding:22px 12px 60px;display:flex;flex-direction:column;align-items:center;gap:22px}
 .page{background:#fff;width:210mm;min-height:297mm;padding:16mm 15mm;box-shadow:0 4px 24px rgba(20,20,20,.16);position:relative}
-.page.fiche{padding:0;height:297mm}
+.page.fiche{padding:0;width:297mm;height:420mm;overflow:hidden}
+.ft{position:absolute;overflow:hidden;font-size:3.5mm;line-height:1.1}
+.ft b{font-weight:800}.ft span{display:block;font-size:.8em;color:#444}
+.ft.o{font-size:2.9mm;line-height:1.05}
+.trop{background:#fff;border-radius:14px;padding:12px 16px;font-weight:700;max-width:820px}
+@media screen{.page.fiche{zoom:.7}}
 .page.fiche svg{display:block;width:100%;height:100%}
 .page.diapo{width:297mm;min-height:0;height:210mm;padding:16mm 18mm;display:flex;gap:10mm;overflow:hidden;background:var(--b,#fff);color:var(--f,#141414)}
 h1{margin:0;font-size:34px;line-height:.95;font-weight:800;letter-spacing:-.045em}
 .sous{color:var(--gris);font-size:14px;margin:6px 0 0}
 h2{display:flex;align-items:center;gap:10px;margin:22px 0 4px;font-size:22px;font-weight:800;letter-spacing:-.03em;break-after:avoid}
 h2 i{width:.85em;height:.85em;border-radius:50%;background:var(--c);flex:none}
-.q{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:2px 10px;padding:9px 0;break-inside:avoid}
-.q .no{font-size:22px;font-weight:800;letter-spacing:-.04em;min-width:1.5em}
-.q b{font-weight:800;font-size:16px}
-.q .pre{color:var(--gris);font-size:13px}
-.q ol{margin:4px 0 0;padding:0;list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:1px 14px;font-size:14px}
-.q ol li::before{content:attr(data-l);font-weight:800;margin-right:6px}
-.q img{width:26mm;border-radius:2mm;display:block}
-.q .imgs{display:flex;gap:2mm;grid-row:span 3}
-.q .imgs figure{margin:0;text-align:center;font-weight:800;font-size:12px}
 .diapo .g{flex:1;min-width:0;display:flex;flex-direction:column;gap:5mm}
 .diapo .sur{font-weight:700;font-size:16px}
 .diapo h3{margin:0;font-size:46px;line-height:.92;font-weight:800;letter-spacing:-.05em}
@@ -59,65 +55,68 @@ h2 i{width:.85em;height:.85em;border-radius:50%;background:var(--c);flex:none}
 .scan canvas{width:100%;border-radius:14px;cursor:pointer;display:block;background:var(--fond)}
 .scan .etat{font-weight:700}
 .scan ol{margin:0;padding-left:1.3em;color:var(--gris);font-size:15px}
-@media print{body{background:#fff}nav{display:none!important}#vue{padding:0;gap:0;display:block}.page{box-shadow:none;break-after:page;width:auto;min-height:0}.page.fiche{height:297mm;width:210mm}.page.diapo{width:297mm;height:210mm}}
+@media print{body{background:#fff}nav,.trop{display:none!important}#vue{padding:0;gap:0;display:block}.page{box-shadow:none;break-after:page;width:auto;min-height:0}.page.fiche{height:420mm;width:297mm}.page.diapo{width:297mm;height:210mm}}
 </style>
 <style id="feuille">@page{size:A4 portrait;margin:0}</style>
 </head>
 <body>
 <nav>
   <a class="lien" href="./">← Accueil</a><b>Version papier</b>
-  <button class="btn" data-v="test">Le test</button><button class="btn" data-v="diapos">La présentation</button><button class="btn" data-v="fiche">La fiche réponse</button><button class="btn" data-v="lire">Lire une fiche</button>
+  <button class="btn" data-v="fiche">La fiche A3</button><button class="btn" data-v="diapos">La présentation</button><button class="btn" data-v="lire">Photographier les fiches</button>
   <button class="btn noir" id="imprimer">Imprimer</button>
 </nav>
 <div id="vue"><p>Chargement…</p></div>
 <script src="seance.js"></script>
 <script>
 // Version papier de la séance, toujours fabriquée à partir de seance.txt (donc à jour après chaque modification) :
-//  - le test : les questions numérotées, avec leurs réponses repérées par des lettres ;
+//  - la fiche A3 : une seule feuille par personne, avec les questions, un rond par réponse et quatre repères noirs dans les coins.
+//    Aucune image dessus : les affiches sont montrées par le grand écran en mode papier (ou par la présentation imprimée) ;
 //  - la présentation : les écrans du grand écran, un par page, sans les résultats ;
-//  - la fiche réponse : une page avec un rond par réponse et quatre repères noirs dans les coins (à imprimer sur calque ou sur papier) ;
-//  - lire une fiche : une photo de la fiche remplie est lue ici, dans le navigateur (rien n'est envoyé à un service d'analyse),
+//  - photographier les fiches : la photo d'une fiche remplie est lue ici, dans le navigateur (rien n'est envoyé à un service d'analyse),
 //    on corrige d'un clic si besoin, puis les réponses partent dans le Google Sheet comme celles des téléphones.
 const h = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])).replace(/ ([?!:;»])/g, '&nbsp;$1').replace(/« /g, '«&nbsp;');
 const $ = id => document.getElementById(id), LETTRES = 'ABCDEFGHIJ';
 const etiq = (e, i) => e.t === 'echelle' ? String(i + 1) : e.t === 'ab' ? ['A', 'B', '='][i] : LETTRES[i]; // ce qui est écrit dans chaque rond
 const choix = e => e.t === 'echelle' ? ['1', '2', '3', '4', '5'] : e.o || []; // un avis libre n'a pas de rond
 const groupe = e => e.p ? 'Étape ' + e.p : "Jeu de l'œil";
-let vue = new URLSearchParams(location.search).get('vue') || 'test';
+let vue = new URLSearchParams(location.search).get('vue'); if (vue !== 'diapos' && vue !== 'lire') vue = 'fiche';
 
-// ---------- la fiche réponse : sa géométrie, en millimètres, sert à l'impression ET à la lecture ----------
-const REPERES = [[14, 14], [196, 14], [14, 283], [196, 283]], COTE = 9, RAYON = 2.7;
-function geometrie(Q) {
-  const parCol = Math.ceil(Q.length / 2), pas = Math.min(11, 226 / Math.max(parCol, 1));
-  return Q.map((e, k) => { const col = k >= parCol ? 1 : 0, y = 50 + (k - col * parCol) * pas, x = 24 + col * 90;
-    return { e, x, y, ronds: choix(e).map((_, j) => [x + 12 + j * 8.3, y]) }; });
+// ---------- la fiche A3 : sa géométrie, en millimètres, sert à l'impression ET à la lecture ----------
+const REPERES = [[14, 14], [283, 14], [14, 406], [283, 406]], COTE = 10, RAYON = 2.7, LCOL = 132, Y0 = 56, HAUT = 342;
+const enLigne = e => e.t === 'echelle' || e.t === 'ab'; // les ronds tiennent à droite de la question
+function geometrie(Q) { // deux colonnes ; les réponses par 3 sur une ligne, par 4 si la feuille est trop pleine
+  for (const par of [3, 4]) {
+    const ht = e => e.t === 'texte' ? 14 : enLigne(e) ? 10.5 : 7 + Math.ceil(e.o.length / par) * 6.4, total = Q.reduce((a, e) => a + ht(e), 0);
+    let c = 0, k1 = 0; while (k1 < Q.length && c + ht(Q[k1]) / 2 < total / 2) c += ht(Q[k1++]);
+    const f = Math.min(1.3, HAUT / Math.max(c, total - c, 1)); if (f < 1 && par === 3) continue;
+    let y = Y0; const l = (LCOL - 14) / par;
+    const G = Q.map((e, k) => { if (k === k1) y = Y0; const x = 20 + (k >= k1) * LCOL, n = choix(e).length, g = { e, x, y, h: ht(e) * f, l, f,
+      ronds: choix(e).map((_, j) => enLigne(e) ? [x + LCOL - 8 - (n - 1 - j) * 7.6, y + 4] : [x + 11 + j % par * l, y + (10.1 + Math.floor(j / par) * 6.4) * f]) };
+      y += g.h; return g; });
+    G.trop = f < .93; return G; // en dessous, les ronds se toucheraient
+  }
 }
 function fiche(Q) {
-  const G = geometrie(Q);
-  return `<svg viewBox="0 0 210 297" xmlns="http://www.w3.org/2000/svg" font-family="'Scoutie Sans',Helvetica,Arial,sans-serif">
+  const G = geometrie(Q), ft = (l, t, w, hh, x, c = '') => `<div class="ft ${c}" style="left:${l}mm;top:${t}mm;width:${w}mm;height:${hh}mm">${x}</div>`;
+  return (G.trop ? `<p class="trop">Il y a trop de questions pour une seule fiche A3 : masquez-en quelques-unes dans « Modifier le test ».</p>` : '') + `<div class="page fiche">
+  <svg viewBox="0 0 297 420" xmlns="http://www.w3.org/2000/svg" font-family="'Scoutie Sans',Helvetica,Arial,sans-serif">
     ${REPERES.map(([x, y]) => `<rect x="${x - COTE / 2}" y="${y - COTE / 2}" width="${COTE}" height="${COTE}" fill="#000"/>`).join('')}
-    <text x="24" y="17" font-size="6.4" font-weight="800" letter-spacing="-.25">Points de vue · fiche réponse</text>
-    <text x="24" y="24" font-size="3.2">Noircissez le rond de votre réponse. Avec un astérisque (*), plusieurs ronds sont possibles.</text>
-    <text x="24" y="33.5" font-size="3.6" font-weight="700">Séance : ........................   Participant n° : ............   Test ${h(VERSION)}</text>
-    <text x="24" y="40" font-size="2.8" fill="#6B6B6B">Les quatre carrés noirs servent à la lecture de la photo : ne rien écrire dessus.</text>
-    ${G.map(g => `<text x="${g.x + 6}" y="${g.y + 1.4}" font-size="4" font-weight="800" text-anchor="end">${g.e.n}${g.e.t === 'multi' ? '*' : ''}</text>${g.e.t === 'texte' ? `<text x="${g.x + 10}" y="${g.y + 1.2}" font-size="2.8" fill="#6B6B6B">réponse écrite sur le test</text>` : ''}`
+    <text x="24" y="18" font-size="8" font-weight="800" letter-spacing="-.3">Points de vue · votre fiche</text>
+    <text x="24" y="26" font-size="4">Regardez le grand écran, puis noircissez le rond de votre réponse. Avec un astérisque (*), plusieurs ronds sont possibles.</text>
+    <text x="24" y="37" font-size="4.6" font-weight="700" xml:space="preserve">Séance : ........................      Participant n° : ............      Test ${h(VERSION)}</text>
+    <text x="24" y="45" font-size="3.2" fill="#6B6B6B">Les quatre carrés noirs servent à la lecture de la photo : ne rien écrire dessus.</text>
+    ${G.map(g => `<line x1="${g.x}" x2="${g.x + LCOL - 5}" y1="${g.y - .6}" y2="${g.y - .6}" stroke="#D0D0D0" stroke-width=".15"/><text x="${g.x + 6}" y="${g.y + 4.6}" font-size="4.6" font-weight="800" text-anchor="end">${g.e.n}${g.e.t === 'multi' ? '*' : ''}</text>`
+      + (g.e.t === 'texte' ? `<line x1="${g.x + 8}" x2="${g.x + LCOL - 8}" y1="${g.y + g.h - 3}" y2="${g.y + g.h - 3}" stroke="#141414" stroke-width=".2" stroke-dasharray=".4 1"/>` : '')
       + g.ronds.map(([x, y], j) => `<circle cx="${x}" cy="${y}" r="${RAYON}" fill="#fff" stroke="#141414" stroke-width=".28"/><text x="${x}" y="${y + 1.05}" font-size="2.9" text-anchor="middle" fill="#B4B4B4">${etiq(g.e, j)}</text>`).join('')).join('')}
-  </svg>`;
+  </svg>
+  ${G.map(g => { const e = g.e, n = g.ronds.length;
+    if (enLigne(e)) return ft(g.x + 8, g.y + .8, LCOL - 20 - n * 7.6, g.h - 1.6, `<b>${h(e.q)}</b><span>${e.t === 'ab' ? 'A, B, ou = si vous ne voyez pas de différence.' : `1 = ${h(e.a)} · 5 = ${h(e.b)}`}</span>`);
+    if (e.t === 'texte') return ft(g.x + 8, g.y + .8, LCOL - 16, g.h - 5, `<b>${h(e.q)}</b><span>Écrivez votre réponse sur la ligne.</span>`);
+    return ft(g.x + 8, g.y + .8, LCOL - 16, 6.4 * g.f, `<b>${h(e.q)}</b>`) + g.ronds.map(([x, y], j) => ft(x + 3.8, y - 1.7, g.l - 6.8, 6.4 * g.f - .6, h(e.o[j]), 'o')).join(''); }).join('')}
+  </div>`;
 }
-
-// ---------- le test papier ----------
-function testPapier(Q) {
-  let x = `<h1>Le test</h1><p class="sous">Répondez sur la fiche réponse : le numéro de la question, puis la lettre de votre réponse. Avec un astérisque (*), plusieurs réponses sont possibles. Test ${h(VERSION)}.</p>`, g = '', vu = '';
-  for (const e of Q) {
-    if (groupe(e) !== g) { g = groupe(e); x += `<h2 style="--c:${e.p ? `var(--c${e.p})` : '#141414'}"><i></i>${h(e.p ? PHASES[e.p].nom : "Le jeu de l'œil")}</h2>${e.p ? '' : `<p class="sous">L'animateur montre chaque affiche 5 secondes, puis la cache.</p>`}`; }
-    const im = e.jeu ? [] : (e.imgs || []).filter(Boolean), cle = im.join('|'), montre = im.length && (im.length > 1 || cle !== vu); if (im.length === 1) vu = cle;
-    x += `<div class="q"><span class="no">${e.n}${e.t === 'multi' ? '*' : ''}</span><b>${h(e.q)}</b>${montre ? `<div class="imgs">${im.map((s, i) => `<figure>${im.length > 1 ? 'AB'[i] : ''}<img src="${h(s)}" alt=""></figure>`).join('')}</div>` : '<span></span>'}
-      <span></span><span class="pre">${h(e.note || '')}${e.t === 'echelle' ? `Note de 1 à 5. 1 = ${h(e.a)}, 5 = ${h(e.b)}.` : ''}${e.t === 'ab' ? ' A, B, ou = si vous ne voyez pas de différence.' : ''}</span>
-      ${e.t === 'texte' ? `<span></span><span class="pre">Écrivez votre réponse : ........................................................................................................</span>` : ''}
-      ${e.t === 'echelle' || e.t === 'ab' || e.t === 'texte' ? '' : `<span></span><ol>${e.o.map((o, i) => `<li data-l="${LETTRES[i]}">${h(o)}</li>`).join('')}</ol>`}</div>`;
-  }
-  return `<div class="page">${x}</div>`;
-}
+// un texte trop long pour sa case rétrécit jusqu'à tenir
+const ajuster = () => document.querySelectorAll('.ft').forEach(d => { let t = parseFloat(d.style.fontSize) || (d.classList.contains('o') ? 2.9 : 3.5); while (d.scrollHeight > d.clientHeight + 1 && t > 2) d.style.fontSize = (t -= .15) + 'mm'; });
 
 // ---------- la présentation papier : les écrans du grand écran, sans les résultats ----------
 function diapos(Q) {
@@ -161,7 +160,7 @@ function trouverReperes(gris, W, H) { // dans chaque coin de la photo, la tache 
   return [[0, 0], [W, 0], [0, H], [W, H]].map(([cx, cy]) => { const c = taches.filter(([x, y]) => (x < W / 2) === (cx === 0) && (y < H / 2) === (cy === 0)).sort((a, b) => Math.hypot(a[0] - cx, a[1] - cy) - Math.hypot(b[0] - cx, b[1] - cy))[0]; if (!c) throw new Error('repère'); return c; });
 }
 function lireImage(source, Q) { // source : image ou canevas ; renvoie les ronds cochés
-  const k = Math.min(1, 1600 / Math.max(source.width, source.height)), c = document.createElement('canvas'); c.width = Math.round(source.width * k); c.height = Math.round(source.height * k);
+  const k = Math.min(1, 2200 / Math.max(source.width, source.height)), c = document.createElement('canvas'); c.width = Math.round(source.width * k); c.height = Math.round(source.height * k);
   const x = c.getContext('2d', { willReadFrequently: true }); x.drawImage(source, 0, 0, c.width, c.height);
   const px = x.getImageData(0, 0, c.width, c.height).data, W = c.width, H = c.height, gris = new Uint8Array(W * H);
   for (let i = 0; i < W * H; i++) gris[i] = (px[i * 4] * 3 + px[i * 4 + 1] * 6 + px[i * 4 + 2]) / 10;
@@ -186,9 +185,9 @@ function lignes() { // les réponses lues, au même format que celles des télé
     return [qui, '', groupe(e), e.q, e.t === 'echelle' ? `${m[0] + 1} sur 5` : m.map(j => e.o[j]).join(' | '), e.t === 'echelle' ? m[0] + 1 : '', VERSION]; }).filter(Boolean);
 }
 function vueLire() {
-  return `<div class="scan"><h1>Lire une fiche</h1>
-    <ol><li>Posez la fiche (ou le calque sur sa fiche) bien à plat, sous une bonne lumière.</li><li>Photographiez-la de face, en entier : les quatre carrés noirs doivent être visibles.</li><li>Vérifiez les ronds entourés en bleu, corrigez d'un clic, puis enregistrez.</li></ol>
-    <div class="deux"><label>Séance<input type="text" id="seance" value="papier" maxlength="12"></label><label>Participant n°<input type="number" id="numero" value="1" min="1"></label></div>
+  return `<div class="scan"><h1>Photographier les fiches</h1>
+    <ol><li>Posez la fiche A3 remplie bien à plat, sous une bonne lumière.</li><li>Photographiez-la de face, en entier : les quatre carrés noirs doivent être visibles.</li><li>Vérifiez les ronds entourés en bleu, corrigez d'un clic, puis enregistrez : les réponses rejoignent « Étudier les données ».</li></ol>
+    <div class="deux"><label>Séance<input type="text" id="seance" value="${h(new URLSearchParams(location.search).get('seance') || 'papier')}" maxlength="12"></label><label>Participant n°<input type="number" id="numero" value="1" min="1"></label></div>
     <label class="btn noir" style="align-self:flex-start">Photographier ou choisir une photo<input type="file" accept="image/*" capture="environment" hidden id="fichier"></label>
     <p class="etat" id="etat">Aucune photo pour l'instant. La lecture se fait dans ce navigateur, la photo n'est envoyée nulle part.</p>
     <canvas id="photo" width="10" height="10" hidden></canvas>
@@ -199,10 +198,11 @@ function vueLire() {
 function dessiner() {
   const Q = QUESTIONS();
   document.querySelectorAll('nav [data-v]').forEach(b => b.classList.toggle('on', b.dataset.v === vue));
-  $('feuille').textContent = `@page{size:A4 ${vue === 'diapos' ? 'landscape' : 'portrait'};margin:0}`;
+  $('feuille').textContent = `@page{size:${vue === 'diapos' ? 'A4 landscape' : 'A3 portrait'};margin:0}`;
   $('imprimer').hidden = vue === 'lire';
-  $('vue').innerHTML = vue === 'diapos' ? diapos(Q) : vue === 'fiche' ? `<div class="page fiche">${fiche(Q)}</div>` : vue === 'lire' ? vueLire() : testPapier(Q);
-  history.replaceState(null, '', '?vue=' + vue);
+  $('vue').innerHTML = vue === 'diapos' ? diapos(Q) : vue === 'lire' ? vueLire() : fiche(Q);
+  ajuster(); if (document.fonts) document.fonts.ready.then(ajuster);
+  const u = new URLSearchParams(location.search); u.set('vue', vue); history.replaceState(null, '', '?' + u);
 }
 document.querySelector('nav').addEventListener('click', ev => { const b = ev.target.closest('[data-v]'); if (b) { vue = b.dataset.v; lu = null; dessiner(); } });
 $('imprimer').addEventListener('click', () => print());

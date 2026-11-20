@@ -143,6 +143,9 @@ textarea.champ{min-height:150px;resize:none}
 .salle{display:flex;flex-wrap:wrap;gap:1vh 1.4vw;max-width:48vw;font-size:.8em;font-weight:700}
 .salle span:not(.tete):not(.yeux){display:flex;align-items:center;gap:.5vw}
 .salle .tete{font-size:2.2vw}
+.lettres{display:grid;grid-template-columns:repeat(auto-fit,minmax(11em,1fr));gap:.5em;font-size:.85em;font-weight:700}
+.lettres span{background:#fff;border-radius:1.2em;padding:.45em .9em;display:flex;gap:.6em;align-items:baseline}
+.lettres b{font-weight:800}
 .qr{display:flex;align-items:center;gap:1.6vw;margin-top:auto;font-weight:700}
 .qr svg{width:15vw;height:15vw;display:block;background:#fff;flex:none}
 .qr .code{font-size:2.6em;font-weight:800;letter-spacing:.04em;vertical-align:middle}
@@ -181,6 +184,7 @@ body.plein.p3 #app{color:#fff}
 // ---------- outils ----------
 const P = new URLSearchParams(location.search);
 const ECRAN = P.has('ecran');
+const PAPIER = ECRAN && P.has('papier'); // séance sur papier : le grand écran montre les affiches et les questions, chacun répond sur sa fiche A3
 // chaque séance a son code à 4 chiffres : le grand écran le crée et l'affiche (QR code + chiffres), le téléphone le reçoit par le QR code ou le tape
 const nouveauCode = () => String(1000 + Math.random() * 9000 | 0);
 let code = P.get('salle');
@@ -291,11 +295,20 @@ addEventListener('pointermove', e => { souris = [e.clientX, e.clientY]; clearTim
 addEventListener('resize', placer);
 
 // ================= ACCUEIL DU SITE =================
+const carte = (lien, c, titre, texte) => `<a href="${lien}" style="--c:var(--c${c});--t:var(--t${c})">${tete(c)}<b>${titre}</b><span>${texte}</span></a>`;
+function choixPasser() { // passer le test : au téléphone ou sur papier, et la photo des fiches remplies
+  placer();
+  app.innerHTML = `<div class="site"><p class="sur"><a href="./">← Accueil</a> · Passer le test</p><h1>Téléphone ou papier ?</h1><nav class="trois">
+    ${carte('?passer=tel', 1, 'Au téléphone', "Chacun répond sur son téléphone. Les réponses s'enregistrent toutes seules.")}
+    ${carte('?ecran&papier', 2, 'Sur papier', "Chacun répond sur une fiche A3. Le grand écran montre les affiches et les questions, sans téléphone.")}
+    ${carte('papier.html?vue=lire', 3, 'Photographier les fiches', "Après une séance sur papier : une photo par fiche remplie, et les réponses rejoignent les données à étudier.")}
+  </nav></div>`;
+  regards();
+}
 function accueilSite() {
   placer();
-  const carte = (lien, c, titre, texte) => `<a href="${lien}" style="--c:var(--c${c});--t:var(--t${c})">${tete(c)}<b>${titre}</b><span>${texte}</span></a>`;
   app.innerHTML = `<div class="site"><p class="sur">Points de vue · faites tester vos affiches par des habitants</p><h1>Que voulez-vous faire ?</h1><nav class="trois">
-    ${carte('?passer', 1, 'Passer le test', "Rejoindre une séance avec son téléphone, l'animer sur le grand écran, ou l'imprimer en version papier.")}
+    ${carte('?passer', 1, 'Passer le test', "Au téléphone ou sur papier : rejoindre une séance, l'animer sur le grand écran, photographier les fiches remplies.")}
     ${carte('modifier.html', 2, 'Modifier le test', "Ajouter vos affiches, choisir les questions posées sur chacune, régler l'ordre des écrans.")}
     ${carte('resultats.html', 3, 'Étudier les données', 'Le verdict affiche par affiche, les graphiques, la comparaison des séances, le Google Sheet.')}
   </nav></div>`;
@@ -455,7 +468,7 @@ function ecran() {
   };
   const SONS = { suite: () => nappe(2, .04), revele: () => nappe(5, .045), trouve: () => nappe(5, .045) };
   const trouver = id => { const m = /^vote(\d{1,2})_(\d)$/.exec(id); return m ? TESTS[m[2]] && { ...TESTS[m[2]], voteK: +m[1] } : ETAPES.find(e => e.id && e.t !== 'vote' && e.id === id); };
-  const QH = Q;
+  const QH = Q, NUM = Object.fromEntries(QUESTIONS().map(e => [e.id, e.n])); // le numéro de chaque question, le même que sur la fiche A3
   const bilan = k => { // résultats d'une affiche de binôme : part de la salle qui a retrouvé l'idée, moyenne des notes
     const notes = TESTS.flatMap((t, j) => t.t === 'echelle' ? Object.values(S.rep['vote' + k + '_' + j] || {}) : []);
     return { note: notes.length ? notes.reduce((a, v) => a + v + 1, 0) / notes.length : null };
@@ -491,7 +504,7 @@ function ecran() {
   peer.on('error', e => { souci = e.type === 'unavailable-id' ? 'Le grand écran est déjà ouvert dans une autre fenêtre.' : e.type === 'network' || e.type === 'server-error' ? 'Pas de connexion internet.' : souci; dessiner(true); });
 
   function aller(i, sens = 1) {
-    while (ETAPES[i] && (ETAPES[i].t === 'vote' || ETAPES[i].t === 'palmares') && !S.photos.length) i += sens; // pas de photo : rien à tester
+    while (ETAPES[i] && (PAPIER ? ['scores', 'photo', 'vote', 'palmares'].includes(ETAPES[i].t) : (ETAPES[i].t === 'vote' || ETAPES[i].t === 'palmares') && !S.photos.length)) i += sens; // pas de photo : rien à tester ; sur papier, pas d'écran qui dépend des téléphones
     S.i = Math.max(0, Math.min(ETAPES.length - 1, i)); sous = S.k = 0; S.rev = false; flash = false; garder(); diffuser(); dessiner(); SONS.suite();
   }
   function suivant() {
@@ -519,7 +532,11 @@ function ecran() {
     placer();
     const url = location.origin + location.pathname + '?salle=' + SALLE;
     let g = '', d = '';
-    if (e.t === 'accueil') {
+    if (e.t === 'accueil' && PAPIER) g = `<p class="sur">Points de vue · habitants testeurs</p><h1>Bienvenue !</h1><p><b>Vous participez à une recherche pour converger vers l'affiche la plus intéressante.</b></p>
+        <p class="cpt">Séance ${h(SALLE)}</p><p style="max-width:19em">Prenez votre fiche et un stylo. En haut de la fiche, écrivez la séance <b>${h(SALLE)}</b> et votre numéro de participant.</p>
+        <p style="max-width:19em">Chaque question porte un numéro : sur la ligne du même numéro, noircissez le rond de votre réponse.</p>
+        <p style="margin-top:auto"><a href="papier.html" target="_blank" rel="noopener">Imprimer les fiches A3</a> · <a href="papier.html?vue=lire&seance=${h(SALLE)}" target="_blank" rel="noopener">Photographier les fiches remplies</a></p>`;
+    else if (e.t === 'accueil') {
       const q = qrcode(0, 'M'); q.addData(url); q.make();
       g = `<p class="sur">Points de vue · habitants testeurs</p><h1>Bienvenue !</h1><p><b>Vous participez à une recherche pour converger vers l'affiche la plus intéressante.</b></p>
         <p class="cpt"></p><div class="salle"></div>
@@ -537,7 +554,8 @@ function ecran() {
     else if (e.t === 'palmares') g = `<p class="sur">Atelier</p><h1>Le palmarès</h1><p><b>L'affiche qui transmet le mieux l'information, d'après vos notes.</b></p><div class="mur palm"></div>`;
     else {
       const cache = q.cinq && masque && !S.rev;
-      g = `<p class="sur">${sur(e)}${q.vote ? ` · affiche ${q.k + 1} sur ${S.photos.length} · test ${S.k % 10 + 1} sur ${TESTS.length}` : ''}</p><h1>${h(q.q)}</h1>${cache ? "<p>L'affiche revient avec les réponses.</p>" : q.note ? `<p>${h(q.note)}</p>` : ''}<div class="accord">${S.rev && q.t !== 'texte' ? `<div class="trio">${tete(1)}${tete(2)}${tete(3)}</div>` : ''}<p class="cpt"></p></div><div class="res">${!S.rev ? '' : q.t === 'texte' ? '<div class="mots"></div>'
+      g = `<p class="sur">${sur(e)}${PAPIER && NUM[q.id] ? ' · question ' + NUM[q.id] : ''}${q.vote ? ` · affiche ${q.k + 1} sur ${S.photos.length} · test ${S.k % 10 + 1} sur ${TESTS.length}` : ''}</p><h1>${h(q.q)}</h1>${cache ? "<p>L'affiche revient avec les réponses.</p>" : q.note ? `<p>${h(q.note)}</p>` : ''}<div class="accord">${S.rev && q.t !== 'texte' ? `<div class="trio">${tete(1)}${tete(2)}${tete(3)}</div>` : ''}<p class="cpt"></p></div><div class="res">${PAPIER ? (q.t === 'texte' ? '<p><b>Écrivez votre réponse sur la fiche.</b></p>' : `<div class="lettres">${q.o.map((o, i) => `<span><b>${q.t === 'echelle' ? i + 1 : q.t === 'ab' ? 'AB='[i] : 'ABCDEFGHIJ'[i]}</b>${q.t === 'echelle' ? h(i === 0 ? q.a : i === 4 ? q.b : '') : h(o)}</span>`).join('')}</div>`)
+        : !S.rev ? '' : q.t === 'texte' ? '<div class="mots"></div>'
         : `<div class="cols${q.o.length > 5 ? ' liste' : ''}">${q.o.map((o, i) => `<div class="col"><div class="rond">${tete(1 + i % 3)}</div><b>0</b><span>${h(o)}${q.t === 'echelle' && (i === 0 || i === 4) ? '<br>' + h(i ? q.b : q.a) : ''}</span></div>`).join('')}</div>`}</div>`;
       if (q.vote && S.photos[q.k] && !cache) d = `<div class="droite"><figure><img src="${S.photos[q.k].img}" alt="Affiche d'un binôme">${h(S.photos[q.k].mot)}</figure></div>`;
       if (q.cinq && !S.rev && !masque) { clearTimeout(tm); tm = setTimeout(() => { masque = true; dessiner(true); }, 5000); } // vue 5 secondes, puis cachée
@@ -554,6 +572,7 @@ function ecran() {
         <span class="autres"></span>
         <a href="resultats.html?seance=${h(SALLE)}" target="_blank" rel="noopener">Voir les résultats</a>
         <a href="./">Accueil du site</a>
+        <a href="?ecran${PAPIER ? '' : '&papier'}">Passer en mode ${PAPIER ? 'téléphone' : 'papier'}</a>${PAPIER ? `<a href="papier.html" target="_blank" rel="noopener">Imprimer les fiches A3</a><a href="papier.html?vue=lire&seance=${h(SALLE)}" target="_blank" rel="noopener">Photographier les fiches</a>` : ''}
         <button data-a="plein">Plein écran</button><button data-a="csv">Télécharger les réponses</button><button data-a="neuve">Nouvelle séance</button>
       </div></div><span class="auto"></span>`;
     maj(); regards();
@@ -589,6 +608,7 @@ function ecran() {
     }
     if (!q.id) return;
     const vals = Object.values(rep), cpt = app.querySelector('.cpt');
+    if (PAPIER) { cpt.textContent = NUM[q.id] ? `Sur votre fiche : ligne ${NUM[q.id]}${q.t === 'multi' ? ' · plusieurs réponses possibles' : ''}` : ''; return; }
     cpt.textContent = `${vals.length} réponse${vals.length > 1 ? 's' : ''} sur ${Math.max(la.size, vals.length)} participant${Math.max(la.size, vals.length) > 1 ? 's' : ''}`;
     // tout le monde a répondu : les réponses se révèlent seules, puis la séance passe à la suite
     const attendus = new Set([...la, ...[...vus].filter(([, t]) => Date.now() - t < 45000).map(([pid]) => pid)]); // une coupure de quelques secondes ne compte pas comme un départ
@@ -630,7 +650,8 @@ function ecran() {
   }, 4000);
 
   const annoncer = () => fetch(SHEET, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ seance: { code: SALLE, n: enLigne().size, i: S.i + 1, total: ETAPES.length } }) }).catch(() => { });
-  annoncer(); setInterval(annoncer, 30000); declarerVersion();
+  if (!PAPIER) { annoncer(); setInterval(annoncer, 30000); } // une séance sur papier n'attend aucun téléphone
+  declarerVersion();
 
   function exporter() {
     const L = [['participant', 'prénom', 'étape', 'question', 'réponse', 'note', 'version']];
@@ -682,7 +703,7 @@ const libs = Promise.all([(ECRAN || SALLE) && lib('libs/peerjs.min.js'), ECRAN &
 // le contenu d'abord (seance.txt, relu à chaque ouverture), puis l'appli
 fetch('seance.txt?' + Date.now()).then(x => x.ok ? x.text() : Promise.reject()).then(t => lireSeance(t) || Promise.reject())
   .catch(() => { document.getElementById('statut').textContent = 'Le fichier seance.txt est introuvable ou vide.'; })
-  .then(() => libs).then(() => ECRAN ? ecran() : SALLE || P.has('passer') ? telephone() : accueilSite());
+  .then(() => libs).then(() => ECRAN ? ecran() : SALLE || P.get('passer') ? telephone() : P.has('passer') ? choixPasser() : accueilSite());
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => { }); // garde le site en mémoire pour les visites suivantes
 </script>
 </body>
