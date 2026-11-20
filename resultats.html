@@ -141,7 +141,9 @@ function dessiner() {
   const notes = Q.filter(e => e.t === 'echelle' && T.notes[e.q]).map(e => [T.notes[e.q][0] / T.notes[e.q][1], e.q]).sort((a, b) => b[0] - a[0]);
   if (notes.length) ajoute('La meilleure note', fr(notes[0][0]) + ' sur 5', notes[0][1]);
   if (notes.length > 1) ajoute('La note la plus basse', fr(notes[notes.length - 1][0]) + ' sur 5', notes[notes.length - 1][1]);
-  Q.filter(e => e.t === 'ab').forEach(e => { const c = T.compte[e.q] || {}, a = c.A || 0, b = c.B || 0; if (a + b) ajoute('Comparaison A / B', a === b ? 'Égalité' : (a > b ? 'A' : 'B') + ' préférée à ' + pc(Math.max(a, b) / T.rep[e.q]), e.q + (e.note ? ' (' + e.note + ')' : '')); });
+  // les comparaisons A / B : seulement les trois préférences les plus nettes
+  Q.filter(e => e.t === 'ab').map(e => { const c = T.compte[e.q] || {}, x = c.A || 0, y = c.B || 0; return [Math.abs(x - y) / T.rep[e.q], x > y ? 'A' : 'B', Math.max(x, y) / T.rep[e.q], e]; })
+    .filter(x => x[0] > 0).sort((x, y) => y[0] - x[0]).slice(0, 3).forEach(([, g, part, e]) => ajoute('Préférence nette entre A et B', g + ' choisie à ' + pc(part), e.q + (e.note ? ' (' + e.note + ')' : '')));
   const partage = Q.filter(e => e.t === 'choix' && e.bon == null && T.rep[e.q] > 2).map(e => [accord(T, e.q), e.q]).sort((a, b) => a[0] - b[0])[0];
   if (partage) ajoute('La question qui divise le plus', pc(partage[0]) + ' pour la réponse en tête', partage[1]);
   const aff = {}; T.ordre.filter(q => T.groupe[q] === 'Atelier' && T.notes[q]).forEach(q => { const k = q.split(' : ')[0], x = aff[k] = aff[k] || [0, 0]; x[0] += T.notes[q][0]; x[1] += T.notes[q][1]; });
