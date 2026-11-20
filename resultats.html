@@ -72,8 +72,6 @@ article .n{color:var(--gris);font-size:15px;margin:4px 0 12px}
 <p class="maj" id="maj">Chargement…</p>
 <div class="outils">
   <a class="btn" href="https://docs.google.com/spreadsheets/d/14uvOfNQwjgMOH83hJhnWea9Df3Cidhhs4rUefRrQ2wk" target="_blank" rel="noopener">Ouvrir le Google Sheet</a>
-  <button class="btn clair" id="csv">Télécharger ce tableau (CSV)</button>
-  <button class="btn clair" id="imprimer">Imprimer ou enregistrer en PDF</button>
 </div>
 <div class="choix" id="choix" role="group" aria-label="Choisir une séance"></div>
 <div class="reglages">
@@ -87,13 +85,13 @@ article .n{color:var(--gris);font-size:15px;margin:4px 0 12px}
 <script>
 // Étude des données : lit les totaux anonymes calculés par le script Google (jamais de prénom, jamais de ligne individuelle)
 // et les présente dans l'ordre de la séance (seance.txt). Outils : choix d'une séance, comparaison de deux séances,
-// points à retenir calculés, recherche, tri par accord, export CSV, impression. Mise à jour toutes les 20 secondes.
+// points à retenir calculés, recherche, tri par accord. Mise à jour toutes les 20 secondes.
 const SOURCE = 'https://script.google.com/macros/s/AKfycbzPof8sEj8tZLlA-MtVDYyODv32y8lXxc9hLVmaW5zCvHLilyRIxpk4Ix6TPhzJczjn/exec?vue=resultats';
 const COUL = { 'Étape 1': '#F5A0C6', 'Étape 2': '#F7C33B', 'Étape 3': '#1F6FE0' };
 const h = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])).replace(/ ([?!:;»])/g, '&nbsp;$1').replace(/« /g, '«&nbsp;');
 const fr = (x, d = 1) => x.toFixed(d).replace('.', ','), pc = x => Math.round(x * 100) + ' %';
 const $ = id => document.getElementById(id), plat = x => x.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
-let D = null, seance = new URLSearchParams(location.search).get('seance') || '', tableau = [];
+let D = null, seance = new URLSearchParams(location.search).get('seance') || '';
 
 // les totaux d'une séance ('' = toutes) : par question, le nombre de répondants, le détail des réponses, la moyenne des notes
 function totaux(code) {
@@ -114,12 +112,10 @@ function dessiner() {
   $('comparer').innerHTML = '<option value="">Aucune comparaison</option>' + codes.filter(c => c !== seance).map(c => `<option value="${h(c)}" ${c === autre ? 'selected' : ''}>Séance ${h(c)}</option>`).join('');
   const T = totaux(seance), U = $('comparer').value ? totaux($('comparer').value) : null, mot = plat($('chercher').value.trim()), tri = $('tri').value;
   const gens = codes.filter(c => !seance || c === seance).reduce((a, c) => a + D.seances[c], 0), total = Object.values(T.rep).reduce((a, n) => a + n, 0);
-  if (!total) { tableau = []; $('vue').innerHTML = `<p class="vide">Pas encore de réponses. Cette page se met à jour toute seule pendant la séance.</p>`; return; }
+  if (!total) { $('vue').innerHTML = `<p class="vide">Pas encore de réponses. Cette page se met à jour toute seule pendant la séance.</p>`; return; }
 
-  tableau = [['étape', 'question', 'réponse', 'nombre', 'part']];
   const carte = (g, q, opts, bon, bornes) => { // une question : ses réponses en barres, dans l'ordre du questionnaire
     const c = T.compte[q] || {}, n = T.rep[q] || 0, liste = opts || Object.keys(c).sort((a, b) => c[b] - c[a]), nt = T.notes[q], cu = U && U.compte[q] || {}, nu = U && U.rep[q] || 0, ntu = U && U.notes[q];
-    liste.forEach(o => tableau.push([g, q, o, c[o] || 0, n ? Math.round((c[o] || 0) / n * 100) + ' %' : '']));
     return `<article><h3>${h(q)}</h3><p class="n">${n} réponse${n > 1 ? 's' : ''}${U ? ` · ${nu} dans l'autre séance` : ''}</p>${nt ? `<div class="moy">${fr(nt[0] / nt[1])} <small>sur 5 en moyenne${ntu ? ` · ${fr(ntu[0] / ntu[1])} dans l'autre séance` : ''}</small></div>` : ''}`
       + liste.map((o, i) => { const k = c[o] || 0, p = n ? k / n : 0, pu = nu ? (cu[o] || 0) / nu : 0;
         return `<div class="barre${k ? '' : ' zero'}${i === bon ? ' bon' : ''}"><span>${h(o)}${i === bon ? ' (bonne réponse)' : ''}</span><b>${k} · ${pc(p)}${U ? ' / ' + pc(pu) : ''}</b><div class="piste"><i style="width:${p * 100}%${bon != null && i !== bon ? ';background:#BDBDBD' : ''}"></i></div>${U ? `<div class="piste autre"><i style="width:${pu * 100}%"></i></div>` : ''}</div>`; }).join('')
@@ -171,13 +167,6 @@ function charger() {
 $('choix').addEventListener('click', ev => { const b = ev.target.closest('[data-s]'); if (b) { seance = b.dataset.s; history.replaceState(null, '', seance ? '?seance=' + seance : location.pathname); dessiner(); } });
 ['comparer', 'tri'].forEach(id => $(id).addEventListener('change', dessiner));
 $('chercher').addEventListener('input', dessiner);
-$('imprimer').addEventListener('click', () => print());
-$('csv').addEventListener('click', () => { // le tableau affiché, pour un tableur
-  if (tableau.length < 2) return;
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob(['﻿' + tableau.map(l => l.map(c => '"' + String(c).replace(/^[=+@-]/, "'$&").replace(/"/g, '""') + '"').join(';')).join('\r\n')], { type: 'text/csv' }));
-  a.download = 'points-de-vue-resultats' + (seance ? '-' + seance : '') + '.csv'; a.click();
-});
 fetch('seance.txt?' + Date.now()).then(x => x.text()).then(lireSeance).catch(() => { }).then(() => { charger(); setInterval(charger, 20000); });
 </script>
 </body>

@@ -91,6 +91,7 @@ body.creatif .crea{display:flex}
 <header>
   <a href="./">← Accueil</a>
   <h1>Modifier le test</h1>
+  <a class="btn clair" href="papier.html" target="_blank" rel="noopener">Version papier</a>
   <label class="case" style="font-size:15px"><input type="checkbox" id="creatif">Mode créatif</label>
   <span id="etat">Chargement…</span>
   <button class="btn clair" id="annuler" disabled>Annuler mes modifications</button>
@@ -267,7 +268,7 @@ async function enregistrer() {
   const pb = verifier(); if (pb) { sel = pb[0]; liste(); zone(); return $('etat').textContent = pb[1]; }
   if (!cle()) return $('jeton').showModal();
   $('etat').textContent = 'Enregistrement…'; $('enregistrer').disabled = true;
-  try { const t = ecrireSeance(M); await ecrire('seance.txt', b64(t), "Séance modifiée depuis l'éditeur"); depart = t; change(); $('etat').textContent = 'Enregistré. Le site sera à jour dans une à deux minutes.'; }
+  try { const t = ecrireSeance(M); await ecrire('seance.txt', b64(t), "Séance modifiée depuis l'éditeur"); depart = t; lireSeance(t); charger(); declarerVersion(); $('etat').textContent = 'Enregistré (version ' + VERSION + '). Le site sera à jour dans une à deux minutes.'; }
   catch (err) { $('etat').textContent = "Pas enregistré : " + err.message + '.'; $('enregistrer').disabled = false; if (/jeton/.test(err.message)) $('jeton').showModal(); }
 }
 $('enregistrer').addEventListener('click', enregistrer);

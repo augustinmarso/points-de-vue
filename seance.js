@@ -2,6 +2,8 @@
 // ---------- le contenu de la séance : il est dans le fichier seance.txt, modifiable directement sur GitHub ----------
 let PHASES = { 1: { nom: 'Étape 1', quoi: '' }, 2: { nom: 'Étape 2', quoi: '' }, 3: { nom: 'Étape 3', quoi: '' } };
 let ETAPES = [{ t: 'accueil' }], MISSIONS = ["L'information à faire passer"], TESTS = [];
+let VERSION = '', TEXTE = ''; // l'identifiant de la version du test (change dès que seance.txt change) et son contenu
+const SCRIPT_GOOGLE = 'https://script.google.com/macros/s/AKfycbzPof8sEj8tZLlA-MtVDYyODv32y8lXxc9hLVmaW5zCvHLilyRIxpk4Ix6TPhzJczjn/exec';
 let TOUS = ETAPES; // tous les écrans du fichier, y compris ceux qui sont masqués (pour l'éditeur)
 // lit seance.txt : un écran par mot entre crochets, des lignes « clé : valeur » et des réponses « - » ou « + » dessous
 function lireSeance(texte) {
@@ -44,7 +46,7 @@ function lireSeance(texte) {
   }
   // une question sans réponse ne peut pas être posée, un écran masqué ne passe pas : on les retire de la séance
   const bons = E.filter(x => !x.masque && (!x.o || x.o.length > 1));
-  if (bons.length) { TOUS = E; ETAPES = bons; if (M.length) MISSIONS = M; TESTS = T; PHASES = { ...PHASES, ...P }; }
+  if (bons.length) { TEXTE = texte; VERSION = versionSeance(texte); TOUS = E; ETAPES = bons; if (M.length) MISSIONS = M; TESTS = T; PHASES = { ...PHASES, ...P }; }
   return bons.length;
 }
 
@@ -81,3 +83,18 @@ function ecrireSeance(m) { // m = { phases, missions, tests, ecrans }
   }
   return L.join('\n');
 }
+
+// l'identifiant d'une version : une empreinte courte du contenu utile du fichier (les commentaires ne comptent pas)
+function versionSeance(texte) {
+  const utile = texte.split(/\r?\n/).map(l => l.trim()).filter(l => l && l[0] !== '#').join('\n');
+  let a = 5381, b = 52711;
+  for (let i = 0; i < utile.length; i++) { const c = utile.charCodeAt(i); a = (a * 33 ^ c) >>> 0; b = (b * 33 ^ c) >>> 0; }
+  return 'v' + ((a * 4096 + (b & 4095)) >>> 0).toString(36).padStart(7, '0').slice(-7);
+}
+// fait connaître la version en cours au Google Sheet (onglet « Versions ») : sans effet si elle y est déjà
+function declarerVersion() {
+  if (!VERSION) return;
+  fetch(SCRIPT_GOOGLE, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ version: { id: VERSION, ecrans: ETAPES.length, questions: ETAPES.filter(e => e.id && e.t !== 'vote').length, texte: TEXTE } }) }).catch(() => { });
+}
+// les questions dans l'ordre, numérotées : sert au test papier, à la fiche réponse et à sa lecture
+const QUESTIONS = () => ETAPES.filter(e => e.id && e.t !== 'vote').map((e, i) => ({ ...e, n: i + 1 }));

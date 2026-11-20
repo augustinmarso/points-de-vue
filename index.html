@@ -187,7 +187,7 @@ let code = P.get('salle');
 if (ECRAN && !code) { try { code = localStorage.getItem('pdvCode') || nouveauCode(); localStorage.setItem('pdvCode', code); } catch (e) { code = nouveauCode(); } }
 const SALLE = (code || '').replace(/[^a-z0-9]/gi, '').toLowerCase().slice(0, 12);
 const HOTE = 'pointsdevue-gtm-' + SALLE;
-const SHEET = 'https://script.google.com/macros/s/AKfycbzPof8sEj8tZLlA-MtVDYyODv32y8lXxc9hLVmaW5zCvHLilyRIxpk4Ix6TPhzJczjn/exec';
+const SHEET = SCRIPT_GOOGLE;
 // les séances en cours : chaque grand écran donne signe de vie toutes les 30 secondes, la liste oublie une séance après 2 minutes de silence
 const seancesEnCours = () => fetch(SHEET).then(x => x.json()).then(l => (Array.isArray(l) ? l : []).filter(x => /^[a-z0-9]{1,12}$/.test(x.code))).catch(() => []);
 const libelle = x => `${x.n} participant${x.n > 1 ? 's' : ''} · écran ${x.i} sur ${x.total}`;
@@ -295,7 +295,7 @@ function accueilSite() {
   placer();
   const carte = (lien, c, titre, texte) => `<a href="${lien}" style="--c:var(--c${c});--t:var(--t${c})">${tete(c)}<b>${titre}</b><span>${texte}</span></a>`;
   app.innerHTML = `<div class="site"><p class="sur">Points de vue · habitants testeurs</p><h1>Que voulez-vous faire ?</h1><nav class="trois">
-    ${carte('?passer', 1, 'Passer le test', "Rejoindre une séance avec son téléphone, ou l'animer sur le grand écran.")}
+    ${carte('?passer', 1, 'Passer le test', "Rejoindre une séance avec son téléphone, l'animer sur le grand écran, ou l'imprimer en version papier.")}
     ${carte('modifier.html', 2, 'Modifier le test', "Changer l'ordre des écrans, les questions, les réponses et les affiches.")}
     ${carte('resultats.html', 3, 'Étudier les données', 'Voir les réponses, comparer les séances, ouvrir le Google Sheet.')}
   </nav></div>`;
@@ -360,7 +360,7 @@ function telephone() {
         ? `<div id="salons" class="bloc"><p>Recherche de la séance…</p></div>
            <label class="lab" for="code">Vous avez un code à 4 chiffres ?</label><input class="champ code" id="code" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="0000" autocomplete="off" aria-describedby="aide">
            <p class="note" id="aide">Il est écrit sur le grand écran.</p>
-           <p class="note"><a href="?ecran">Animer une séance sur le grand écran</a> · <a href="./">Accueil du site</a></p>`
+           <p class="note"><a href="?ecran">Animer une séance sur le grand écran</a> · <a href="papier.html">Version papier</a> · <a href="./">Accueil du site</a></p>`
         : mes.inscrit ? `<div class="fait" style="margin-top:0">${tete(1)}<h2>${mes.nom ? h(mes.nom) + ', vous êtes inscrit.' : 'Vous êtes inscrit.'}</h2><p>Gardez ce téléphone en main et regardez le grand écran : la séance va commencer.</p></div>`
         : `<label class="lab" for="nom">Votre prénom</label><input class="champ" id="nom" maxlength="24" value="${h(mes.nom)}" autocomplete="given-name" autocapitalize="words" enterkeyhint="done">
            <button class="btn" data-a="inscrire">Je m'inscris</button><p class="note">Séance ${h(SALLE)}. Il n'y a pas de bonne ou de mauvaise réponse.</p>`);
@@ -617,8 +617,8 @@ function ecran() {
   // chaque réponse part toute seule vers le Google Sheet de synthèse (onglet Données), par petits paquets toutes les 4 secondes ;
   // ce qui n'a pas pu partir (coupure d'internet) reste en file et repart dès que possible
   const qui = pid => { const g = S.gens[pid] || {}; return ['S' + SALLE + '-P' + (g.n + 1), g.nom || '']; };
-  const ligneRep = (id, pid, v) => { const e = trouver(id); return e && [...qui(pid), e.p ? 'Étape ' + e.p : e.voteK != null ? 'Atelier' : "Jeu de l'œil", e.voteK != null ? `Affiche ${e.voteK + 1} : ${e.q}` : e.q, e.t === 'echelle' ? `${v + 1} sur 5` : e.o ? [].concat(v).map(x => e.o[x]).join(' | ') : v, e.t === 'echelle' ? v + 1 : '']; };
-  const lignePhoto = (p, k) => [...qui(p.pid), 'Atelier', `Affiche ${k + 1} : information et binôme`, MISSIONS[S.mission] + (p.mot ? ' (' + p.mot + ')' : ''), ''];
+  const ligneRep = (id, pid, v) => { const e = trouver(id); return e && [...qui(pid), e.p ? 'Étape ' + e.p : e.voteK != null ? 'Atelier' : "Jeu de l'œil", e.voteK != null ? `Affiche ${e.voteK + 1} : ${e.q}` : e.q, e.t === 'echelle' ? `${v + 1} sur 5` : e.o ? [].concat(v).map(x => e.o[x]).join(' | ') : v, e.t === 'echelle' ? v + 1 : '', VERSION]; };
+  const lignePhoto = (p, k) => [...qui(p.pid), 'Atelier', `Affiche ${k + 1} : information et binôme`, MISSIONS[S.mission] + (p.mot ? ' (' + p.mot + ')' : ''), '', VERSION];
   const noter = l => { if (l) { (S.file = S.file || []).push(l); garder(); } };
   let envoi = false;
   setInterval(() => {
@@ -629,10 +629,10 @@ function ecran() {
   }, 4000);
 
   const annoncer = () => fetch(SHEET, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ seance: { code: SALLE, n: enLigne().size, i: S.i + 1, total: ETAPES.length } }) }).catch(() => { });
-  annoncer(); setInterval(annoncer, 30000);
+  annoncer(); setInterval(annoncer, 30000); declarerVersion();
 
   function exporter() {
-    const L = [['participant', 'prénom', 'étape', 'question', 'réponse', 'note']];
+    const L = [['participant', 'prénom', 'étape', 'question', 'réponse', 'note', 'version']];
     for (const [id, r] of Object.entries(S.rep)) for (const [pid, v] of Object.entries(r)) { const l = ligneRep(id, pid, v); if (l) L.push(l); }
     S.photos.forEach((p, k) => L.push(lignePhoto(p, k)));
     const a = document.createElement('a');
