@@ -100,6 +100,9 @@ p{margin:0}
 .dense .plus{display:block;font-size:16px;line-height:1.3;margin-top:12px;max-width:560px}
 .dense span.plus{display:inline;margin:0}
 
+.fond-couleur{background:#F7C33B}
+.fond-couleur .gratuit{background:#141414;color:#fff}
+
 .leger .chapo,.leger .rs,.leger .lieu .suite{display:none}
 .leger .rows{gap:30px 36px!important;margin-top:44px!important}
 .leger .date{margin-top:44px!important}
@@ -176,6 +179,7 @@ AFFICHES = {
     'leger': (c1, 'c1 leger', TRAMEE),
     'image-couleur': (c1, 'c1', COULEUR),
     'image-dessin': (c1, 'c1', DESSIN),
+    'fond-couleur': (c1, 'c1 fond-couleur', COULEUR),             # un aplat de couleur sur tout le fond (vu sur des affiches repérées sur Pinterest)
 }
 pages = []
 for nom, (compo, classes, img) in AFFICHES.items():
