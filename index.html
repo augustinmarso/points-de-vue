@@ -542,8 +542,8 @@ function ecran() {
       if (q.vote && S.photos[q.k] && !cache) d = `<div class="droite"><figure><img src="${S.photos[q.k].img}" alt="Affiche d'un binôme">${h(S.photos[q.k].mot)}</figure></div>`;
       if (q.cinq && !S.rev && !masque) { clearTimeout(tm); tm = setTimeout(() => { masque = true; dessiner(true); }, 5000); } // vue 5 secondes, puis cachée
       if (e.img && S.rev) d = `<div class="droite"><figure><img src="${e.img}" alt="Affiche du jeu"></figure></div>`;
-      if (vues.length) d = `<div class="droite${vues.length > 1 ? ' deux' : ''}${e.nb ? ' nb' : ''}">${vues.map(v => `<figure>${v.l}<img src="${v.src}" alt="Affiche ${v.l}"></figure>`).join('')}</div>`;
     }
+    if (vues.length) d = `<div class="droite${vues.length > 1 ? ' deux' : ''}${e.nb ? ' nb' : ''}">${vues.map(v => `<figure>${v.l}<img src="${v.src}" alt="Affiche ${v.l}"></figure>`).join('')}</div>`; // aussi pour une page de texte qui a une image
     const prete = q.id && !S.rev && Object.keys(S.rep[q.id] || {}).length;
     app.innerHTML = `<div class="ecran"><div class="barre"><span class="sur">${souci ? h(souci) : ''}</span><div class="gens"></div></div><div class="corps"><div class="gauche">${g}</div>${d}</div></div>
       <div class="cmd"><button class="home" data-a="menu">Menu</button><div class="liste">

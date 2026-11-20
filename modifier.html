@@ -74,6 +74,15 @@ dialog h3{margin:0 0 6px;font-size:24px;font-weight:800;letter-spacing:-.03em}
 .galerie button{border-radius:12px;overflow:hidden;background:var(--fond);text-align:center;font-size:12px;font-weight:700;padding-bottom:6px}
 .galerie img{width:100%;aspect-ratio:1000/1414;object-fit:cover;display:block;margin-bottom:4px}
 .ligne{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.types{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px;margin:16px 0}
+.types button{background:var(--fond);border-radius:18px;padding:16px;text-align:left;display:flex;flex-direction:column;gap:6px;min-height:104px}
+.types b{font-size:18px;font-weight:800;letter-spacing:-.02em}
+.types span{font-size:14px;color:var(--gris)}
+#liste .ajout{position:sticky;top:0;z-index:1;background:var(--fond);padding:6px 0 10px;margin:0;border:0;display:none}
+#liste .ajout .btn{width:100%;justify-content:center}
+body.creatif #liste .ajout{display:block}
+.crea{display:none}
+body.creatif .crea{display:flex}
 .retour{display:none;margin-bottom:14px}
 @media (max-width:900px){.corps{display:block}#liste,#zone{height:100%}#zone{display:none;padding:14px 16px 60px}body.detail #liste{display:none}body.detail #zone{display:block}.retour{display:inline-flex}header{padding:10px 14px;gap:10px}header h1{font-size:20px;flex-basis:auto}#annuler{display:none}}
 </style>
@@ -82,6 +91,7 @@ dialog h3{margin:0 0 6px;font-size:24px;font-weight:800;letter-spacing:-.03em}
 <header>
   <a href="./">← Accueil</a>
   <h1>Modifier le test</h1>
+  <label class="case" style="font-size:15px"><input type="checkbox" id="creatif">Mode créatif</label>
   <span id="etat">Chargement…</span>
   <button class="btn clair" id="annuler" disabled>Annuler mes modifications</button>
   <button class="btn" id="enregistrer" disabled>Enregistrer</button>
@@ -92,6 +102,8 @@ dialog h3{margin:0 0 6px;font-size:24px;font-weight:800;letter-spacing:-.03em}
 </div>
 <dialog id="galerie"><h3>Choisir une affiche</h3><p class="aide">Les images du dossier « affiches » du site.</p><div class="galerie" id="images"></div>
   <div class="ligne"><label class="btn clair">Ajouter une image<input type="file" accept="image/*" hidden id="ajout"></label><button class="btn clair" data-a="fermer">Fermer</button><span class="aide" id="etatImage"></span></div></dialog>
+<dialog id="nouveau"><h3>Ajouter un écran</h3><p class="aide">Il se place juste après l'écran choisi. Vous pourrez ensuite le déplacer.</p><div class="types" id="types"></div>
+  <div class="ligne"><button class="btn clair" data-a="fermer">Fermer</button></div></dialog>
 <dialog id="jeton"><h3>Enregistrer sur le site</h3>
   <p>Pour écrire sur le site, cette page a besoin d'une clé GitHub (un « jeton »). Elle reste dans ce navigateur, sur cet ordinateur.</p>
   <ol class="aide"><li>Ouvrez <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">la création d'un jeton GitHub</a>.</li><li>Accès au dépôt : seulement « points-de-vue ». Permission « Contents » : lecture et écriture.</li><li>Copiez le jeton et collez-le ici.</li></ol>
@@ -117,7 +129,7 @@ const change = () => { const diff = ecrireSeance(M) !== depart; $('enregistrer')
 
 function liste() {
   let n = 0;
-  $('liste').innerHTML = M.ecrans.map((e, i) => `<li data-i="${i}" draggable="${!fixe(i)}" class="${i === sel ? 'sel' : ''}${e.masque ? ' masque' : ''}" style="--c:${COUL(e)}">
+  $('liste').innerHTML = `<li class="ajout"><button type="button" class="btn" data-a="nouveau">+ Ajouter un écran</button></li>` + M.ecrans.map((e, i) => `<li data-i="${i}" draggable="${!fixe(i)}" class="${i === sel ? 'sel' : ''}${e.masque ? ' masque' : ''}" style="--c:${COUL(e)}">
     <span class="num">${e.masque ? '–' : ++n}</span><span class="txt"><small>${h(TYPE(e))}${e.masque ? ' · masqué' : ''}</small><b>${h(TITRE(e))}</b></span>
     <span class="mv"><button data-m="-1" aria-label="Monter" ${fixe(i) || fixe(i - 1) || i === 0 ? 'disabled' : ''}>↑</button><button data-m="1" aria-label="Descendre" ${fixe(i) || fixe(i + 1) || i === M.ecrans.length - 1 ? 'disabled' : ''}>↓</button></span></li>`).join('');
 }
@@ -126,7 +138,7 @@ function deplacer(de, vers) { // jamais avant la salle d'attente ni après la fi
   vers = Math.max(M.ecrans[0].t === 'accueil' ? 1 : 0, Math.min(M.ecrans.length - (M.ecrans[M.ecrans.length - 1].t === 'fin' ? 2 : 1), vers));
   if (vers === de) return;
   const [e] = M.ecrans.splice(de, 1); M.ecrans.splice(vers, 0, e); sel = vers; liste(); change();
-  const li = $('liste').children[sel]; if (li) li.scrollIntoView({ block: 'nearest' });
+  const li = $('liste').querySelector(`[data-i="${sel}"]`); if (li) li.scrollIntoView({ block: 'nearest' });
 }
 
 function apercu(e) {
@@ -145,7 +157,7 @@ const affiche = (nom, k, v) => `<div class="c"><b>${h(nom)}</b><div class="affic
 
 function zone() {
   const e = M.ecrans[sel]; let f = '';
-  if (e.t === 'info') f = champ('Petit titre', 's', e.s) + champ('Grand titre', 'h', e.h) + champ('Phrase', 'x', e.x);
+  if (e.t === 'info') f = champ('Petit titre', 's', e.s) + champ('Grand titre', 'h', e.h) + champ('Phrase', 'x', e.x) + affiche('Image à côté du texte (facultatif)', 'imgs.0', (e.imgs || [])[0]);
   else if (e.t === 'phase') f = champ("Nom de l'étape " + e.p, 'ph.nom', M.phases[e.p].nom) + champ("Phrase d'explication", 'ph.quoi', M.phases[e.p].quoi);
   else if (e.t === 'flash') f = affiche('Affiche montrée 5 secondes', 'img', e.img);
   else if (e.t === 'mission') f = `<label class="c">Les informations à faire passer<small>Une par ligne. La première est celle de la séance.</small><textarea data-k="missions">${h(M.missions.join('\n'))}</textarea></label>`;
@@ -162,6 +174,9 @@ function zone() {
     if (e.t === 'echelle') f += `<label class="case"><input type="checkbox" data-k="nb" ${e.nb ? 'checked' : ''}>Montrer l'affiche en noir et blanc</label>`;
   }
   else f = `<p class="verrou">Cet écran n'a pas de réglage : son contenu est fabriqué par l'appli pendant la séance.</p>`;
+  const libre = ['info', 'flash', 'choix', 'multi', 'echelle', 'ab'].includes(e.t); // les écrans qu'on peut créer, copier, supprimer
+  if (libre && e.t !== 'flash' && !e.jeu) f += `<label class="c crea">Couleur de l'étape<select data-k="p"><option value="">Sans étape (noir)</option>${[1, 2, 3].map(p => `<option value="${p}" ${e.p === p ? 'selected' : ''}>Étape ${p} · ${h(M.phases[p].nom)}</option>`).join('')}</select></label>`;
+  if (libre) f += `<div class="ligne crea"><button type="button" class="btn clair" data-a="dupliquer">Dupliquer cet écran</button><button type="button" class="btn clair" data-a="supprimer">Supprimer cet écran</button></div>`;
   if (!fixe(sel)) f += `<label class="case"><input type="checkbox" data-k="masque" ${e.masque ? 'checked' : ''}>Masquer cet écran pendant la séance</label>`;
   else f += `<p class="verrou">Cet écran reste à sa place : la séance commence et finit toujours par lui.</p>`;
   $('zone').innerHTML = `<button type="button" class="btn clair retour" data-a="retour">← Tous les écrans</button><div id="vue">${apercu(e)}</div><form onsubmit="return false"><h3>${h(TYPE(e))}</h3>${f}</form>`;
@@ -175,6 +190,7 @@ $('zone').addEventListener('input', ev => {
   else if (t.dataset.bon != null) e.bon = +t.dataset.bon;
   else if (k === 'missions') M.missions = t.value.split('\n').map(x => x.trim()).filter(Boolean);
   else if (k === 'multi') e.t = t.checked ? 'multi' : 'choix';
+  else if (k === 'p') { if (t.value) e.p = +t.value; else delete e.p; }
   else if (k === 'nb' || k === 'masque') e[k] = t.checked;
   else if (k && k.startsWith('ph.')) M.phases[e.p][k.slice(3)] = t.value;
   else if (k && k.startsWith('tests.')) { const [, i, c] = k.split('.'); M.tests[+i][c] = t.value; }
@@ -184,23 +200,26 @@ $('zone').addEventListener('input', ev => {
 });
 $('zone').addEventListener('click', ev => {
   const b = ev.target.closest('[data-a]'); if (!b) return; const e = M.ecrans[sel], a = b.dataset.a;
-  if (a === 'retour') { document.body.classList.remove('detail'); const li = $('liste').children[sel]; if (li) li.scrollIntoView({ block: 'center' }); return; }
+  if (a === 'retour') { document.body.classList.remove('detail'); const li = $('liste').querySelector(`[data-i="${sel}"]`); if (li) li.scrollIntoView({ block: 'center' }); return; }
   if (a === 'plus') e.o.push('Nouvelle réponse');
   if (a === 'moins') { const i = +b.dataset.i; e.o.splice(i, 1); if (e.jeu) e.bon = e.bon === i ? 0 : e.bon > i ? e.bon - 1 : e.bon; }
   if (a === 'sansAffiche') e.imgs = [];
+  if (a === 'dupliquer') { M.ecrans.splice(sel + 1, 0, JSON.parse(JSON.stringify({ ...e, id: undefined }))); sel++; }
+  if (a === 'supprimer') { if (!confirm('Supprimer cet écran ? Pour seulement le retirer de la séance, cochez plutôt « Masquer ».')) return; M.ecrans.splice(sel, 1); sel = Math.min(sel, M.ecrans.length - 1); }
   if (a === 'affiche') { cible = b.dataset.k; return galerie(); }
   zone(); liste(); change();
 });
 $('liste').addEventListener('click', ev => {
-  const li = ev.target.closest('li'); if (!li) return; const i = +li.dataset.i, m = ev.target.closest('[data-m]');
+  if (ev.target.closest('[data-a=nouveau]')) return $('nouveau').showModal();
+  const li = ev.target.closest('li[data-i]'); if (!li) return; const i = +li.dataset.i, m = ev.target.closest('[data-m]');
   if (m) return deplacer(i, i + +m.dataset.m);
   sel = i; liste(); zone(); document.body.classList.add('detail'); $('zone').scrollTop = 0; // sur écran étroit, les réglages prennent toute la place
 });
 // glisser-déposer pour changer l'ordre
 let tire = null;
-$('liste').addEventListener('dragstart', ev => { const li = ev.target.closest('li'); if (li) { tire = +li.dataset.i; ev.dataTransfer.effectAllowed = 'move'; } });
-$('liste').addEventListener('dragover', ev => { const li = ev.target.closest('li'); if (tire == null || !li) return; ev.preventDefault(); [...$('liste').children].forEach(x => x.classList.toggle('dessus', x === li)); });
-$('liste').addEventListener('drop', ev => { const li = ev.target.closest('li'); if (tire == null || !li) return; ev.preventDefault(); const vers = +li.dataset.i; deplacer(tire, vers > tire ? vers - 1 : vers); tire = null; });
+$('liste').addEventListener('dragstart', ev => { const li = ev.target.closest('li[data-i]'); if (li) { tire = +li.dataset.i; ev.dataTransfer.effectAllowed = 'move'; } });
+$('liste').addEventListener('dragover', ev => { const li = ev.target.closest('li[data-i]'); if (tire == null || !li) return; ev.preventDefault(); [...$('liste').children].forEach(x => x.classList.toggle('dessus', x === li)); });
+$('liste').addEventListener('drop', ev => { const li = ev.target.closest('li[data-i]'); if (tire == null || !li) return; ev.preventDefault(); const vers = +li.dataset.i; deplacer(tire, vers > tire ? vers - 1 : vers); tire = null; });
 $('liste').addEventListener('dragend', () => { tire = null; liste(); });
 
 // ---------- les affiches ----------
@@ -260,6 +279,28 @@ $('jeton').addEventListener('click', ev => {
   if (a.a === 'copier') navigator.clipboard.writeText(ecrireSeance(M)).then(() => { $('jeton').close(); $('etat').textContent = 'Fichier copié : collez-le dans seance.txt sur GitHub.'; });
 });
 addEventListener('beforeunload', ev => { if (M && ecrireSeance(M) !== depart) ev.preventDefault(); });
+
+// ---------- mode créatif : ajouter des écrans à partir de modèles ----------
+const MODELES = [
+  ['Page libre', 'Un petit titre, un grand titre, une phrase et une image si vous voulez.', () => ({ t: 'info', s: 'Petit titre', h: 'Grand titre', x: 'Votre phrase.' })],
+  ['Question à choix', 'Une question, plusieurs réponses au choix.', p => ({ t: 'choix', q: 'Votre question ?', o: ['Réponse 1', 'Réponse 2', 'Réponse 3'], ...p })],
+  ['Note de 1 à 5', 'Les participants donnent une note.', p => ({ t: 'echelle', q: 'Votre question ?', o: ['1', '2', '3', '4', '5'], a: 'Pas du tout', b: 'Tout à fait', ...p })],
+  ['Comparaison A / B', 'Deux affiches côte à côte, on choisit.', p => ({ t: 'ab', q: 'Laquelle préférez-vous ?', o: ['A', 'B', 'Aucune différence'], imgs: [images[0], images[1] || images[0]], ...p })],
+  ['Affiche 5 secondes', 'Une affiche montrée 5 secondes, puis cachée.', () => ({ t: 'flash', img: images[0] })],
+  ['Question du jeu', 'Une question avec une bonne réponse, qui compte dans les scores.', () => ({ t: 'choix', jeu: 1, q: 'Votre question ?', o: ['La bonne réponse', 'Une autre réponse', 'Une autre réponse'], bon: 0, img: images[0] })]
+];
+$('types').innerHTML = MODELES.map((m, i) => `<button type="button" data-n="${i}"><b>${h(m[0])}</b><span>${h(m[1])}</span></button>`).join('');
+$('nouveau').addEventListener('click', ev => {
+  if (ev.target.closest('[data-a=fermer]')) return $('nouveau').close();
+  const b = ev.target.closest('[data-n]'); if (!b) return;
+  const p = M.ecrans.slice(0, sel + 1).reverse().find(x => x.p), ou = Math.min(sel + 1, M.ecrans.length - (M.ecrans[M.ecrans.length - 1].t === 'fin' ? 1 : 0)); // même étape que l'écran d'avant, jamais après la fin
+  M.ecrans.splice(ou, 0, MODELES[+b.dataset.n][2](p ? { p: p.p } : {})); sel = ou;
+  $('nouveau').close(); liste(); zone(); change(); document.body.classList.add('detail');
+  const li = $('liste').querySelector(`[data-i="${sel}"]`); if (li) li.scrollIntoView({ block: 'center' });
+});
+const modeCreatif = oui => { document.body.classList.toggle('creatif', oui); $('creatif').checked = oui; try { localStorage.setItem('pdvCreatif', oui ? '1' : ''); } catch (e) { } };
+$('creatif').addEventListener('change', ev => modeCreatif(ev.target.checked));
+try { modeCreatif(!!localStorage.getItem('pdvCreatif')); } catch (e) { }
 
 // ---------- démarrage ----------
 function charger() { M = { phases: PHASES, missions: MISSIONS.slice(), tests: TESTS, ecrans: TOUS }; sel = Math.min(sel, M.ecrans.length - 1); liste(); zone(); change(); }

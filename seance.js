@@ -63,7 +63,7 @@ function ecrireSeance(m) { // m = { phases, missions, tests, ecrans }
   for (const e of m.ecrans) {
     if (fixes[e.t]) L.push(`[${fixes[e.t]}]`);
     else if (e.t === 'phase') L.push(`[étape ${e.p}]`);
-    else if (e.t === 'info') L.push(`[texte] ${net(e.s)} | ${net(e.h)} | ${net(e.x)}`);
+    else if (e.t === 'info') { L.push(`[texte] ${net(e.s)} | ${net(e.h)} | ${net(e.x)}`); if (e.p) L.push('étape : ' + e.p); if (net((e.imgs || [])[0])) L.push('affiche : ' + net(e.imgs[0])); }
     else if (e.t === 'flash') L.push(`[5 secondes] ${net(e.img)}${e.p ? ' | étape ' + e.p : ''}`);
     else {
       L.push(`[${e.jeu ? 'jeu' : e.t === 'echelle' ? 'note' : e.t === 'ab' ? 'a ou b' : 'question'}] ${net(e.q)}`);
