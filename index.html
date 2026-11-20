@@ -565,15 +565,11 @@ function ecran() {
     const prete = q.id && !S.rev && Object.keys(S.rep[q.id] || {}).length;
     app.innerHTML = `<div class="ecran"><div class="barre"><span class="sur">${souci ? h(souci) : ''}</span><div class="gens"></div></div><div class="corps"><div class="gauche">${g}</div>${d}</div></div>
       <div class="cmd"><button class="home" data-a="menu">Menu</button><div class="liste">
-        <span>Écran ${S.i + 1} sur ${ETAPES.length} · code ${h(SALLE)}</span>
-        <button data-a="suite">${e.t === 'flash' && !flash ? 'Montrer 5 secondes' : prete ? 'Révéler les réponses' : 'Suite →'} (flèche droite)</button><button data-a="avant">← Retour (flèche gauche)</button>
-        <button data-a="auto">Suite automatique : ${S.auto === false ? 'non' : 'oui'}</button><button data-a="son">Son : ${S.son === false ? 'non' : 'oui'}</button>
-        <label>Tester une autre affiche${affiches.A ? ' ✓' : ''}<input type="file" accept="image/*" hidden data-f="A"></label>
-        <span class="autres"></span>
-        <a href="resultats.html?seance=${h(SALLE)}" target="_blank" rel="noopener">Voir les résultats</a>
+        <span>Écran ${S.i + 1} sur ${ETAPES.length}</span>
+        <button data-a="suite">${e.t === 'flash' && !flash ? 'Montrer 5 secondes' : prete ? 'Révéler les réponses' : 'Suite →'}</button><button data-a="avant">← Retour</button>
+        ${PAPIER ? `<a href="papier.html?vue=lire&seance=${h(SALLE)}" target="_blank" rel="noopener">Photographier les fiches</a>` : `<a href="resultats.html?seance=${h(SALLE)}" target="_blank" rel="noopener">Résultats</a>`}
+        <button data-a="plein">Plein écran</button><button data-a="neuve">Nouvelle séance</button>
         <a href="./" aria-label="Accueil" title="Accueil"><svg viewBox="0 0 24 24" width="1.35em" height="1.35em" fill="currentColor" aria-hidden="true" style="vertical-align:-.3em"><path d="M12 3 2.5 11.2h2.7V21h5.3v-6h3v6h5.3v-9.8h2.7z"/></svg></a>
-        <a href="?ecran${PAPIER ? '' : '&papier'}">Passer en mode ${PAPIER ? 'téléphone' : 'papier'}</a>${PAPIER ? `<a href="papier.html" target="_blank" rel="noopener">Imprimer les fiches A3</a><a href="papier.html?vue=lire&seance=${h(SALLE)}" target="_blank" rel="noopener">Photographier les fiches</a>` : ''}
-        <button data-a="plein">Plein écran</button><button data-a="csv">Télécharger les réponses</button><button data-a="neuve">Nouvelle séance</button>
       </div></div><span class="auto"></span>`;
     maj(); regards();
     const apres = ETAPES[S.i + 1]; if (apres) [...(apres.imgs || []), apres.img].filter(Boolean).forEach(u => { new Image().src = u; }); // l'affiche de l'écran suivant est déjà là quand on y arrive
