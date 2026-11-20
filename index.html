@@ -426,10 +426,7 @@ function ecran() {
     c.on('close', () => { conns.delete(c); maj(); });
     c.on('data', d => {
       if (!d || typeof d !== 'object') return;
-      if (d.k === 'salut') {
-        if ([...conns].some(x => x !== c && x.open && x.pid === texte(d.pid, 20))) return; // un identifiant déjà tenu par un autre téléphone connecté est refusé
-        c.pid = texte(d.pid, 20); S.gens[c.pid] = { nom: texte(d.nom, 24), n: S.gens[c.pid] ? S.gens[c.pid].n : Object.keys(S.gens).length }; 
-      }
+      if (d.k === 'salut') { c.pid = texte(d.pid, 20); S.gens[c.pid] = { nom: texte(d.nom, 24), n: S.gens[c.pid] ? S.gens[c.pid].n : Object.keys(S.gens).length }; }
       if (!c.pid) return;
       if (d.k === 'mission?') { // la mission la moins distribuée, pour que les binômes aient des sujets différents
         const pris = MISSIONS.map((_, m) => Object.entries(S.missions).filter(([pid, x]) => x === m && pid !== c.pid).length), mini = Math.min(...pris);
