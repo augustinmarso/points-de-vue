@@ -40,9 +40,10 @@ h2{display:flex;align-items:center;gap:14px;margin:0;font-size:clamp(28px,4.4vw,
 h2 i{width:.9em;height:.9em;border-radius:50%;background:var(--c);flex:none}
 h2+p{margin:8px 0 0;color:var(--gris)}
 .retenir{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:14px;margin-top:22px}
-.retenir div{background:var(--fond);border-radius:22px;padding:18px 20px;font-size:16px}
+.retenir div{background:var(--fond);border-radius:22px;padding:16px 18px;font-size:16px;display:flex;gap:16px;align-items:center}
+.retenir svg{flex:none}.retenir span{min-width:0}
 .retenir small{display:block;font-weight:800;font-size:14px;color:var(--gris)}
-.retenir b{display:block;font-size:34px;line-height:1;font-weight:800;letter-spacing:-.04em;margin:6px 0}
+.retenir b{display:block;font-size:24px;line-height:1;font-weight:800;letter-spacing:-.04em;margin:6px 0}
 .grille{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,440px),1fr));gap:34px 44px;margin-top:28px}
 article{break-inside:avoid}
 article h3{margin:0;font-size:22px;line-height:1.12;font-weight:800;letter-spacing:-.02em}
@@ -156,21 +157,24 @@ function dessiner() {
   if (tri) Object.values(blocs).forEach(b => b.sort((x, y) => tri === 'fort' ? y[0] - x[0] : x[0] - y[0]));
 
   // ---------- à retenir : quelques constats calculés sur la sélection ----------
-  const R = [], ajoute = (titre, valeur, texte) => R.push(`<div><small>${h(titre)}</small><b>${h(valeur)}</b>${h(texte)}</div>`);
+  // chaque constat a son schéma : un anneau rempli à la hauteur du résultat (deux anneaux l'un dans l'autre pour A et B)
+  const anneau = (L, centre) => `<svg viewBox="0 0 100 100" width="96" height="96" aria-hidden="true">${L.map(([p, c], i) => { const ry = 43 - i * 14, k = 2 * Math.PI * ry;
+    return `<circle cx="50" cy="50" r="${ry}" fill="none" stroke="#fff" stroke-width="11"/><circle cx="50" cy="50" r="${ry}" fill="none" stroke="${c}" stroke-width="11" stroke-linecap="round" stroke-dasharray="${Math.max(.001, Math.min(1, p)) * k} ${k}" transform="rotate(-90 50 50)"/>`; }).join('')}<text x="50" y="${L.length > 1 ? 55 : 57}" text-anchor="middle" font-size="${L.length > 1 ? 15 : 20}" font-weight="800" fill="#141414">${h(centre)}</text></svg>`;
+  const R = [], ajoute = (titre, valeur, texte, L, centre) => R.push(`<div>${L ? anneau(L, centre) : ''}<span><small>${h(titre)}</small><b>${h(valeur)}</b>${h(texte)}</span></div>`);
   const jeux = Q.filter(e => e.bon != null).map(e => [((T.compte[e.q] || {})[e.o[e.bon]] || 0) / T.rep[e.q], e.q]).sort((a, b) => b[0] - a[0]);
-  if (jeux.length) ajoute("L'information la mieux retenue", pc(jeux[0][0]) + ' de bonnes réponses', jeux[0][1]);
-  if (jeux.length > 1) ajoute("L'information la moins retenue", pc(jeux[jeux.length - 1][0]) + ' de bonnes réponses', jeux[jeux.length - 1][1]);
+  if (jeux.length) ajoute("L'information la mieux retenue", pc(jeux[0][0]) + ' de bonnes réponses', jeux[0][1], [[jeux[0][0], '#141414']], pc(jeux[0][0]));
+  if (jeux.length > 1) ajoute("L'information la moins retenue", pc(jeux[jeux.length - 1][0]) + ' de bonnes réponses', jeux[jeux.length - 1][1], [[jeux[jeux.length - 1][0], '#141414']], pc(jeux[jeux.length - 1][0]));
   const notes = Q.filter(e => e.t === 'echelle' && T.notes[e.q]).map(e => [T.notes[e.q][0] / T.notes[e.q][1], e.q]).sort((a, b) => b[0] - a[0]);
-  if (notes.length) ajoute('La meilleure note', fr(notes[0][0]) + ' sur 5', notes[0][1]);
-  if (notes.length > 1) ajoute('La note la plus basse', fr(notes[notes.length - 1][0]) + ' sur 5', notes[notes.length - 1][1]);
+  if (notes.length) ajoute('La meilleure note', fr(notes[0][0]) + ' sur 5', notes[0][1], [[(notes[0][0] - 1) / 4, '#F7C33B']], fr(notes[0][0]));
+  if (notes.length > 1) ajoute('La note la plus basse', fr(notes[notes.length - 1][0]) + ' sur 5', notes[notes.length - 1][1], [[(notes[notes.length - 1][0] - 1) / 4, '#F7C33B']], fr(notes[notes.length - 1][0]));
   // les comparaisons A / B : seulement les trois préférences les plus nettes
   Q.filter(e => e.t === 'ab').map(e => { const c = T.compte[e.q] || {}, x = c.A || 0, y = c.B || 0; return [Math.abs(x - y) / T.rep[e.q], x > y ? 'A' : 'B', Math.max(x, y) / T.rep[e.q], e]; })
-    .filter(x => x[0] > 0).sort((x, y) => y[0] - x[0]).slice(0, 3).forEach(([, g, part, e]) => ajoute('Préférence nette entre A et B', g + ' choisie à ' + pc(part), e.q + (e.note ? ' (' + e.note + ')' : '')));
+    .filter(x => x[0] > 0).sort((x, y) => y[0] - x[0]).slice(0, 3).forEach(([, g, part, e]) => ajoute('Préférence nette entre A et B', g + ' choisie à ' + pc(part), e.q + (e.note ? ' (' + e.note + ')' : ''), [[((T.compte[e.q] || {}).A || 0) / T.rep[e.q], '#F5A0C6'], [((T.compte[e.q] || {}).B || 0) / T.rep[e.q], '#1F6FE0']], g));
   const partage = Q.filter(e => e.t === 'choix' && e.bon == null && T.rep[e.q] > 2).map(e => [accord(T, e.q), e.q]).sort((a, b) => a[0] - b[0])[0];
-  if (partage) ajoute('La question qui divise le plus', pc(partage[0]) + ' pour la réponse en tête', partage[1]);
+  if (partage) ajoute('La question qui divise le plus', pc(partage[0]) + ' pour la réponse en tête', partage[1], [[partage[0], '#1F6FE0']], pc(partage[0]));
   const aff = {}; T.ordre.filter(q => T.groupe[q] === 'Atelier' && T.notes[q]).forEach(q => { const k = q.split(' : ')[0], x = aff[k] = aff[k] || [0, 0]; x[0] += T.notes[q][0]; x[1] += T.notes[q][1]; });
   const mieux = Object.entries(aff).map(([k, x]) => [x[0] / x[1], k]).sort((a, b) => b[0] - a[0])[0];
-  if (mieux) ajoute("L'affiche de binôme la mieux notée", fr(mieux[0]) + ' sur 5', mieux[1] + ', toutes notes confondues');
+  if (mieux) ajoute("L'affiche de binôme la mieux notée", fr(mieux[0]) + ' sur 5', mieux[1] + ', toutes notes confondues', [[(mieux[0] - 1) / 4, '#F7C33B']], fr(mieux[0]));
 
   // ---------- les graphiques : la même sélection, vue d'ensemble ----------
   if (mode) {
