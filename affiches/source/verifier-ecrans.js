@@ -30,12 +30,12 @@ window.__v = () => {
   return [...new Set(out)];
 };
 // grand écran : parcourt toute la séance (avec des réponses déjà enregistrées) et note les défauts de chaque écran dans __res
-window.__parcours = async () => {
+window.__parcours = async (lent = 0) => {
   const pause = ms => new Promise(r => setTimeout(r, ms)), res = {}; window.__res = res; window.__fini = false;
   for (let n = 0; n < 160; n++) {
     await pause(document.body.classList.contains('plein') ? 2400 : 900);
     while (document.querySelector('.flash')) await pause(600);
-    await pause(300);
+    await pause(300 + lent);
     const h1 = (document.querySelector('.gauche h1') || {}).textContent || '', nom = (document.querySelector('.cmd span') || {}).textContent + ' ' + h1.slice(0, 44) + (document.querySelector('.cols,.mots') ? ' [réponses]' : '');
     const pb = __v(); if (pb.length) res[nom] = pb;
     window.__vus = n + 1;
@@ -45,4 +45,7 @@ window.__parcours = async () => {
   window.__fini = true;
 };
 // téléphone : note les défauts de chaque écran au fil de la séance dans __res
-window.__suivre = () => { window.__res = {}; setInterval(() => { const t = document.querySelector('.tel h1, .tel h2'); const nom = (t ? t.textContent : '?').slice(0, 44); const pb = __v(); if (pb.length) __res[nom] = pb; (window.__noms = window.__noms || new Set()).add(nom); }, 500); };
+window.__suivre = () => { // n'examine un écran que 2,5 s après son arrivée, quand les cercles ont fini de bouger
+  window.__res = {}; window.__noms = new Set(); let nom = '', depuis = 0;
+  setInterval(() => { const t = document.querySelector('.tel h1, .tel h2'), n = (t ? t.textContent : '?').slice(0, 44); if (n !== nom) { nom = n; depuis = Date.now(); return; } if (Date.now() - depuis < 2500 || __noms.has(n)) return; __noms.add(n); const pb = __v(); if (pb.length) __res[n] = pb; }, 300);
+};
