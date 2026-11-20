@@ -100,31 +100,38 @@ function declarerVersion() {
 // les questions dans l'ordre, numérotées : sert au test papier, à la fiche réponse et à sa lecture
 const QUESTIONS = () => ETAPES.filter(e => e.id && e.t !== 'vote').map((e, i) => ({ ...e, n: i + 1 }));
 
-// ---------- qui est là : un prénom demandé une fois par appareil, et un journal des actions (onglet « Journal » du Google Sheet) ----------
-// Ce n'est pas un mot de passe : le site est public, le prénom sert seulement à savoir qui a fait quoi.
-const QUI = () => { try { return localStorage.getItem('pdvQui') || ''; } catch (e) { return ''; } };
+// ---------- le compte de l'équipe : adresse et mot de passe, vérifiés par le script Google (onglet « Comptes » du Google Sheet) ----------
+// Les pages de l'équipe (grand écran, modifier, données, papier, participants automatiques) demandent la connexion ;
+// les données et l'historique ne sortent du Google Sheet qu'avec le jeton reçu à la connexion. Les participants n'ont rien à saisir.
+// Le formulaire est un vrai formulaire : le navigateur propose d'enregistrer le mot de passe sur la machine.
+const COMPTE = () => { try { const c = JSON.parse(localStorage.getItem('pdvCompte')); return c && c.jeton ? c : null; } catch (e) { return null; } };
+const QUI = () => (COMPTE() || {}).mail || '';
+const JETON = () => (COMPTE() || {}).jeton || '';
+function deconnexion() { try { localStorage.removeItem('pdvCompte'); } catch (e) { } location.reload(); }
 function journal(quoi, detail = '') {
   if (QUI()) fetch(SCRIPT_GOOGLE, { method: 'POST', mode: 'no-cors', keepalive: true, body: JSON.stringify({ journal: { qui: QUI(), quoi, detail } }) }).catch(() => { });
 }
-function connexion(page) { // demande le prénom s'il manque, puis note la connexion (une fois par onglet et par page)
+function connexion(page) { // rend une promesse tenue une fois la personne connectée ; note la connexion (une fois par onglet et par page)
   const noter = () => { try { if (sessionStorage.getItem('pdvVu' + page)) return; sessionStorage.setItem('pdvVu' + page, 1); } catch (e) { } journal('Connexion', page); };
-  if (QUI()) return noter();
-  const d = document.createElement('dialog');
-  d.style.cssText = 'border:0;border-radius:22px;padding:24px;width:min(420px,92vw);color:#141414;box-shadow:0 10px 60px rgba(20,20,20,.35)';
-  d.innerHTML = `<form method="dialog" style="display:flex;flex-direction:column;gap:12px"><b style="font-size:26px;letter-spacing:-.03em;line-height:1">Qui êtes-vous ?</b>
-    <span>Votre prénom sert à savoir qui a modifié ou lancé quoi. Il est noté dans l'historique.</span>
-    <input required maxlength="40" autocomplete="given-name" placeholder="Votre prénom" aria-label="Votre prénom" style="font:inherit;background:#F3F3F3;border:0;border-radius:14px;padding:12px 14px;min-height:46px">
-    <button style="font:inherit;font-weight:800;background:#141414;color:#fff;border:0;border-radius:99px;padding:10px 20px;min-height:46px;cursor:pointer">Continuer</button></form>`;
-  document.body.appendChild(d);
-  d.addEventListener('cancel', ev => ev.preventDefault());
-  d.addEventListener('close', () => { const v = d.querySelector('input').value.trim(); if (!v) return d.showModal(); try { localStorage.setItem('pdvQui', v); } catch (e) { } d.remove(); noter(); });
-  d.showModal();
+  if (COMPTE()) { noter(); return Promise.resolve(); }
+  return new Promise(fini => {
+    const d = document.createElement('dialog'), champ = 'font:inherit;background:#F3F3F3;border:0;border-radius:14px;padding:12px 14px;min-height:46px;width:100%;box-sizing:border-box';
+    d.style.cssText = 'border:0;border-radius:22px;padding:24px;width:min(420px,92vw);color:#141414;box-shadow:0 10px 60px rgba(20,20,20,.35)';
+    d.innerHTML = `<form style="display:flex;flex-direction:column;gap:12px"><b style="font-size:26px;letter-spacing:-.03em;line-height:1">Connexion de l'équipe</b>
+      <span>Cette page est réservée à l'équipe. À la première connexion, le mot de passe que vous tapez devient le vôtre.</span>
+      <label style="display:flex;flex-direction:column;gap:6px;font-weight:800">Adresse mail<input type="email" name="username" required autocomplete="username" style="${champ}"></label>
+      <label style="display:flex;flex-direction:column;gap:6px;font-weight:800">Mot de passe<input type="password" name="password" required minlength="8" autocomplete="current-password" style="${champ}"></label>
+      <span role="alert" style="font-weight:700;min-height:1.3em"></span>
+      <button style="font:inherit;font-weight:800;background:#141414;color:#fff;border:0;border-radius:99px;padding:10px 20px;min-height:46px;cursor:pointer">Se connecter</button>
+      <a href="./" style="color:inherit;align-self:center">Retour à l'accueil</a></form>`;
+    document.body.appendChild(d); d.addEventListener('cancel', ev => ev.preventDefault());
+    const f = d.querySelector('form'), dit = d.querySelector('[role=alert]'), b = d.querySelector('button');
+    f.addEventListener('submit', ev => { ev.preventDefault(); b.disabled = true; dit.textContent = 'Vérification…';
+      fetch(SCRIPT_GOOGLE, { method: 'POST', body: JSON.stringify({ compte: { mail: f.username.value, passe: f.password.value } }) }).then(x => x.json()).then(x => {
+        if (!x.ok) { b.disabled = false; dit.textContent = x.erreur || 'Connexion refusée.'; return; }
+        try { localStorage.setItem('pdvCompte', JSON.stringify({ mail: x.mail, jeton: x.jeton })); } catch (e) { }
+        d.close(); d.remove(); noter(); fini();
+      }).catch(() => { b.disabled = false; dit.textContent = 'Pas de réponse : vérifiez la connexion internet.'; }); });
+    d.showModal();
+  });
 }
-
-// ---------- le cloisonnement : un appareil entré dans une séance comme participant (QR code ou code) ne voit que la séance ----------
-// Le téléphone est marqué à son entrée (voir index.html). Les pages de l'équipe (accueil, grand écran, modifier, données, papier)
-// le renvoient alors vers l'entrée des participants. Un appareil de l'équipe (qui a déjà donné son prénom) n'est jamais marqué.
-// Pour rendre un appareil à l'équipe : ouvrir le site avec « ?equipe » à la fin de l'adresse.
-try { if (new URLSearchParams(location.search).has('equipe')) localStorage.removeItem('pdvParticipant'); } catch (e) { }
-const estParticipant = () => { try { return !!localStorage.getItem('pdvParticipant') && !localStorage.getItem('pdvQui'); } catch (e) { return false; } };
-if (estParticipant() && !/\/(index\.html)?$/.test(location.pathname)) location.replace('./?passer=tel');

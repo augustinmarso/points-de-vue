@@ -41,7 +41,8 @@ h2 i{width:.9em;height:.9em;border-radius:50%;background:var(--c);flex:none}
 h2+p{margin:8px 0 0;color:var(--gris)}
 .retenir{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:14px;margin-top:22px}
 .retenir div{background:var(--fond);border-radius:22px;padding:16px 18px;font-size:16px;display:flex;gap:16px;align-items:center}
-.retenir svg{flex:none}.retenir span{min-width:0}
+.retenir span{min-width:0}
+.nuage{display:block;width:100%;max-width:1080px;height:auto;margin-top:18px}
 .retenir small{display:block;font-weight:800;font-size:14px;color:var(--gris)}
 .retenir b{display:block;font-size:24px;line-height:1;font-weight:800;letter-spacing:-.04em;margin:6px 0}
 .grille{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,440px),1fr));gap:34px 44px;margin-top:28px}
@@ -93,7 +94,7 @@ article .n{color:var(--gris);font-size:15px;margin:4px 0 12px}
   <label>Chercher une question<input type="search" id="chercher" placeholder="Un mot de la question"></label>
   <label>Ranger les questions<select id="tri"><option value="">Dans l'ordre de la séance</option><option value="fort">Les plus unanimes d'abord</option><option value="faible">Les plus partagées d'abord</option></select></label>
 </div>
-<div class="choix" id="mode" role="group" aria-label="Choisir l'affichage"><button data-m="" aria-pressed="true">Question par question</button><button data-m="g" aria-pressed="false">En graphiques</button><button data-m="h" aria-pressed="false">Historique</button></div>
+<div class="choix" id="mode" role="group" aria-label="Choisir l'affichage"><button data-m="" aria-pressed="true">Question par question</button><button data-m="g" aria-pressed="false">En graphiques</button><button data-m="h" aria-pressed="false">Profil et historique</button></div>
 <div id="vue"></div>
 </main>
 <script src="seance.js"></script>
@@ -119,14 +120,20 @@ function totaux(code) {
 const accord = (T, q) => T.rep[q] ? Math.max(0, ...Object.values(T.compte[q] || {})) / T.rep[q] : 0; // part de la réponse la plus donnée
 
 // ---------- l'historique : qui s'est connecté, qui a fait quoi (onglet « Journal » du Google Sheet) ----------
+let moi = new URLSearchParams(location.search).get('vue') === 'profil'; // l'historique limité à mes propres actions
 function historique() {
   if (!$('vue').querySelector('.histo')) $('vue').innerHTML = `<p class="vide">Chargement de l'historique…</p>`;
-  fetch(SCRIPT_GOOGLE + '?vue=journal').then(x => x.json()).then(L => { if (mode !== 'h') return;
-    $('vue').innerHTML = `<section style="--c:#141414"><h2><i></i>Historique</h2><p>Qui s'est connecté et qui a fait quoi, du plus récent au plus ancien. Vous êtes ici sous le prénom <b>${h(QUI())}</b>. <button id="changer" style="font:inherit;font-weight:700;text-decoration:underline;background:none;border:0;padding:0;cursor:pointer;color:inherit">Changer de prénom</button></p>`
-      + (L.length ? `<table class="histo"><thead><tr><th>Quand</th><th>Qui</th><th>Quoi</th><th>Détail</th></tr></thead><tbody>${L.map(l => `<tr><td>${h(new Date(l[0]).toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }))}</td><td><b>${h(l[1])}</b></td><td>${h(l[2])}</td><td>${h(l[3])}</td></tr>`).join('')}</tbody></table>` : `<p class="vide">Rien pour l'instant.</p>`) + '</section>'; })
+  fetch(SCRIPT_GOOGLE + '?vue=journal&jeton=' + JETON()).then(x => x.json()).then(L => { if (L.refus) return deconnexion(); if (mode !== 'h') return;
+    const miens = L.filter(l => l[1] === QUI()), cnx = miens.filter(l => l[2] === 'Connexion'), quand = x => new Date(x).toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }), V = moi ? miens : L;
+    const lien = 'font:inherit;font-weight:700;text-decoration:underline;background:none;border:0;padding:0;cursor:pointer;color:inherit';
+    $('vue').innerHTML = `<section style="--c:#141414"><h2><i></i>Mon profil</h2><p>Connecté avec <b>${h(QUI())}</b>. <button id="sortir" style="${lien}">Se déconnecter</button></p>
+      <div class="chiffres"><div><b>${cnx.length}</b>connexion${cnx.length > 1 ? 's' : ''}</div><div><b>${miens.length - cnx.length}</b>action${miens.length - cnx.length > 1 ? 's' : ''}</div><div><b>${miens.length ? h(quand(miens[0][0]).slice(0, 5)) : '–'}</b>dernière activité</div></div></section>
+      <section style="--c:#141414"><h2><i></i>Historique</h2><p>${moi ? 'Vos connexions et vos actions' : "Qui s'est connecté et qui a fait quoi"}, du plus récent au plus ancien.</p>
+      <div class="choix" role="group" aria-label="Choisir l'historique"><button data-moi="1" aria-pressed="${moi}">Mon historique</button><button data-moi="" aria-pressed="${!moi}">Toute l'équipe</button></div>`
+      + (V.length ? `<table class="histo"><thead><tr><th>Quand</th><th>Qui</th><th>Quoi</th><th>Détail</th></tr></thead><tbody>${V.map(l => `<tr><td>${h(quand(l[0]))}</td><td><b>${h(l[1])}</b></td><td>${h(l[2])}</td><td>${h(l[3])}</td></tr>`).join('')}</tbody></table>` : `<p class="vide">Rien pour l'instant.</p>`) + '</section>'; })
     .catch(() => { if (mode === 'h') $('vue').innerHTML = `<p class="vide">L'historique ne se charge pas.</p>`; });
 }
-document.addEventListener('click', ev => { if (ev.target.id === 'changer') { try { localStorage.removeItem('pdvQui'); } catch (e) { } connexion('Étudier les données · nouveau prénom'); } });
+document.addEventListener('click', ev => { if (ev.target.id === 'sortir') deconnexion(); const b = ev.target.closest('[data-moi]'); if (b) { moi = !!b.dataset.moi; historique(); } });
 function dessiner() {
   if (mode === 'h') return historique();
   if (!D) return;
@@ -157,10 +164,18 @@ function dessiner() {
   if (tri) Object.values(blocs).forEach(b => b.sort((x, y) => tri === 'fort' ? y[0] - x[0] : x[0] - y[0]));
 
   // ---------- à retenir : quelques constats calculés sur la sélection ----------
-  // chaque constat a son schéma : un anneau rempli à la hauteur du résultat (deux anneaux l'un dans l'autre pour A et B)
-  const anneau = (L, centre) => `<svg viewBox="0 0 100 100" width="96" height="96" aria-hidden="true">${L.map(([p, c], i) => { const ry = 43 - i * 14, k = 2 * Math.PI * ry;
-    return `<circle cx="50" cy="50" r="${ry}" fill="none" stroke="#fff" stroke-width="11"/><circle cx="50" cy="50" r="${ry}" fill="none" stroke="${c}" stroke-width="11" stroke-linecap="round" stroke-dasharray="${Math.max(.001, Math.min(1, p)) * k} ${k}" transform="rotate(-90 50 50)"/>`; }).join('')}<text x="50" y="${L.length > 1 ? 55 : 57}" text-anchor="middle" font-size="${L.length > 1 ? 15 : 20}" font-weight="800" fill="#141414">${h(centre)}</text></svg>`;
-  const R = [], ajoute = (titre, valeur, texte, L, centre) => R.push(`<div>${L ? anneau(L, centre) : ''}<span><small>${h(titre)}</small><b>${h(valeur)}</b>${h(texte)}</span></div>`);
+  // le nuage : un point par question, relié au centre de son étape. Près du centre, la salle est d'accord ; loin, les avis sont partagés.
+  // La taille du point suit le nombre de réponses ; son numéro est celui de la question sur la fiche.
+  const NQ = Object.fromEntries(QUESTIONS().map(e => [e.q, e.n])), W = 270;
+  const groupes = [[0, "Jeu de l'œil", '#141414'], [1, PHASES[1].nom, '#F5A0C6'], [2, PHASES[2].nom, '#F7C33B'], [3, PHASES[3].nom, '#1F6FE0']].map(([p, nom, c]) => ({ nom, c, L: Q.filter(e => (e.p || 0) === p) })).filter(g => g.L.length);
+  const maxRep = Math.max(1, ...Q.map(e => T.rep[e.q]));
+  const nuage = !groupes.length ? '' : `<svg class="nuage" viewBox="0 0 ${groupes.length * W} 300" role="img" aria-label="Nuage de points : pour chaque étape, les questions placées selon l'accord de la salle">` + groupes.map((g, k) => { const cx = k * W + W / 2, cy = 135, clair = g.c === '#1F6FE0' || g.c === '#141414';
+    return [110, 68].map(ry => `<circle cx="${cx}" cy="${cy}" r="${ry}" fill="none" stroke="#D8D8D8" stroke-width="1" stroke-dasharray="2 5"/>`).join('')
+      + g.L.map((e, i) => { const an = i / g.L.length * 2 * Math.PI - Math.PI / 2, acc = Math.min(1, accord(T, e.q)), d = 26 + (1 - acc) * 84; return { e, acc, x: cx + Math.cos(an) * d, y: cy + Math.sin(an) * d, ry: 7 + 8 * Math.sqrt(T.rep[e.q] / maxRep) }; })
+        .map(n => `<line x1="${cx}" y1="${cy}" x2="${n.x}" y2="${n.y}" stroke="${g.c}" stroke-width="1.3" opacity=".55"/><g><title>${h(n.e.q)} : ${pc(n.acc)} d'accord, ${T.rep[n.e.q]} réponse${T.rep[n.e.q] > 1 ? 's' : ''}</title><circle cx="${n.x}" cy="${n.y}" r="${n.ry}" fill="${g.c}"/><text x="${n.x}" y="${n.y + 3.6}" text-anchor="middle" font-size="10" font-weight="800" fill="${clair ? '#fff' : '#141414'}">${NQ[n.e.q] || ''}</text></g>`).join('')
+      + `<circle cx="${cx}" cy="${cy}" r="8" fill="${g.c}"/><text x="${cx}" y="284" text-anchor="middle" font-size="14" font-weight="800" fill="#141414">${h(g.nom)}</text>`; }).join('') + '</svg>'
+    + `<p style="margin:6px 0 0;color:var(--gris);font-size:15px;max-width:900px">Un point par question, avec son numéro. Près du centre : la salle est d'accord. Sur le cercle du milieu : une personne sur deux. Au bord : les avis sont partagés. Plus le point est gros, plus il a reçu de réponses. Passez la souris sur un point pour lire la question.</p>`;
+  const R = [], ajoute = (titre, valeur, texte, L, centre) => R.push(`<div><span><small>${h(titre)}</small><b>${h(valeur)}</b>${h(texte)}</span></div>`);
   const jeux = Q.filter(e => e.bon != null).map(e => [((T.compte[e.q] || {})[e.o[e.bon]] || 0) / T.rep[e.q], e.q]).sort((a, b) => b[0] - a[0]);
   if (jeux.length) ajoute("L'information la mieux retenue", pc(jeux[0][0]) + ' de bonnes réponses', jeux[0][1], [[jeux[0][0], '#141414']], pc(jeux[0][0]));
   if (jeux.length > 1) ajoute("L'information la moins retenue", pc(jeux[jeux.length - 1][0]) + ' de bonnes réponses', jeux[jeux.length - 1][1], [[jeux[jeux.length - 1][0], '#141414']], pc(jeux[jeux.length - 1][0]));
@@ -222,7 +237,7 @@ function dessiner() {
   $('vue').innerHTML =
     `<div class="chiffres"><div><b>${gens}</b>participant${gens > 1 ? 's' : ''}</div><div><b>${seance ? 1 : codes.length}</b>séance${!seance && codes.length > 1 ? 's' : ''}</div><div><b>${total}</b>réponse${total > 1 ? 's' : ''}</div></div>`
     + (U ? `<div class="legende"><span><i class="a"></i>${seance ? 'Séance ' + h(seance) : 'Toutes les séances'}</span><span><i></i>Séance ${h($('comparer').value)} (barre fine, second pourcentage)</span></div>` : '')
-    + (R.length && !mot ? `<section style="--c:#141414"><h2><i></i>À retenir</h2><p>Calculé sur ${seance ? 'la séance ' + h(seance) : 'toutes les séances'}.</p><div class="retenir">${R.join('')}</div></section>` : '')
+    + (R.length && !mot ? `<section style="--c:#141414"><h2><i></i>À retenir</h2><p>Calculé sur ${seance ? 'la séance ' + h(seance) : 'toutes les séances'}.</p>${nuage}<div class="retenir">${R.join('')}</div></section>` : '')
     + (Object.keys(blocs).length ? '' : `<p class="vide">Aucune question ne contient « ${h($('chercher').value)} ».</p>`)
     + Object.keys(titres).filter(g => blocs[g]).map(g => `<section style="--c:${COUL[g] || '#141414'}"><h2><i></i>${h(titres[g][0])}</h2><p>${h(titres[g][1])}</p><div class="grille">${blocs[g].map(x => x[1]).join('')}</div></section>`).join('');
 }
@@ -233,15 +248,15 @@ function charger() {
     lignes: (d.lignes || []).map(l => [texte(l[0]), texte(l[1]), texte(l[2]), texte(l[3]), nb(l[4])]),
     notes: (d.notes || []).map(l => [texte(l[0]), texte(l[1]), texte(l[2]), nb(l[3]), nb(l[4])]),
     repondants: (d.repondants || []).map(l => [texte(l[0]), texte(l[1]), texte(l[2]), nb(l[3])]) });
-  fetch(SOURCE).then(x => x.json()).then(d => { D = propre(d); $('maj').textContent = 'Mis à jour à ' + new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) + '. Résultats anonymes, actualisés toutes les 20 secondes.'; if (document.activeElement !== $('chercher')) dessiner(); })
+  fetch(SOURCE + '&jeton=' + JETON()).then(x => x.json()).then(d => { if (d.refus) return deconnexion(); D = propre(d); $('maj').textContent = 'Mis à jour à ' + new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) + '. Résultats anonymes, actualisés toutes les 20 secondes.'; if (document.activeElement !== $('chercher')) dessiner(); })
     .catch(() => { $('maj').textContent = 'Les résultats ne se chargent pas. Vérifiez la connexion internet.'; });
 }
 $('choix').addEventListener('click', ev => { const b = ev.target.closest('[data-s]'); if (b) { seance = b.dataset.s; history.replaceState(null, '', seance ? '?seance=' + seance : location.pathname); dessiner(); } });
 $('mode').addEventListener('click', ev => { const b = ev.target.closest('[data-m]'); if (b) { mode = b.dataset.m; $('mode').querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x === b)); dessiner(); } });
 ['comparer', 'tri'].forEach(id => $(id).addEventListener('change', dessiner));
 $('chercher').addEventListener('input', dessiner);
-connexion('Étudier les données');
-fetch('seance.txt?' + Date.now()).then(x => x.text()).then(lireSeance).catch(() => { }).then(() => { charger(); setInterval(charger, 20000); });
+if (moi) { mode = 'h'; $('mode').querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x.dataset.m === 'h')); }
+connexion('Étudier les données').then(() => fetch('seance.txt?' + Date.now())).then(x => x.text()).then(lireSeance).catch(() => { }).then(() => { dessiner(); charger(); setInterval(charger, 20000); });
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => { }); // garde le site en mémoire pour les visites suivantes
 </script>
 </body>
