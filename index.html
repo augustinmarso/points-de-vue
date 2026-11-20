@@ -294,10 +294,10 @@ addEventListener('resize', placer);
 function accueilSite() {
   placer();
   const carte = (lien, c, titre, texte) => `<a href="${lien}" style="--c:var(--c${c});--t:var(--t${c})">${tete(c)}<b>${titre}</b><span>${texte}</span></a>`;
-  app.innerHTML = `<div class="site"><p class="sur">Points de vue · habitants testeurs</p><h1>Que voulez-vous faire ?</h1><nav class="trois">
+  app.innerHTML = `<div class="site"><p class="sur">Points de vue · faites tester vos affiches par des habitants</p><h1>Que voulez-vous faire ?</h1><nav class="trois">
     ${carte('?passer', 1, 'Passer le test', "Rejoindre une séance avec son téléphone, l'animer sur le grand écran, ou l'imprimer en version papier.")}
-    ${carte('modifier.html', 2, 'Modifier le test', "Changer l'ordre des écrans, les questions, les réponses et les affiches.")}
-    ${carte('resultats.html', 3, 'Étudier les données', 'Voir les réponses, comparer les séances, ouvrir le Google Sheet.')}
+    ${carte('modifier.html', 2, 'Modifier le test', "Ajouter vos affiches, choisir les questions posées sur chacune, régler l'ordre des écrans.")}
+    ${carte('resultats.html', 3, 'Étudier les données', 'Le verdict affiche par affiche, les graphiques, la comparaison des séances, le Google Sheet.')}
   </nav></div>`;
   regards();
 }

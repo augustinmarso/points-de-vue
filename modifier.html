@@ -229,6 +229,7 @@ function galerie() {
 }
 $('galerie').addEventListener('click', ev => {
   const b = ev.target.closest('[data-img]'); if (ev.target.closest('[data-a=fermer]')) return $('galerie').close(); if (!b) return;
+  if (cible === 'parcours') { $('galerie').close(); return inserer(p => parcours(b.dataset.img, p)); }
   const e = M.ecrans[sel]; if (cible === 'img') e.img = b.dataset.img; else { e.imgs = e.imgs || []; e.imgs[+cible.split('.')[1]] = b.dataset.img; }
   $('galerie').close(); zone(); liste(); change();
 });
@@ -281,7 +282,23 @@ $('jeton').addEventListener('click', ev => {
 addEventListener('beforeunload', ev => { if (M && ecrireSeance(M) !== depart) ev.preventDefault(); });
 
 // ---------- ajouter un écran à partir d'un modèle ----------
+// le parcours type d'une affiche : vue 5 secondes, ce qu'on a vu, trois notes, un avis. Le nom de l'affiche est dans chaque question
+// pour que les réponses de deux affiches ne se mélangent jamais dans les données.
+const parcours = (img, p) => { const n = img.split('/').pop().replace(/\.[^.]+$/, ''), cinq = ['1', '2', '3', '4', '5']; return [
+  { t: 'flash', img, ...p },
+  { t: 'choix', q: n + " : qu'avez-vous vu en premier ?", o: ['Le titre', "L'image", 'La date ou le lieu', 'Les couleurs', 'Rien de précis'], ...p },
+  { t: 'echelle', q: n + ' : le texte se lit-il facilement ?', o: cinq, a: 'Très difficilement', b: 'Très facilement', imgs: [img], ...p },
+  { t: 'echelle', q: n + " : comprend-on vite de quoi il s'agit ?", o: cinq, a: 'Pas du tout', b: 'Tout de suite', imgs: [img], ...p },
+  { t: 'echelle', q: n + " : donne-t-elle envie d'y aller ?", o: cinq, a: 'Pas du tout', b: 'Beaucoup', imgs: [img], ...p },
+  { t: 'texte', q: n + ' : que changeriez-vous ?', imgs: [img], ...p }]; };
+function inserer(faire) { // juste après l'écran choisi, dans la même étape, jamais après la fin
+  const p = M.ecrans.slice(0, sel + 1).reverse().find(x => x.p), ou = Math.min(sel + 1, M.ecrans.length - (M.ecrans[M.ecrans.length - 1].t === 'fin' ? 1 : 0));
+  M.ecrans.splice(ou, 0, ...[].concat(faire(p ? { p: p.p } : {}))); sel = ou;
+  liste(); zone(); change(); document.body.classList.add('detail');
+  const li = $('liste').querySelector(`[data-i="${sel}"]`); if (li) li.scrollIntoView({ block: 'center' });
+}
 const MODELES = [
+  ['Une affiche à tester', "Choisissez votre affiche : ses écrans s'ajoutent d'un coup (5 secondes, ce qu'on a vu, trois notes, un avis libre). Tout reste modifiable.", 'affiche'],
   ['Page libre', 'Un petit titre, un grand titre, une phrase et une image si vous voulez.', () => ({ t: 'info', s: 'Petit titre', h: 'Grand titre', x: 'Votre phrase.' })],
   ['Question à choix', 'Une question, plusieurs réponses au choix.', p => ({ t: 'choix', q: 'Votre question ?', o: ['Réponse 1', 'Réponse 2', 'Réponse 3'], ...p })],
   ['Note de 1 à 5', 'Les participants donnent une note.', p => ({ t: 'echelle', q: 'Votre question ?', o: ['1', '2', '3', '4', '5'], a: 'Pas du tout', b: 'Tout à fait', ...p })],
@@ -296,10 +313,9 @@ $('types').innerHTML = MODELES.map((m, i) => `<button type="button" data-n="${i}
 $('nouveau').addEventListener('click', ev => {
   if (ev.target.closest('[data-a=fermer]')) return $('nouveau').close();
   const b = ev.target.closest('[data-n]'); if (!b) return;
-  const p = M.ecrans.slice(0, sel + 1).reverse().find(x => x.p), ou = Math.min(sel + 1, M.ecrans.length - (M.ecrans[M.ecrans.length - 1].t === 'fin' ? 1 : 0)); // même étape que l'écran d'avant, jamais après la fin
-  M.ecrans.splice(ou, 0, MODELES[+b.dataset.n][2](p ? { p: p.p } : {})); sel = ou;
-  $('nouveau').close(); liste(); zone(); change(); document.body.classList.add('detail');
-  const li = $('liste').querySelector(`[data-i="${sel}"]`); if (li) li.scrollIntoView({ block: 'center' });
+  const m = MODELES[+b.dataset.n][2]; $('nouveau').close();
+  if (m === 'affiche') { cible = 'parcours'; return galerie(); } // d'abord choisir (ou ajouter) l'affiche
+  inserer(m);
 });
 // ---------- démarrage ----------
 function charger() { M = { phases: PHASES, missions: MISSIONS.slice(), tests: TESTS, ecrans: TOUS }; sel = Math.min(sel, M.ecrans.length - 1); liste(); zone(); change(); }
