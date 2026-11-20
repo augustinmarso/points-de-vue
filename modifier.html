@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Points de vue · modifier le test</title>
+<link rel="icon" href="icone.png"><link rel="apple-touch-icon" href="icone.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Scoutie+Sans:wght@200..800&display=swap">
+<style>
+:root{--n:#141414;--gris:#6B6B6B;--fond:#F3F3F3;--c1:#F5A0C6;--c2:#F7C33B;--c3:#1F6FE0;--t1:#FDE7F1;--t2:#FDF0CC;--t3:#DCE9FB}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:#fff;color:var(--n);font-family:'Scoutie Sans',Helvetica,Arial,sans-serif;font-size:16px;line-height:1.3;display:flex;flex-direction:column}
+button,input,textarea,select{font:inherit;color:inherit}
+button{border:0;background:none;cursor:pointer;padding:0}
+:focus-visible{outline:3px solid var(--c3);outline-offset:2px}
+header{display:flex;align-items:center;gap:16px;padding:12px 20px;flex:none;flex-wrap:wrap}
+header a{color:inherit;font-weight:700}
+header h1{margin:0;font-size:24px;font-weight:800;letter-spacing:-.04em;flex:1}
+#etat{font-size:14px;color:var(--gris);font-weight:700}
+.btn{background:var(--n);color:#fff;font-weight:800;border-radius:99px;padding:10px 20px;min-height:44px;display:inline-flex;align-items:center;text-decoration:none}
+.btn.clair{background:var(--fond);color:var(--n)}
+.btn[disabled]{opacity:.35;cursor:default}
+.corps{flex:1;min-height:0;display:grid;grid-template-columns:330px minmax(0,1fr)}
+/* la colonne des écrans, comme les diapositives d'un diaporama */
+#liste{margin:0;padding:8px 10px 40px 14px;list-style:none;overflow:auto;background:var(--fond)}
+#liste li{display:flex;align-items:center;gap:10px;padding:8px 8px 8px 6px;border-radius:14px;cursor:pointer;margin-bottom:4px;background:#fff;border-left:8px solid var(--c,#141414)}
+#liste li.sel{box-shadow:0 0 0 3px var(--n)}
+#liste li.masque{opacity:.45}
+#liste li.dessus{box-shadow:0 -4px 0 0 var(--c3)}
+#liste .num{width:1.7em;flex:none;text-align:right;font-weight:800;color:var(--gris);font-size:14px}
+#liste .txt{flex:1;min-width:0}
+#liste small{display:block;font-size:12px;font-weight:700;color:var(--gris)}
+#liste b{display:block;font-size:14px;line-height:1.15;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#liste .mv{display:flex;flex-direction:column;gap:2px;flex:none}
+#liste .mv button{width:30px;height:22px;border-radius:8px;background:var(--fond);font-weight:800;line-height:1}
+#liste .mv button[disabled]{opacity:.25}
+/* la zone de travail : l'aperçu de l'écran, puis ce qu'on peut y changer */
+#zone{overflow:auto;padding:14px 26px 60px}
+.apercu{aspect-ratio:16/9;max-width:760px;container-type:inline-size;background:#fff;border-radius:18px;box-shadow:0 4px 24px rgba(20,20,20,.16);overflow:hidden;position:relative}
+.apercu .in{position:absolute;inset:0;padding:5cqw;font-size:2.1cqw;display:flex;gap:3cqw}
+.apercu .g{flex:1;min-width:0;display:flex;flex-direction:column;gap:1.6cqw}
+.apercu .sur{font-weight:700}
+.apercu h2{margin:0;font-size:5cqw;line-height:.92;font-weight:800;letter-spacing:-.05em}
+.apercu .opts{display:flex;flex-wrap:wrap;gap:1cqw;margin-top:auto}
+.apercu .opts span{background:var(--t);border-radius:3cqw;padding:.8cqw 1.6cqw;font-weight:700;font-size:1.8cqw}
+.apercu .opts span.bon{background:var(--n);color:#fff}
+.apercu .d{display:flex;gap:1.5cqw;align-items:center;flex:none}
+.apercu .d img{max-height:100%;max-width:26cqw;border-radius:1.5cqw;display:block}
+.apercu .d.deux img{max-width:19cqw}
+.apercu.plein{background:var(--c)}
+.apercu.plein.p3{color:#fff}
+.apercu.cache::after{content:'Écran masqué : il ne passe pas pendant la séance';position:absolute;inset:auto 0 0 0;background:var(--n);color:#fff;font-weight:700;font-size:14px;padding:8px 16px}
+form{max-width:760px;margin-top:22px;display:flex;flex-direction:column;gap:16px}
+form h3{margin:0;font-size:22px;font-weight:800;letter-spacing:-.03em}
+label.c{display:flex;flex-direction:column;gap:6px;font-weight:800}
+label.c small,.aide{font-weight:400;color:var(--gris);font-size:14px}
+input[type=text],textarea,select{background:var(--fond);border:0;border-radius:14px;padding:12px 14px;width:100%;font-weight:400;min-height:46px}
+textarea{resize:vertical;min-height:110px}
+.rep{display:flex;gap:8px;align-items:center}
+.rep input[type=radio]{width:22px;height:22px;flex:none;accent-color:var(--n)}
+.rep button{width:40px;height:40px;border-radius:50%;background:var(--fond);font-weight:800;flex:none}
+.case{display:flex;align-items:center;gap:10px;font-weight:800}
+.case input{width:22px;height:22px;accent-color:var(--n)}
+.affiche{display:flex;align-items:center;gap:14px}
+.affiche img{width:74px;height:104px;object-fit:cover;border-radius:10px;background:var(--fond);flex:none}
+.verrou{background:var(--fond);border-radius:14px;padding:14px 16px;color:var(--gris);font-size:15px}
+dialog{border:0;border-radius:22px;padding:22px;max-width:min(880px,92vw);box-shadow:0 10px 60px rgba(20,20,20,.35)}
+dialog::backdrop{background:rgba(20,20,20,.45)}
+dialog h3{margin:0 0 6px;font-size:24px;font-weight:800;letter-spacing:-.03em}
+.galerie{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:12px;margin:16px 0}
+.galerie button{border-radius:12px;overflow:hidden;background:var(--fond);text-align:center;font-size:12px;font-weight:700;padding-bottom:6px}
+.galerie img{width:100%;aspect-ratio:1000/1414;object-fit:cover;display:block;margin-bottom:4px}
+.ligne{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+@media (max-width:820px){.corps{grid-template-columns:1fr;grid-template-rows:38vh minmax(0,1fr)}}
+</style>
+</head>
+<body>
+<header>
+  <a href="./">← Accueil</a>
+  <h1>Modifier le test</h1>
+  <span id="etat">Chargement…</span>
+  <button class="btn clair" id="annuler" disabled>Annuler mes modifications</button>
+  <button class="btn" id="enregistrer" disabled>Enregistrer</button>
+</header>
+<div class="corps">
+  <ol id="liste" aria-label="Les écrans de la séance"></ol>
+  <div id="zone"></div>
+</div>
+<dialog id="galerie"><h3>Choisir une affiche</h3><p class="aide">Les images du dossier « affiches » du site.</p><div class="galerie" id="images"></div>
+  <div class="ligne"><label class="btn clair">Ajouter une image<input type="file" accept="image/*" hidden id="ajout"></label><button class="btn clair" data-a="fermer">Fermer</button><span class="aide" id="etatImage"></span></div></dialog>
+<dialog id="jeton"><h3>Enregistrer sur le site</h3>
+  <p>Pour écrire sur le site, cette page a besoin d'une clé GitHub (un « jeton »). Elle reste dans ce navigateur, sur cet ordinateur.</p>
+  <ol class="aide"><li>Ouvrez <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">la création d'un jeton GitHub</a>.</li><li>Accès au dépôt : seulement « points-de-vue ». Permission « Contents » : lecture et écriture.</li><li>Copiez le jeton et collez-le ici.</li></ol>
+  <label class="c">Jeton GitHub<input type="text" id="cle" autocomplete="off" spellcheck="false"></label>
+  <p class="ligne" style="margin-top:14px"><button class="btn" data-a="garderCle">Garder ce jeton et enregistrer</button><button class="btn clair" data-a="copier">Sans jeton : copier le fichier</button><button class="btn clair" data-a="fermer">Fermer</button></p>
+  <p class="aide">Sans jeton : le fichier est copié, vous le collez à la place de l'ancien dans <a href="https://github.com/augustinmarso/points-de-vue/edit/main/seance.txt" target="_blank" rel="noopener">seance.txt sur GitHub</a>.</p></dialog>
+<script src="seance.js"></script>
+<script>
+// Éditeur de la séance : la liste des écrans à gauche (ordre modifiable), l'aperçu et les réglages de l'écran choisi à droite.
+// Volontairement limité : on change les textes, les réponses, les affiches, l'ordre, et on masque un écran ;
+// on ne change pas le type d'un écran et on n'en crée pas. Le résultat est le fichier seance.txt du site.
+const DEPOT = 'https://api.github.com/repos/augustinmarso/points-de-vue/contents/';
+const h = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const $ = id => document.getElementById(id);
+let M = null, depart = '', sel = 0, images = [], cible = null; // cible = le champ d'affiche en cours de choix
+
+const TYPE = e => ({ accueil: "Salle d'attente", scores: 'Scores du jeu', mission: "Atelier : la consigne", photo: "Atelier : les photos", vote: "Atelier : les tests", palmares: "Atelier : le palmarès", fin: 'Fin', info: 'Texte', flash: 'Affiche 5 secondes', echelle: 'Note de 1 à 5', ab: 'Comparaison A / B' }[e.t]
+  || (e.t === 'phase' ? "Titre d'étape" : e.jeu ? 'Question du jeu' : 'Question à choix'));
+const TITRE = e => e.q || e.h || (e.t === 'phase' ? M.phases[e.p].nom : e.t === 'flash' ? (e.img || '').split('/').pop() : TYPE(e));
+const COUL = e => e.p ? `var(--c${e.p})` : '#141414';
+const fixe = i => (i === 0 && M.ecrans[0].t === 'accueil') || (i === M.ecrans.length - 1 && M.ecrans[i].t === 'fin'); // le début et la fin ne bougent pas
+const change = () => { const diff = ecrireSeance(M) !== depart; $('enregistrer').disabled = $('annuler').disabled = !diff; $('etat').textContent = diff ? 'Modifications non enregistrées' : 'Tout est enregistré'; };
+
+function liste() {
+  let n = 0;
+  $('liste').innerHTML = M.ecrans.map((e, i) => `<li data-i="${i}" draggable="${!fixe(i)}" class="${i === sel ? 'sel' : ''}${e.masque ? ' masque' : ''}" style="--c:${COUL(e)}">
+    <span class="num">${e.masque ? '–' : ++n}</span><span class="txt"><small>${h(TYPE(e))}${e.masque ? ' · masqué' : ''}</small><b>${h(TITRE(e))}</b></span>
+    <span class="mv"><button data-m="-1" aria-label="Monter" ${fixe(i) || fixe(i - 1) || i === 0 ? 'disabled' : ''}>↑</button><button data-m="1" aria-label="Descendre" ${fixe(i) || fixe(i + 1) || i === M.ecrans.length - 1 ? 'disabled' : ''}>↓</button></span></li>`).join('');
+}
+function deplacer(de, vers) { // jamais avant la salle d'attente ni après la fin
+  if (fixe(de)) return;
+  vers = Math.max(M.ecrans[0].t === 'accueil' ? 1 : 0, Math.min(M.ecrans.length - (M.ecrans[M.ecrans.length - 1].t === 'fin' ? 2 : 1), vers));
+  if (vers === de) return;
+  const [e] = M.ecrans.splice(de, 1); M.ecrans.splice(vers, 0, e); sel = vers; liste(); change();
+  const li = $('liste').children[sel]; if (li) li.scrollIntoView({ block: 'nearest' });
+}
+
+function apercu(e) {
+  const im = (e.jeu || e.t === 'flash' ? [e.img] : e.imgs || []).filter(Boolean), t = e.p ? `--t:var(--t${e.p});--c:var(--c${e.p})` : '--t:var(--fond);--c:#141414';
+  let g = '', cls = '';
+  if (e.t === 'phase') { cls = ' plein p' + e.p; g = `<div class="sur">Étape ${e.p} sur 3</div><h2>${h(M.phases[e.p].nom)}</h2><b>${h(M.phases[e.p].quoi)}</b>`; }
+  else if (e.t === 'info') g = `<div class="sur">${h(e.s)}</div><h2>${h(e.h)}</h2><b>${h(e.x)}</b>`;
+  else if (e.t === 'flash') g = `<div class="sur">Affiche montrée 5 secondes</div><h2>Le test des 5 secondes</h2>`;
+  else if (e.q != null) g = `<div class="sur">${e.p ? 'Étape ' + e.p + ' · ' + h(M.phases[e.p].nom) : e.jeu ? "Le jeu de l'œil" : ''}</div><h2>${h(e.q)}</h2>${e.note ? `<div>${h(e.note)}</div>` : ''}
+    <div class="opts">${(e.t === 'echelle' ? ['1 · ' + e.a, '2', '3', '4', '5 · ' + e.b] : e.o).map((o, i) => `<span class="${e.jeu && i === e.bon ? 'bon' : ''}">${h(o)}</span>`).join('')}</div>`;
+  else g = `<div class="sur">${h(TYPE(e))}</div><h2>${h({ accueil: 'Bienvenue !', scores: 'Les réussites', mission: "Fabriquez l'affiche qui fait le mieux passer cette information", photo: 'Vos affiches', vote: 'Les tests des affiches', palmares: 'Le palmarès', fin: 'Merci !' }[e.t])}</h2>${e.t === 'mission' ? `<b>${h(M.missions[0])}</b>` : ''}`;
+  return `<div class="apercu${cls}${e.masque ? ' cache' : ''}" style="${t}"><div class="in"><div class="g">${g}</div>${im.length ? `<div class="d${im.length > 1 ? ' deux' : ''}">${im.map(s => `<img src="${h(s)}" alt="">`).join('')}</div>` : ''}</div></div>`;
+}
+const champ = (nom, k, v, aide) => `<label class="c">${h(nom)}${aide ? `<small>${h(aide)}</small>` : ''}<input type="text" data-k="${k}" value="${h(v)}"></label>`;
+const affiche = (nom, k, v) => `<div class="c"><b>${h(nom)}</b><div class="affiche">${v ? `<img src="${h(v)}" alt="">` : ''}<span>${h(v ? v.split('/').pop() : 'Aucune affiche')}</span><button type="button" class="btn clair" data-a="affiche" data-k="${k}">Changer l'affiche</button>${v && k === 'imgs.0' && M.ecrans[sel].t !== 'ab' ? `<button type="button" class="btn clair" data-a="sansAffiche">Retirer</button>` : ''}</div></div>`;
+
+function zone() {
+  const e = M.ecrans[sel]; let f = '';
+  if (e.t === 'info') f = champ('Petit titre', 's', e.s) + champ('Grand titre', 'h', e.h) + champ('Phrase', 'x', e.x);
+  else if (e.t === 'phase') f = champ("Nom de l'étape " + e.p, 'ph.nom', M.phases[e.p].nom) + champ("Phrase d'explication", 'ph.quoi', M.phases[e.p].quoi);
+  else if (e.t === 'flash') f = affiche('Affiche montrée 5 secondes', 'img', e.img);
+  else if (e.t === 'mission') f = `<label class="c">Les informations à faire passer<small>Une par ligne. La première est celle de la séance.</small><textarea data-k="missions">${h(M.missions.join('\n'))}</textarea></label>`;
+  else if (e.t === 'vote') f = `<p class="aide">Chaque affiche de binôme reçoit ces notes de 1 à 5, dans cet ordre.</p>` + M.tests.map((t, i) => `<div class="c"><b>Test ${i + 1}${t.cinq ? ' (affiche cachée au bout de 5 secondes)' : ''}</b>${`<input type="text" data-k="tests.${i}.q" value="${h(t.q)}" aria-label="Question du test ${i + 1}">`}<div class="rep"><input type="text" data-k="tests.${i}.a" value="${h(t.a)}" aria-label="Sens de la note 1"><input type="text" data-k="tests.${i}.b" value="${h(t.b)}" aria-label="Sens de la note 5"></div></div>`).join('');
+  else if (e.q != null) {
+    f = champ('La question', 'q', e.q);
+    if (!e.jeu) f += champ('Précision sous la question', 'note', e.note || '', 'Facultatif.');
+    if (e.t === 'echelle') f += `<div class="rep">${champ('La note 1 veut dire', 'a', e.a)}${champ('La note 5 veut dire', 'b', e.b)}</div>`;
+    else if (e.t !== 'ab') f += `<div class="c"><b>Les réponses</b>${e.jeu ? '<small class="aide">Cochez la bonne réponse.</small>' : ''}${e.o.map((o, i) => `<div class="rep">${e.jeu ? `<input type="radio" name="bon" data-bon="${i}" ${i === e.bon ? 'checked' : ''} aria-label="Bonne réponse">` : ''}<input type="text" data-o="${i}" value="${h(o)}" aria-label="Réponse ${i + 1}"><button type="button" data-a="moins" data-i="${i}" aria-label="Retirer cette réponse" ${e.o.length < 3 ? 'disabled' : ''}>×</button></div>`).join('')}
+      <button type="button" class="btn clair" data-a="plus" ${e.o.length > 8 ? 'disabled' : ''} style="align-self:flex-start">Ajouter une réponse</button></div>`;
+    if (e.t === 'choix' && !e.jeu || e.t === 'multi') f += `<label class="case"><input type="checkbox" data-k="multi" ${e.t === 'multi' ? 'checked' : ''}>Plusieurs réponses possibles</label>`;
+    if (e.t === 'ab') f += affiche('Affiche A', 'imgs.0', (e.imgs || [])[0]) + affiche('Affiche B', 'imgs.1', (e.imgs || [])[1]);
+    else f += affiche(e.jeu ? 'Affiche montrée avec la bonne réponse' : 'Affiche montrée à côté de la question', e.jeu ? 'img' : 'imgs.0', e.jeu ? e.img : (e.imgs || [])[0]);
+    if (e.t === 'echelle') f += `<label class="case"><input type="checkbox" data-k="nb" ${e.nb ? 'checked' : ''}>Montrer l'affiche en noir et blanc</label>`;
+  }
+  else f = `<p class="verrou">Cet écran n'a pas de réglage : son contenu est fabriqué par l'appli pendant la séance.</p>`;
+  if (!fixe(sel)) f += `<label class="case"><input type="checkbox" data-k="masque" ${e.masque ? 'checked' : ''}>Masquer cet écran pendant la séance</label>`;
+  else f += `<p class="verrou">Cet écran reste à sa place : la séance commence et finit toujours par lui.</p>`;
+  $('zone').innerHTML = `<div id="vue">${apercu(e)}</div><form onsubmit="return false"><h3>${h(TYPE(e))}</h3>${f}</form>`;
+}
+const rafraichir = () => { $('vue').innerHTML = apercu(M.ecrans[sel]); liste(); change(); };
+
+// ---------- les modifications ----------
+$('zone').addEventListener('input', ev => {
+  const e = M.ecrans[sel], t = ev.target, k = t.dataset.k;
+  if (t.dataset.o != null) e.o[+t.dataset.o] = t.value;
+  else if (t.dataset.bon != null) e.bon = +t.dataset.bon;
+  else if (k === 'missions') M.missions = t.value.split('\n').map(x => x.trim()).filter(Boolean);
+  else if (k === 'multi') e.t = t.checked ? 'multi' : 'choix';
+  else if (k === 'nb' || k === 'masque') e[k] = t.checked;
+  else if (k && k.startsWith('ph.')) M.phases[e.p][k.slice(3)] = t.value;
+  else if (k && k.startsWith('tests.')) { const [, i, c] = k.split('.'); M.tests[+i][c] = t.value; }
+  else if (k) e[k] = t.value;
+  else return;
+  rafraichir();
+});
+$('zone').addEventListener('click', ev => {
+  const b = ev.target.closest('[data-a]'); if (!b) return; const e = M.ecrans[sel], a = b.dataset.a;
+  if (a === 'plus') e.o.push('Nouvelle réponse');
+  if (a === 'moins') { const i = +b.dataset.i; e.o.splice(i, 1); if (e.jeu) e.bon = e.bon === i ? 0 : e.bon > i ? e.bon - 1 : e.bon; }
+  if (a === 'sansAffiche') e.imgs = [];
+  if (a === 'affiche') { cible = b.dataset.k; return galerie(); }
+  zone(); liste(); change();
+});
+$('liste').addEventListener('click', ev => {
+  const li = ev.target.closest('li'); if (!li) return; const i = +li.dataset.i, m = ev.target.closest('[data-m]');
+  if (m) return deplacer(i, i + +m.dataset.m);
+  sel = i; liste(); zone();
+});
+// glisser-déposer pour changer l'ordre
+let tire = null;
+$('liste').addEventListener('dragstart', ev => { const li = ev.target.closest('li'); if (li) { tire = +li.dataset.i; ev.dataTransfer.effectAllowed = 'move'; } });
+$('liste').addEventListener('dragover', ev => { const li = ev.target.closest('li'); if (tire == null || !li) return; ev.preventDefault(); [...$('liste').children].forEach(x => x.classList.toggle('dessus', x === li)); });
+$('liste').addEventListener('drop', ev => { const li = ev.target.closest('li'); if (tire == null || !li) return; ev.preventDefault(); const vers = +li.dataset.i; deplacer(tire, vers > tire ? vers - 1 : vers); tire = null; });
+$('liste').addEventListener('dragend', () => { tire = null; liste(); });
+
+// ---------- les affiches ----------
+function galerie() {
+  $('images').innerHTML = images.map(s => `<button type="button" data-img="${h(s)}"><img src="${h(s)}" alt="" loading="lazy">${h(s.split('/').pop())}</button>`).join('');
+  $('etatImage').textContent = ''; $('galerie').showModal();
+}
+$('galerie').addEventListener('click', ev => {
+  const b = ev.target.closest('[data-img]'); if (ev.target.closest('[data-a=fermer]')) return $('galerie').close(); if (!b) return;
+  const e = M.ecrans[sel]; if (cible === 'img') e.img = b.dataset.img; else { e.imgs = e.imgs || []; e.imgs[+cible.split('.')[1]] = b.dataset.img; }
+  $('galerie').close(); zone(); liste(); change();
+});
+$('ajout').addEventListener('change', async ev => { // une nouvelle image : réduite, puis déposée dans le dossier « affiches » du site
+  const f = ev.target.files[0]; if (!f) return; if (!cle()) { $('galerie').close(); return $('jeton').showModal(); }
+  $('etatImage').textContent = 'Envoi de l’image…';
+  try {
+    const img = await new Promise((ok, ko) => { const i = new Image(); i.onload = () => ok(i); i.onerror = ko; i.src = URL.createObjectURL(f); });
+    const k = Math.min(1, 1414 / Math.max(img.width, img.height)), c = document.createElement('canvas'); c.width = img.width * k; c.height = img.height * k; c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+    const nom = 'affiches/' + (f.name.replace(/\.[^.]+$/, '').normalize('NFD').replace(/[^a-zA-Z0-9]+/g, '-').replace(/^-|-$/g, '').toLowerCase().slice(0, 40) || 'image') + '.jpg';
+    await ecrire(nom, c.toDataURL('image/jpeg', .84).split(',')[1], "Affiche ajoutée depuis l'éditeur");
+    if (!images.includes(nom)) images.push(nom); galerie(); $('etatImage').textContent = 'Image ajoutée. Elle sera visible sur le site dans une à deux minutes.';
+  } catch (err) { $('etatImage').textContent = "L'image n'a pas pu être envoyée (" + err.message + ').'; }
+  ev.target.value = '';
+});
+
+// ---------- enregistrer : écrire seance.txt dans le dépôt GitHub du site ----------
+const cle = () => { try { return localStorage.getItem('pdvJeton') || ''; } catch (e) { return ''; } };
+const b64 = s => { const o = new TextEncoder().encode(s); let x = ''; for (let i = 0; i < o.length; i += 8000) x += String.fromCharCode(...o.subarray(i, i + 8000)); return btoa(x); };
+async function ecrire(chemin, contenu64, message) {
+  const H = { Authorization: 'Bearer ' + cle(), Accept: 'application/vnd.github+json' };
+  const avant = await fetch(DEPOT + chemin + '?ref=main', { headers: H });
+  if (avant.status === 401 || avant.status === 403) throw new Error('jeton refusé');
+  const sha = avant.ok ? (await avant.json()).sha : undefined;
+  const r = await fetch(DEPOT + chemin, { method: 'PUT', headers: H, body: JSON.stringify({ message, content: contenu64, sha, branch: 'main' }) });
+  if (!r.ok) throw new Error(r.status === 401 || r.status === 403 || r.status === 404 ? 'jeton refusé ou sans droit d’écriture' : 'erreur ' + r.status);
+}
+function verifier() { // ce qui empêcherait une question de passer
+  for (const [i, e] of M.ecrans.entries()) {
+    if (e.q != null && !e.q.trim()) return [i, 'Cette question est vide.'];
+    if (e.o && e.t !== 'echelle' && e.t !== 'ab' && e.o.filter(o => o.trim()).length < 2) return [i, 'Il faut au moins deux réponses.'];
+    if (e.t === 'ab' && !((e.imgs || [])[0] && e.imgs[1])) return [i, 'Il faut une affiche A et une affiche B.'];
+  }
+}
+async function enregistrer() {
+  const pb = verifier(); if (pb) { sel = pb[0]; liste(); zone(); return $('etat').textContent = pb[1]; }
+  if (!cle()) return $('jeton').showModal();
+  $('etat').textContent = 'Enregistrement…'; $('enregistrer').disabled = true;
+  try { const t = ecrireSeance(M); await ecrire('seance.txt', b64(t), "Séance modifiée depuis l'éditeur"); depart = t; change(); $('etat').textContent = 'Enregistré. Le site sera à jour dans une à deux minutes.'; }
+  catch (err) { $('etat').textContent = "Pas enregistré : " + err.message + '.'; $('enregistrer').disabled = false; if (/jeton/.test(err.message)) $('jeton').showModal(); }
+}
+$('enregistrer').addEventListener('click', enregistrer);
+$('annuler').addEventListener('click', () => { if (confirm('Revenir à la dernière version enregistrée ?')) { lireSeance(depart); charger(); } });
+$('jeton').addEventListener('click', ev => {
+  const a = (ev.target.closest('[data-a]') || {}).dataset; if (!a) return;
+  if (a.a === 'fermer') $('jeton').close();
+  if (a.a === 'garderCle') { const v = $('cle').value.trim(); if (v) { try { localStorage.setItem('pdvJeton', v); } catch (e) { } $('cle').value = ''; $('jeton').close(); enregistrer(); } }
+  if (a.a === 'copier') navigator.clipboard.writeText(ecrireSeance(M)).then(() => { $('jeton').close(); $('etat').textContent = 'Fichier copié : collez-le dans seance.txt sur GitHub.'; });
+});
+addEventListener('beforeunload', ev => { if (M && ecrireSeance(M) !== depart) ev.preventDefault(); });
+
+// ---------- démarrage ----------
+function charger() { M = { phases: PHASES, missions: MISSIONS.slice(), tests: TESTS, ecrans: TOUS }; sel = Math.min(sel, M.ecrans.length - 1); liste(); zone(); change(); }
+fetch('seance.txt?' + Date.now()).then(x => x.text()).then(t => {
+  if (!lireSeance(t)) throw 0; charger(); depart = ecrireSeance(M); change();
+  images = [...new Set(M.ecrans.flatMap(e => [e.img, ...(e.imgs || [])]).filter(Boolean))].sort();
+  fetch(DEPOT + 'affiches').then(x => x.json()).then(l => { if (Array.isArray(l)) images = [...new Set([...l.filter(f => /\.(jpe?g|png)$/i.test(f.name)).map(f => 'affiches/' + f.name), ...images])].sort(); }).catch(() => { });
+}).catch(() => { $('etat').textContent = 'Le fichier de la séance ne se charge pas.'; });
+</script>
+</body>
+</html>
