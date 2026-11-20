@@ -144,10 +144,10 @@ textarea.champ{min-height:150px;resize:none}
 .salle{display:flex;flex-wrap:wrap;gap:1vh 1.4vw;max-width:48vw;font-size:.8em;font-weight:700}
 .salle span:not(.tete):not(.yeux){display:flex;align-items:center;gap:.5vw}
 .salle .tete{font-size:2.2vw}
-.lettres{display:grid;grid-template-columns:repeat(var(--n),1fr);gap:.45em;font-size:1.05em;font-weight:800;line-height:1.05}
+.lettres{display:grid;grid-template-columns:repeat(var(--k),1fr);gap:.45em;font-size:1.05em;font-weight:800;line-height:1.05}
 .lettres span{background:var(--t);border-radius:1.2em;padding:.5em .7em;display:flex;gap:.6em;align-items:center;min-height:2.9em}
-.lettres.ab span:first-child{background:var(--c1)}.lettres.ab span:nth-child(2){background:var(--c3);color:#fff}.lettres.ab b{color:var(--n)}
-.lettres b{flex:none;width:1.75em;height:1.75em;border-radius:50%;background:#fff;display:grid;place-items:center;font-size:1.15em;font-weight:800}
+.lettres.ab span:first-child{background:var(--c1)}.lettres.ab span:nth-child(2){background:var(--c3);color:#fff}
+.lettres b{color:#141414;flex:none;width:1.75em;height:1.75em;border-radius:50%;background:#fff;display:grid;place-items:center;font-size:1.15em;font-weight:800}
 .qr{display:flex;align-items:center;gap:1.6vw;margin-top:auto;font-weight:700}
 .qr svg{width:15vw;height:15vw;display:block;background:#fff;flex:none}
 .qr .code{font-size:2.6em;font-weight:800;letter-spacing:.04em;vertical-align:middle}
@@ -376,7 +376,7 @@ function telephone() {
         ? `<div id="salons" class="bloc"><p>Recherche de la séance…</p></div>
            <label class="lab" for="code">Vous avez un code à 4 chiffres ?</label><input class="champ code" id="code" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="0000" autocomplete="off" aria-describedby="aide">
            <p class="note" id="aide">Il est écrit sur le grand écran.</p>
-           <p class="note"><a href="?ecran">Animer une séance sur le grand écran</a> · <a href="papier.html">Version papier</a> · <a href="./" aria-label="Accueil" title="Accueil"><svg viewBox="0 0 24 24" width="1.35em" height="1.35em" fill="currentColor" aria-hidden="true" style="vertical-align:-.3em"><path d="M12 3 2.5 11.2h2.7V21h5.3v-6h3v6h5.3v-9.8h2.7z"/></svg></a></p>`
+           <p class="note"><a href="?ecran">Animer une séance sur le grand écran</a> · <a href="./" aria-label="Accueil" title="Accueil"><svg viewBox="0 0 24 24" width="1.35em" height="1.35em" fill="currentColor" aria-hidden="true" style="vertical-align:-.3em"><path d="M12 3 2.5 11.2h2.7V21h5.3v-6h3v6h5.3v-9.8h2.7z"/></svg></a></p>`
         : mes.inscrit ? `<div class="fait" style="margin-top:0">${tete(1)}<h2>${mes.nom ? h(mes.nom) + ', vous êtes inscrit.' : 'Vous êtes inscrit.'}</h2><p>Gardez ce téléphone en main et regardez le grand écran : la séance va commencer.</p></div>`
         : `<label class="lab" for="nom">Votre prénom</label><input class="champ" id="nom" maxlength="24" value="${h(mes.nom)}" autocomplete="given-name" autocapitalize="words" enterkeyhint="done">
            <button class="btn" data-a="inscrire">Je m'inscris</button><p class="note">Séance ${h(SALLE)}. Il n'y a pas de bonne ou de mauvaise réponse.</p>`);
@@ -557,7 +557,7 @@ function ecran() {
     else if (e.t === 'palmares') g = `<p class="sur">Atelier</p><h1>Le palmarès</h1><p><b>L'affiche qui transmet le mieux l'information, d'après vos notes.</b></p><div class="mur palm"></div>`;
     else {
       const cache = q.cinq && masque && !S.rev;
-      g = `<p class="sur">${sur(e)}${PAPIER && NUM[q.id] ? ' · question ' + NUM[q.id] : ''}${q.vote ? ` · affiche ${q.k + 1} sur ${S.photos.length} · test ${S.k % 10 + 1} sur ${TESTS.length}` : ''}</p><h1>${h(q.q)}</h1>${cache ? "<p>L'affiche revient avec les réponses.</p>" : q.note ? `<p>${h(q.note)}</p>` : ''}<div class="accord">${S.rev && q.t !== 'texte' ? `<div class="trio">${tete(1)}${tete(2)}${tete(3)}</div>` : ''}<p class="cpt"></p></div><div class="res">${PAPIER ? (q.t === 'texte' ? '<p><b>Écrivez votre réponse sur la fiche.</b></p>' : `<div class="lettres${q.t === 'ab' ? ' ab' : ''}" style="--n:${q.t === 'echelle' ? 5 : q.o.length <= 4 ? 2 : 3}">${q.o.map((o, i) => `<span><b>${q.t === 'echelle' ? i + 1 : q.t === 'ab' ? 'AB='[i] : 'ABCDEFGHIJ'[i]}</b>${q.t === 'echelle' ? h(i === 0 ? q.a : i === 4 ? q.b : '') : q.t === 'ab' && i < 2 ? '' : h(o)}</span>`).join('')}</div>`)
+      g = `<p class="sur">${sur(e)}${PAPIER && NUM[q.id] ? ' · question ' + NUM[q.id] : ''}${q.vote ? ` · affiche ${q.k + 1} sur ${S.photos.length} · test ${S.k % 10 + 1} sur ${TESTS.length}` : ''}</p><h1>${h(q.q)}</h1>${cache ? "<p>L'affiche revient avec les réponses.</p>" : q.note ? `<p>${h(q.note)}</p>` : ''}<div class="accord">${S.rev && q.t !== 'texte' ? `<div class="trio">${tete(1)}${tete(2)}${tete(3)}</div>` : ''}<p class="cpt"></p></div><div class="res">${PAPIER ? (q.t === 'texte' ? '<p><b>Écrivez votre réponse sur la fiche.</b></p>' : `<div class="lettres${q.t === 'ab' ? ' ab' : ''}" style="--k:${q.t === 'echelle' ? 5 : q.o.length <= 4 ? 2 : 3}">${q.o.map((o, i) => `<span><b>${q.t === 'echelle' ? i + 1 : q.t === 'ab' ? 'AB='[i] : 'ABCDEFGHIJ'[i]}</b>${q.t === 'echelle' ? h(i === 0 ? q.a : i === 4 ? q.b : '') : q.t === 'ab' && i < 2 ? '' : h(o)}</span>`).join('')}</div>`)
         : !S.rev ? '' : q.t === 'texte' ? '<div class="mots"></div>'
         : `<div class="cols${q.o.length > 5 ? ' liste' : ''}">${q.o.map((o, i) => `<div class="col"><div class="rond">${tete(1 + i % 3)}</div><b>0</b><span>${h(o)}${q.t === 'echelle' && (i === 0 || i === 4) ? '<br>' + h(i ? q.b : q.a) : ''}</span></div>`).join('')}</div>`}</div>`;
       if (q.vote && S.photos[q.k] && !cache) d = `<div class="droite"><figure><img src="${S.photos[q.k].img}" alt="Affiche d'un binôme">${h(S.photos[q.k].mot)}</figure></div>`;
@@ -652,15 +652,6 @@ function ecran() {
   if (!PAPIER && !APERCU) { annoncer(); setInterval(annoncer, 30000); } // une séance sur papier n'attend aucun téléphone
   if (!APERCU) { declarerVersion(); connexion(`Grand écran · séance ${SALLE} · ${PAPIER ? 'papier' : 'téléphone'}`); }
 
-  function exporter() {
-    const L = [['participant', 'prénom', 'étape', 'question', 'réponse', 'note', 'version']];
-    for (const [id, r] of Object.entries(S.rep)) for (const [pid, v] of Object.entries(r)) { const l = ligneRep(id, pid, v); if (l) L.push(l); }
-    S.photos.forEach((p, k) => L.push(lignePhoto(p, k)));
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(new Blob(['﻿' + L.map(l => l.map(c => '"' + String(c ?? '').replace(/^[=+@-]/, "'$&").replace(/"/g, '""') + '"').join(';')).join('\r\n')], { type: 'text/csv' }));
-    a.download = 'points-de-vue-reponses.csv'; a.click();
-  }
-
   document.addEventListener('click', ev => {
     const fig = ev.target.closest('.mur figure'); if (fig) return fig.classList.toggle('zoom');
     const a = ev.target.closest('[data-a]'); if (!a) return;
@@ -672,21 +663,14 @@ function ecran() {
     }
     if (act === 'suite') suivant();
     if (act === 'avant') aller(S.i - 1, -1);
-    if (act === 'csv') exporter();
     if (act === 'mission') { mission = S.mission = (S.mission + 1) % MISSIONS.length; garder(); diffuser(); dessiner(true); }
-    if (act === 'son') { S.son = S.son === false; garder(); dessiner(true); SONS.revele(); }
-    if (act === 'auto') { S.auto = S.auto === false; garder(); dessiner(true); }
     if (act === 'plein') document.documentElement.requestFullscreen();
-    if (act === 'neuve' && confirm('Effacer les réponses et les photos de cette séance ? Exportez-les avant.')) { // une nouvelle séance = un nouveau code et un nouveau QR code ; les affiches A et B chargées sont gardées
+    if (act === 'neuve' && confirm('Commencer une nouvelle séance ? Les réponses déjà données restent dans le Google Sheet.')) { // une nouvelle séance = un nouveau code et un nouveau QR code ; les affiches A et B chargées sont gardées
       if (!APERCU) journal('Nouvelle séance', 'après la séance ' + SALLE);
       const c = P.get('salle') ? SALLE : nouveauCode();
       try { ['pdvSeance', 'pdvPhotos'].forEach(k => localStorage.removeItem(SALLE + k)); localStorage.setItem(c + 'pdvAffiches', JSON.stringify(affiches)); if (c !== SALLE) { localStorage.removeItem(SALLE + 'pdvAffiches'); localStorage.setItem('pdvCode', c); } } catch (e) { }
       location.reload();
     }
-  });
-  document.addEventListener('change', async ev => {
-    const l = ev.target.dataset.f; if (!l || !ev.target.files[0]) return;
-    affiches[l] = await reduire(ev.target.files[0], 1600); ecrire('pdvAffiches', affiches); dessiner(true);
   });
   addEventListener('keydown', ev => {
     if (['ArrowRight', 'PageDown', ' '].includes(ev.key)) { ev.preventDefault(); suivant(); }

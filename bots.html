@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Points de vue · participants automatiques</title>
+<link rel="icon" href="icone.png">
+<style>
+@font-face{font-family:'Scoutie Sans';font-weight:200 800;font-display:swap;src:url(polices/scoutie.woff2) format('woff2')}
+body{margin:0;background:#F3F3F3;color:#141414;font-family:'Scoutie Sans',Helvetica,Arial,sans-serif;font-size:17px;line-height:1.35}
+main{max-width:760px;margin:0 auto;padding:36px 20px 60px;display:flex;flex-direction:column;gap:16px}
+h1{margin:0;font-size:44px;line-height:.95;font-weight:800;letter-spacing:-.045em}
+form{display:flex;flex-wrap:wrap;gap:12px;align-items:end;background:#fff;border-radius:22px;padding:18px}
+label{display:flex;flex-direction:column;gap:6px;font-weight:800}
+input{font:inherit;background:#F3F3F3;border:0;border-radius:14px;padding:11px 14px;min-height:46px;width:9em}
+button{font:inherit;font-weight:800;background:#141414;color:#fff;border:0;border-radius:99px;padding:10px 22px;min-height:46px;cursor:pointer}
+button:disabled{opacity:.4;cursor:default}
+:focus-visible{outline:3px solid #1F6FE0;outline-offset:2px}
+.chiffres{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.chiffres div{background:#fff;border-radius:18px;padding:14px 16px}
+.chiffres b{display:block;font-size:38px;font-weight:800;letter-spacing:-.04em;line-height:1}
+#grille{display:flex;flex-wrap:wrap;gap:5px}
+#grille i{width:16px;height:16px;border-radius:50%;background:#D5D5D5}
+#grille i.ok{background:#57B894}#grille i.ko{background:#EE6B5B}
+#journal{background:#fff;border-radius:18px;padding:14px 16px;font-size:15px;max-height:260px;overflow:auto;white-space:pre-wrap;margin:0}
+@media (max-width:600px){.chiffres{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<main>
+  <a href="./" aria-label="Accueil" title="Accueil" style="color:inherit;align-self:flex-start"><svg viewBox="0 0 24 24" width="1.6em" height="1.6em" fill="currentColor" aria-hidden="true"><path d="M12 3 2.5 11.2h2.7V21h5.3v-6h3v6h5.3v-9.8h2.7z"/></svg></a>
+  <h1>Participants automatiques</h1>
+  <p>Cette page fait entrer de faux participants dans une séance au téléphone, pour vérifier qu'elle tient avec beaucoup de monde. Chacun se connecte comme un vrai téléphone et répond au hasard à chaque question. Ouvrez d'abord le grand écran, puis lancez ici avec le même code. Gardez cet onglet visible pendant l'essai.</p>
+  <form id="f">
+    <label>Code de la séance<input id="salle" required maxlength="12" autocomplete="off" inputmode="numeric"></label>
+    <label>Nombre de participants<input id="n" type="number" min="1" max="150" value="100"></label>
+    <button id="go">Lancer</button>
+  </form>
+  <div class="chiffres"><div><b id="c1">0</b>connectés</div><div><b id="c2">0</b>réponses envoyées</div><div><b id="c3">0</b>coupures</div><div><b id="c4">0</b>en attente</div></div>
+  <div id="grille" aria-hidden="true"></div>
+  <pre id="journal" aria-live="polite">Rien de lancé.</pre>
+</main>
+<script src="seance.js"></script>
+<script src="libs/peerjs.min.js"></script>
+<script>
+// Des participants automatiques : chacun ouvre sa liaison comme un téléphone (même messages que index.html : « salut », puis « rep »).
+// Les réponses sont tirées au hasard ; elles s'enregistrent dans le Google Sheet comme les vraies, sous le code de la séance.
+const $ = id => document.getElementById(id), P = new URLSearchParams(location.search);
+$('salle').value = (P.get('salle') || '').replace(/[^a-z0-9]/gi, ''); if (P.get('n')) $('n').value = P.get('n');
+const AVIS = ["C'est clair", 'Le titre se voit bien', 'Trop de texte', 'La date est petite', "J'aime l'image", 'Rien à changer', 'À la pharmacie', 'Chez le médecin'];
+let envoyees = 0, coupures = 0, bots = [], note = [];
+const dire = t => { note.unshift(new Date().toLocaleTimeString('fr-FR') + ' · ' + t); $('journal').textContent = note.slice(0, 60).join('\n'); };
+const maj = () => { const ok = bots.filter(b => b.lien).length; $('c1').textContent = ok; $('c2').textContent = envoyees; $('c3').textContent = coupures; $('c4').textContent = bots.length - ok;
+  bots.forEach(b => b.pt.className = b.lien ? 'ok' : b.perdu ? 'ko' : ''); };
+// la question en cours, comme la voit un téléphone (pour l'atelier : un test par affiche de binôme)
+const question = (i, n) => { const e = ETAPES[i]; if (!e) return null; if (e.t !== 'vote') return e.id ? e : null; const j = n % 10, t = TESTS[j] || TESTS[0]; return t ? { ...t, id: 'vote' + (n / 10 | 0) + '_' + (TESTS[j] ? j : 0) } : null; };
+const hasard = q => q.t === 'texte' ? AVIS[Math.random() * AVIS.length | 0] : q.t === 'multi' ? [...new Set([0, 1].map(() => Math.random() * q.o.length | 0))] : Math.random() * q.o.length | 0;
+
+function bot(k, hote) {
+  const b = { pid: 'bot' + Math.random().toString(36).slice(2, 9), lien: null, perdu: false, fait: {}, pt: document.createElement('i') };
+  $('grille').appendChild(b.pt);
+  const brancher = () => { const p = new Peer(); let fini = false;
+    const perdu = () => { if (fini) return; fini = true; if (b.lien) { coupures++; dire(`Participant ${k + 1} : liaison coupée, il se rebranche.`); } b.lien = null; b.perdu = true; maj(); try { p.destroy(); } catch (e) { } setTimeout(brancher, 3000 + Math.random() * 3000); };
+    p.on('open', () => { const c = p.connect(hote, { reliable: true });
+      c.on('open', () => { b.lien = c; b.perdu = false; c.send({ k: 'salut', pid: b.pid, nom: 'Bot ' + (k + 1) }); maj(); if (b.pret) { b.pret(); b.pret = null; } });
+      c.on('data', d => { if (!d || d.k !== 'etat') return; const q = question(d.i, d.n | 0); if (!q || b.fait[q.id]) return; b.fait[q.id] = 1;
+        setTimeout(() => { if (b.lien) { b.lien.send({ k: 'rep', id: q.id, v: hasard(q) }); envoyees++; maj(); } else delete b.fait[q.id]; }, 600 + Math.random() * 3500); }); // chacun son temps de réflexion
+      c.on('close', perdu); c.on('error', perdu); });
+    p.on('error', e => { if (e.type === 'peer-unavailable') dire("Le grand écran de cette séance ne répond pas : est-il ouvert, avec le même code ?"); perdu(); }); p.on('disconnected', perdu); };
+  brancher(); return b;
+}
+$('f').addEventListener('submit', async ev => {
+  ev.preventDefault(); const salle = $('salle').value.replace(/[^a-z0-9]/gi, '').toLowerCase(), n = Math.max(1, Math.min(150, +$('n').value || 100)); if (!salle) return;
+  $('go').disabled = true; note = []; dire(`${n} participants entrent dans la séance ${salle}, par groupes de 5.`);
+  for (let k = 0; k < n; k += 5) { // par groupes de 5 : le suivant part quand le groupe est connecté (ou après 8 secondes)
+    const groupe = []; for (let j = k; j < Math.min(n, k + 5); j++) { const b = bot(j, 'pointsdevue-gtm-' + salle); bots.push(b); groupe.push(new Promise(ok => { b.pret = ok; })); }
+    maj(); await Promise.race([Promise.all(groupe), new Promise(ok => setTimeout(ok, 8000))]);
+  }
+  dire(`Tous lancés : ${bots.filter(b => b.lien).length} connectés sur ${n}. Faites avancer la séance sur le grand écran.`);
+});
+fetch('seance.txt?' + Date.now()).then(x => x.text()).then(t => { if (!lireSeance(t)) throw 0; }).catch(() => { $('go').disabled = true; dire('Le fichier de la séance ne se charge pas.'); });
+</script>
+</body>
+</html>
