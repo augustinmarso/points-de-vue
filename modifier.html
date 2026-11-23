@@ -164,6 +164,7 @@ dialog h3{margin:0 0 6px;font-size:24px;font-weight:800;letter-spacing:-.03em}
   <select class="btn clair" id="test" aria-label="Le test modifié"><option>Séance Points de vue (principale)</option></select>
   <a class="btn clair" id="lancer" href="./?passer" target="_blank" rel="noopener">Lancer ce test</a>
   <span id="etat">Chargement…</span>
+  <button class="btn clair" id="annuler" disabled title="Revient à l'état d'avant votre dernière modification. Plusieurs clics remontent plus loin.">← Revenir en arrière</button>
   <button class="btn" id="enregistrer" disabled>Enregistrer</button>
 </header>
 <div class="corps">
@@ -196,7 +197,11 @@ const TYPE = e => ({ accueil: "Salle d'attente", scores: 'Scores du jeu', missio
 const TITRE = e => e.q || e.h || (e.t === 'phase' ? M.phases[e.p].nom : e.t === 'flash' ? nomImage(e.img || '') : TYPE(e));
 const COUL = e => e.p ? `var(--c${e.p})` : '#141414';
 const fixe = i => (i === 0 && M.ecrans[0].t === 'accueil') || (i === M.ecrans.length - 1 && M.ecrans[i].t === 'fin'); // le début et la fin ne bougent pas
-const change = () => { const diff = ecrireSeance(M) !== depart; $('enregistrer').disabled = !diff; $('etat').textContent = diff ? 'Modifications non enregistrées' : 'Tout est enregistré'; };
+// revenir en arrière : chaque modification garde l'état d'avant ; une frappe continue (moins de 0,8 s entre deux touches) compte pour une seule
+let pile = [], dernier = '', tPile = 0;
+const noterPile = t => { if (dernier && t !== dernier) { if (Date.now() - tPile > 800) { pile.push(dernier); if (pile.length > 100) pile.shift(); } tPile = Date.now(); } dernier = t; $('annuler').disabled = !pile.length; };
+const annuler = () => { if (!pile.length) return; dernier = pile.pop(); tPile = 0; lireSeance(dernier); charger(); };
+const change = () => { noterPile(ecrireSeance(M)); const diff = ecrireSeance(M) !== depart; $('enregistrer').disabled = !diff; $('etat').textContent = diff ? 'Modifications non enregistrées' : 'Tout est enregistré'; };
 
 function liste() {
   let n = 0;
@@ -358,6 +363,7 @@ async function enregistrer() {
   catch (err) { $('etat').textContent = "Pas enregistré : " + err.message + '.'; $('enregistrer').disabled = false; }
 }
 $('enregistrer').addEventListener('click', enregistrer);
+$('annuler').addEventListener('click', annuler);
 noterVisite('Modifier le test');
 // prévisualiser : la version choisie s'ouvre dans un autre onglet avec les écrans tels qu'ils sont ici, enregistrés ou non. Rien ne part en ligne.
 const previsualiser = () => {

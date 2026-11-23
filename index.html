@@ -796,7 +796,7 @@ function ecran() {
 // les bibliothèques ne sont chargées que si l'écran en a besoin : la liaison entre appareils pour une séance, le QR code pour le grand écran ;
 // l'accueil du site et la page sans code n'en chargent aucune. Elles arrivent en même temps que le contenu de la séance.
 const lib = src => new Promise((ok, ko) => { const x = document.createElement('script'); x.src = src; x.onload = ok; x.onerror = ko; document.head.appendChild(x); });
-const libs = Promise.all([(ECRAN || SALLE) && lib('libs/peerjs.min.js'), ECRAN && lib('libs/qrcode.min.js')]).catch(() => { });
+const libs = Promise.all([(ECRAN || SALLE) && lib('relais.js'), ECRAN && lib('libs/qrcode.min.js')]).catch(() => { });
 // le contenu d'abord (seance.txt, relu à chaque ouverture), puis l'appli
 (APERCU ? new Promise(ok => ok(localStorage.getItem('pdvApercu') || '')) : lireFichier()).then(t => lireSeance(t) || Promise.reject())
   .catch(() => { document.getElementById('statut').textContent = 'Le fichier du test (' + FICHIER + ') est introuvable ou vide. Un test tout juste créé arrive sur le site en une à deux minutes.'; })
