@@ -5,16 +5,26 @@ let ETAPES = [{ t: 'accueil' }], MISSIONS = ["L'information à faire passer"], T
 let VERSION = '', TEXTE = ''; // l'identifiant de la version du test (change dès que seance.txt change) et son contenu
 const SCRIPT_GOOGLE = 'https://script.google.com/macros/s/AKfycbzPof8sEj8tZLlA-MtVDYyODv32y8lXxc9hLVmaW5zCvHLilyRIxpk4Ix6TPhzJczjn/exec';
 let TOUS = ETAPES; // tous les écrans du fichier, y compris ceux qui sont masqués (pour l'éditeur)
-// ---------- plusieurs tests : le principal est seance.txt ; les autres sont dans le dossier tests/ et listés dans tests.txt (une ligne « nom-court | Nom du test ») ----------
+// ---------- plusieurs tests : le principal (seance.txt) et ceux créés depuis « Modifier le test » ----------
 // Une page ouvre un autre test avec ?test=nom-court ; TQ s'ajoute aux liens pour rester sur le même test d'une page à l'autre.
+// Les tests sont enregistrés dans le Google Sheet (onglet « Tests »), sans GitHub. Les fichiers du site (seance.txt, tests/…, tests.txt)
+// servent encore : si l'un d'eux est modifié sur GitHub après le dernier enregistrement depuis le site, c'est lui qui est repris.
 const TEST = (new URLSearchParams(location.search).get('test') || '').toLowerCase().replace(/[^a-z0-9-]/g, '').slice(0, 40);
 const FICHIER = TEST ? 'tests/' + TEST + '.txt' : 'seance.txt', TQ = TEST ? '&test=' + TEST : '';
 const lireTests = t => [{ id: '', nom: 'Séance Points de vue (principale)' }, ...String(t || '').split(/\r?\n/).map(l => l.trim()).filter(l => l && l[0] !== '#')
   .map(l => { const [id, nom] = l.split('|').map(x => x.trim()); return { id, nom: nom || id }; }).filter(x => /^[a-z0-9-]{1,40}$/.test(x.id))];
-const listeTests = () => fetch('tests.txt?' + Date.now()).then(x => x.ok ? x.text() : '').catch(() => '').then(lireTests);
-// le contenu du test ; un test tout juste créé met une à deux minutes à arriver sur le site : en attendant, la copie gardée à sa création sert
-const lireFichier = () => fetch(FICHIER + '?' + Date.now()).then(x => x.ok ? x.text() : Promise.reject())
-  .catch(() => { let t = ''; try { t = localStorage.getItem('pdvNeuf' + TEST) || ''; } catch (e) { } return TEST && t ? t : Promise.reject(); });
+const listeTests = () => Promise.all([ // ceux du Sheet, plus ceux de tests.txt (créés sur GitHub)
+  fetch(SCRIPT_GOOGLE + '?vue=tests').then(x => x.json()).catch(() => []), fetch('tests.txt?' + Date.now()).then(x => x.ok ? x.text() : '').catch(() => '')
+]).then(([g, t]) => { const l = lireTests(t); (Array.isArray(g) ? g : []).forEach(([id, nom, par, quand]) => { if (/^[a-z0-9-]{1,40}$/.test(id) && !l.some(x => x.id === id)) l.push({ id, nom: nom || id, par, quand }); }); return l; });
+// le contenu d'un test : celui du Sheet, sauf si le fichier du site a changé depuis (BASE = la version du fichier, gardée à l'enregistrement)
+let BASE = '';
+const lireFichier = (id = TEST) => Promise.all([
+  fetch(SCRIPT_GOOGLE + '?vue=test&id=' + (id || 'principal')).then(x => x.json()).catch(() => ({})),
+  fetch((id ? 'tests/' + id + '.txt' : 'seance.txt') + '?' + Date.now()).then(x => x.ok ? x.text() : '').catch(() => '')
+]).then(([g, f]) => { if (id === TEST) BASE = f ? versionSeance(f) : ''; const t = g && g.texte && (!f || versionSeance(f) === g.base) ? g.texte : f; return t || Promise.reject(); });
+// enregistrer un test dans le Sheet (compte de l'équipe) : { id, nom, texte, base, nouveau } → { ok, id }
+const sauverTest = t => fetch(SCRIPT_GOOGLE, { method: 'POST', body: JSON.stringify({ test: { jeton: JETON(), ...t } }) }).then(x => x.json())
+  .catch(() => Promise.reject(new Error('pas de réponse, vérifiez la connexion internet'))).then(x => x.ok ? x : Promise.reject(new Error(x.erreur || 'refusé')));
 // lit seance.txt : un écran par mot entre crochets, des lignes « clé : valeur » et des réponses « - » ou « + » dessous
 function lireSeance(texte) {
   const E = [], M = [], T = [], P = {}, ids = {};
@@ -62,7 +72,7 @@ function lireSeance(texte) {
 }
 
 // réécrit seance.txt à partir du contenu en mémoire (utilisé par l'éditeur)
-const AIDE = "# LA SÉANCE « POINTS DE VUE », ÉCRAN PAR ÉCRAN\n# ------------------------------------------------------------------\n# Le plus simple pour le modifier : la page « Modifier le test » du site.\n# Il se modifie aussi directement sur GitHub : bouton crayon en haut à droite,\n# puis bouton vert « Commit changes ». Le site est à jour une à deux minutes après.\n#\n# Chaque écran commence par un mot entre crochets. L'ordre du fichier est l'ordre de la séance.\n# Pour retirer un écran : supprimez ses lignes. Pour en déplacer un : coupez-collez ses lignes.\n# Une ligne qui commence par # est un commentaire, l'appli ne la lit pas.\n#\n#   [accueil]              la salle d'attente (QR code, code, participants connectés)\n#   [texte] petit titre | grand titre | phrase\n#   [5 secondes] image     une affiche montrée 5 secondes   (ajoutez « | étape 1 » pour la rattacher à une étape)\n#   [jeu] question         question avec une bonne réponse : « + » devant la bonne, « - » devant les autres\n#   [scores]               les réussites de chacun au jeu\n#   [étape 1]              l'écran de titre d'une étape (1, 2 ou 3)\n#   [question] question    question à choix : « - » devant chaque réponse\n#                          ligne « réponses : une » ou « réponses : plusieurs »\n#   [note] question        note de 1 à 5, avec les lignes « de : » et « à : »\n#   [a ou b] question      comparaison de deux affiches, avec « affiche a : » et « affiche b : »\n#   [avis] question        avis libre : chacun écrit sa réponse (quelques mots)\n#   [mission] [photos] [tests] [palmarès] [fin]   l'atelier en binômes et la fin\n#\n# Lignes possibles sous une question :\n#   étape : 1                      (1, 2 ou 3 : donne la couleur et le titre de l'étape)\n#   affiche : affiches/nom.jpg     (l'affiche montrée à côté de la question)\n#   précision : une phrase sous la question\n#   noir et blanc : oui            (l'affiche passe en noir et blanc)\n#   masqué : oui                   (l'écran reste dans le fichier mais ne passe pas pendant la séance)\n#\n# Les images sont dans le dossier « affiches » du dépôt.\n# ------------------------------------------------------------------";
+const AIDE = "# LA SÉANCE « POINTS DE VUE », ÉCRAN PAR ÉCRAN\n# ------------------------------------------------------------------\n# Le plus simple pour le modifier : la page « Modifier le test » du site (enregistré dans le Google Sheet, onglet « Tests »).\n# Ce fichier peut aussi se modifier sur GitHub : il reprend alors la main sur la dernière version enregistrée depuis le site.\n#\n# Chaque écran commence par un mot entre crochets. L'ordre du fichier est l'ordre de la séance.\n# Pour retirer un écran : supprimez ses lignes. Pour en déplacer un : coupez-collez ses lignes.\n# Une ligne qui commence par # est un commentaire, l'appli ne la lit pas.\n#\n#   [accueil]              la salle d'attente (QR code, code, participants connectés)\n#   [texte] petit titre | grand titre | phrase\n#   [5 secondes] image     une affiche montrée 5 secondes   (ajoutez « | étape 1 » pour la rattacher à une étape)\n#   [jeu] question         question avec une bonne réponse : « + » devant la bonne, « - » devant les autres\n#   [scores]               les réussites de chacun au jeu\n#   [étape 1]              l'écran de titre d'une étape (1, 2 ou 3)\n#   [question] question    question à choix : « - » devant chaque réponse\n#                          ligne « réponses : une » ou « réponses : plusieurs »\n#   [note] question        note de 1 à 5, avec les lignes « de : » et « à : »\n#   [a ou b] question      comparaison de deux affiches, avec « affiche a : » et « affiche b : »\n#   [avis] question        avis libre : chacun écrit sa réponse (quelques mots)\n#   [mission] [photos] [tests] [palmarès] [fin]   l'atelier en binômes et la fin\n#\n# Lignes possibles sous une question :\n#   étape : 1                      (1, 2 ou 3 : donne la couleur et le titre de l'étape)\n#   affiche : affiches/nom.jpg     (l'affiche montrée à côté de la question)\n#   précision : une phrase sous la question\n#   noir et blanc : oui            (l'affiche passe en noir et blanc)\n#   masqué : oui                   (l'écran reste dans le fichier mais ne passe pas pendant la séance)\n#\n# Les images sont dans le dossier « affiches » du dépôt.\n# ------------------------------------------------------------------";
 function ecrireSeance(m) { // m = { phases, missions, tests, ecrans }
   const net = x => String(x ?? '').replace(/[|\r\n]+/g, ' ').replace(/\s+/g, ' ').trim(); // une valeur tient sur une ligne, sans barre verticale
   const L = [AIDE, '', "# Les trois étapes : nom | phrase d'explication"];
@@ -105,7 +115,7 @@ function versionSeance(texte) {
 // fait connaître la version en cours au Google Sheet (onglet « Versions ») : sans effet si elle y est déjà
 function declarerVersion() {
   if (!VERSION) return;
-  fetch(SCRIPT_GOOGLE, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ version: { id: VERSION, ecrans: ETAPES.length, questions: ETAPES.filter(e => e.id && e.t !== 'vote').length, texte: TEXTE } }) }).catch(() => { });
+  fetch(SCRIPT_GOOGLE, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ version: { id: VERSION, ecrans: ETAPES.length, questions: ETAPES.filter(e => e.id && e.t !== 'vote').length, texte: TEXTE.slice(0, 45000) } }) }).catch(() => { }); // le Sheet n'en garde pas plus (les images ajoutées alourdiraient l'envoi)
 }
 // les questions dans l'ordre, numérotées : sert au test papier, à la fiche réponse et à sa lecture
 const QUESTIONS = () => ETAPES.filter(e => e.id && e.t !== 'vote').map((e, i) => ({ ...e, n: i + 1 }));

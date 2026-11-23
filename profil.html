@@ -61,7 +61,7 @@ const cree = id => (L || []).find(l => l[2] === 'Nouveau test' && String(l[3]).e
 const lienMail = id => location.origin + location.pathname.replace(/[^/]*$/, '') + '?enligne' + (id ? '&test=' + id : '');
 function tests() {
   if (T === null) return `<p class="vide">Chargement des tests…</p>`;
-  return `<div class="tests">${T.map(t => { const q = t.id ? '&test=' + t.id : '', c = t.id && cree(t.id);
+  return `<div class="tests">${T.map(t => { const q = t.id ? '&test=' + t.id : '', c = t.par ? [t.quand, t.par] : t.id && cree(t.id);
     return `<div><b>${h(t.nom)}<small>${!t.id ? 'Le test principal du site' : c ? 'Créé par ' + (c[1] === QUI() ? 'vous' : h(c[1])) + ' le ' + h(quand(c[0]).slice(0, 10)) : 'Test « ' + h(t.id) + ' »'}</small></b>
       <a class="btn" href="./?passer${q}">Lancer</a><a class="btn clair" href="./?enligne&essai${q}" target="_blank" rel="noopener">Essayer</a>
       <a class="btn clair" href="modifier.html${q && '?' + q.slice(1)}">Modifier</a><a class="btn clair" href="resultats.html${q && '?' + q.slice(1)}">Données</a>

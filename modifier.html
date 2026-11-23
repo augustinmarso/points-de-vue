@@ -160,7 +160,7 @@ dialog h3{margin:0 0 6px;font-size:24px;font-weight:800;letter-spacing:-.03em}
   <ol id="liste" aria-label="Les écrans de la séance"></ol>
   <div id="zone"></div>
 </div>
-<dialog id="galerie"><h3>Choisir une affiche</h3><p class="aide">Les images du dossier « affiches » du site.</p><div class="galerie" id="images"></div>
+<dialog id="galerie"><h3>Choisir une affiche</h3><p class="aide">Les affiches du site, et celles que vous ajoutez depuis cet ordinateur (elles sont enregistrées avec le test).</p><div class="galerie" id="images"></div>
   <div class="ligne"><label class="btn clair">Ajouter une image<input type="file" accept="image/*" hidden id="ajout"></label><button class="btn clair" data-a="fermer">Fermer</button><span class="aide" id="etatImage"></span></div></dialog>
 <dialog id="nouveau"><h3>Ajouter un écran</h3><p class="aide">Il se place juste après l'écran choisi. Vous pourrez ensuite le déplacer.</p><div class="types" id="types"></div>
   <div class="ligne"><button class="btn clair" data-a="fermer">Fermer</button></div></dialog>
@@ -168,25 +168,22 @@ dialog h3{margin:0 0 6px;font-size:24px;font-weight:800;letter-spacing:-.03em}
   <label class="c">Nom du test<input type="text" id="nomTest" maxlength="60" placeholder="Par exemple : Affiches vaccination, décembre"></label>
   <div class="types" id="gabarits"></div>
   <div class="ligne"><button class="btn clair" data-a="fermer">Fermer</button><span class="aide" id="etatCreer" role="status"></span></div></dialog>
-<dialog id="jeton"><h3>Enregistrer sur le site</h3>
-  <p>Pour écrire sur le site, cette page a besoin d'une clé GitHub (un « jeton »). Elle reste dans ce navigateur, sur cet ordinateur.</p>
-  <ol class="aide"><li>Ouvrez <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">la création d'un jeton GitHub</a>.</li><li>Accès au dépôt : seulement « points-de-vue ». Permission « Contents » : lecture et écriture.</li><li>Copiez le jeton et collez-le ici.</li></ol>
-  <label class="c">Jeton GitHub<input type="text" id="cle" autocomplete="off" spellcheck="false"></label>
-  <p class="ligne" style="margin-top:14px"><button class="btn" data-a="garderCle">Garder ce jeton et enregistrer</button><button class="btn clair" data-a="copier">Sans jeton : copier le fichier</button><button class="btn clair" data-a="fermer">Fermer</button></p>
-  <p class="aide">Sans jeton : le fichier est copié, vous le collez à la place de l'ancien dans <a href="https://github.com/augustinmarso/points-de-vue/edit/main/seance.txt" target="_blank" rel="noopener">seance.txt sur GitHub</a>.</p></dialog>
 <script src="seance.js"></script>
 <script>
 // Éditeur de la séance : la liste des écrans à gauche (ordre modifiable), l'écran choisi à droite. Les textes et les affiches se modifient sur l'écran lui-même.
 // Volontairement limité : on change les textes, les réponses, les affiches, l'ordre, et on masque un écran ;
-// on ne change pas le type d'un écran et on n'en crée pas. Le résultat est le fichier seance.txt du site.
-const DEPOT = 'https://api.github.com/repos/augustinmarso/points-de-vue/contents/';
+// Le test est enregistré dans le Google Sheet (onglet « Tests ») avec le compte de l'équipe : pas besoin de GitHub.
+const DEPOT = 'https://api.github.com/repos/augustinmarso/points-de-vue/contents/'; // lecture seule : la liste des affiches du site
+const NOMS = {}; // le nom de fichier des images ajoutées (une image ajoutée est gardée dans le test lui-même, sous forme de data:)
+const nomImage = s => /^data:/.test(s) ? NOMS[s] || 'Image ajoutée' : String(s).split('/').pop().replace(/\.[^.]+$/, '');
+let NOM = TEST ? TEST : 'Séance Points de vue (principale)'; // le nom du test ouvert
 const h = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const $ = id => document.getElementById(id);
 let M = null, depart = '', sel = 0, images = [], cible = null; // cible = le champ d'affiche en cours de choix
 
 const TYPE = e => ({ accueil: "Salle d'attente", scores: 'Scores du jeu', mission: "Atelier : la consigne", photo: "Atelier : les photos", vote: "Atelier : les tests", palmares: "Atelier : le palmarès", fin: 'Fin', info: 'Texte', flash: 'Affiche 5 secondes', echelle: 'Note de 1 à 5', ab: 'Comparaison A / B' }[e.t]
   || (e.t === 'phase' ? "Titre d'étape" : e.jeu ? 'Question du jeu' : e.t === 'texte' ? 'Avis libre' : 'Question à choix'));
-const TITRE = e => e.q || e.h || (e.t === 'phase' ? M.phases[e.p].nom : e.t === 'flash' ? (e.img || '').split('/').pop() : TYPE(e));
+const TITRE = e => e.q || e.h || (e.t === 'phase' ? M.phases[e.p].nom : e.t === 'flash' ? nomImage(e.img || '') : TYPE(e));
 const COUL = e => e.p ? `var(--c${e.p})` : '#141414';
 const fixe = i => (i === 0 && M.ecrans[0].t === 'accueil') || (i === M.ecrans.length - 1 && M.ecrans[i].t === 'fin'); // le début et la fin ne bougent pas
 const change = () => { const diff = ecrireSeance(M) !== depart; $('enregistrer').disabled = !diff; $('etat').textContent = diff ? 'Modifications non enregistrées' : 'Tout est enregistré'; };
@@ -207,7 +204,7 @@ function deplacer(de, vers) { // jamais avant la salle d'attente ni après la fi
 
 // un texte de l'écran, modifiable sur place : k = le champ (ou le numéro de la réponse)
 const ed = (tag, k, v, vide, cls) => `<${tag} ${cls ? `class="${cls}" ` : ''}contenteditable="plaintext-only" spellcheck="false" role="textbox" aria-label="${h(vide)}" data-vide="${h(vide)}" ${typeof k === 'number' ? `data-o="${k}"` : `data-k="${k}"`}>${h(v)}</${tag}>`;
-const img = (k, v, retirable) => v ? `<span class="im"><button type="button" data-a="affiche" data-k="${k}" title="Changer l'affiche"><img src="${h(v)}" alt="Affiche ${h(v.split('/').pop())} : cliquer pour la changer"></button>${retirable ? `<button type="button" class="x" data-a="sansAffiche" aria-label="Retirer l'affiche" title="Retirer l'affiche">×</button>` : ''}</span>`
+const img = (k, v, retirable) => v ? `<span class="im"><button type="button" data-a="affiche" data-k="${k}" title="Changer l'affiche"><img src="${h(v)}" alt="Affiche ${h(nomImage(v))} : cliquer pour la changer"></button>${retirable ? `<button type="button" class="x" data-a="sansAffiche" aria-label="Retirer l'affiche" title="Retirer l'affiche">×</button>` : ''}</span>`
   : `<button type="button" class="vide" data-a="affiche" data-k="${k}">+ Ajouter une affiche</button>`;
 function apercu(e) {
   const t = e.p ? `--t:var(--t${e.p});--c:var(--c${e.p})` : '--t:var(--fond);--c:#141414';
@@ -312,7 +309,7 @@ $('liste').addEventListener('dragend', () => { tire = null; liste(); });
 
 // ---------- les affiches ----------
 function galerie() {
-  $('images').innerHTML = images.map(s => `<button type="button" data-img="${h(s)}"><img src="${h(s)}" alt="" loading="lazy">${h(s.split('/').pop())}</button>`).join('');
+  $('images').innerHTML = images.map(s => `<button type="button" data-img="${h(s)}"><img src="${h(s)}" alt="" loading="lazy">${h(nomImage(s))}</button>`).join('');
   $('etatImage').textContent = ''; $('galerie').showModal();
 }
 $('galerie').addEventListener('click', ev => {
@@ -321,30 +318,18 @@ $('galerie').addEventListener('click', ev => {
   const e = M.ecrans[sel]; if (cible === 'img') e.img = b.dataset.img; else { e.imgs = e.imgs || []; e.imgs[+cible.split('.')[1]] = b.dataset.img; }
   $('galerie').close(); zone(); liste(); change();
 });
-$('ajout').addEventListener('change', async ev => { // une nouvelle image : réduite, puis déposée dans le dossier « affiches » du site
-  const f = ev.target.files[0]; if (!f) return; if (!cle()) { $('galerie').close(); return $('jeton').showModal(); }
-  $('etatImage').textContent = 'Envoi de l’image…';
+$('ajout').addEventListener('change', async ev => { // une nouvelle image : réduite, puis gardée dans le test lui-même (enregistrée avec lui)
+  const f = ev.target.files[0]; if (!f) return;
   try {
     const img = await new Promise((ok, ko) => { const i = new Image(); i.onload = () => ok(i); i.onerror = ko; i.src = URL.createObjectURL(f); });
-    const k = Math.min(1, 1414 / Math.max(img.width, img.height)), c = document.createElement('canvas'); c.width = img.width * k; c.height = img.height * k; c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
-    const nom = 'affiches/' + (f.name.replace(/\.[^.]+$/, '').normalize('NFD').replace(/[^a-zA-Z0-9]+/g, '-').replace(/^-|-$/g, '').toLowerCase().slice(0, 40) || 'image') + '.jpg';
-    await ecrire(nom, c.toDataURL('image/jpeg', .84).split(',')[1], "Affiche ajoutée depuis l'éditeur");
-    if (!images.includes(nom)) images.push(nom); galerie(); $('etatImage').textContent = 'Image ajoutée. Elle sera visible sur le site dans une à deux minutes.';
-  } catch (err) { $('etatImage').textContent = "L'image n'a pas pu être envoyée (" + err.message + ').'; }
+    const k = Math.min(1, 1000 / Math.max(img.width, img.height)), c = document.createElement('canvas'); c.width = img.width * k; c.height = img.height * k; c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+    const d = c.toDataURL('image/jpeg', .72); NOMS[d] = f.name.replace(/\.[^.]+$/, '').slice(0, 40) || 'Image ajoutée';
+    if (!images.includes(d)) images.unshift(d); galerie(); $('etatImage').textContent = 'Image ajoutée en tête de la liste : cliquez dessus pour la choisir.';
+  } catch (err) { $('etatImage').textContent = "Cette image n'a pas pu être lue."; }
   ev.target.value = '';
 });
 
-// ---------- enregistrer : écrire seance.txt dans le dépôt GitHub du site ----------
-const cle = () => { try { return localStorage.getItem('pdvJeton') || ''; } catch (e) { return ''; } };
-const b64 = s => { const o = new TextEncoder().encode(s); let x = ''; for (let i = 0; i < o.length; i += 8000) x += String.fromCharCode(...o.subarray(i, i + 8000)); return btoa(x); };
-async function ecrire(chemin, contenu64, message) {
-  const H = { Authorization: 'Bearer ' + cle(), Accept: 'application/vnd.github+json' };
-  const avant = await fetch(DEPOT + chemin + '?ref=main', { headers: H });
-  if (avant.status === 401 || avant.status === 403) throw new Error('jeton refusé');
-  const sha = avant.ok ? (await avant.json()).sha : undefined;
-  const r = await fetch(DEPOT + chemin, { method: 'PUT', headers: H, body: JSON.stringify({ message, content: contenu64, sha, branch: 'main' }) });
-  if (!r.ok) throw new Error(r.status === 401 || r.status === 403 || r.status === 404 ? 'jeton refusé ou sans droit d’écriture' : 'erreur ' + r.status);
-}
+// ---------- enregistrer : dans le Google Sheet (onglet « Tests »), avec le compte de l'équipe ----------
 function verifier() { // ce qui empêcherait une question de passer
   for (const [i, e] of M.ecrans.entries()) {
     if (e.q != null && !e.q.trim()) return [i, 'Cette question est vide.'];
@@ -354,28 +339,21 @@ function verifier() { // ce qui empêcherait une question de passer
 }
 async function enregistrer() {
   const pb = verifier(); if (pb) { sel = pb[0]; liste(); zone(); return $('etat').textContent = pb[1]; }
-  if (!cle()) return $('jeton').showModal();
   $('etat').textContent = 'Enregistrement…'; $('enregistrer').disabled = true;
-  try { const t = ecrireSeance(M); await ecrire(FICHIER, b64(t), (TEST ? 'Test « ' + TEST + ' »' : 'Séance') + " modifiée depuis l'éditeur" + (QUI() ? ' par ' + QUI() : '')); if (TEST) try { localStorage.setItem('pdvNeuf' + TEST, t); } catch (x) { } depart = t; lireSeance(t); charger(); declarerVersion(); journal('Test enregistré', 'version ' + VERSION + ' · ' + QUESTIONS().length + ' questions'); $('etat').textContent = 'Enregistré (version ' + VERSION + '). Le site sera à jour dans une à deux minutes.'; }
-  catch (err) { $('etat').textContent = "Pas enregistré : " + err.message + '.'; $('enregistrer').disabled = false; if (/jeton/.test(err.message)) $('jeton').showModal(); }
+  try { const t = ecrireSeance(M); await sauverTest({ id: TEST || 'principal', nom: NOM, texte: t, base: BASE }); depart = t; lireSeance(t); charger(); declarerVersion(); journal('Test enregistré', 'version ' + VERSION + ' · ' + QUESTIONS().length + ' questions'); $('etat').textContent = 'Enregistré (version ' + VERSION + '). Le site est déjà à jour.'; }
+  catch (err) { $('etat').textContent = "Pas enregistré : " + err.message + '.'; $('enregistrer').disabled = false; }
 }
 $('enregistrer').addEventListener('click', enregistrer);
 connexion('Modifier le test');
 // prévisualiser : la version choisie s'ouvre dans un autre onglet avec les écrans tels qu'ils sont ici, enregistrés ou non. Rien ne part en ligne.
 const previsualiser = () => {
   try { localStorage.setItem('pdvApercu', ecrireSeance(M)); localStorage.removeItem('apercupdvSeance'); localStorage.removeItem('apercupdvEnLigne'); } catch (e) { } open('./' + VUES.find(v => v[0] === vue)[2], '_blank'); };
-$('jeton').addEventListener('click', ev => {
-  const a = (ev.target.closest('[data-a]') || {}).dataset; if (!a) return;
-  if (a.a === 'fermer') $('jeton').close();
-  if (a.a === 'garderCle') { const v = $('cle').value.trim(); if (v) { try { localStorage.setItem('pdvJeton', v); } catch (e) { } $('cle').value = ''; $('jeton').close(); const f = apresCle || enregistrer; apresCle = null; f(); } }
-  if (a.a === 'copier') navigator.clipboard.writeText(ecrireSeance(M)).then(() => { $('jeton').close(); $('etat').textContent = 'Fichier copié : collez-le dans ' + FICHIER + ' sur GitHub.'; });
-});
 addEventListener('beforeunload', ev => { if (M && ecrireSeance(M) !== depart) ev.preventDefault(); });
 
 // ---------- ajouter un écran à partir d'un modèle ----------
 // le parcours type d'une affiche : vue 5 secondes, ce qu'on a vu, trois notes, un avis. Le nom de l'affiche est dans chaque question
 // pour que les réponses de deux affiches ne se mélangent jamais dans les données.
-const parcours = (img, p) => { const n = img.split('/').pop().replace(/\.[^.]+$/, ''), cinq = ['1', '2', '3', '4', '5']; return [
+const parcours = (img, p) => { const n = nomImage(img), cinq = ['1', '2', '3', '4', '5']; return [
   { t: 'flash', img, ...p },
   { t: 'choix', q: n + " : qu'avez-vous vu en premier ?", o: ['Le titre', "L'image", 'La date ou le lieu', 'Les couleurs', 'Rien de précis'], ...p },
   { t: 'echelle', q: n + ' : le texte se lit-il facilement ?', o: cinq, a: 'Très difficilement', b: 'Très facilement', imgs: [img], ...p },
@@ -408,13 +386,7 @@ $('nouveau').addEventListener('click', ev => {
   if (m === 'affiche') { cible = 'parcours'; return galerie(); } // d'abord choisir (ou ajouter) l'affiche
   inserer(m);
 });
-// ---------- un nouveau test : son propre fichier tests/nom-court.txt, ajouté à la liste tests.txt ----------
-let apresCle = null; // ce qu'on faisait quand le jeton a été demandé
-const lireDepot = async chemin => { // la version du dépôt, pas celle du site (qui a une à deux minutes de retard)
-  const r = await fetch(DEPOT + chemin + '?ref=main', { headers: { Authorization: 'Bearer ' + cle(), Accept: 'application/vnd.github.raw+json' } });
-  if (r.ok) return r.text(); if (r.status === 404) return ''; throw new Error(r.status === 401 || r.status === 403 ? 'jeton refusé' : 'erreur ' + r.status);
-};
-const ENTETE = "# Les tests du site, en plus du test principal (seance.txt).\n# Une ligne par test : nom-court | Nom du test. Chaque test est le fichier tests/nom-court.txt.\n# Pour retirer un test de la liste, supprimez sa ligne (son fichier et ses données restent).";
+// ---------- un nouveau test : une ligne de plus dans l'onglet « Tests » du Google Sheet, à partir d'une structure de départ ----------
 const cinq = ['1', '2', '3', '4', '5'];
 const affiche = re => images.find(x => re.test(x)) || images[0];
 const debut = (titre, phrase) => [{ t: 'accueil' }, { t: 'info', s: 'Pour commencer', h: titre, x: phrase }];
@@ -442,26 +414,20 @@ console.assert(nomCourt('Affiches vaccination, décembre !') === 'affiches-vacci
 async function creerTest(g) {
   const nom = $('nomTest').value.replace(/[|\r\n]+/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 60), dit = $('etatCreer');
   if (!nom) { dit.textContent = "Donnez d'abord un nom au test."; return $('nomTest').focus(); }
-  const reprendre = () => { apresCle = () => { $('creer').showModal(); creerTest(g); }; $('creer').close(); $('jeton').showModal(); };
-  if (!cle()) return reprendre();
   dit.textContent = 'Création du test…';
   try {
-    const liste = await lireDepot('tests.txt'), pris = lireTests(liste).map(x => x.id), base = nomCourt(nom);
-    let id = base; for (let k = 2; pris.includes(id); k++) id = base + '-' + k;
-    const texte = g === 'principal' ? await lireDepot('seance.txt') : ecrireSeance({ phases: JSON.parse(JSON.stringify(PHASES)), missions: MISSIONS.slice(), tests: JSON.parse(JSON.stringify(TESTS)), ecrans: g() });
-    await ecrire('tests/' + id + '.txt', b64(texte), 'Nouveau test « ' + nom + ' »' + (QUI() ? ' par ' + QUI() : '')); // le fichier d'abord : la liste ne nomme jamais un test absent
-    await ecrire('tests.txt', b64((liste.trim() || ENTETE) + '\n' + id + ' | ' + nom + '\n'), 'Test « ' + nom + ' » ajouté à la liste');
-    try { localStorage.setItem('pdvNeuf' + id, texte); } catch (x) { }
-    journal('Nouveau test', nom + ' (' + id + ')');
-    location.href = 'modifier.html?test=' + id;
-  } catch (err) { dit.textContent = 'Pas créé : ' + err.message + '.'; if (/jeton/.test(err.message)) reprendre(); }
+    const texte = g === 'principal' ? await lireFichier('') : ecrireSeance({ phases: JSON.parse(JSON.stringify(PHASES)), missions: MISSIONS.slice(), tests: JSON.parse(JSON.stringify(TESTS)), ecrans: g() });
+    const r = await sauverTest({ id: nomCourt(nom), nom, texte, nouveau: true }); // le Sheet choisit un nom-court libre et note la création dans le journal
+    location.href = 'modifier.html?test=' + r.id;
+  } catch (err) { dit.textContent = 'Pas créé : ' + err.message + '.'; }
 }
 $('gabarits').innerHTML = GABARITS.map((m, i) => `<button type="button" data-g="${i}"><b>${h(m[0])}</b><span>${h(m[1])}</span></button>`).join('');
 const nouveauTest = () => { $('etatCreer').textContent = ''; $('creer').showModal(); $('nomTest').focus(); };
 $('creer').addEventListener('click', ev => { if (ev.target.closest('[data-a=fermer]')) return $('creer').close(); const b = ev.target.closest('[data-g]'); if (b) creerTest(GABARITS[+b.dataset.g][2]); });
 // le choix du test modifié, et les liens qui suivent ce test
 listeTests().then(l => {
-  if (TEST && !l.some(x => x.id === TEST)) l.push({ id: TEST, nom: TEST }); // créé à l'instant : pas encore dans la liste du site
+  if (TEST && !l.some(x => x.id === TEST)) l.push({ id: TEST, nom: TEST });
+  NOM = (l.find(x => x.id === TEST) || {}).nom || NOM;
   $('test').innerHTML = l.map(x => `<option value="${h(x.id)}" ${x.id === TEST ? 'selected' : ''}>${h(x.nom)}</option>`).join('') + '<option value="+">+ Nouveau test…</option>';
 });
 $('test').addEventListener('change', ev => { if (ev.target.value === '+') { ev.target.value = TEST; return nouveauTest(); } location.href = 'modifier.html' + (ev.target.value ? '?test=' + ev.target.value : ''); });

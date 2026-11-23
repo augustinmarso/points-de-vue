@@ -9,12 +9,12 @@ Le site : https://augustinmarso.github.io/points-de-vue/ propose trois entrées.
 - **Participants automatiques** : `bots.html?salle=CODE&n=100` fait entrer de faux téléphones dans une séance pour l'éprouver.
 - **Version papier** : `papier.html`, la fiche A3 (questions et ronds, sans image), la présentation à imprimer, et la lecture des fiches par photo.
 - **Test en ligne, chez soi** : `?enligne`, le lien à envoyer par mail aux habitants. Chacun passe le test seul, les affiches sont sur sa page, l'atelier en binômes est sauté ; les réponses arrivent dans l'onglet Données sous la séance « ligne ». `?enligne&essai` pour essayer sans rien enregistrer. Texte du mail : `../test-en-ligne/mail-habitants.txt`.
-- **Plusieurs tests** : « + Nouveau test » (dans Modifier le test ou dans le Profil) crée un test à part à partir d'une structure de départ (notre séance complète, une affiche à tester, comparer deux affiches, questionnaire court, page blanche). Chaque test est le fichier `tests/nom-court.txt`, listé dans `tests.txt` ; toutes les pages l'ouvrent avec `?test=nom-court` (le test principal reste `seance.txt`). Le Profil liste les tests avec Lancer, Essayer, Modifier, Données et le lien mail.
+- **Plusieurs tests** : « + Nouveau test » (menu des tests de Modifier le test, ou Profil) crée un test à part à partir d'une structure de départ (notre séance complète, une affiche à tester, comparer deux affiches, questionnaire court, page blanche). Toutes les pages l'ouvrent avec `?test=nom-court`. Le Profil liste les tests avec Lancer, Essayer, Modifier, Données et le lien mail.
 - **Étudier les données** : `resultats.html`, les totaux anonymes, la comparaison de séances et le lien vers le Google Sheet.
 
 ## Modifier les écrans de la séance
 
-Le plus simple : la page **Modifier le test** du site. Pour y enregistrer, il faut un jeton GitHub (la page explique comment), gardé dans le navigateur.
+Le plus simple : la page **Modifier le test** du site, avec le compte de l'équipe : **pas besoin de GitHub**. Les tests sont enregistrés dans le Google Sheet, onglet « Tests » (une ligne par test, le contenu en morceaux dans les colonnes H et suivantes ; « principal » = le test principal). Les images ajoutées depuis l'ordinateur sont gardées dans le test lui-même. Un fichier modifié directement sur GitHub (seance.txt, tests/…) reprend la main sur la dernière version enregistrée depuis le site.
 
 Tout le contenu (écrans, questions, réponses, affiches montrées) est dans **[seance.txt](seance.txt)**, modifiable aussi à la main :
 
