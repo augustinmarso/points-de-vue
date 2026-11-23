@@ -94,6 +94,15 @@ textarea.champ{min-height:150px;resize:none}
 #statut{position:fixed;left:0;right:0;bottom:0;padding:10px 22px;font-size:15px;background:#fff;z-index:2}
 #statut:empty{display:none}
 .apercu{width:100%;border-radius:28px;display:block}
+/* en ligne, chez soi : les affiches sont sur la page, on les touche pour les agrandir */
+.vue{display:flex;gap:12px}
+.vue figure{margin:0;flex:1;min-width:0;display:flex;flex-direction:column;gap:6px;font-weight:800;font-size:26px;cursor:zoom-in}
+.vue img{width:100%;max-height:58vh;object-fit:contain;object-position:left top;border-radius:20px;display:block}
+.vue figure.zoom{position:fixed;inset:0;z-index:6;background:#fff;align-items:center;justify-content:center;padding:16px;cursor:zoom-out}
+.vue figure.zoom img{max-height:90vh;width:auto;max-width:100%;object-position:center}
+.flash.seul{flex-direction:column;gap:3vh}
+.flash.seul img{max-width:94vw;max-height:78vh}
+.flash.seul .tete{font-size:10vh}
 
 /* grand écran */
 .ecran{height:100vh;padding:5vh 4vw 5vh;position:relative;display:flex;flex-direction:column;overflow:hidden;font-size:clamp(18px,1.7vw,34px)}
@@ -253,7 +262,7 @@ function placer() {
 let souris = null;
 function regards() {
   // l'affiche et les résultats d'abord ; à défaut, le titre
-  let cibles = [...document.querySelectorAll('.droite img, .flash img, .mur img, .cols, .mots, .scores, .qr svg, .opts, .echelle, .apercu')];
+  let cibles = [...document.querySelectorAll('.droite img, .flash img, .vue img, .mur img, .cols, .mots, .scores, .qr svg, .opts, .echelle, .apercu')];
   if (!cibles.length) cibles = [...document.querySelectorAll('#app h1, #app h2')];
   cibles = cibles.map(c => c.getBoundingClientRect()).filter(c => c.width && c.height);
   document.querySelectorAll('.yeux').forEach(y => {
@@ -305,7 +314,7 @@ function choixPasser() { // passer le test : au téléphone ou sur papier, et la
     ${carte('?passer=tel', 1, 'Au téléphone', "Chacun répond sur son téléphone. Les réponses s'enregistrent toutes seules.")}
     ${carte('?ecran&papier', 2, 'Sur papier', "Chacun répond sur une fiche A3. Le grand écran montre les affiches et les questions, sans téléphone.")}
     ${carte('papier.html?vue=lire', 3, 'Photographier les fiches', "Après une séance sur papier : une photo par fiche remplie, et les réponses rejoignent les données à étudier.")}
-  </nav></div>`;
+  </nav><p class="note">À distance, chacun chez soi : envoyez par mail le lien <a href="?enligne">${h(location.origin + location.pathname)}?enligne</a> (pour l'essayer sans rien enregistrer : <a href="?enligne&essai">?enligne&amp;essai</a>).</p></div>`;
   regards();
 }
 function accueilSite() {
@@ -441,6 +450,97 @@ function telephone() {
     if (ev.target.id === 'prise' && ev.target.files[0]) { photo = { img: await reduire(ev.target.files[0], 1100), etat: 'pret' }; dessiner(true); }
   });
   dessiner(); statut(); if (SALLE) brancher();
+}
+
+// ================= EN LIGNE, CHEZ SOI =================
+// Le lien envoyé par mail aux habitants (?enligne) : chacun passe le test seul, à son rythme, et voit les affiches sur sa page.
+// Les réponses partent dans l'onglet Données du Google Sheet comme celles d'une séance, sous la séance « ligne ».
+// L'atelier en binômes (mission, photos, tests, palmarès) n'a pas de sens seul : il est sauté. ?enligne&essai : rien n'est enregistré.
+function enLigne() {
+  const ESSAI = P.has('essai'), SAUTE = ['accueil', 'mission', 'photo', 'vote', 'palmares'];
+  const neuf = () => ({ pid: Math.random().toString(36).slice(2, 8), nom: '', parti: false, i: 0, v: VERSION, rep: {}, file: [] });
+  let M = lire('pdvEnLigne', null) || neuf(), pris = false;
+  // shortcut: si le test change entre deux visites, la personne reprend au début (ses réponses déjà parties restent dans le Sheet), à revoir si on modifie le test pendant l'envoi des mails
+  if (M.v !== VERSION) { M.i = 0; M.v = VERSION; }
+  const garder = () => ecrire('pdvEnLigne', M);
+  const QS = ETAPES.filter(e => e.id && !SAUTE.includes(e.t));
+  const ligne = (e, v) => ['Sligne-P' + M.pid, M.nom, e.p ? 'Étape ' + e.p : "Jeu de l'œil", e.q, e.t === 'echelle' ? `${v + 1} sur 5` : e.o ? [].concat(v).map(x => e.o[x]).join(' | ') : v, e.t === 'echelle' ? v + 1 : '', VERSION];
+  // les réponses attendent dans le navigateur jusqu'à ce qu'internet les ait prises : rien ne se perd si la connexion coupe
+  let envoi = false;
+  const envoyer = fin => {
+    if (ESSAI) M.file = [];
+    if (envoi || !M.file.length) return statut();
+    const lot = M.file.slice(0, 200); envoi = true;
+    fetch(SHEET, { method: 'POST', mode: 'no-cors', keepalive: !!fin, body: JSON.stringify(lot) })
+      .then(() => { M.file = M.file.slice(lot.length); garder(); }).catch(() => { }).finally(() => { envoi = false; statut(); });
+  };
+  const statut = () => {
+    document.getElementById('statut').textContent = ESSAI ? 'Essai : les réponses ne sont pas enregistrées.' : M.file.length && !navigator.onLine ? 'Pas de connexion internet : vos réponses partiront dès son retour.' : '';
+    const z = document.getElementById('envoi'); if (z) z.textContent = M.file.length ? 'Envoi de vos réponses…' : 'Vos réponses sont bien enregistrées. Vous pouvez fermer cette page.';
+  };
+  setInterval(envoyer, 3000); addEventListener('pagehide', () => envoyer(true)); addEventListener('online', () => envoyer());
+  const aller = i => { while (ETAPES[i] && SAUTE.includes(ETAPES[i].t)) i++; M.i = i; garder(); dessiner(); };
+  const repondre = (e, v) => { M.rep[e.id] = v; M.file.push(ligne(e, v)); aller(M.i + 1); envoyer(); };
+  const suite = '<button class="btn" data-a="suite">Continuer</button>';
+  const vue = (e, srcs) => srcs.length ? `<div class="vue${e.nb ? ' nb' : ''}">${srcs.map((s, k) => `<figure>${e.t === 'ab' ? (k ? 'B' : 'A') : ''}<img src="${h(s)}" alt="${e.t === 'ab' ? 'Affiche ' + (k ? 'B' : 'A') : 'L\'affiche'}"></figure>`).join('')}</div><p class="note">Touchez une affiche pour l'agrandir.</p>` : '';
+
+  function dessiner() {
+    const e = !M.parti ? { t: 'accueil' } : ETAPES[M.i] || { t: 'fin' }, ou = t => Math.max(0, ETAPES.findIndex(y => y.t === t));
+    courant = e.t === 'accueil' || e.t === 'fin' ? ou(e.t) : M.i; pris = false; placer(); scrollTo(0, 0);
+    let x = '';
+    if (e.t === 'accueil') x = `<div class="haut"></div><h1>Bonjour !</h1>
+      <p><b>Le groupe Points de vue fait tester des affiches de santé de Granville Terre et Mer par des habitants. Votre regard nous aide à les rendre plus claires.</b></p>
+      <p>Vous allez voir quelques affiches, puis répondre en touchant les réponses : ${QS.length} questions, environ ${Math.max(5, Math.round(QS.length / 3))} minutes. Il n'y a pas de bonne ou de mauvaise réponse. Si quelque chose n'est pas clair, c'est l'affiche qui est en cause, pas vous.</p>
+      <label class="lab" for="nom">Votre prénom <small>(si vous le souhaitez)</small></label><input class="champ" id="nom" maxlength="24" value="${h(M.nom)}" autocomplete="given-name" autocapitalize="words" enterkeyhint="go">
+      <button class="btn" data-a="partir">${M.i ? 'Reprendre le test' : 'Commencer'}</button>
+      <p class="note">Vos réponses sont anonymes : seul votre prénom, si vous le donnez, les accompagne. Vous pouvez vous arrêter et reprendre plus tard sur cet appareil.</p>`;
+    else if (e.t === 'phase') x = `<div class="haut"></div><p class="sur">Étape ${e.p}</p><h1>${h(PHASES[e.p].nom)}</h1><p><b>${h(PHASES[e.p].quoi)}</b></p>${suite}`;
+    else if (e.t === 'info') x = `<div class="haut"></div><p class="sur">${h(e.s)}</p><h1>${h(e.h)}</h1><p><b>${h(e.x)}</b></p>${vue(e, (e.imgs || []).filter(Boolean))}${suite}`;
+    else if (e.t === 'flash') x = `<div class="haut"></div><p class="sur">${sur(e)}</p><h1>Une affiche, 5 secondes</h1><p><b>Regardez-la comme si vous la croisiez dans la rue. Elle disparaît toute seule, puis viennent les questions.</b></p><button class="btn" data-a="voir">Voir l'affiche</button>`;
+    else if (e.t === 'scores') {
+      const J = JEUX(), ok = J.map(j => M.rep[j.id] === j.bon);
+      x = `<p class="sur">Le jeu de l'œil · vos réussites</p><h1>${ok.filter(Boolean).length} sur ${J.length}</h1>
+        <div class="etapes">${J.map((j, i) => `<div><span class="pt${ok[i] ? ' o' : ''}"></span><span>${h(j.q)}<br><b>${h(j.o[j.bon])}</b></span></div>`).join('')}</div>
+        <p class="note">Ce que vous n'avez pas trouvé, c'est ce que l'affiche montre mal.</p>${suite}`;
+    }
+    else if (e.t === 'fin') x = `<div class="haut"></div><h1>Merci !</h1><p><b>Vos observations vont servir à retravailler les affiches.</b></p><p id="envoi"></p>
+      <button class="lien" data-a="autre">Une autre personne veut répondre sur cet appareil</button>`;
+    else {
+      x = `<p class="sur">${sur(e)} · question ${QS.indexOf(e) + 1} sur ${QS.length}</p><h2>${h(e.q)}</h2>${e.note ? `<p class="note">${h(e.note)}</p>` : ''}${vue(e, e.jeu ? [] : (e.imgs || []).filter(Boolean))}`;
+      if (e.t === 'texte') x += `<textarea class="champ" id="txt" maxlength="200" placeholder="Votre réponse"></textarea><button class="btn" data-a="texte">Valider</button><button class="lien" data-a="suite">Passer cette question</button>`;
+      if (e.t === 'choix' || e.t === 'multi') x += `<div class="opts">${e.o.map((o, i) => `<button class="opt" data-o="${i}">${h(o)}${tete(e.p || 1)}</button>`).join('')}</div>`;
+      if (e.t === 'multi') x += `<p class="note">Plusieurs réponses possibles.</p><button class="btn" data-a="multi">Valider</button>`;
+      if (e.t === 'echelle') x += `<div class="echelle">${e.o.map((o, i) => `<button data-o="${i}" style="width:${36 + i * 11}px;height:${36 + i * 11}px">${o}</button>`).join('')}</div><div class="bouts"><span>${h(e.a)}</span><span>${h(e.b)}</span></div>`;
+      if (e.t === 'ab') x += `<div class="ab"><button data-o="0">A</button><button data-o="1">B</button></div><div class="opts"><button class="opt" data-o="2">${h(e.o[2])}${tete(e.p || 1)}</button></div>`;
+    }
+    app.innerHTML = `<div class="tel${e.t === 'accueil' ? ' fixe' : ''}">${x}</div>`;
+    [ETAPES[M.i], ETAPES[M.i + 1]].filter(Boolean).forEach(z => [...(z.imgs || []), z.img].filter(Boolean).forEach(u => { new Image().src = u; })); // l'affiche à venir est prête avant qu'on y arrive
+    regards(); statut();
+  }
+  function montrer(e) { // l'affiche plein écran : les 5 secondes ne comptent qu'une fois l'image chargée
+    const d = document.createElement('div'); d.className = 'flash seul';
+    d.innerHTML = `<img src="${h(e.img)}" alt="L'affiche à regarder">`; document.body.appendChild(d);
+    let parti = false;
+    const img = d.querySelector('img'), go = () => { if (parti) return; parti = true; d.insertAdjacentHTML('beforeend', tete(e.p || 1)); setTimeout(() => { d.remove(); aller(M.i + 1); }, 5000); };
+    if (img.complete) go(); else { img.onload = img.onerror = go; setTimeout(go, 8000); } // connexion lente : on n'attend pas indéfiniment la fin du chargement
+  }
+  app.addEventListener('click', ev => {
+    const f = ev.target.closest('.vue figure'); if (f) return f.classList.toggle('zoom');
+    const e = ETAPES[M.i], o = ev.target.closest('[data-o]'), a = ev.target.closest('[data-a]');
+    if (o && e.t === 'multi') return o.classList.toggle('on');
+    if (o) { if (pris) return; pris = true; o.classList.add('on'); return setTimeout(() => repondre(e, +o.dataset.o), 350); } // un double appui ne répond pas à la question suivante
+    if (!a) return;
+    const act = a.dataset.a;
+    if (act === 'partir') { M.nom = document.getElementById('nom').value.trim().slice(0, 24); M.parti = true; aller(M.i); }
+    if (act === 'suite') aller(M.i + 1);
+    if (act === 'voir') { a.disabled = true; montrer(e); }
+    if (act === 'multi') { const v = [...app.querySelectorAll('.opt.on')].map(b => +b.dataset.o); if (v.length) repondre(e, v); }
+    if (act === 'texte') { const v = document.getElementById('txt').value.trim(); if (v) repondre(e, v); }
+    if (act === 'autre') { const file = M.file; M = neuf(); M.file = file; garder(); dessiner(); }
+  });
+  app.addEventListener('keydown', ev => { if (ev.key === 'Enter' && ev.target.id === 'nom') { ev.preventDefault(); app.querySelector('[data-a=partir]').click(); } });
+  if (!ESSAI) declarerVersion();
+  dessiner(); envoyer();
 }
 
 // ================= GRAND ÉCRAN =================
@@ -687,7 +787,7 @@ const libs = Promise.all([(ECRAN || SALLE) && lib('libs/peerjs.min.js'), ECRAN &
 // le contenu d'abord (seance.txt, relu à chaque ouverture), puis l'appli
 (APERCU ? new Promise(ok => ok(localStorage.getItem('pdvApercu') || '')) : fetch('seance.txt?' + Date.now()).then(x => x.ok ? x.text() : Promise.reject())).then(t => lireSeance(t) || Promise.reject())
   .catch(() => { document.getElementById('statut').textContent = 'Le fichier seance.txt est introuvable ou vide.'; })
-  .then(() => libs).then(() => ECRAN ? ecran() : SALLE || P.get('passer') ? telephone() : P.has('passer') ? choixPasser() : accueilSite());
+  .then(() => libs).then(() => ECRAN ? ecran() : P.has('enligne') ? enLigne() : SALLE || P.get('passer') ? telephone() : P.has('passer') ? choixPasser() : accueilSite());
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => { }); // garde le site en mémoire pour les visites suivantes
 </script>
 </body>
