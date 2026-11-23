@@ -694,15 +694,16 @@ function ecran() {
   // met à jour les chiffres sans tout redessiner, pour que les cercles grossissent en douceur
   function maj() {
     const e = ETAPES[S.i], q = QH(e), la = enLigne(), rep = q.id ? S.rep[q.id] || {} : {};
+    const tous = new Set([...la, ...vus.keys()].filter(pid => S.gens[pid])); // qui a quitté la page (téléphone verrouillé, autre appli) reste dans la séance : il retrouve sa place en revenant
     const gens = app.querySelector('.gens'); if (!gens) return;
-    for (const pid of la) if (!gens.querySelector(`[data-p="${CSS.escape(pid)}"]`)) {
+    for (const pid of tous) if (!gens.querySelector(`[data-p="${CSS.escape(pid)}"]`)) {
       gens.insertAdjacentHTML('beforeend', tete(COUL[S.gens[pid].n % COUL.length])); gens.lastChild.dataset.p = pid;
     }
-    gens.querySelectorAll('[data-p]').forEach(t => { if (!la.has(t.dataset.p)) t.remove(); else { t.classList.toggle('ok', !q.id || t.dataset.p in rep); t.title = S.gens[t.dataset.p].nom; } });
+    gens.querySelectorAll('[data-p]').forEach(t => { if (!tous.has(t.dataset.p)) t.remove(); else { t.classList.toggle('ok', !q.id || t.dataset.p in rep); t.title = S.gens[t.dataset.p].nom; } });
     const salle = app.querySelector('.salle');
     if (salle) { // la salle d'attente : qui est bien connecté
-      app.querySelector('.cpt').textContent = la.size ? `${la.size} personne${la.size > 1 ? 's' : ''} connectée${la.size > 1 ? 's' : ''}` : 'En attente des téléphones…';
-      salle.innerHTML = [...la].map(pid => `<span>${tete(COUL[S.gens[pid].n % COUL.length])}${h(S.gens[pid].nom || 'Participant ' + (S.gens[pid].n + 1))}</span>`).join('');
+      app.querySelector('.cpt').textContent = tous.size ? `${tous.size} personne${tous.size > 1 ? 's' : ''} connectée${tous.size > 1 ? 's' : ''}` : 'En attente des téléphones…';
+      salle.innerHTML = [...tous].map(pid => `<span>${tete(COUL[S.gens[pid].n % COUL.length])}${h(S.gens[pid].nom || 'Participant ' + (S.gens[pid].n + 1))}</span>`).join('');
     }
     const mur = app.querySelector('.mur');
     if (mur && mur.classList.contains('palm')) { // classement sur la moyenne des cinq notes
@@ -721,7 +722,7 @@ function ecran() {
     if (!q.id) return;
     const vals = Object.values(rep), cpt = app.querySelector('.cpt');
     if (PAPIER) { cpt.textContent = NUM[q.id] ? `Sur votre fiche : ligne ${NUM[q.id]}${q.t === 'multi' ? ' · plusieurs réponses possibles' : ''}` : ''; return; }
-    cpt.textContent = `${vals.length} réponse${vals.length > 1 ? 's' : ''} sur ${Math.max(la.size, vals.length)} participant${Math.max(la.size, vals.length) > 1 ? 's' : ''}`;
+    cpt.textContent = `${vals.length} réponse${vals.length > 1 ? 's' : ''} sur ${Math.max(tous.size, vals.length)} participant${Math.max(tous.size, vals.length) > 1 ? 's' : ''}`;
     // tout le monde a répondu : les réponses se révèlent seules, puis la séance passe à la suite
     const attendus = new Set([...la, ...[...vus].filter(([, t]) => Date.now() - t < 45000).map(([pid]) => pid)]); // une coupure de quelques secondes ne compte pas comme un départ
     if (S.auto !== false && !tAuto && la.size > 0 && [...attendus].every(pid => pid in rep)) {
