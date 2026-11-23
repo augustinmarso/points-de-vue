@@ -82,6 +82,12 @@ header h1{margin:0;font-size:24px;font-weight:800;letter-spacing:-.04em;flex:1}
 .cote small{font-size:10px;font-weight:700}
 .cote .q{font-size:15px;line-height:1.05;font-weight:800;letter-spacing:-.03em}
 .cote .o{background:var(--t);border-radius:14px;padding:8px 10px;font-size:11px;font-weight:700}
+.cote.tel .ecr{overflow:auto}
+.cote span.o{display:flex;align-items:center;gap:4px}.cote span.o [contenteditable]{flex:1;min-width:0}
+.cote span.o.bon{background:var(--n);color:#fff}
+.cote span.o button{flex:none;width:24px;height:24px;border-radius:50%;font-weight:800;line-height:1}
+.cote .x{opacity:.55}.cote .x[disabled]{opacity:.15;cursor:default}.cote .ok{opacity:.3}.cote .bon .ok{opacity:1}
+.cote .plus{align-self:flex-start;background:var(--n);color:#fff;border-radius:99px;padding:7px 12px;font-weight:700;font-size:11px}.cote .plus[disabled]{opacity:.3;cursor:default}
 .cote .ronds{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
 .cote i{font-style:normal;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;flex:none}
 .cote .ronds i{width:26px;height:26px;font-size:11px}
@@ -224,7 +230,7 @@ function apercu(e) {
       : e.t === 'ab' ? e.o.map(x => `<span>${h(x)}</span>`).join('')
       : e.o.map((x, i) => `<span class="${e.jeu && i === e.bon ? 'bon' : ''}">${e.jeu ? `<button type="button" class="ok" data-a="bon" data-i="${i}" aria-pressed="${i === e.bon}" aria-label="Bonne réponse" title="C'est la bonne réponse">✓</button>` : ''}${ed('span', i, x, 'Réponse ' + (i + 1))}<button type="button" class="x" data-a="moins" data-i="${i}" aria-label="Retirer cette réponse" title="Retirer cette réponse" ${e.o.length < 3 ? 'disabled' : ''}>×</button></span>`).join('')
         + `<button type="button" class="plus" data-a="plus" ${e.o.length > 8 ? 'disabled' : ''}>+ Réponse</button>`;
-    g = `<div class="sur">${e.p ? 'Étape ' + e.p + ' · ' + h(M.phases[e.p].nom) : e.jeu ? "Le jeu de l'œil" : ''}</div>${ed('h2', 'q', e.q, 'La question')}${e.jeu ? '' : ed('div', 'note', e.note || '', 'Précision sous la question (facultatif)')}<div class="opts${e.t === 'echelle' || e.t === 'texte' ? '' : ' lettres'}">${o}</div>`;
+    g = `<div class="sur">${e.p ? 'Étape ' + e.p + ' · ' + h(M.phases[e.p].nom) : e.jeu ? "Le jeu de l'œil" : ''}</div>${ed('h2', 'q', e.q, 'La question')}${e.jeu ? '' : ed('div', 'note', e.note || '', 'Précision sous la question (facultatif)')}${vue === 'tel' ? '' : `<div class="opts${e.t === 'echelle' || e.t === 'texte' ? '' : ' lettres'}">${o}</div>`}`;
     im = e.t === 'ab' ? img('imgs.0', (e.imgs || [])[0]) + img('imgs.1', (e.imgs || [])[1]) : e.jeu ? img('img', e.img) : img('imgs.0', (e.imgs || [])[0], 1);
   }
   else g = `<div class="sur">${h(TYPE(e))}</div><h2>${h({ accueil: 'Bienvenue !', scores: 'Les réussites', photo: 'Vos affiches', palmares: 'Le palmarès', fin: 'Merci !' }[e.t])}</h2>`;
@@ -241,7 +247,8 @@ function cote(e) {
       e.t === 'echelle' ? `<div class="ronds">${[1, 2, 3, 4, 5].map(n => `<i>${n}</i>`).join('')}</div><div class="bouts">${ed('span', 'a', e.a, 'Sens de la note 1')}${ed('span', 'b', e.b, 'Sens de la note 5')}</div>`
       : e.t === 'ab' ? `<div class="AB"><i>A</i><i>B</i></div><span class="o">${h(o[2])}</span>`
       : e.t === 'texte' ? `<span class="champ">Votre réponse</span><span class="val">Valider</span>`
-      : o.map((r, i) => ed('span', i, r, 'Réponse ' + (i + 1), 'o')).join('') + (e.t === 'multi' ? `<small>Plusieurs réponses possibles.</small><span class="val">Valider</span>` : ''));
+      : o.map((r, i) => `<span class="o${e.jeu && i === e.bon ? ' bon' : ''}">${e.jeu ? `<button type="button" class="ok" data-a="bon" data-i="${i}" aria-pressed="${i === e.bon}" aria-label="Bonne réponse" title="C'est la bonne réponse">✓</button>` : ''}${ed('span', i, r, 'Réponse ' + (i + 1))}<button type="button" class="x" data-a="moins" data-i="${i}" aria-label="Retirer cette réponse" title="Retirer cette réponse" ${o.length < 3 ? 'disabled' : ''}>×</button></span>`).join('')
+        + `<button type="button" class="plus" data-a="plus" ${o.length > 8 ? 'disabled' : ''}>+ Réponse</button>` + (e.t === 'multi' ? `<small>Plusieurs réponses possibles.</small><span class="val">Valider</span>` : ''));
   else x = !Q ? `<p class="att">Rien à remplir sur la fiche pour cet écran.</p>`
     : `<b class="q">${M.ecrans.slice(0, sel + 1).filter(y => y.q != null && !y.masque).length}. ${ed('span', 'q', e.q, 'La question')}${e.t === 'multi' ? ' *' : ''}</b>` + (
       e.t === 'texte' ? `<small>Écrivez votre réponse sur les lignes.</small><div class="lignes"></div>`
