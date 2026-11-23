@@ -352,7 +352,7 @@ function telephone() {
       let premier = true;
       c.on('open', () => { if (p !== peer) return; lien = c; vu = Date.now(); c.send({ k: 'salut', pid: mes.pid, nom: mes.inscrit ? mes.nom : '' }); statut(); });
       c.on('data', d => {
-        if (d.k === 'seance' && typeof d.x === 'string' && d.x) { // aperçu de l'éditeur : le grand écran donne sa version du test, le téléphone se recharge dessus
+        if (d.k === 'seance' && SALLE[0] === '0' && typeof d.x === 'string' && d.x) { // seulement dans un aperçu (code en 0…) : une vraie séance ne change jamais de test sur un message // aperçu de l'éditeur : le grand écran donne sa version du test, le téléphone se recharge dessus
           try { if (APERCU && localStorage.getItem('pdvApercu') === d.x) return; localStorage.setItem('pdvApercu', d.x); } catch (e) { return; }
           return location.replace('?salle=' + SALLE + '&apercu');
         }
