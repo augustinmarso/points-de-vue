@@ -219,7 +219,7 @@ $('vue').addEventListener('click', ev => {
       .catch(() => { ev.target.disabled = false; $('etat').textContent = "Pas enregistré : vérifiez la connexion internet, puis réessayez."; });
   }
 });
-lireFichier().then(t => { if (!lireSeance(t)) throw 0; dessiner(); connexion('Version papier'); }).catch(() => { $('vue').innerHTML = '<p>Le fichier de la séance ne se charge pas.</p>'; });
+lireFichier().then(t => { if (!lireSeance(t)) throw 0; dessiner(); noterVisite('Version papier'); }).catch(() => { $('vue').innerHTML = '<p>Le fichier de la séance ne se charge pas.</p>'; });
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => { }); // garde le site en mémoire pour les visites suivantes
 </script>
 </body>

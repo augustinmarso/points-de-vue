@@ -24,7 +24,7 @@ const lireFichier = (id = TEST) => Promise.all([
 ]).then(([g, f]) => { if (id === TEST) BASE = f ? versionSeance(f) : ''; const t = g && g.texte && (!f || versionSeance(f) === g.base) ? g.texte : f; return t || Promise.reject(); });
 // enregistrer un test dans le Sheet (compte de l'équipe) : { id, nom, texte, base, nouveau } → { ok, id }
 const sauverTest = t => fetch(SCRIPT_GOOGLE, { method: 'POST', body: JSON.stringify({ test: { jeton: JETON(), ...t } }) }).then(x => x.json())
-  .catch(() => Promise.reject(new Error('pas de réponse, vérifiez la connexion internet'))).then(x => x.ok ? x : Promise.reject(new Error(x.erreur || 'refusé')));
+  .catch(() => Promise.reject(new Error('pas de réponse, vérifiez la connexion internet'))).then(x => { if (x.ok) return x; if (/connexion/.test(x.erreur || '')) try { localStorage.removeItem('pdvCompte'); } catch (e) { } return Promise.reject(new Error(x.erreur || 'refusé')); });
 // une image de test n'est acceptée que si c'est une affiche du dossier « affiches » du site ou une image ajoutée dans l'éditeur (data:) :
 // les tests s'enregistrent depuis le site, une adresse d'image ne doit jamais pouvoir glisser du code dans les pages
 const imageSure = v => /^affiches\/[\w.-]+\.(jpe?g|png|webp|gif)$/i.test(v) || /^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+\/=]+$/.test(v) ? v : '';
@@ -135,21 +135,26 @@ function deconnexion() { try { localStorage.removeItem('pdvCompte'); } catch (e)
 function journal(quoi, detail = '') {
   if (QUI()) fetch(SCRIPT_GOOGLE, { method: 'POST', mode: 'no-cors', keepalive: true, body: JSON.stringify({ journal: { jeton: JETON(), quoi, detail } }) }).catch(() => { });
 }
-function connexion(page) { // rend une promesse tenue une fois la personne connectée ; note la connexion (une fois par onglet et par page)
+// les pages s'ouvrent sans connexion : on note seulement la visite de quelqu'un déjà connecté. La connexion n'est demandée
+// qu'au moment d'une action qui en a besoin (enregistrer ou créer un test) et sur les pages des données (Données, Profil).
+const noterVisite = page => { if (COMPTE()) connexion(page); };
+function connexion(page, annulable) { // rend une promesse tenue une fois la personne connectée ; note la connexion (une fois par onglet et par page)
+  // annulable : demandée au milieu d'une action (enregistrer) ; « Annuler » la referme et la promesse échoue (« connexion annulée »)
   const noter = () => { try { if (sessionStorage.getItem('pdvVu' + page)) return; sessionStorage.setItem('pdvVu' + page, 1); } catch (e) { } journal('Connexion', page); };
   if (COMPTE()) { noter(); return Promise.resolve(); }
-  return new Promise(fini => {
+  return new Promise((fini, rate) => {
     const d = document.createElement('dialog'), champ = 'font:inherit;background:#F3F3F3;border:0;border-radius:14px;padding:12px 14px;min-height:46px;width:100%;box-sizing:border-box';
     d.style.cssText = 'border:0;border-radius:22px;padding:24px;width:min(420px,92vw);color:#141414;box-shadow:0 10px 60px rgba(20,20,20,.35)';
     d.innerHTML = `<form style="display:flex;flex-direction:column;gap:12px"><b style="font-size:26px;letter-spacing:-.03em;line-height:1">Connexion de l'équipe</b>
-      <span>Cette page est réservée à l'équipe. À la première connexion, le mot de passe que vous tapez devient le vôtre.</span>
+      <span>${annulable ? 'Pour enregistrer, connectez-vous avec le compte de l’équipe.' : 'Cette page est réservée à l’équipe.'} À la première connexion, le mot de passe que vous tapez devient le vôtre.</span>
       <label style="display:flex;flex-direction:column;gap:6px;font-weight:800">Adresse mail<input type="email" name="username" required autocomplete="username" style="${champ}"></label>
       <label style="display:flex;flex-direction:column;gap:6px;font-weight:800">Mot de passe<input type="password" name="password" required minlength="8" autocomplete="current-password" style="${champ}"></label>
       <span role="alert" style="font-weight:700;min-height:1.3em"></span>
       <button style="font:inherit;font-weight:800;background:#141414;color:#fff;border:0;border-radius:99px;padding:10px 20px;min-height:46px;cursor:pointer">Se connecter</button>
-      <a href="./" style="color:inherit;align-self:center">Retour à l'accueil</a></form>`;
+      ${annulable ? '<button type="button" data-annuler style="font:inherit;font-weight:700;background:none;border:0;text-decoration:underline;cursor:pointer;color:inherit">Annuler</button>' : '<a href="./" style="color:inherit;align-self:center">Retour à l’accueil</a>'}</form>`;
     document.body.appendChild(d); d.addEventListener('cancel', ev => ev.preventDefault());
     const f = d.querySelector('form'), dit = d.querySelector('[role=alert]'), b = d.querySelector('button');
+    if (annulable) d.querySelector('[data-annuler]').onclick = () => { d.close(); d.remove(); rate(new Error('connexion annulée')); };
     f.addEventListener('submit', ev => { ev.preventDefault(); b.disabled = true; dit.textContent = 'Vérification…';
       fetch(SCRIPT_GOOGLE, { method: 'POST', body: JSON.stringify({ compte: { mail: f.username.value, passe: f.password.value } }) }).then(x => x.json()).then(x => {
         if (!x.ok) { b.disabled = false; dit.textContent = x.erreur || 'Connexion refusée.'; return; }

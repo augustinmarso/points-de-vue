@@ -347,11 +347,11 @@ function verifier() { // ce qui empêcherait une question de passer
 async function enregistrer() {
   const pb = verifier(); if (pb) { sel = pb[0]; liste(); zone(); return $('etat').textContent = pb[1]; }
   $('etat').textContent = 'Enregistrement…'; $('enregistrer').disabled = true;
-  try { const t = ecrireSeance(M); await sauverTest({ id: TEST || 'principal', nom: NOM, texte: t, base: BASE }); depart = t; lireSeance(t); charger(); declarerVersion(); journal('Test enregistré', 'version ' + VERSION + ' · ' + QUESTIONS().length + ' questions'); $('etat').textContent = 'Enregistré (version ' + VERSION + '). Le site est déjà à jour.'; }
+  try { const t = ecrireSeance(M); await connexion('Modifier le test', 1); await sauverTest({ id: TEST || 'principal', nom: NOM, texte: t, base: BASE }); depart = t; lireSeance(t); charger(); declarerVersion(); journal('Test enregistré', 'version ' + VERSION + ' · ' + QUESTIONS().length + ' questions'); $('etat').textContent = 'Enregistré (version ' + VERSION + '). Le site est déjà à jour.'; }
   catch (err) { $('etat').textContent = "Pas enregistré : " + err.message + '.'; $('enregistrer').disabled = false; }
 }
 $('enregistrer').addEventListener('click', enregistrer);
-connexion('Modifier le test');
+noterVisite('Modifier le test');
 // prévisualiser : la version choisie s'ouvre dans un autre onglet avec les écrans tels qu'ils sont ici, enregistrés ou non. Rien ne part en ligne.
 const previsualiser = () => {
   try { localStorage.setItem('pdvApercu', ecrireSeance(M)); localStorage.removeItem('apercupdvSeance'); localStorage.removeItem('apercupdvEnLigne'); } catch (e) { } open('./' + VUES.find(v => v[0] === vue)[2], '_blank'); };
@@ -424,6 +424,7 @@ async function creerTest(g) {
   dit.textContent = 'Création du test…';
   try {
     const texte = g === 'principal' ? await lireFichier('') : ecrireSeance({ phases: JSON.parse(JSON.stringify(PHASES)), missions: MISSIONS.slice(), tests: JSON.parse(JSON.stringify(TESTS)), ecrans: g() });
+    await connexion('Modifier le test', 1);
     const r = await sauverTest({ id: nomCourt(nom), nom, texte, nouveau: true }); // le Sheet choisit un nom-court libre et note la création dans le journal
     location.href = 'modifier.html?test=' + r.id;
   } catch (err) { dit.textContent = 'Pas créé : ' + err.message + '.'; }

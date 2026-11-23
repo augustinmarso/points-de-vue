@@ -79,7 +79,7 @@ $('f').addEventListener('submit', async ev => {
   }
   dire(`Tous lancés : ${bots.filter(b => b.lien).length} connectés sur ${n}. Faites avancer la séance sur le grand écran.`);
 });
-connexion('Participants automatiques');
+noterVisite('Participants automatiques');
 lireFichier().then(t => { if (!lireSeance(t)) throw 0; }).catch(() => { $('go').disabled = true; dire('Le fichier de la séance ne se charge pas.'); });
 </script>
 </body>

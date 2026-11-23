@@ -757,7 +757,7 @@ function ecran() {
 
   const annoncer = () => fetch(SHEET, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ seance: { code: SALLE, n: enLigne().size, i: S.i + 1, total: ETAPES.length } }) }).catch(() => { });
   if (!PAPIER && !APERCU) { annoncer(); setInterval(annoncer, 30000); } // une séance sur papier n'attend aucun téléphone
-  if (!APERCU) { declarerVersion(); connexion(`Grand écran · séance ${SALLE} · ${PAPIER ? 'papier' : 'téléphone'}`); }
+  if (!APERCU) { declarerVersion(); noterVisite(`Grand écran · séance ${SALLE} · ${PAPIER ? 'papier' : 'téléphone'}`); }
 
   document.addEventListener('click', ev => {
     const fig = ev.target.closest('.mur figure'); if (fig) return fig.classList.toggle('zoom');
