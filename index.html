@@ -395,7 +395,7 @@ function telephone() {
            <p class="note"><a href="?ecran${TQ}">Animer une séance sur le grand écran</a> · <a href="./" aria-label="Accueil" title="Accueil"><svg viewBox="0 0 24 24" width="1.35em" height="1.35em" fill="currentColor" aria-hidden="true" style="vertical-align:-.3em"><path d="M12 3 2.5 11.2h2.7V21h5.3v-6h3v6h5.3v-9.8h2.7z"/></svg></a></p>`
         : mes.inscrit ? `<div class="fait" style="margin-top:0">${tete(1)}<h2>${mes.nom ? h(mes.nom) + ', vous êtes inscrit.' : 'Vous êtes inscrit.'}</h2><p>Gardez ce téléphone en main et regardez le grand écran : la séance va commencer.</p></div>`
         : `<label class="lab" for="nom">Votre prénom</label><input class="champ" id="nom" maxlength="24" value="${h(mes.nom)}" autocomplete="given-name" autocapitalize="words" enterkeyhint="done">
-           <button class="btn" data-a="inscrire">Je m'inscris</button><p class="note">Séance ${h(SALLE)}. Il n'y a pas de bonne ou de mauvaise réponse.</p>`);
+           <button class="btn" data-a="inscrire">Je m'inscris</button><p class="note">Séance ${h(SALLE)}. Il n'y a pas de bonne ou de mauvaise réponse. Votre prénom s'affiche sur le grand écran, il n'est pas enregistré avec vos réponses. <a href="confidentialite.html">Vos données</a></p>`);
     else if (e.t === 'phase') x = `<div class="haut"></div><p class="sur">Étape ${e.p}</p><h1>${h(PHASES[e.p].nom)}</h1><p><b>${h(PHASES[e.p].quoi)}</b></p>`;
     else if (e.t === 'info') x = `<div class="haut"></div><p class="sur">${h(e.s)}</p><h1>${h(e.h)}</h1><p><b>${h(e.x)}</b></p>`;
     else if (e.t === 'scores') {
@@ -471,7 +471,7 @@ function enLigne() {
   if (M.v !== VERSION) { M.i = 0; M.v = VERSION; }
   const garder = () => ecrire('pdvEnLigne', M);
   const QS = ETAPES.filter(e => e.id && !SAUTE.includes(e.t));
-  const ligne = (e, v) => ['Sligne' + TEST.replace(/-/g, '') + '-P' + M.pid, M.nom, e.p ? 'Étape ' + e.p : "Jeu de l'œil", e.q, e.t === 'echelle' ? `${v + 1} sur 5` : e.o ? [].concat(v).map(x => e.o[x]).join(' | ') : v, e.t === 'echelle' ? v + 1 : '', VERSION];
+  const ligne = (e, v) => ['Sligne' + TEST.replace(/-/g, '') + '-P' + M.pid, '', e.p ? 'Étape ' + e.p : "Jeu de l'œil", e.q, e.t === 'echelle' ? `${v + 1} sur 5` : e.o ? [].concat(v).map(x => e.o[x]).join(' | ') : v, e.t === 'echelle' ? v + 1 : '', VERSION];
   // les réponses attendent dans le navigateur jusqu'à ce qu'internet les ait prises : rien ne se perd si la connexion coupe
   let envoi = false;
   const envoyer = fin => {
@@ -500,7 +500,7 @@ function enLigne() {
       <p>Vous allez voir quelques affiches, puis répondre en touchant les réponses : ${QS.length} questions, environ ${Math.max(5, Math.round(QS.length / 3))} minutes. Il n'y a pas de bonne ou de mauvaise réponse. Si quelque chose n'est pas clair, c'est l'affiche qui est en cause, pas vous.</p>
       <label class="lab" for="nom">Votre prénom <small>(si vous le souhaitez)</small></label><input class="champ" id="nom" maxlength="24" value="${h(M.nom)}" autocomplete="given-name" autocapitalize="words" enterkeyhint="go">
       <button class="btn" data-a="partir">${M.i ? 'Reprendre le test' : 'Commencer'}</button>
-      <p class="note">Vos réponses sont anonymes : seul votre prénom, si vous le donnez, les accompagne. Vous pouvez vous arrêter et reprendre plus tard sur cet appareil.</p>`;
+      <p class="note">Vos réponses sont anonymes : votre prénom n'est pas enregistré avec elles. Vous pouvez vous arrêter et reprendre plus tard sur cet appareil. <a href="confidentialite.html">Vos données</a></p>`;
     else if (e.t === 'phase') x = `<div class="haut"></div><p class="sur">Étape ${e.p}</p><h1>${h(PHASES[e.p].nom)}</h1><p><b>${h(PHASES[e.p].quoi)}</b></p>${suite}`;
     else if (e.t === 'info') x = `<div class="haut"></div><p class="sur">${h(e.s)}</p><h1>${h(e.h)}</h1><p><b>${h(e.x)}</b></p>${vue(e, (e.imgs || []).filter(Boolean))}${suite}`;
     else if (e.t === 'flash') x = `<div class="haut"></div><p class="sur">${sur(e)}</p><h1>Une affiche, 5 secondes</h1><p><b>Regardez-la comme si vous la croisiez dans la rue. Elle disparaît toute seule, puis viennent les questions.</b></p><button class="btn" data-a="voir">Voir l'affiche</button>`;
@@ -743,7 +743,7 @@ function ecran() {
 
   // chaque réponse part toute seule vers le Google Sheet de synthèse (onglet Données), par petits paquets toutes les 4 secondes ;
   // ce qui n'a pas pu partir (coupure d'internet) reste en file et repart dès que possible
-  const qui = pid => { const g = S.gens[pid] || {}; return ['S' + SALLE + '-P' + (g.n + 1), g.nom || '']; };
+  const qui = pid => { const g = S.gens[pid] || {}; return ['S' + SALLE + '-P' + (g.n + 1), '']; }; // le prénom reste sur l'écran, il n'est pas enregistré
   const ligneRep = (id, pid, v) => { const e = trouver(id); return e && [...qui(pid), e.p ? 'Étape ' + e.p : e.voteK != null ? 'Atelier' : "Jeu de l'œil", e.voteK != null ? `Affiche ${e.voteK + 1} : ${e.q}` : e.q, e.t === 'echelle' ? `${v + 1} sur 5` : e.o ? [].concat(v).map(x => e.o[x]).join(' | ') : v, e.t === 'echelle' ? v + 1 : '', VERSION]; };
   const lignePhoto = (p, k) => [...qui(p.pid), 'Atelier', `Affiche ${k + 1} : information et binôme`, MISSIONS[S.mission] + (p.mot ? ' (' + p.mot + ')' : ''), '', VERSION];
   const noter = l => { if (l) { (S.file = S.file || []).push(l); garder(); } };

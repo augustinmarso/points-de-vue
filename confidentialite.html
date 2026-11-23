@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Points de vue · vos données</title>
+<link rel="icon" href="icone.png"><link rel="apple-touch-icon" href="icone.png">
+<link rel="preload" href="polices/scoutie.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+@font-face{font-family:'Scoutie Sans';font-weight:200 800;font-display:swap;src:url(polices/scoutie.woff2) format('woff2')}
+:root{--n:#141414;--fond:#F3F3F3;--c3:#1F6FE0}
+*{box-sizing:border-box}
+body{margin:0;background:#fff;color:var(--n);font-family:'Scoutie Sans',Helvetica,Arial,sans-serif;font-size:20px;line-height:1.35}
+main{max-width:640px;margin:0 auto;padding:28px 22px 80px}
+h1{margin:18px 0 8px;font-size:clamp(40px,9vw,60px);line-height:.95;font-weight:800;letter-spacing:-.05em}
+h2{margin:34px 0 6px;font-size:26px;line-height:1.05;font-weight:800;letter-spacing:-.03em}
+p,ul{margin:0 0 10px}ul{padding-left:1.1em}li{margin-bottom:6px}
+a{color:inherit;font-weight:700}
+.tel{display:inline-block;background:var(--n);color:#fff;border-radius:99px;padding:.6em 1.2em;font-weight:800;text-decoration:none;margin:6px 0}
+.retour{font:inherit;font-weight:700;border:0;background:var(--fond);border-radius:99px;padding:.5em 1.1em;cursor:pointer;color:inherit}
+:focus-visible{outline:3px solid var(--c3);outline-offset:3px}
+.petit{font-size:16px}
+</style>
+</head>
+<body>
+<main>
+  <button class="retour" onclick="history.length > 1 ? history.back() : location.href = './'">← Retour</button>
+  <h1>Vos données</h1>
+  <p><b>Ce que le groupe Points de vue garde sur vous, pourquoi, et comment le faire supprimer.</b></p>
+
+  <h2>Qui est responsable ?</h2>
+  <p>Le groupe Points de vue. C'est un projet d'étudiants en design, mené avec le service santé de Granville Terre et Mer. Il fait tester des affiches de santé par des habitants pour les rendre plus claires.</p>
+
+  <h2>Quand vous vous inscrivez</h2>
+  <ul>
+    <li>Nous gardons votre nom, votre téléphone ou votre e-mail, et la situation que vous avez cochée (par exemple « J'ai 65 ans ou plus »).</li>
+    <li>Cela sert seulement à vous donner une heure et à vous envoyer un rappel.</li>
+    <li>Ces informations sont supprimées un mois après la séance.</li>
+  </ul>
+
+  <h2>Quand vous répondez aux questions</h2>
+  <ul>
+    <li>Nous gardons vos réponses sur les affiches. Votre prénom n'est pas enregistré avec elles : personne ne peut savoir qui a répondu quoi.</li>
+    <li>Votre prénom s'affiche sur le grand écran pendant la séance, puis il est effacé.</li>
+    <li>Dans les réponses à écrire, ne donnez ni votre nom ni d'information sur votre santé.</li>
+    <li>Les réponses servent à améliorer les affiches. Elles sont gardées un an.</li>
+  </ul>
+
+  <h2>Où sont-elles rangées ?</h2>
+  <p>Dans un tableau Google que seule l'équipe du projet peut ouvrir. Le site est hébergé par GitHub. Ces deux entreprises sont américaines : vos données peuvent être stockées hors de France.</p>
+  <p>Le site n'utilise ni publicité ni outil de suivi. Il garde seulement, sur votre appareil, de quoi reprendre le test là où vous l'avez laissé.</p>
+
+  <h2>Vos droits</h2>
+  <p>Participer est libre. Vous pouvez arrêter à tout moment. Vous pouvez demander à voir, corriger ou supprimer ce qui vous concerne :</p>
+  <p><a class="tel" href="tel:+33685327406">06 85 32 74 06</a></p>
+  <p class="petit">Si la réponse ne vous convient pas, vous pouvez écrire à la CNIL : <a href="https://www.cnil.fr/fr/plaintes">cnil.fr/fr/plaintes</a>.</p>
+</main>
+</body>
+</html>
