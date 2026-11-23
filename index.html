@@ -200,7 +200,7 @@ const PAPIER = ECRAN && P.has('papier'); // séance sur papier : le grand écran
 // chaque séance a son code à 4 chiffres : le grand écran le crée et l'affiche (QR code + chiffres), le téléphone le reçoit par le QR code ou le tape
 const nouveauCode = () => String(1000 + Math.random() * 9000 | 0);
 let code = P.get('salle');
-if (ECRAN && !code) { try { code = localStorage.getItem('pdvCode') || nouveauCode(); localStorage.setItem('pdvCode', code); } catch (e) { code = nouveauCode(); } }
+if (ECRAN && !code) { try { code = localStorage.getItem('pdvCode' + TEST) || nouveauCode(); localStorage.setItem('pdvCode' + TEST, code); } catch (e) { code = nouveauCode(); } }
 const SALLE = (code || '').replace(/[^a-z0-9]/gi, '').toLowerCase().slice(0, 12);
 const HOTE = 'pointsdevue-gtm-' + SALLE + (APERCU ? '-' + Math.random().toString(36).slice(2, 8) : ''); // chaque aperçu a sa propre adresse : aucun téléphone ne s'y branche
 const SHEET = SCRIPT_GOOGLE;
@@ -311,10 +311,16 @@ const carte = (lien, c, titre, texte) => `<a href="${lien}" style="--c:var(--c${
 function choixPasser() { // passer le test : au téléphone ou sur papier, et la photo des fiches remplies
   placer();
   app.innerHTML = `<div class="site"><p class="sur"><a href="./" aria-label="Accueil" title="Accueil"><svg viewBox="0 0 24 24" width="1.35em" height="1.35em" fill="currentColor" aria-hidden="true" style="vertical-align:-.3em"><path d="M12 3 2.5 11.2h2.7V21h5.3v-6h3v6h5.3v-9.8h2.7z"/></svg></a>${rondProfil()} · Passer le test</p><h1>Téléphone ou papier ?</h1><nav class="trois">
-    ${carte('?passer=tel', 1, 'Au téléphone', "Chacun répond sur son téléphone. Les réponses s'enregistrent toutes seules.")}
-    ${carte('?ecran&papier', 2, 'Sur papier', "Chacun répond sur une fiche A3. Le grand écran montre les affiches et les questions, sans téléphone.")}
-    ${carte('papier.html?vue=lire', 3, 'Photographier les fiches', "Après une séance sur papier : une photo par fiche remplie, et les réponses rejoignent les données à étudier.")}
-  </nav><p class="note">À distance, chacun chez soi : envoyez par mail le lien <a href="?enligne">${h(location.origin + location.pathname)}?enligne</a> (pour l'essayer sans rien enregistrer : <a href="?enligne&essai">?enligne&amp;essai</a>).</p></div>`;
+    ${carte('?passer=tel' + TQ, 1, 'Au téléphone', "Chacun répond sur son téléphone. Les réponses s'enregistrent toutes seules.")}
+    ${carte('?ecran&papier' + TQ, 2, 'Sur papier', "Chacun répond sur une fiche A3. Le grand écran montre les affiches et les questions, sans téléphone.")}
+    ${carte('papier.html?vue=lire' + TQ, 3, 'Photographier les fiches', "Après une séance sur papier : une photo par fiche remplie, et les réponses rejoignent les données à étudier.")}
+  </nav><p class="note">À distance, chacun chez soi : envoyez par mail le lien <a href="?enligne${TQ}">${h(location.origin + location.pathname)}?enligne${h(TQ)}</a> (pour l'essayer sans rien enregistrer : <a href="?enligne&essai${TQ}">?enligne&amp;essai</a>).</p>
+    <label class="note" id="lesTests" hidden>Test passé : <select style="font:inherit;font-weight:700;border:0;border-radius:99px;padding:6px 12px;background:var(--t1)"></select></label></div>`;
+  listeTests().then(l => { // le choix du test, s'il y en a plusieurs : la page se recharge sur celui choisi
+    const z = document.getElementById('lesTests'); if (!z || l.length < 2) return; const s = z.querySelector('select');
+    s.innerHTML = l.map(x => `<option value="${h(x.id)}" ${x.id === TEST ? 'selected' : ''}>${h(x.nom)}</option>`).join(''); z.hidden = false;
+    s.onchange = () => location.search = '?passer' + (s.value ? '&test=' + s.value : '');
+  });
   regards();
 }
 function accueilSite() {
@@ -345,6 +351,7 @@ function telephone() {
       c.on('open', () => { if (p !== peer) return; lien = c; vu = Date.now(); c.send({ k: 'salut', pid: mes.pid, nom: mes.inscrit ? mes.nom : '' }); statut(); });
       c.on('data', d => {
         if (d.k === 'etat') {
+          const dt = String(d.t || '').toLowerCase().replace(/[^a-z0-9-]/g, '').slice(0, 40); if (dt !== TEST && !APERCU) return location.replace('?salle=' + SALLE + (dt ? '&test=' + dt : '')); // le grand écran passe un autre test que celui chargé ici
           connu = true; vu = Date.now();
           if (d.sid !== mes.sid) { mes.sid = d.sid; mes.rep = {}; mes.inscrit = false; garder(); }
           else if (premier) for (const id in mes.rep) c.send({ k: 'rep', id, v: mes.rep[id] }); // réponses données hors connexion
@@ -385,7 +392,7 @@ function telephone() {
         ? `<div id="salons" class="bloc"><p>Recherche de la séance…</p></div>
            <label class="lab" for="code">Vous avez un code à 4 chiffres ?</label><input class="champ code" id="code" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="0000" autocomplete="off" aria-describedby="aide">
            <p class="note" id="aide">Il est écrit sur le grand écran.</p>
-           <p class="note"><a href="?ecran">Animer une séance sur le grand écran</a> · <a href="./" aria-label="Accueil" title="Accueil"><svg viewBox="0 0 24 24" width="1.35em" height="1.35em" fill="currentColor" aria-hidden="true" style="vertical-align:-.3em"><path d="M12 3 2.5 11.2h2.7V21h5.3v-6h3v6h5.3v-9.8h2.7z"/></svg></a></p>`
+           <p class="note"><a href="?ecran${TQ}">Animer une séance sur le grand écran</a> · <a href="./" aria-label="Accueil" title="Accueil"><svg viewBox="0 0 24 24" width="1.35em" height="1.35em" fill="currentColor" aria-hidden="true" style="vertical-align:-.3em"><path d="M12 3 2.5 11.2h2.7V21h5.3v-6h3v6h5.3v-9.8h2.7z"/></svg></a></p>`
         : mes.inscrit ? `<div class="fait" style="margin-top:0">${tete(1)}<h2>${mes.nom ? h(mes.nom) + ', vous êtes inscrit.' : 'Vous êtes inscrit.'}</h2><p>Gardez ce téléphone en main et regardez le grand écran : la séance va commencer.</p></div>`
         : `<label class="lab" for="nom">Votre prénom</label><input class="champ" id="nom" maxlength="24" value="${h(mes.nom)}" autocomplete="given-name" autocapitalize="words" enterkeyhint="done">
            <button class="btn" data-a="inscrire">Je m'inscris</button><p class="note">Séance ${h(SALLE)}. Il n'y a pas de bonne ou de mauvaise réponse.</p>`);
@@ -464,7 +471,7 @@ function enLigne() {
   if (M.v !== VERSION) { M.i = 0; M.v = VERSION; }
   const garder = () => ecrire('pdvEnLigne', M);
   const QS = ETAPES.filter(e => e.id && !SAUTE.includes(e.t));
-  const ligne = (e, v) => ['Sligne-P' + M.pid, M.nom, e.p ? 'Étape ' + e.p : "Jeu de l'œil", e.q, e.t === 'echelle' ? `${v + 1} sur 5` : e.o ? [].concat(v).map(x => e.o[x]).join(' | ') : v, e.t === 'echelle' ? v + 1 : '', VERSION];
+  const ligne = (e, v) => ['Sligne' + TEST.replace(/-/g, '') + '-P' + M.pid, M.nom, e.p ? 'Étape ' + e.p : "Jeu de l'œil", e.q, e.t === 'echelle' ? `${v + 1} sur 5` : e.o ? [].concat(v).map(x => e.o[x]).join(' | ') : v, e.t === 'echelle' ? v + 1 : '', VERSION];
   // les réponses attendent dans le navigateur jusqu'à ce qu'internet les ait prises : rien ne se perd si la connexion coupe
   let envoi = false;
   const envoyer = fin => {
@@ -550,7 +557,7 @@ function ecran() {
   S.photos = lire('pdvPhotos', []); sous = S.k = S.k || 0; mission = S.mission = MISSIONS[S.mission] ? S.mission : 0; if (!ETAPES[S.i]) S.i = 0;
   let affiches = lire('pdvAffiches', {}), conns = new Set(), cle = '', flash = false, souci = '', masque = false, tm, tAuto = 0;
   const garder = () => { const { photos, ...reste } = S; ecrire('pdvSeance', reste); ecrire('pdvPhotos', photos); };
-  const diffuser = () => conns.forEach(c => c.open && c.send({ k: 'etat', sid: S.sid, i: S.i, n: S.k, m: S.mission }));
+  const diffuser = () => conns.forEach(c => c.open && c.send({ k: 'etat', sid: S.sid, i: S.i, n: S.k, m: S.mission, t: TEST }));
   const enLigne = () => new Set([...conns].filter(c => c.open && c.pid).map(c => c.pid));
   const texte = (s, n) => String(s ?? '').trim().slice(0, n);
   // des nappes douces, façon chœur lointain, fabriquées par le navigateur : aucun fichier, aucune musique existante
@@ -579,7 +586,7 @@ function ecran() {
 
   const peer = new Peer(HOTE);
   peer.on('connection', c => {
-    c.on('open', () => { conns.add(c); c.send({ k: 'etat', sid: S.sid, i: S.i, n: S.k, m: S.mission }); });
+    c.on('open', () => { conns.add(c); c.send({ k: 'etat', sid: S.sid, i: S.i, n: S.k, m: S.mission, t: TEST }); });
     c.on('close', () => { conns.delete(c); maj(); });
     c.on('data', d => {
       if (!d || typeof d !== 'object') return;
@@ -633,12 +640,12 @@ function ecran() {
     const vues = im.map((src, i) => ({ l: im.length > 1 ? 'AB'[i] : '', src: im.length === 1 && e.p && affiches.A ? affiches.A : src })); // une affiche chargée à la main remplace celle de l'étape
     coin = S.rev || vues.length > 0 || ['scores', 'photo', 'flash', 'vote', 'palmares'].includes(e.t);
     placer();
-    const url = location.origin + location.pathname + '?salle=' + SALLE;
+    const url = location.origin + location.pathname + '?salle=' + SALLE + TQ;
     let g = '', d = '';
     if (e.t === 'accueil' && PAPIER) g = `<p class="sur">Points de vue · habitants testeurs</p><h1>Bienvenue !</h1><p><b>Vous participez à une recherche pour converger vers l'affiche la plus intéressante.</b></p>
         <p class="cpt">Séance ${h(SALLE)}</p><p style="max-width:19em">Prenez votre fiche et un stylo. En haut de la fiche, écrivez la séance <b>${h(SALLE)}</b> et votre numéro de participant.</p>
         <p style="max-width:19em">Chaque question porte un numéro : sur la ligne du même numéro, noircissez le rond de votre réponse.</p>
-        <p style="margin-top:auto"><a href="papier.html" target="_blank" rel="noopener">Imprimer les fiches A3</a> · <a href="papier.html?vue=lire&seance=${h(SALLE)}" target="_blank" rel="noopener">Photographier les fiches remplies</a></p>`;
+        <p style="margin-top:auto"><a href="papier.html${TQ ? '?' + TQ.slice(1) : ''}" target="_blank" rel="noopener">Imprimer les fiches A3</a> · <a href="papier.html?vue=lire&seance=${h(SALLE)}${TQ}" target="_blank" rel="noopener">Photographier les fiches remplies</a></p>`;
     else if (e.t === 'accueil') {
       const q = qrcode(0, 'M'); q.addData(url); q.make();
       g = `<p class="sur">Points de vue · habitants testeurs</p><h1>Bienvenue !</h1><p><b>Vous participez à une recherche pour converger vers l'affiche la plus intéressante.</b></p>
@@ -670,7 +677,7 @@ function ecran() {
       <div class="cmd"><button class="home" data-a="menu">Menu</button><div class="liste">
         <span>Écran ${S.i + 1} sur ${ETAPES.length}</span>
         <button data-a="suite">${e.t === 'flash' && !flash ? 'Montrer 5 secondes' : prete ? 'Révéler les réponses' : 'Suite →'}</button><button data-a="avant">← Retour</button>
-        ${PAPIER ? `<a href="papier.html?vue=lire&seance=${h(SALLE)}" target="_blank" rel="noopener">Photographier les fiches</a>` : `<a href="resultats.html?seance=${h(SALLE)}" target="_blank" rel="noopener">Résultats</a>`}
+        ${PAPIER ? `<a href="papier.html?vue=lire&seance=${h(SALLE)}${TQ}" target="_blank" rel="noopener">Photographier les fiches</a>` : `<a href="resultats.html?seance=${h(SALLE)}${TQ}" target="_blank" rel="noopener">Résultats</a>`}
         <button data-a="plein">Plein écran</button><button data-a="neuve">Nouvelle séance</button>
         <a href="./" aria-label="Accueil" title="Accueil"><svg viewBox="0 0 24 24" width="1.35em" height="1.35em" fill="currentColor" aria-hidden="true" style="vertical-align:-.3em"><path d="M12 3 2.5 11.2h2.7V21h5.3v-6h3v6h5.3v-9.8h2.7z"/></svg></a>
       </div></div><span class="auto"></span>`;
@@ -768,7 +775,7 @@ function ecran() {
     if (act === 'neuve' && confirm('Commencer une nouvelle séance ? Les réponses déjà données restent dans le Google Sheet.')) { // une nouvelle séance = un nouveau code et un nouveau QR code ; les affiches A et B chargées sont gardées
       if (!APERCU) journal('Nouvelle séance', 'après la séance ' + SALLE);
       const c = P.get('salle') ? SALLE : nouveauCode();
-      try { ['pdvSeance', 'pdvPhotos'].forEach(k => localStorage.removeItem(SALLE + k)); localStorage.setItem(c + 'pdvAffiches', JSON.stringify(affiches)); if (c !== SALLE) { localStorage.removeItem(SALLE + 'pdvAffiches'); localStorage.setItem('pdvCode', c); } } catch (e) { }
+      try { ['pdvSeance', 'pdvPhotos'].forEach(k => localStorage.removeItem(SALLE + k)); localStorage.setItem(c + 'pdvAffiches', JSON.stringify(affiches)); if (c !== SALLE) { localStorage.removeItem(SALLE + 'pdvAffiches'); localStorage.setItem('pdvCode' + TEST, c); } } catch (e) { }
       location.reload();
     }
   });
@@ -785,8 +792,8 @@ function ecran() {
 const lib = src => new Promise((ok, ko) => { const x = document.createElement('script'); x.src = src; x.onload = ok; x.onerror = ko; document.head.appendChild(x); });
 const libs = Promise.all([(ECRAN || SALLE) && lib('libs/peerjs.min.js'), ECRAN && lib('libs/qrcode.min.js')]).catch(() => { });
 // le contenu d'abord (seance.txt, relu à chaque ouverture), puis l'appli
-(APERCU ? new Promise(ok => ok(localStorage.getItem('pdvApercu') || '')) : fetch('seance.txt?' + Date.now()).then(x => x.ok ? x.text() : Promise.reject())).then(t => lireSeance(t) || Promise.reject())
-  .catch(() => { document.getElementById('statut').textContent = 'Le fichier seance.txt est introuvable ou vide.'; })
+(APERCU ? new Promise(ok => ok(localStorage.getItem('pdvApercu') || '')) : lireFichier()).then(t => lireSeance(t) || Promise.reject())
+  .catch(() => { document.getElementById('statut').textContent = 'Le fichier du test (' + FICHIER + ') est introuvable ou vide. Un test tout juste créé arrive sur le site en une à deux minutes.'; })
   .then(() => libs).then(() => ECRAN ? ecran() : P.has('enligne') ? enLigne() : SALLE || P.get('passer') ? telephone() : P.has('passer') ? choixPasser() : accueilSite());
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => { }); // garde le site en mémoire pour les visites suivantes
 </script>

@@ -148,10 +148,10 @@ function charger() {
   fetch(SOURCE + '&jeton=' + JETON()).then(x => x.json()).then(d => { if (d.refus) return deconnexion(); D = propre(d); $('maj').textContent = 'Mis à jour à ' + new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) + '. Résultats anonymes, actualisés toutes les 20 secondes.'; if (document.activeElement !== $('chercher')) dessiner(); })
     .catch(() => { $('maj').textContent = 'Les résultats ne se chargent pas. Vérifiez la connexion internet.'; });
 }
-$('choix').addEventListener('click', ev => { const b = ev.target.closest('[data-s]'); if (b) { seance = b.dataset.s; history.replaceState(null, '', seance ? '?seance=' + seance : location.pathname); dessiner(); } });
+$('choix').addEventListener('click', ev => { const b = ev.target.closest('[data-s]'); if (b) { seance = b.dataset.s; history.replaceState(null, '', (seance ? '?seance=' + seance : '?') + TQ); dessiner(); } });
 ['comparer', 'tri'].forEach(id => $(id).addEventListener('change', dessiner));
 $('chercher').addEventListener('input', dessiner);
-connexion('Étudier les données').then(() => fetch('seance.txt?' + Date.now())).then(x => x.text()).then(lireSeance).catch(() => { }).then(() => { dessiner(); charger(); setInterval(charger, 20000); });
+connexion('Étudier les données').then(() => lireFichier()).then(lireSeance).catch(() => { }).then(() => { dessiner(); charger(); setInterval(charger, 20000); });
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => { }); // garde le site en mémoire pour les visites suivantes
 </script>
 </body>

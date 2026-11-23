@@ -5,6 +5,16 @@ let ETAPES = [{ t: 'accueil' }], MISSIONS = ["L'information à faire passer"], T
 let VERSION = '', TEXTE = ''; // l'identifiant de la version du test (change dès que seance.txt change) et son contenu
 const SCRIPT_GOOGLE = 'https://script.google.com/macros/s/AKfycbzPof8sEj8tZLlA-MtVDYyODv32y8lXxc9hLVmaW5zCvHLilyRIxpk4Ix6TPhzJczjn/exec';
 let TOUS = ETAPES; // tous les écrans du fichier, y compris ceux qui sont masqués (pour l'éditeur)
+// ---------- plusieurs tests : le principal est seance.txt ; les autres sont dans le dossier tests/ et listés dans tests.txt (une ligne « nom-court | Nom du test ») ----------
+// Une page ouvre un autre test avec ?test=nom-court ; TQ s'ajoute aux liens pour rester sur le même test d'une page à l'autre.
+const TEST = (new URLSearchParams(location.search).get('test') || '').toLowerCase().replace(/[^a-z0-9-]/g, '').slice(0, 40);
+const FICHIER = TEST ? 'tests/' + TEST + '.txt' : 'seance.txt', TQ = TEST ? '&test=' + TEST : '';
+const lireTests = t => [{ id: '', nom: 'Séance Points de vue (principale)' }, ...String(t || '').split(/\r?\n/).map(l => l.trim()).filter(l => l && l[0] !== '#')
+  .map(l => { const [id, nom] = l.split('|').map(x => x.trim()); return { id, nom: nom || id }; }).filter(x => /^[a-z0-9-]{1,40}$/.test(x.id))];
+const listeTests = () => fetch('tests.txt?' + Date.now()).then(x => x.ok ? x.text() : '').catch(() => '').then(lireTests);
+// le contenu du test ; un test tout juste créé met une à deux minutes à arriver sur le site : en attendant, la copie gardée à sa création sert
+const lireFichier = () => fetch(FICHIER + '?' + Date.now()).then(x => x.ok ? x.text() : Promise.reject())
+  .catch(() => { let t = ''; try { t = localStorage.getItem('pdvNeuf' + TEST) || ''; } catch (e) { } return TEST && t ? t : Promise.reject(); });
 // lit seance.txt : un écran par mot entre crochets, des lignes « clé : valeur » et des réponses « - » ou « + » dessous
 function lireSeance(texte) {
   const E = [], M = [], T = [], P = {}, ids = {};
