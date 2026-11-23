@@ -10,6 +10,8 @@ Le site : https://augustinmarso.github.io/points-de-vue/ propose trois entrées.
 - **Version papier** : `papier.html`, la fiche A3 (questions et ronds, sans image), la présentation à imprimer, et la lecture des fiches par photo.
 - **Test en ligne, chez soi** : `?enligne`, le lien à envoyer par mail aux habitants. Chacun passe le test seul, les affiches sont sur sa page, l'atelier en binômes est sauté ; les réponses arrivent dans l'onglet Données sous la séance « ligne ». `?enligne&essai` pour essayer sans rien enregistrer. Texte du mail : `../test-en-ligne/mail-habitants.txt`.
 - **Plusieurs tests** : « + Nouveau test » (menu des tests de Modifier le test, ou Profil) crée un test à part à partir d'une structure de départ (notre séance complète, une affiche à tester, comparer deux affiches, questionnaire court, page blanche). Toutes les pages l'ouvrent avec `?test=nom-court`. Le Profil liste les tests avec Lancer, Essayer, Modifier, Données et le lien mail.
+- **Inscription** : `inscription.html`, le formulaire d'inscription du site (à la place du Google Form) ; les réponses arrivent dans l'onglet « Inscriptions » du Google Sheet. Le jour, le lieu et les créneaux sont écrits en haut du script de la page et dans `formulaire-inscription/Seance.gs`.
+- **Connexion** : aucune page ne la demande à l'ouverture ; elle est demandée au moment d'enregistrer ou de créer un test, et sur Données et Profil.
 - **Étudier les données** : `resultats.html`, les totaux anonymes, la comparaison de séances et le lien vers le Google Sheet.
 
 ## Modifier les écrans de la séance
