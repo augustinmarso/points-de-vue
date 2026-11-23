@@ -201,8 +201,10 @@ const PAPIER = ECRAN && P.has('papier'); // séance sur papier : le grand écran
 const nouveauCode = () => String(1000 + Math.random() * 9000 | 0);
 let code = P.get('salle');
 if (ECRAN && !code) { try { code = localStorage.getItem('pdvCode' + TEST) || nouveauCode(); localStorage.setItem('pdvCode' + TEST, code); } catch (e) { code = nouveauCode(); } }
+// un aperçu ouvert depuis l'éditeur a son propre code, qui commence par 0 (les vraies séances vont de 1000 à 9999) : un téléphone peut y entrer pour essayer
+if (ECRAN && APERCU) { const neuf = '0' + String(Math.random()).slice(2, 5); try { code = sessionStorage.getItem('pdvAp'); if (!code) { sessionStorage.setItem('pdvAp', code = neuf); localStorage.removeItem(code + 'pdvSeance'); } } catch (e) { code = neuf; } }
 const SALLE = (code || '').replace(/[^a-z0-9]/gi, '').toLowerCase().slice(0, 12);
-const HOTE = 'pointsdevue-gtm-' + SALLE + (APERCU ? '-' + Math.random().toString(36).slice(2, 8) : ''); // chaque aperçu a sa propre adresse : aucun téléphone ne s'y branche
+const HOTE = 'pointsdevue-gtm-' + SALLE;
 const SHEET = SCRIPT_GOOGLE;
 // les séances en cours : chaque grand écran donne signe de vie toutes les 30 secondes, la liste oublie une séance après 2 minutes de silence
 const seancesEnCours = () => fetch(SHEET).then(x => x.json()).then(l => (Array.isArray(l) ? l : []).filter(x => /^[a-z0-9]{1,12}$/.test(x.code))).catch(() => []);
@@ -350,6 +352,10 @@ function telephone() {
       let premier = true;
       c.on('open', () => { if (p !== peer) return; lien = c; vu = Date.now(); c.send({ k: 'salut', pid: mes.pid, nom: mes.inscrit ? mes.nom : '' }); statut(); });
       c.on('data', d => {
+        if (d.k === 'seance' && typeof d.x === 'string' && d.x) { // aperçu de l'éditeur : le grand écran donne sa version du test, le téléphone se recharge dessus
+          try { if (APERCU && localStorage.getItem('pdvApercu') === d.x) return; localStorage.setItem('pdvApercu', d.x); } catch (e) { return; }
+          return location.replace('?salle=' + SALLE + '&apercu');
+        }
         if (d.k === 'etat') {
           const dt = String(d.t || '').toLowerCase().replace(/[^a-z0-9-]/g, '').slice(0, 40); if (dt !== TEST && !APERCU) return location.replace('?salle=' + SALLE + (dt ? '&test=' + dt : '')); // le grand écran passe un autre test que celui chargé ici
           connu = true; vu = Date.now();
@@ -586,7 +592,7 @@ function ecran() {
 
   const peer = new Peer(HOTE);
   peer.on('connection', c => {
-    c.on('open', () => { conns.add(c); c.send({ k: 'etat', sid: S.sid, i: S.i, n: S.k, m: S.mission, t: TEST }); });
+    c.on('open', () => { conns.add(c); if (APERCU) c.send({ k: 'seance', x: localStorage.getItem('pdvApercu') || '' }); c.send({ k: 'etat', sid: S.sid, i: S.i, n: S.k, m: S.mission, t: TEST }); });
     c.on('close', () => { conns.delete(c); maj(); });
     c.on('data', d => {
       if (!d || typeof d !== 'object') return;
