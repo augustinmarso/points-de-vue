@@ -92,6 +92,10 @@ header h1{margin:0;font-size:24px;font-weight:800;letter-spacing:-.04em;flex:1}
 .cote .lignes{height:54px;background:repeating-linear-gradient(transparent 0 17px,var(--n) 17px 18px)}
 .cote .champ{background:var(--t);border-radius:14px;min-height:60px;padding:8px 10px;font-size:11px;color:var(--gris)}
 .cote .val{background:var(--n);color:#fff;border-radius:99px;text-align:center;padding:8px;font-weight:800;font-size:11px}
+.cote [contenteditable]{cursor:text;border-radius:4px;outline-offset:2px;min-width:1.5em;display:inline-block}
+.cote .o[contenteditable],.cote b.q[contenteditable]{display:block}
+.cote [contenteditable]:hover{box-shadow:0 0 0 2px rgba(20,20,20,.18)}
+.cote [contenteditable]:empty::before{content:attr(data-vide);opacity:.4}
 .cote .att{margin:auto 0;text-align:center;font-weight:700;font-size:13px}
 .apercu.form{max-width:420px;aspect-ratio:auto}
 @container (max-width:520px){
@@ -233,15 +237,15 @@ function cote(e) {
   const t = e.p ? `--t:var(--t${e.p});--c:var(--c${e.p})` : '--t:var(--fond);--c:#141414', Q = e.q != null, o = e.o || [];
   let x;
   if (vue === 'tel') x = !Q ? `<p class="att">${['mission', 'photo', 'vote'].includes(e.t) ? "Atelier : le binôme photographie son affiche, puis note celles des autres." : e.t === 'accueil' ? 'Le participant écrit son prénom et attend le début.' : 'Regardez le grand écran.'}</p>`
-    : `<small>${e.p ? 'Étape ' + e.p : e.jeu ? "Le jeu de l'œil" : ''}</small><b class="q">${h(e.q)}</b>` + (
-      e.t === 'echelle' ? `<div class="ronds">${[1, 2, 3, 4, 5].map(n => `<i>${n}</i>`).join('')}</div><div class="bouts"><span>${h(e.a)}</span><span>${h(e.b)}</span></div>`
+    : `<small>${e.p ? 'Étape ' + e.p : e.jeu ? "Le jeu de l'œil" : ''}</small>${ed('b', 'q', e.q, 'La question', 'q')}` + (
+      e.t === 'echelle' ? `<div class="ronds">${[1, 2, 3, 4, 5].map(n => `<i>${n}</i>`).join('')}</div><div class="bouts">${ed('span', 'a', e.a, 'Sens de la note 1')}${ed('span', 'b', e.b, 'Sens de la note 5')}</div>`
       : e.t === 'ab' ? `<div class="AB"><i>A</i><i>B</i></div><span class="o">${h(o[2])}</span>`
       : e.t === 'texte' ? `<span class="champ">Votre réponse</span><span class="val">Valider</span>`
-      : o.map(r => `<span class="o">${h(r)}</span>`).join('') + (e.t === 'multi' ? `<small>Plusieurs réponses possibles.</small><span class="val">Valider</span>` : ''));
+      : o.map((r, i) => ed('span', i, r, 'Réponse ' + (i + 1), 'o')).join('') + (e.t === 'multi' ? `<small>Plusieurs réponses possibles.</small><span class="val">Valider</span>` : ''));
   else x = !Q ? `<p class="att">Rien à remplir sur la fiche pour cet écran.</p>`
-    : `<b class="q">${M.ecrans.slice(0, sel + 1).filter(y => y.q != null && !y.masque).length}. ${h(e.q)}${e.t === 'multi' ? ' *' : ''}</b>` + (
+    : `<b class="q">${M.ecrans.slice(0, sel + 1).filter(y => y.q != null && !y.masque).length}. ${ed('span', 'q', e.q, 'La question')}${e.t === 'multi' ? ' *' : ''}</b>` + (
       e.t === 'texte' ? `<small>Écrivez votre réponse sur les lignes.</small><div class="lignes"></div>`
-      : (e.t === 'echelle' ? `<small>1 = ${h(e.a)} · 5 = ${h(e.b)}</small>` : e.t === 'ab' ? `<small>= si vous ne voyez pas de différence.</small>` : '')
+      : (e.t === 'echelle' ? `<small>1 = ${ed('span', 'a', e.a, 'Sens de la note 1')} · 5 = ${ed('span', 'b', e.b, 'Sens de la note 5')}</small>` : e.t === 'ab' ? `<small>= si vous ne voyez pas de différence.</small>` : '')
         + `<div class="ronds">${(e.t === 'echelle' ? ['1', '2', '3', '4', '5'] : e.t === 'ab' ? ['A', 'B', '='] : o.map((_, i) => 'ABCDEFGHIJ'[i])).map(l => `<i>${l}</i>`).join('')}</div>`);
   return `<aside class="cote ${vue}" style="${t}" aria-label="${vue === 'tel' ? 'Le téléphone du participant' : 'La fiche à imprimer'}"><div class="ecr">${x}</div>${vue === 'tel' ? 'Sur le téléphone du participant' : 'Sur la fiche à imprimer'}</aside>`;
 }
@@ -277,7 +281,10 @@ $('zone').addEventListener('input', ev => {
   else if (k && k.startsWith('tests.')) { const [, i, c] = k.split('.'); M.tests[+i][c] = t.value; }
   else if (k) e[k] = t.value;
   else return;
-  if (surPlace) { const c = $('vue').querySelector('.cote'); if (c) c.outerHTML = cote(e); liste(); change(); } else rafraichir(); // pendant qu'on tape, l'écran n'est pas redessiné : le curseur reste en place
+  if (surPlace) { const c = $('vue').querySelector('.cote');
+    if (c && c.contains(t)) $('vue').querySelectorAll('.apercu ' + (t.dataset.o != null ? `[data-o="${t.dataset.o}"]` : `[data-k="${k}"]`)).forEach(x => x.textContent = t.textContent); // tapé dans le téléphone ou la fiche : le diaporama suit, sans redessiner sous le curseur
+    else if (c) c.outerHTML = cote(e);
+    liste(); change(); } else rafraichir(); // pendant qu'on tape, l'écran n'est pas redessiné : le curseur reste en place
 });
 $('zone').addEventListener('keydown', ev => { if (ev.key === 'Enter' && ev.target.isContentEditable && ev.target.dataset.k !== 'missions') { ev.preventDefault(); ev.target.blur(); } });
 $('zone').addEventListener('click', ev => {
