@@ -25,6 +25,10 @@ const lireFichier = (id = TEST) => Promise.all([
 // enregistrer un test dans le Sheet (compte de l'équipe) : { id, nom, texte, base, nouveau } → { ok, id }
 const sauverTest = t => fetch(SCRIPT_GOOGLE, { method: 'POST', body: JSON.stringify({ test: { jeton: JETON(), ...t } }) }).then(x => x.json())
   .catch(() => Promise.reject(new Error('pas de réponse, vérifiez la connexion internet'))).then(x => x.ok ? x : Promise.reject(new Error(x.erreur || 'refusé')));
+// une image de test n'est acceptée que si c'est une affiche du dossier « affiches » du site ou une image ajoutée dans l'éditeur (data:) :
+// les tests s'enregistrent depuis le site, une adresse d'image ne doit jamais pouvoir glisser du code dans les pages
+const imageSure = v => /^affiches\/[\w.-]+\.(jpe?g|png|webp|gif)$/i.test(v) || /^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+\/=]+$/.test(v) ? v : '';
+console.assert(imageSure('affiches/reference.jpg') && imageSure('data:image/jpeg;base64,/9j/4A==') && !imageSure('x" onerror="alert(1)') && !imageSure('affiches/a.jpg"><script>'), 'imageSure');
 // lit seance.txt : un écran par mot entre crochets, des lignes « clé : valeur » et des réponses « - » ou « + » dessous
 function lireSeance(texte) {
   const E = [], M = [], T = [], P = {}, ids = {};
@@ -40,7 +44,7 @@ function lireSeance(texte) {
       if (fixes[mot]) e = mot === 'tests' ? { t: 'vote', id: 'vote' } : { t: fixes[mot] };
       else if (/^etape [123]$/.test(mot)) e = { t: 'phase', p: +mot.slice(-1) };
       else if (mot === 'texte') e = { t: 'info', s: part[0] || '', h: part[1] || '', x: part[2] || '' };
-      else if (mot === '5 secondes') { e = { t: 'flash', img: part[0] }; const p = /([123])/.exec(sans(part[1] || '')); if (p) e.p = +p[1]; }
+      else if (mot === '5 secondes') { e = { t: 'flash', img: imageSure(part[0]) }; const p = /([123])/.exec(sans(part[1] || '')); if (p) e.p = +p[1]; }
       else if (mot === 'jeu') e = { id: id(reste), t: 'choix', jeu: 1, q: reste, o: [] };
       else if (mot === 'note') e = { id: id(reste), t: 'echelle', q: reste, o: cinq, a: '', b: '' };
       else if (mot === 'a ou b') e = { id: id(reste), t: 'ab', q: reste, o: ['A', 'B', 'Aucune différence'], imgs: [] };
@@ -62,8 +66,8 @@ function lireSeance(texte) {
     else if (k === 'de') e.a = v; else if (k === 'a') e.b = v;
     else if (k === 'noir et blanc') e.nb = /oui/.test(sans(v));
     else if (k === 'masque') e.masque = /oui/.test(sans(v));
-    else if (k === 'affiche a' && e.imgs) e.imgs[0] = v; else if (k === 'affiche b' && e.imgs) e.imgs[1] = v;
-    else if (k === 'affiche') { if (e.jeu) e.img = v; else e.imgs = [v]; }
+    else if (k === 'affiche a' && e.imgs) e.imgs[0] = imageSure(v); else if (k === 'affiche b' && e.imgs) e.imgs[1] = imageSure(v);
+    else if (k === 'affiche') { if (e.jeu) e.img = imageSure(v); else e.imgs = [imageSure(v)]; }
   }
   // une question sans réponse ne peut pas être posée, un écran masqué ne passe pas : on les retire de la séance
   const bons = E.filter(x => !x.masque && (!x.o || x.o.length > 1));
