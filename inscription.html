@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="preconnect" href="https://script.google.com">
+<title>Points de vue · inscription</title>
+<link rel="icon" href="icone.png"><link rel="apple-touch-icon" href="icone.png">
+<meta name="theme-color" content="#ffffff">
+<link rel="preload" href="polices/scoutie.woff2" as="font" type="font/woff2" crossorigin>
+<style>
+@font-face{font-family:'Scoutie Sans';font-weight:200 800;font-display:swap;src:url(polices/scoutie.woff2) format('woff2')}
+:root{--n:#141414;--c1:#F5A0C6;--c2:#F7C33B;--c3:#1F6FE0;--t1:#FDE7F1;--t2:#FDF0CC;--t3:#DCE9FB;--gris:#5E5E5E}
+*{box-sizing:border-box}
+body{margin:0;background:#fff;color:var(--n);font-family:'Scoutie Sans',Helvetica,Arial,sans-serif;font-size:20px;line-height:1.3}
+main{max-width:600px;margin:0 auto;padding:28px 22px 80px;display:flex;flex-direction:column;gap:18px}
+.logo{width:96px;height:90px}
+h1{margin:0;font-size:clamp(40px,10vw,56px);font-weight:800;letter-spacing:-.05em;line-height:.95}
+h2{margin:10px 0 0;font-size:24px;font-weight:800;letter-spacing:-.02em}
+p{margin:0}
+.quand{background:var(--t2);border-radius:24px;padding:16px 20px;font-weight:700}
+fieldset{border:0;margin:0;padding:0;display:flex;flex-direction:column;gap:12px}
+legend{font-weight:800;font-size:24px;letter-spacing:-.02em;margin-bottom:12px;padding:0}
+.choix label{display:flex;gap:14px;align-items:center;background:var(--t1);border-radius:24px;padding:16px 18px;font-weight:700;cursor:pointer;min-height:68px}
+.choix label:nth-child(3n+2){background:var(--t2)}.choix label:nth-child(3n){background:var(--t3)}
+.choix input{width:28px;height:28px;flex:none;accent-color:var(--n);margin:0}
+.choix small{display:block;font-weight:400;font-size:17px;margin-top:2px}
+.choix label:has(input:checked){outline:3px solid var(--n)}
+label.c{display:flex;flex-direction:column;gap:8px;font-weight:800;font-size:22px}
+label.c small{font-weight:400;font-size:17px;color:var(--gris)}
+input[type=text],input[type=tel]{font:inherit;background:#F3F3F3;border:0;border-radius:20px;padding:16px 18px;min-height:62px;width:100%}
+:focus-visible{outline:3px solid var(--c3);outline-offset:3px}
+.piege{position:absolute;left:-9999px}
+button{font:inherit;font-weight:800;font-size:22px;background:var(--n);color:#fff;border:0;border-radius:99px;min-height:66px;cursor:pointer}
+button[disabled]{opacity:.5}
+#dit{font-weight:800;min-height:1.3em}
+.note{font-size:16px;color:var(--gris)}
+a{color:inherit}
+.merci{display:flex;flex-direction:column;gap:16px;margin-top:6vh}
+</style>
+</head>
+<body>
+<main id="page">
+<svg class="logo" viewBox="0 0 120 112" aria-hidden="true"><g style="mix-blend-mode:multiply"><circle cx="44" cy="46" r="40" fill="#F5A0C6"/></g><g style="mix-blend-mode:multiply"><circle cx="86" cy="38" r="28" fill="#F7C33B"/></g><g style="mix-blend-mode:multiply"><circle cx="74" cy="78" r="22" fill="#1F6FE0"/></g><circle cx="22" cy="36" r="3.6" fill="#141414"/><circle cx="34" cy="34" r="3.6" fill="#141414"/><circle cx="93" cy="24" r="2.9" fill="#141414"/><circle cx="103" cy="26" r="2.9" fill="#141414"/><circle cx="73" cy="91" r="2.4" fill="#141414"/><circle cx="81" cy="91" r="2.4" fill="#141414"/></svg>
+<h1>Inscription</h1>
+<p><b>Venez regarder des affiches de santé et dire ce que vous en pensez.</b> Aucune compétence nécessaire, café offert.</p>
+<p class="quand" id="quand"></p>
+<form id="f" novalidate>
+  <fieldset class="choix" id="qui"><legend>1. Vous êtes…</legend></fieldset>
+  <label class="c" style="margin-top:22px">2. Votre nom et prénom<input type="text" name="nom" autocomplete="name" autocapitalize="words" maxlength="80" required></label>
+  <label class="c" style="margin-top:18px">3. Votre téléphone ou votre e-mail<small>Pour vous envoyer un rappel la veille.</small><input type="text" name="contact" autocomplete="tel" inputmode="email" maxlength="120" required></label>
+  <label class="piege" aria-hidden="true">Site web<input type="text" name="site" tabindex="-1" autocomplete="off"></label>
+  <p id="dit" role="alert" style="margin-top:14px"></p>
+  <button id="envoyer" style="width:100%;margin-top:6px">Je m'inscris</button>
+</form>
+<p class="note" id="mention"></p>
+</main>
+<script src="seance.js"></script>
+<script>
+// Le formulaire d'inscription, à la place du Google Form : les réponses arrivent dans l'onglet « Inscriptions » du Google Sheet de synthèse.
+// shortcut: le jour, le lieu, le téléphone et les créneaux sont recopiés de formulaire-inscription/Code.gs ; à changer aux deux endroits pour une autre date.
+const JOUR = 'Mercredi 25 novembre 2026', TEL = '06 85 32 74 06';
+const LIEU = '8 Milles Nautic, base nautique de Granville, 260 boulevard des Amiraux Granvillais, 50400 Granville';
+const CRENEAUX = [['65', "J'ai 65 ans ou plus", '9 h à 10 h 30'], ['aidant', "J'aide un proche (malade, âgé ou en situation de handicap)", '10 h 45 à 12 h 45'],
+  ['habitant', "J'habite Granville Terre et Mer", '13 h 45 à 15 h 15'], ['pro', 'Je suis un professionnel ou un partenaire', '15 h 30 à 17 h']];
+const $ = id => document.getElementById(id), h = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+$('quand').innerHTML = `${h(JOUR)}<br>${h(LIEU)}<br><span style="font-weight:400">Vous préférez vous inscrire par téléphone ? Appelez le <a href="tel:${TEL.replace(/ /g, '')}">${h(TEL)}</a>.</span>`;
+$('qui').insertAdjacentHTML('beforeend', CRENEAUX.map(([v, qui, heure]) => `<label><input type="radio" name="qui" value="${v}" required><span>${h(qui)}<small>Rendez-vous de ${h(heure)}</small></span></label>`).join(''));
+$('mention').innerHTML = `Vos données : votre nom et votre contact servent seulement à vous donner une heure et à vous envoyer un rappel. Ils sont supprimés un mois après la séance. Pour les faire supprimer avant, appelez le ${h(TEL)}. <a href="confidentialite.html">En savoir plus</a>.`;
+$('f').addEventListener('submit', ev => {
+  ev.preventDefault();
+  const f = $('f'), qui = (f.querySelector('[name=qui]:checked') || {}).value, nom = f.nom.value.trim(), contact = f.contact.value.trim(), dit = $('dit');
+  if (!qui) { dit.textContent = 'Choisissez qui vous êtes (question 1).'; return f.querySelector('[name=qui]').focus(); }
+  if (nom.length < 2) { dit.textContent = 'Écrivez votre nom et prénom (question 2).'; return f.nom.focus(); }
+  if (contact.replace(/\D/g, '').length < 8 && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact)) { dit.textContent = 'Écrivez un numéro de téléphone ou une adresse e-mail (question 3).'; return f.contact.focus(); }
+  $('envoyer').disabled = true; dit.textContent = 'Envoi…';
+  fetch(SCRIPT_GOOGLE, { method: 'POST', body: JSON.stringify({ inscription: { qui, nom, contact, site: f.site.value } }) }).then(x => x.json()).then(x => {
+    if (!x.ok) { $('envoyer').disabled = false; dit.textContent = x.erreur || "L'inscription n'est pas passée."; return; }
+    const c = CRENEAUX.find(z => z[0] === qui);
+    $('page').innerHTML = `<div class="merci"><svg class="logo" viewBox="0 0 120 112" aria-hidden="true">${document.querySelector('.logo').innerHTML}</svg><h1>Merci, c'est noté !</h1>
+      <p class="quand">${h(JOUR)}, rendez-vous de ${h(c[2])}<br>${h(LIEU)}</p><p>Nous vous enverrons un rappel la veille. Une question ? Appelez le <a href="tel:${TEL.replace(/ /g, '')}">${h(TEL)}</a>.</p></div>`;
+    scrollTo(0, 0);
+  }).catch(() => { $('envoyer').disabled = false; dit.textContent = `Pas envoyé : vérifiez la connexion internet, ou appelez le ${TEL}.`; });
+});
+</script>
+</body>
+</html>
