@@ -8,6 +8,7 @@ Le site : https://augustinmarso.github.io/points-de-vue/ propose trois entrées.
 - **Connexion de l'équipe** : le grand écran, « Modifier », « Étudier les données », la version papier et les participants automatiques demandent une adresse mail et un mot de passe (onglet « Comptes » du Google Sheet). Le premier compte créé est accepté d'office ; pour inviter quelqu'un, écrire son adresse dans la colonne A de l'onglet « Comptes », il choisit son mot de passe à sa première connexion. Mot de passe oublié : vider les cases « sel » et « empreinte » de sa ligne. Les données et l'historique ne sortent du Sheet qu'une fois connecté. Les participants n'ont rien à saisir.
 - **Participants automatiques** : `bots.html?salle=CODE&n=100` fait entrer de faux téléphones dans une séance pour l'éprouver.
 - **Version papier** : `papier.html`, la fiche A3 (questions et ronds, sans image), la présentation à imprimer, et la lecture des fiches par photo.
+- **Test en ligne, chez soi** : `?enligne`, le lien à envoyer par mail aux habitants. Chacun passe le test seul, les affiches sont sur sa page, l'atelier en binômes est sauté ; les réponses arrivent dans l'onglet Données sous la séance « ligne ». `?enligne&essai` pour essayer sans rien enregistrer. Texte du mail : `../test-en-ligne/mail-habitants.txt`.
 - **Étudier les données** : `resultats.html`, les totaux anonymes, la comparaison de séances et le lien vers le Google Sheet.
 
 ## Modifier les écrans de la séance
