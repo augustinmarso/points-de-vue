@@ -17,6 +17,7 @@ button{border:0;background:none;cursor:pointer;padding:0}
 :focus-visible{outline:3px solid var(--c3);outline-offset:2px}
 header{display:flex;align-items:center;gap:16px;padding:12px 20px;flex:none;flex-wrap:wrap}
 header a{color:inherit;font-weight:700}
+header select{width:auto;max-width:300px}
 header h1{margin:0;font-size:24px;font-weight:800;letter-spacing:-.04em;flex:1}
 #etat{font-size:14px;color:var(--gris);font-weight:700}
 .btn{background:var(--n);color:#fff;font-weight:800;border-radius:99px;padding:10px 20px;min-height:44px;display:inline-flex;align-items:center;text-decoration:none}
@@ -69,7 +70,29 @@ header h1{margin:0;font-size:24px;font-weight:800;letter-spacing:-.04em;flex:1}
 .apercu .im .x{position:absolute;top:-1cqw;right:-1cqw;width:3.4cqw;height:3.4cqw;min-width:26px;min-height:26px;border-radius:50%;background:var(--n);color:#fff;font-weight:800;line-height:1}
 .apercu .vide{width:19cqw;aspect-ratio:1000/1414;border-radius:1.5cqw;background:var(--fond);font-weight:700;font-size:1.7cqw;padding:1cqw}
 /* les trois versions du même écran */
-.vues{margin:0 0 14px;gap:8px}
+.vues{margin:0 0 14px;gap:8px}.vues .ouvrir{margin-left:auto}
+#liste li:not(.sel) .mv{visibility:hidden}/* les flèches seulement sur l'écran choisi : la liste reste lisible */
+/* à côté du grand écran : le téléphone du participant, ou sa fiche à imprimer */
+#vue{display:flex;flex-wrap:wrap;gap:22px;align-items:flex-start}
+#vue .apercu{flex:1 1 380px;min-width:0}
+.cote{flex:none;width:210px;display:flex;flex-direction:column;gap:8px;align-items:center;font-size:12px;color:var(--gris);font-weight:700}
+.cote .ecr{width:100%;color:var(--n);background:#fff;box-shadow:0 4px 24px rgba(20,20,20,.16);display:flex;flex-direction:column;gap:8px;font-weight:400;overflow:hidden}
+.cote.tel .ecr{aspect-ratio:9/18;border-radius:26px;border:6px solid var(--n);padding:24px 12px 14px}
+.cote.papier .ecr{border-radius:4px;padding:16px 14px;min-height:150px}
+.cote small{font-size:10px;font-weight:700}
+.cote .q{font-size:15px;line-height:1.05;font-weight:800;letter-spacing:-.03em}
+.cote .o{background:var(--t);border-radius:14px;padding:8px 10px;font-size:11px;font-weight:700}
+.cote .ronds{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.cote i{font-style:normal;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;flex:none}
+.cote .ronds i{width:26px;height:26px;font-size:11px}
+.cote.tel .ronds{justify-content:space-between}.cote.tel .ronds i{background:var(--t)}
+.cote.papier .ronds i{box-shadow:inset 0 0 0 1px var(--n);color:#A8A8A8}
+.cote .bouts{display:flex;justify-content:space-between;gap:8px;font-size:9px}
+.cote .AB{display:flex;gap:8px;justify-content:center}.cote .AB i{width:64px;height:64px;font-size:28px;background:var(--c1)}.cote .AB i+i{background:var(--c3);color:#fff}
+.cote .lignes{height:54px;background:repeating-linear-gradient(transparent 0 17px,var(--n) 17px 18px)}
+.cote .champ{background:var(--t);border-radius:14px;min-height:60px;padding:8px 10px;font-size:11px;color:var(--gris)}
+.cote .val{background:var(--n);color:#fff;border-radius:99px;text-align:center;padding:8px;font-weight:800;font-size:11px}
+.cote .att{margin:auto 0;text-align:center;font-weight:700;font-size:13px}
 .apercu.form{max-width:420px;aspect-ratio:auto}
 @container (max-width:520px){
 .apercu .in{position:static;flex-direction:column;padding:20px;font-size:16px;gap:12px}
@@ -129,12 +152,8 @@ dialog h3{margin:0 0 6px;font-size:24px;font-weight:800;letter-spacing:-.03em}
   <a href="./" aria-label="Accueil" title="Accueil"><svg viewBox="0 0 24 24" width="1.35em" height="1.35em" fill="currentColor" aria-hidden="true" style="vertical-align:-.3em"><path d="M12 3 2.5 11.2h2.7V21h5.3v-6h3v6h5.3v-9.8h2.7z"/></svg></a>
   <h1>Modifier le test</h1>
   <select class="btn clair" id="test" aria-label="Le test modifié"><option>Séance Points de vue (principale)</option></select>
-  <button class="btn clair" id="nouveauTest">+ Nouveau test</button>
   <a class="btn clair" id="lancer" href="./?passer" target="_blank" rel="noopener">Lancer ce test</a>
-  <a class="btn clair" id="papier" href="papier.html" target="_blank" rel="noopener">Version papier</a>
-  <button class="btn clair" id="apercu">Prévisualiser</button>
   <span id="etat">Chargement…</span>
-  <button class="btn clair" id="annuler" disabled>Annuler mes modifications</button>
   <button class="btn" id="enregistrer" disabled>Enregistrer</button>
 </header>
 <div class="corps">
@@ -170,7 +189,7 @@ const TYPE = e => ({ accueil: "Salle d'attente", scores: 'Scores du jeu', missio
 const TITRE = e => e.q || e.h || (e.t === 'phase' ? M.phases[e.p].nom : e.t === 'flash' ? (e.img || '').split('/').pop() : TYPE(e));
 const COUL = e => e.p ? `var(--c${e.p})` : '#141414';
 const fixe = i => (i === 0 && M.ecrans[0].t === 'accueil') || (i === M.ecrans.length - 1 && M.ecrans[i].t === 'fin'); // le début et la fin ne bougent pas
-const change = () => { const diff = ecrireSeance(M) !== depart; $('enregistrer').disabled = $('annuler').disabled = !diff; $('etat').textContent = diff ? 'Modifications non enregistrées' : 'Tout est enregistré'; };
+const change = () => { const diff = ecrireSeance(M) !== depart; $('enregistrer').disabled = !diff; $('etat').textContent = diff ? 'Modifications non enregistrées' : 'Tout est enregistré'; };
 
 function liste() {
   let n = 0;
@@ -211,6 +230,24 @@ function apercu(e) {
   return `<div class="apercu ${vue}${cls}${e.masque ? ' cache' : ''}" style="${t}"><div class="in"><div class="g">${g}</div>${im ? `<div class="d${e.t === 'ab' ? ' deux' : ''}">${im}</div>` : ''}</div></div>`;
 }
 
+// ce que le participant a devant lui pendant que le grand écran montre cet écran : son téléphone, ou sa fiche à imprimer (lecture seule, suit la frappe)
+function cote(e) {
+  if (vue === 'form') return '';
+  const t = e.p ? `--t:var(--t${e.p});--c:var(--c${e.p})` : '--t:var(--fond);--c:#141414', Q = e.q != null, o = e.o || [];
+  let x;
+  if (vue === 'tel') x = !Q ? `<p class="att">${['mission', 'photo', 'vote'].includes(e.t) ? "Atelier : le binôme photographie son affiche, puis note celles des autres." : e.t === 'accueil' ? 'Le participant écrit son prénom et attend le début.' : 'Regardez le grand écran.'}</p>`
+    : `<small>${e.p ? 'Étape ' + e.p : e.jeu ? "Le jeu de l'œil" : ''}</small><b class="q">${h(e.q)}</b>` + (
+      e.t === 'echelle' ? `<div class="ronds">${[1, 2, 3, 4, 5].map(n => `<i>${n}</i>`).join('')}</div><div class="bouts"><span>${h(e.a)}</span><span>${h(e.b)}</span></div>`
+      : e.t === 'ab' ? `<div class="AB"><i>A</i><i>B</i></div><span class="o">${h(o[2])}</span>`
+      : e.t === 'texte' ? `<span class="champ">Votre réponse</span><span class="val">Valider</span>`
+      : o.map(r => `<span class="o">${h(r)}</span>`).join('') + (e.t === 'multi' ? `<small>Plusieurs réponses possibles.</small><span class="val">Valider</span>` : ''));
+  else x = !Q ? `<p class="att">Rien à remplir sur la fiche pour cet écran.</p>`
+    : `<b class="q">${M.ecrans.slice(0, sel + 1).filter(y => y.q != null && !y.masque).length}. ${h(e.q)}${e.t === 'multi' ? ' *' : ''}</b>` + (
+      e.t === 'texte' ? `<small>Écrivez votre réponse sur les lignes.</small><div class="lignes"></div>`
+      : (e.t === 'echelle' ? `<small>1 = ${h(e.a)} · 5 = ${h(e.b)}</small>` : e.t === 'ab' ? `<small>= si vous ne voyez pas de différence.</small>` : '')
+        + `<div class="ronds">${(e.t === 'echelle' ? ['1', '2', '3', '4', '5'] : e.t === 'ab' ? ['A', 'B', '='] : o.map((_, i) => 'ABCDEFGHIJ'[i])).map(l => `<i>${l}</i>`).join('')}</div>`);
+  return `<aside class="cote ${vue}" style="${t}" aria-label="${vue === 'tel' ? 'Le téléphone du participant' : 'La fiche à imprimer'}"><div class="ecr">${x}</div>${vue === 'tel' ? 'Sur le téléphone du participant' : 'Sur la fiche à imprimer'}</aside>`;
+}
 // les trois versions d'une même séance : on passe de l'une à l'autre d'un clic, et « Prévisualiser » ouvre celle qui est choisie
 const VUES = [['tel', 'Diaporama + téléphone', '?ecran&apercu&salle=apercu'], ['form', 'Formulaire', '?enligne&essai&apercu&salle=apercu'], ['papier', 'Diaporama + papier', '?ecran&papier&apercu&salle=apercu']];
 let vue = 'tel'; try { vue = localStorage.getItem('pdvVue') || 'tel'; } catch (e) { } if (!VUES.some(v => v[0] === vue)) vue = 'tel';
@@ -226,9 +263,9 @@ function zone() {
   if (libre) f += `<div class="ligne crea"><button type="button" class="btn clair" data-a="dupliquer">Dupliquer cet écran</button><button type="button" class="btn clair" data-a="supprimer">Supprimer cet écran</button></div>`;
   if (!fixe(sel)) f += `<label class="case"><input type="checkbox" data-k="masque" ${e.masque ? 'checked' : ''}>Masquer cet écran pendant la séance</label>`;
   else f += `<p class="verrou">Cet écran reste à sa place : la séance commence et finit toujours par lui.</p>`;
-  $('zone').innerHTML = `<button type="button" class="btn clair retour" data-a="retour">← Tous les écrans</button><div class="ligne vues" role="group" aria-label="Version montrée">${VUES.map(([v, n]) => `<button type="button" class="btn${v === vue ? '' : ' clair'}" data-a="vue" data-v="${v}" aria-pressed="${v === vue}">${n}</button>`).join('')}</div><h3>${h(TYPE(e))}</h3>${reglable ? `<p class="aide">Cliquez sur un texte ou sur une affiche pour le modifier.</p>` : ''}<div id="vue">${apercu(e)}</div><form onsubmit="return false">${f}</form>`;
+  $('zone').innerHTML = `<button type="button" class="btn clair retour" data-a="retour">← Tous les écrans</button><div class="ligne vues" role="group" aria-label="Version montrée">${VUES.map(([v, n]) => `<button type="button" class="btn${v === vue ? '' : ' clair'}" data-a="vue" data-v="${v}" aria-pressed="${v === vue}">${n}</button>`).join('')}<button type="button" class="btn clair ouvrir" data-a="apercu" title="Ouvre cette version dans un autre onglet, avec vos modifications même non enregistrées. Rien ne part en ligne.">Prévisualiser</button>${vue === 'papier' ? `<a class="btn clair" href="papier.html${TEST ? '?test=' + TEST : ''}" target="_blank" rel="noopener">Imprimer la fiche</a>` : ''}</div><h3>${h(TYPE(e))}</h3>${reglable ? `<p class="aide">Cliquez sur un texte ou sur une affiche pour le modifier.</p>` : ''}<div id="vue">${apercu(e)}${cote(e)}</div><form onsubmit="return false">${f}</form>`;
 }
-const rafraichir = () => { $('vue').innerHTML = apercu(M.ecrans[sel]); liste(); change(); };
+const rafraichir = () => { $('vue').innerHTML = apercu(M.ecrans[sel]) + cote(M.ecrans[sel]); liste(); change(); };
 
 // ---------- les modifications ----------
 $('zone').addEventListener('input', ev => {
@@ -243,11 +280,12 @@ $('zone').addEventListener('input', ev => {
   else if (k && k.startsWith('tests.')) { const [, i, c] = k.split('.'); M.tests[+i][c] = t.value; }
   else if (k) e[k] = t.value;
   else return;
-  if (surPlace) { liste(); change(); } else rafraichir(); // pendant qu'on tape, l'écran n'est pas redessiné : le curseur reste en place
+  if (surPlace) { const c = $('vue').querySelector('.cote'); if (c) c.outerHTML = cote(e); liste(); change(); } else rafraichir(); // pendant qu'on tape, l'écran n'est pas redessiné : le curseur reste en place
 });
 $('zone').addEventListener('keydown', ev => { if (ev.key === 'Enter' && ev.target.isContentEditable && ev.target.dataset.k !== 'missions') { ev.preventDefault(); ev.target.blur(); } });
 $('zone').addEventListener('click', ev => {
   const b = ev.target.closest('[data-a]'); if (!b) return; const e = M.ecrans[sel], a = b.dataset.a;
+  if (a === 'apercu') return previsualiser();
   if (a === 'retour') { document.body.classList.remove('detail'); const li = $('liste').querySelector(`[data-i="${sel}"]`); if (li) li.scrollIntoView({ block: 'center' }); return; }
   if (a === 'plus') e.o.push('Nouvelle réponse');
   if (a === 'moins') { const i = +b.dataset.i; e.o.splice(i, 1); if (e.jeu) e.bon = e.bon === i ? 0 : e.bon > i ? e.bon - 1 : e.bon; }
@@ -324,9 +362,8 @@ async function enregistrer() {
 $('enregistrer').addEventListener('click', enregistrer);
 connexion('Modifier le test');
 // prévisualiser : la version choisie s'ouvre dans un autre onglet avec les écrans tels qu'ils sont ici, enregistrés ou non. Rien ne part en ligne.
-$('apercu').addEventListener('click', () => {
-  try { localStorage.setItem('pdvApercu', ecrireSeance(M)); localStorage.removeItem('apercupdvSeance'); localStorage.removeItem('apercupdvEnLigne'); } catch (e) { } open('./' + VUES.find(v => v[0] === vue)[2], '_blank'); });
-$('annuler').addEventListener('click', () => { if (confirm('Revenir à la dernière version enregistrée ?')) { lireSeance(depart); charger(); } });
+const previsualiser = () => {
+  try { localStorage.setItem('pdvApercu', ecrireSeance(M)); localStorage.removeItem('apercupdvSeance'); localStorage.removeItem('apercupdvEnLigne'); } catch (e) { } open('./' + VUES.find(v => v[0] === vue)[2], '_blank'); };
 $('jeton').addEventListener('click', ev => {
   const a = (ev.target.closest('[data-a]') || {}).dataset; if (!a) return;
   if (a.a === 'fermer') $('jeton').close();
@@ -420,16 +457,16 @@ async function creerTest(g) {
   } catch (err) { dit.textContent = 'Pas créé : ' + err.message + '.'; if (/jeton/.test(err.message)) reprendre(); }
 }
 $('gabarits').innerHTML = GABARITS.map((m, i) => `<button type="button" data-g="${i}"><b>${h(m[0])}</b><span>${h(m[1])}</span></button>`).join('');
-$('nouveauTest').addEventListener('click', () => { $('etatCreer').textContent = ''; $('creer').showModal(); $('nomTest').focus(); });
+const nouveauTest = () => { $('etatCreer').textContent = ''; $('creer').showModal(); $('nomTest').focus(); };
 $('creer').addEventListener('click', ev => { if (ev.target.closest('[data-a=fermer]')) return $('creer').close(); const b = ev.target.closest('[data-g]'); if (b) creerTest(GABARITS[+b.dataset.g][2]); });
 // le choix du test modifié, et les liens qui suivent ce test
 listeTests().then(l => {
   if (TEST && !l.some(x => x.id === TEST)) l.push({ id: TEST, nom: TEST }); // créé à l'instant : pas encore dans la liste du site
-  $('test').innerHTML = l.map(x => `<option value="${h(x.id)}" ${x.id === TEST ? 'selected' : ''}>${h(x.nom)}</option>`).join('');
+  $('test').innerHTML = l.map(x => `<option value="${h(x.id)}" ${x.id === TEST ? 'selected' : ''}>${h(x.nom)}</option>`).join('') + '<option value="+">+ Nouveau test…</option>';
 });
-$('test').addEventListener('change', ev => { location.href = 'modifier.html' + (ev.target.value ? '?test=' + ev.target.value : ''); });
-if (location.hash === '#nouveau') { history.replaceState(null, '', location.pathname + location.search); $('nouveauTest').click(); } // « + Nouveau test » du profil
-$('lancer').href = './?passer' + TQ; $('papier').href = 'papier.html' + (TEST ? '?test=' + TEST : '');
+$('test').addEventListener('change', ev => { if (ev.target.value === '+') { ev.target.value = TEST; return nouveauTest(); } location.href = 'modifier.html' + (ev.target.value ? '?test=' + ev.target.value : ''); });
+if (location.hash === '#nouveau') { history.replaceState(null, '', location.pathname + location.search); nouveauTest(); } // « + Nouveau test » du profil
+$('lancer').href = './?passer' + TQ;
 
 // ---------- démarrage ----------
 function charger() { M = { phases: PHASES, missions: MISSIONS.slice(), tests: TESTS, ecrans: TOUS }; sel = Math.min(sel, M.ecrans.length - 1); liste(); zone(); change(); }
