@@ -76,12 +76,23 @@ article .n{color:var(--gris);font-size:15px;margin:4px 0 12px}
 #rapport h1{font-size:44px;margin:14px 0 0}#rapport .quoi{font-size:17px;font-weight:700;margin:8px 0 0}#rapport h2{margin-top:26px;font-size:26px}
 #rapport ul{margin:10px 0 0;padding-left:1.1em;font-size:16px;line-height:1.35}#rapport li{margin-top:6px}
 .pied{margin-top:30px;color:var(--gris);font-size:13px}
-@page{margin:14mm}
-@media print{.outils,.choix,.reglages,header a,main>h1,.maj{display:none!important}.imprime{display:block}main{padding:0;max-width:none}section{margin-top:26px}
+@page{margin:9mm}
+@media print{.outils,.choix,.reglages,header a,main>h1,.maj{display:none!important}.imprime{display:block}main{padding:0;max-width:none}
   *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
-  .chiffres{margin-top:18px}.chiffres b{font-size:52px}h2{font-size:26px;break-after:avoid}h2+p{break-after:avoid}.grille{gap:12px;margin-top:14px}
-  article{padding:14px 16px;border-width:2.5px;gap:14px 20px}article h3{font-size:17px}.aff img{max-height:210px;max-width:160px}.aff .vz{width:min(160px,calc(210px*var(--r)))}
-  .camembert svg{width:140px;height:140px}.camembert li,.barre,.avis li{font-size:13px}.histo{height:120px}.moy{font-size:28px}}
+  /* la restitution remplit ses pages : les cartes coulent sur deux colonnes, serrées, et une longue liste d'avis peut passer d'une page à l'autre */
+  header svg{width:40px}header b{font-size:18px}
+  #rapport h1{font-size:30px;margin-top:8px}#rapport .quoi{font-size:13px;margin-top:4px}#rapport p{font-size:12px;margin:6px 0 0}#rapport h2{margin-top:12px;font-size:18px}#rapport ul{font-size:12px;margin-top:4px}#rapport li{margin-top:3px}
+  .chiffres{margin-top:10px;gap:10px}.chiffres div{font-size:12px}.chiffres b{font-size:34px}
+  section{margin-top:14px}h2{font-size:19px;gap:8px;break-after:avoid}h2+p{font-size:11px;margin-top:2px;break-after:avoid}
+  .grille{display:block;column-count:2;column-gap:9px;margin-top:8px}
+  article{margin:0 0 9px;padding:9px 11px;border-width:2px;border-radius:12px;gap:6px 10px;flex-wrap:nowrap}article:has(.avis){break-inside:auto}
+  article .q{flex:1 1 0}article h3{font-size:13px}article .n{font-size:10px;margin:2px 0 5px}
+  .aff{flex-wrap:nowrap;gap:5px}.aff img{max-height:150px;max-width:105px;border-radius:6px}.aff .vz{width:min(105px,calc(150px*var(--r)))}.aff .zones{margin-left:16px}
+  .aff:has(figure+figure) img{max-height:96px;max-width:68px}.aff figcaption{font-size:10px}
+  .camembert{gap:6px 8px;margin-top:2px}.camembert svg{width:86px;height:86px}.camembert ul{flex:1 1 110px}.camembert li{font-size:10.5px;padding:1px 0;gap:5px}.camembert li i{width:9px;height:9px}
+  .barre{font-size:10.5px;margin-top:4px;gap:1px 8px}.piste{height:7px}.piste.autre{height:4px}.bornes{font-size:10px;margin-top:3px}
+  .histo{height:78px;gap:6px}.histo span{font-size:10px}.moy{font-size:21px;margin:3px 0 5px}.moy small{font-size:11px}
+  .avis li{font-size:10.5px;padding:4px 8px;margin-top:4px;border-radius:8px}.pied{margin-top:10px;font-size:10px}}
 </style>
 </head>
 <body>
