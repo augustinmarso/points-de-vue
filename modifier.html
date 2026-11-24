@@ -109,6 +109,7 @@ header h1{margin:0;font-size:24px;font-weight:800;letter-spacing:-.04em;flex:1}
 [hidden]{display:none!important}
 /* l'affiche découpée en zones : dans l'éditeur, les zones se déplacent et se redimensionnent */
 .zones.ed{touch-action:none;user-select:none;cursor:crosshair}
+.zones.ed .cache,.apercu .zones .cache{background:repeating-linear-gradient(45deg,#E2E2E2 0 8px,#CFCFCF 8px 16px)}
 .zones.ed .z{cursor:move;background:rgba(255,255,255,.28)}.zones.ed .z:hover{background:rgba(31,111,224,.3)}
 .zones.ed .coin{position:absolute;width:14px;height:14px;background:#fff;border:2px solid #141414;border-radius:3px;z-index:1}
 .zones.ed .nw{left:-8px;top:-8px;cursor:nwse-resize}.zones.ed .se{right:-8px;bottom:-8px;cursor:nwse-resize}.zones.ed .ne{right:-8px;top:-8px;cursor:nesw-resize}.zones.ed .sw{left:-8px;bottom:-8px;cursor:nesw-resize}
@@ -192,7 +193,7 @@ dialog h3{margin:0 0 6px;font-size:24px;font-weight:800;letter-spacing:-.03em}
 <div class="corps">
   <ol id="liste" aria-label="Les écrans de la séance"></ol>
   <div id="zone"><div id="travail"></div>
-    <dialog id="decoupe"><h3>Découper l'affiche</h3><p class="aide">Un cadre par élément de l'affiche (le titre, l'image, la date…). Glissez un cadre pour le déplacer, tirez un de ses coins pour changer sa taille. Pour un nouveau cadre : tracez-le à la souris sur l'affiche, ou utilisez « + Nouveau cadre ».</p>
+    <dialog id="decoupe"><h3>Découper l'affiche</h3><p class="aide">Un cadre par élément de l'affiche (le titre, l'image, la date…). Glissez un cadre pour le déplacer, tirez un de ses coins pour changer sa taille. Pour un nouveau cadre : tracez-le à la souris sur l'affiche, ou utilisez « + Nouveau cadre ». L'œil d'un cadre masque sa partie de l'affiche.</p>
       <div class="ligne"><select id="typeAffiche" class="btn clair" style="width:auto" aria-label="Appliquer un type d'affiche"></select><button type="button" class="btn clair" data-a="typeNouveau" title="Garde ces cadres et leurs noms comme un type d'affiche, à réutiliser sur d'autres affiches depuis cet ordinateur.">Enregistrer ces cadres comme type</button></div>
       <div class="dec"><div id="decAffiche"></div><div class="c" id="decListe"></div></div>
       <div class="ligne"><button type="button" class="btn clair" data-a="plus">+ Nouveau cadre</button><button type="button" class="btn clair" data-a="decouper" title="Repère les blocs de l'affiche et repose les cadres. Vos cadres actuels sont remplacés (« Revenir en arrière » les retrouve).">Découper automatiquement</button><button type="button" class="btn clair" data-a="affiche" data-k="imgs.0">Changer l'affiche</button><button type="button" class="btn" data-a="finDecoupe" style="margin-left:auto">Terminer</button></div></dialog></div>
@@ -361,6 +362,8 @@ $('zone').addEventListener('click', ev => {
   if (a === 'retour') { document.body.classList.remove('detail'); const li = $('liste').querySelector(`[data-i="${sel}"]`); if (li) li.scrollIntoView({ block: 'center' }); return; }
   if (a === 'decouper') return decouper(e);
   if (a === 'decoupe') return ouvrirDecoupe();
+  if (a === 'cacher') { const i = +b.dataset.i; (e.caches = e.caches || []).push({ n: e.o[i], z: e.zones[i] }); e.o.splice(i, 1); e.zones.splice(i, 1); }
+  if (a === 'montrer') { const [c] = e.caches.splice(+b.dataset.i, 1); e.o.push(c.n); e.zones.push(c.z); }
   if (a === 'finDecoupe') return $('decoupe').close();
   if (a === 'typeNouveau') { const n = (prompt("Nom de ce type d'affiche (par exemple : Flyer A5, Kakémono) :") || '').replace(/\s+/g, ' ').trim().slice(0, 40); if (!n) return;
     let p = {}; try { p = JSON.parse(localStorage.getItem('pdvTypes')) || {}; localStorage.setItem('pdvTypes', JSON.stringify({ ...p, [n]: { o: e.o, zones: e.zones } })); } catch (x) { return alert("Ce navigateur n'a pas pu garder le type."); }
@@ -396,9 +399,10 @@ $('liste').addEventListener('dragend', () => { tire = null; liste(); });
 
 // ---------- l'affiche découpée en zones ----------
 const LZ = 'ABCDEFGHIJ';
-const cadres = (e, poignees = true) => `<img src="${h(e.imgs[0])}" alt="L'affiche à découper" draggable="false">${e.zones.map((z, i) => `<span class="z" data-z="${i}" style="left:${z[0]}%;top:${z[1]}%;width:${z[2]}%;height:${z[3]}%" title="${h(e.o[i])}"><b>${LZ[i]}</b>${!poignees ? '' : ['nw', 'ne', 'sw', 'se'].map(c => `<i class="coin ${c}" data-c="${c}"></i>`).join('')}</span>`).join('')}`;
+const cadres = (e, poignees = true) => `<img src="${h(e.imgs[0])}" alt="L'affiche à découper" draggable="false">${cachesZones(e)}${e.zones.map((z, i) => `<span class="z" data-z="${i}" style="left:${z[0]}%;top:${z[1]}%;width:${z[2]}%;height:${z[3]}%" title="${h(e.o[i])}"><b>${LZ[i]}</b>${!poignees ? '' : ['nw', 'ne', 'sw', 'se'].map(c => `<i class="coin ${c}" data-c="${c}"></i>`).join('')}</span>`).join('')}`;
 const zonesEd = e => `<span class="zones ed">${cadres(e)}</span>`;
-const lignesZones = e => e.o.map((o, i) => `<div class="rep"><b class="lz">${LZ[i]}</b><input type="text" data-o="${i}" value="${h(o)}" maxlength="60" aria-label="Nom du cadre ${LZ[i]}"><button type="button" data-a="moins" data-i="${i}" aria-label="Supprimer le cadre ${LZ[i]}" title="Supprimer ce cadre" ${e.o.length < 3 ? 'disabled' : ''}>×</button></div>`).join('');
+const lignesZones = e => e.o.map((o, i) => `<div class="rep"><b class="lz">${LZ[i]}</b><input type="text" data-o="${i}" value="${h(o)}" maxlength="60" aria-label="Nom du cadre ${LZ[i]}"><button type="button" data-a="cacher" data-i="${i}" aria-label="Masquer la partie ${LZ[i]} de l'affiche" title="Masquer cette partie de l'affiche : elle est recouverte, et n'est plus une réponse possible" ${e.o.length < 3 ? 'disabled' : ''}>${OEIL(false)}</button><button type="button" data-a="moins" data-i="${i}" aria-label="Supprimer le cadre ${LZ[i]}" title="Supprimer ce cadre" ${e.o.length < 3 ? 'disabled' : ''}>×</button></div>`).join('')
+  + ((e.caches || []).length ? `<b style="margin-top:8px">Parties masquées</b><small>Recouvertes sur l'affiche, pour le téléphone comme pour le grand écran.</small>` + e.caches.map((c, i) => `<div class="rep"><b class="lz" style="background:#CFCFCF;color:#141414">–</b><input type="text" value="${h(c.n)}" disabled aria-label="Partie masquée"><button type="button" data-a="montrer" data-i="${i}" aria-label="Montrer de nouveau : ${h(c.n)}" title="Montrer de nouveau cette partie (elle redevient un cadre)" ${e.o.length > 9 ? 'disabled' : ''}>${OEIL(true)}</button></div>`).join('') : '');
 // l'étape de découpe : elle s'ouvre toute seule quand l'écran vient d'être ajouté, et se rouvre depuis ses réglages
 function dessinerDecoupe() { const e = M.ecrans[sel]; $('decAffiche').innerHTML = (e.imgs || [])[0] ? zonesEd(e) : img('imgs.0', ''); $('decListe').innerHTML = `<b>Les cadres</b><small>Chaque cadre est une réponse possible : donnez-lui le nom que liront les participants.</small>${lignesZones(e)}`; }
 $('decoupe').addEventListener('close', () => zone()); // les noms tapés dans la fenêtre reviennent dans les réglages
