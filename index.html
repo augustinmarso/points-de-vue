@@ -121,6 +121,7 @@ textarea.champ{min-height:150px;resize:none}
 .droite{flex:none;display:flex;gap:1.5vw;align-items:center}
 .droite img,.flash img{max-height:100%;max-width:calc(36vw*var(--ka,1));border-radius:1.5vw;display:block}
 .droite.deux img{max-width:calc(25vw*var(--ka,1))}.droite.n3 img{max-width:calc(18vw*var(--ka,1))}.droite.n4 img{max-width:calc(14vw*var(--ka,1))}
+.logosG{position:fixed;left:4vw;bottom:6vh;display:flex;gap:2vw;align-items:center;z-index:1;pointer-events:none}.logosG img{height:6.5vh;max-width:16vw;object-fit:contain}body.logos .ecran{padding-bottom:15vh}
 .droite figure{font-size:1.2em;cursor:zoom-in}
 .droite figure.zoom{position:fixed;inset:0;z-index:6;background:#fff;align-items:center;padding:3vh;cursor:zoom-out;height:auto}.droite figure.zoom img{max-width:92vw;max-height:88vh}
 .droite figure img{min-height:0;flex:0 1 auto;max-height:calc(100% - 2.4em)}
@@ -778,6 +779,7 @@ function ecran() {
   // la taille des titres et des affiches du grand écran se règle dans le Menu (de 50 % à 150 %), et reste d'une séance à l'autre sur cet ordinateur
   const TAILLE = { t: 1, a: 1 }; try { Object.assign(TAILLE, JSON.parse(localStorage.getItem('pdvTailles') || '{}')); } catch (e) { }
   const tailles = () => { document.documentElement.style.setProperty('--kt', +TAILLE.t || 1); document.documentElement.style.setProperty('--ka', +TAILLE.a || 1); }; tailles();
+  if (LOGOS.length) { document.body.classList.add('logos'); document.body.insertAdjacentHTML('beforeend', '<div class="logosG">' + LOGOS.map(s => '<img src="' + h(s) + '" alt="">').join('') + '</div>'); } // les logos choisis dans l'éditeur
   document.addEventListener('click', ev => {
     const fig = ev.target.closest('.mur figure, .droite figure'); if (fig) return fig.classList.toggle('zoom');
     const a = ev.target.closest('[data-a]'); if (!a) return;

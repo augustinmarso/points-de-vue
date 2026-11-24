@@ -37,7 +37,7 @@ header h1{margin:0;font-size:24px;font-weight:800;letter-spacing:-.04em;flex:1}
 #liste .mini{flex:1;min-width:0;aspect-ratio:16/9;background:var(--t);border-radius:8px;padding:8px;display:flex;gap:5px;align-items:center;overflow:hidden}
 #liste .mini.plein{background:var(--c)}
 #liste .mini .tx{flex:1;min-width:0;align-self:stretch}
-#liste .mini small{font-size:9px;line-height:1.2;margin-bottom:3px}
+#liste .mini small{font-size:9px;line-height:1.2;margin-bottom:3px;display:flex;align-items:center;gap:4px}#liste .mini small svg{flex:none}
 #liste .mini b{font-size:13px;line-height:1.02;letter-spacing:-.03em;white-space:normal;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical}
 #liste .mini img{flex:0 1 auto;min-width:0;max-height:100%;max-width:42%;object-fit:contain;border-radius:3px}
 #liste .oeil{flex:none;width:32px;height:32px;border-radius:50%;display:grid;place-items:center;color:var(--gris)}#liste .oeil:hover{background:var(--fond);color:var(--n)}
@@ -56,6 +56,8 @@ header h1{margin:0;font-size:24px;font-weight:800;letter-spacing:-.04em;flex:1}
 #zone{overflow:auto;padding:14px 26px 60px}
 .apercu{aspect-ratio:16/9;max-width:1180px;container-type:inline-size;background:#fff;border-radius:18px;box-shadow:0 4px 24px rgba(20,20,20,.16);overflow:hidden;position:relative}
 .apercu .in{position:absolute;inset:0;padding:5cqw;font-size:2.1cqw;display:flex;gap:3cqw}
+.apercu .lg{position:absolute;left:5cqw;bottom:2.2cqw;display:flex;gap:2cqw;align-items:center;pointer-events:none}.apercu .lg img{height:4.6cqw;max-width:16cqw;object-fit:contain}.apercu.form .lg{display:none}
+#choixLogos button[aria-pressed=true]{box-shadow:0 0 0 4px var(--n)}#choixLogos img{object-fit:contain;background:#fff}
 .apercu .g{flex:1;min-width:0;display:flex;flex-direction:column;gap:1.6cqw}
 .apercu .sur{font-weight:700}
 .apercu h2{margin:0;font-size:5cqw;line-height:.92;font-weight:800;letter-spacing:-.05em}
@@ -193,6 +195,7 @@ dialog h3{margin:0 0 6px;font-size:24px;font-weight:800;letter-spacing:-.03em}
   <a href="./" aria-label="Accueil" title="Accueil"><svg viewBox="0 0 24 24" width="1.35em" height="1.35em" fill="currentColor" aria-hidden="true" style="vertical-align:-.3em"><path d="M12 3 2.5 11.2h2.7V21h5.3v-6h3v6h5.3v-9.8h2.7z"/></svg></a>
   <h1>Modifier le test</h1>
   <select class="btn clair" id="test" aria-label="Le test modifié"><option>Séance Points de vue (principale)</option></select>
+  <button class="btn clair" id="btnLogos" title="Un ou deux logos montrés en bas à gauche du grand écran">Logos</button>
   <button class="btn clair" id="supprTest" hidden title="Supprime ce test et son lien. Les réponses déjà données restent dans le Google Sheet.">Supprimer ce test</button>
   <a class="btn clair" id="lancer" href="./?passer" target="_blank" rel="noopener">Lancer ce test</a>
   <span id="etat">Chargement…</span>
@@ -212,6 +215,8 @@ dialog h3{margin:0 0 6px;font-size:24px;font-weight:800;letter-spacing:-.03em}
 </div>
 <dialog id="galerie"><h3>Choisir une affiche</h3><p class="aide">Les affiches du site, et celles que vous ajoutez depuis cet ordinateur (elles sont enregistrées avec le test).</p><div class="galerie" id="images"></div>
   <div class="ligne"><label class="btn clair">Ajouter une image<input type="file" accept="image/*" hidden id="ajout"></label><button class="btn clair" data-a="fermer">Fermer</button><span class="aide" id="etatImage"></span></div></dialog>
+<dialog id="logos"><h3>Les logos du grand écran</h3><p class="aide">Un ou deux logos, montrés en bas à gauche de chaque écran. Cliquez sur un logo pour le choisir ou le retirer.</p><div class="galerie" id="choixLogos"></div>
+  <div class="ligne"><label class="btn clair">Ajouter un logo<input type="file" accept="image/png,image/jpeg,image/webp" hidden id="ajoutLogo"></label><button class="btn clair" data-a="fermer">Fermer</button><span class="aide" id="etatLogo" role="status"></span></div></dialog>
 <dialog id="nouveau"><h3>Ajouter un écran</h3><p class="aide">Il se place juste après l'écran choisi. Vous pourrez ensuite le déplacer.</p><div class="types" id="types"></div>
   <div class="ligne"><button class="btn clair" data-a="fermer">Fermer</button></div></dialog>
 <dialog id="creer"><h3>Nouveau test</h3><p class="aide">Un test à part, avec son propre lien et ses propres écrans. Le test principal ne change pas. Choisissez un nom, puis une structure de départ (un modèle, ou la copie d'un test déjà créé) : tout reste modifiable ensuite.</p>
@@ -242,6 +247,25 @@ const noterPile = t => { if (dernier && t !== dernier) { if (Date.now() - tPile 
 const annuler = () => { if (!pile.length) return; dernier = pile.pop(); tPile = 0; lireSeance(dernier); charger(); };
 const change = () => { noterPile(ecrireSeance(M)); const diff = ecrireSeance(M) !== depart; $('enregistrer').disabled = !diff; $('etat').textContent = diff ? 'Modifications non enregistrées' : 'Tout est enregistré'; };
 
+// une icône par sorte d'écran, sur sa miniature
+const svgI = d => `<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
+const ICONE = e => svgI(e.zones ? '<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M4 9h16M4 15h16M12 9v6"/>' : e.jeu ? '<path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12z"/><circle cx="12" cy="12" r="2.8"/>' : ({
+  accueil: '<circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.5 2.7-6 6-6s6 2.5 6 6M16 5.2a3.2 3.2 0 0 1 0 5.6M18 14.5c2 .8 3 2.800 3 5.500"/>',
+  info: '<path d="M5 6h14M5 12h14M5 18h9"/>',
+  flash: '<circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.500 2.500M9 2h6"/>',
+  phase: '<path d="M5 21V4M5 4h13l-3 4.500 3 4.500H5"/>',
+  choix: '<circle cx="5" cy="6" r="1.500"/><circle cx="5" cy="12" r="1.500"/><circle cx="5" cy="18" r="1.500"/><path d="M10 6h10M10 12h10M10 18h10"/>',
+  multi: '<path d="M3 5.500 5 7.500 8 4M3 11.500l2 2 3-3.500M3 17.500l2 2 3-3.500M12 6h9M12 12h9M12 18h9"/>',
+  echelle: '<path d="M12 3l2.700 5.600 6.100.800-4.500 4.300 1.100 6.100L12 16.900 6.600 19.800l1.100-6.100L3.200 9.400l6.100-.800z"/>',
+  ab: '<rect x="3" y="4" width="7.500" height="16" rx="1.500"/><rect x="13.500" y="4" width="7.500" height="16" rx="1.500"/>',
+  texte: '<path d="M4 5h16v11H10l-4.500 4v-4H4z"/>',
+  scores: '<path d="M7 4h10v5a5 5 0 0 1-10 0zM7 6H4c0 3 1.500 4.500 3.500 4.500M17 6h3c0 3-1.500 4.500-3.500 4.500M12 14v4M8 20h8"/>',
+  mission: '<path d="M4 20l1-4L16.500 4.500l3 3L8 19z"/>',
+  photo: '<path d="M3 8h4l1.500-2.500h7L17 8h4v11H3z"/><circle cx="12" cy="13" r="3.200"/>',
+  vote: '<path d="M4 12l5 5L20 6"/>',
+  palmares: '<path d="M4 20V12h5v8M9.500 20V5h5v15M15 20v-6h5v6"/>',
+  fin: '<circle cx="12" cy="12" r="9"/><path d="M8 12.500l3 3 5-6"/>'
+}[e.t] || '<circle cx="12" cy="12" r="8"/>'));
 const OEIL = ferme => `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12z"/><circle cx="12" cy="12" r="2.8"/>${ferme ? '<path d="M4 20 20 4"/>' : ''}</svg>`;
 // les dossiers : dans la liste, chaque partie de la séance (le jeu, chaque étape, l'atelier) est un dossier qui s'ouvre et se referme. Un écran sans partie suit celle de l'écran d'après.
 const fermes = new Set(); let selVu = -1;
@@ -257,7 +281,7 @@ function liste() {
   let n = 0, x = ''; const P = parties(), dossiers = [...new Set(P)].filter(p => NOM_PARTIE[p]).length > 1;
   if (sel !== selVu) { fermes.delete(P[sel]); selVu = sel; } // le dossier de l'écran qu'on vient de choisir s'ouvre
   const carte = (e, i) => (e.masque || ++n, `<li data-i="${i}" draggable="${!fixe(i)}" class="${i === sel ? 'sel' : ''}${e.masque ? ' masque' : ''}" style="--c:${COUL(e)}">
-    <span class="num">${e.masque ? '–' : n}</span><span class="mini${e.t === 'phase' ? ' plein' : ''}" style="--t:${e.p ? `var(--t${e.p})` : 'var(--fond)'}"><span class="tx"><small>${h(TYPE(e))}${e.masque ? ' · masqué' : ''}</small><b>${h(TITRE(e))}</b></span>${[e.img, ...(e.imgs || [])].filter(Boolean).slice(0, 4).map(s => `<img src="${h(s)}" alt="" loading="lazy">`).join('')}</span>
+    <span class="num">${e.masque ? '–' : n}</span><span class="mini${e.t === 'phase' ? ' plein' : ''}" style="--t:${e.p ? `var(--t${e.p})` : 'var(--fond)'}"><span class="tx"><small>${ICONE(e)} ${h(TYPE(e))}${e.masque ? ' · masqué' : ''}</small><b>${h(TITRE(e))}</b></span>${[e.img, ...(e.imgs || [])].filter(Boolean).slice(0, 4).map(s => `<img src="${h(s)}" alt="" loading="lazy">`).join('')}</span>
     ${fixe(i) ? '' : `<button type="button" class="oeil" data-oeil aria-pressed="${!!e.masque}" aria-label="${e.masque ? 'Montrer cet écran pendant la séance' : 'Masquer cet écran pendant la séance'}" title="${e.masque ? 'Écran masqué : cliquer pour le montrer' : 'Masquer cet écran pendant la séance'}">${OEIL(e.masque)}</button>`}<span class="mv"><button data-m="-1" aria-label="Monter" ${fixe(i) || fixe(i - 1) || i === 0 ? 'disabled' : ''}>↑</button><button data-m="1" aria-label="Descendre" ${fixe(i) || fixe(i + 1) || i === M.ecrans.length - 1 ? 'disabled' : ''}>↓</button></span></li>`);
   for (let i = 0, j; i < M.ecrans.length; i = j) { // une partie = une suite d'écrans, rangée dans son dossier
     const p = P[i]; for (j = i; j < M.ecrans.length && P[j] === p; j++);
@@ -300,7 +324,7 @@ function apercu(e) {
     im = e.zones ? ((e.imgs || [])[0] ? `<span class="zones" data-a="decoupe" role="button" tabindex="0" style="cursor:pointer" title="Cliquer pour modifier le découpage">${cadres(e, false)}</span>` : img('imgs.0', '')) : e.t === 'ab' ? e.imgs.map((v, i) => `<span class="col">${img('imgs.' + i, v, e.imgs.length > 2)}<b>${'ABCD'[i]}</b></span>`).join('') + (e.imgs.length < 4 ? `<button type="button" class="vide" data-a="affiche" data-k="imgs.${e.imgs.length}">+ Affiche ${'ABCD'[e.imgs.length]}</button>` : '') : e.jeu ? img('img', e.img) : imgCadree(e);
   }
   else g = `<div class="sur">${h(TYPE(e))}</div><h2>${h({ accueil: 'Bienvenue !', scores: 'Les réussites', photo: 'Vos affiches', palmares: 'Le palmarès', fin: 'Merci !' }[e.t])}</h2>`;
-  return `<div class="apercu ${vue}${cls}${e.masque ? ' cache' : ''}" style="${t}"><div class="in"><div class="g">${g}</div>${im ? `<div class="d${e.t === 'ab' ? ' deux n' + e.imgs.length : ''}">${im}</div>` : ''}</div></div>`;
+  return `<div class="apercu ${vue}${cls}${e.masque ? ' cache' : ''}" style="${t}"><div class="in"><div class="g">${g}</div>${im ? `<div class="d${e.t === 'ab' ? ' deux n' + e.imgs.length : ''}">${im}</div>` : ''}</div>${(M.logos || []).length ? `<div class="lg">${M.logos.map(s => `<img src="${h(s)}" alt="">`).join('')}</div>` : ''}</div>`;
 }
 
 // ce que le participant a devant lui pendant que le grand écran montre cet écran : son téléphone, ou sa fiche à imprimer (lecture seule, suit la frappe)
@@ -571,6 +595,27 @@ async function enregistrer() {
 }
 $('enregistrer').addEventListener('click', enregistrer);
 $('annuler').addEventListener('click', annuler);
+// les logos : ceux du dossier « logos » du site, plus ceux ajoutés depuis cet ordinateur (gardés dans le test, comme les affiches ajoutées)
+const LOGOS_SITE = ['logos/granville-terre-et-mer.svg', 'logos/points-de-vue.svg', 'logos/ensaama.svg'];
+function choixLogos() {
+  $('choixLogos').innerHTML = [...new Set([...LOGOS_SITE, ...M.logos])].map(s => `<button type="button" data-logo="${h(s)}" aria-pressed="${M.logos.includes(s)}"><img src="${h(s)}" alt="">${h(nomImage(s))}</button>`).join('');
+}
+$('btnLogos').addEventListener('click', () => { if (!M) return; $('etatLogo').textContent = ''; choixLogos(); $('logos').showModal(); });
+$('logos').addEventListener('click', ev => {
+  if (ev.target.closest('[data-a=fermer]')) return $('logos').close();
+  const b = ev.target.closest('[data-logo]'); if (!b) return; const s = b.dataset.logo, i = M.logos.indexOf(s);
+  if (i >= 0) M.logos.splice(i, 1); else if (M.logos.length > 1) return $('etatLogo').textContent = "Deux logos au plus : retirez-en un d'abord."; else M.logos.push(s);
+  $('etatLogo').textContent = ''; choixLogos(); zone(); change();
+});
+$('ajoutLogo').addEventListener('change', async ev => { // réduit, et gardé en PNG pour conserver un fond transparent
+  const f = ev.target.files[0]; ev.target.value = ''; if (!f) return;
+  try {
+    const im = await new Promise((ok, ko) => { const i = new Image(); i.onload = () => ok(i); i.onerror = ko; i.src = URL.createObjectURL(f); });
+    const k = Math.min(1, 400 / Math.max(im.width, im.height)), c = document.createElement('canvas'); c.width = im.width * k; c.height = im.height * k; c.getContext('2d').drawImage(im, 0, 0, c.width, c.height);
+    const d = c.toDataURL('image/png'); NOMS[d] = f.name.replace(/\.[^.]+$/, '').slice(0, 40) || 'Logo ajouté';
+    if (M.logos.length > 1) M.logos.pop(); M.logos.push(d); choixLogos(); zone(); change(); $('etatLogo').textContent = 'Logo ajouté et choisi.';
+  } catch (err) { $('etatLogo').textContent = "Cette image n'a pas pu être lue."; }
+});
 // raccourcis : flèches haut et bas = écran d'avant ou d'après, Suppr = supprimer l'écran (avec confirmation), Échap = sortir d'un texte ou revenir à la liste, Ctrl+Z = revenir en arrière
 addEventListener('keydown', ev => {
   const t = ev.target; if (!M) return;
@@ -718,7 +763,7 @@ $('supprTest').addEventListener('click', async () => {
 });
 
 // ---------- démarrage ----------
-function charger() { M = { phases: PHASES, missions: MISSIONS.slice(), tests: TESTS, ecrans: TOUS }; sel = Math.min(sel, M.ecrans.length - 1); liste(); zone(); change(); }
+function charger() { M = { phases: PHASES, missions: MISSIONS.slice(), tests: TESTS, ecrans: TOUS, logos: LOGOS.slice() }; sel = Math.min(sel, M.ecrans.length - 1); liste(); zone(); change(); }
 lireFichier().then(t => {
   if (!lireSeance(t)) throw 0; charger(); depart = ecrireSeance(M); change();
   images = [...new Set(M.ecrans.flatMap(e => [e.img, ...(e.imgs || [])]).filter(Boolean))].sort();

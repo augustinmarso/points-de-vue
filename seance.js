@@ -2,6 +2,10 @@
 // ---------- le contenu de la séance : il est dans le fichier seance.txt, modifiable directement sur GitHub ----------
 let PHASES = { 1: { nom: 'Étape 1', quoi: '' }, 2: { nom: 'Étape 2', quoi: '' }, 3: { nom: 'Étape 3', quoi: '' } }; // 3 étapes au départ, 6 au plus (une couleur chacune)
 let ETAPES = [{ t: 'accueil' }], MISSIONS = ["L'information à faire passer"], TESTS = [];
+let LOGOS = []; // un ou deux logos, montrés en bas à gauche du grand écran (ligne « logo = … » du test)
+// un logo n'est accepté que s'il vient du dossier « logos » du site ou a été ajouté dans l'éditeur (data:) : même règle que pour les affiches
+const logoSur = v => /^logos\/[\w.-]+\.(svg|png|jpe?g|webp)$/i.test(v) || /^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+\/=]+$/.test(v) ? v : '';
+console.assert(logoSur('logos/granville-terre-et-mer.svg') && !logoSur('logos/x.svg" onload="alert(1)') && !logoSur('https://ailleurs.fr/x.png'), 'logoSur');
 let VERSION = '', TEXTE = ''; // l'identifiant de la version du test (change dès que seance.txt change) et son contenu
 const SCRIPT_GOOGLE = 'https://script.google.com/macros/s/AKfycbzPof8sEj8tZLlA-MtVDYyODv32y8lXxc9hLVmaW5zCvHLilyRIxpk4Ix6TPhzJczjn/exec';
 let TOUS = ETAPES; // tous les écrans du fichier, y compris ceux qui sont masqués (pour l'éditeur)
@@ -35,7 +39,7 @@ const imageSure = v => /^affiches\/[\w.-]+\.(jpe?g|png|webp|gif)$/i.test(v) || /
 console.assert(imageSure('affiches/reference.jpg') && imageSure('data:image/jpeg;base64,/9j/4A==') && !imageSure('x" onerror="alert(1)') && !imageSure('affiches/a.jpg"><script>'), 'imageSure');
 // lit seance.txt : un écran par mot entre crochets, des lignes « clé : valeur » et des réponses « - » ou « + » dessous
 function lireSeance(texte) {
-  const E = [], M = [], T = [], P = {}, ids = {};
+  const E = [], M = [], T = [], P = {}, ids = {}, G = [];
   const sans = x => x.normalize('NFD').replace(/[^a-zA-Z0-9 ]/g, '').toLowerCase().trim();
   const id = q => { let k = sans(q).replace(/ /g, '').slice(0, 20) || 'q'; ids[k] = (ids[k] || 0) + 1; return ids[k] > 1 ? k + ids[k] : k; };
   const cinq = ['1', '2', '3', '4', '5'], fixes = { accueil: 'accueil', scores: 'scores', mission: 'mission', photos: 'photo', photo: 'photo', tests: 'vote', palmares: 'palmares', fin: 'fin' };
@@ -65,6 +69,7 @@ function lireSeance(texte) {
     const k = sans(kv[1]), v = kv[2].trim(), part = v.split('|').map(x => x.trim());
     if (/^etape [1-6]$/.test(k) && !e) P[k.slice(-1)] = { nom: part[0], quoi: part[1] || '' };
     else if (k === 'mission' && !e) M.push(v);
+    else if (k === 'logo' && !e) { if (logoSur(v) && G.length < 2) G.push(v); }
     else if (/^test/.test(k) && !e) T.push({ c: 't' + T.length, t: 'echelle', q: part[0], o: cinq, a: part[1] || '', b: part[2] || '', cinq: /5 secondes/.test(k) });
     else if (!e) continue;
     else if (k === 'etape') e.p = +v || undefined;
@@ -81,7 +86,7 @@ function lireSeance(texte) {
   E.forEach(x => { if (x.t === 'ab') { x.imgs = [x.imgs[0] || '', x.imgs[1] || '', ...x.imgs.slice(2).filter(Boolean)]; x.o = optsAB(x.imgs.length); } });
   // une question sans réponse ne peut pas être posée, un écran masqué ne passe pas : on les retire de la séance
   const bons = E.filter(x => !x.masque && (!x.o || x.o.length > 1));
-  if (bons.length) { TEXTE = texte; VERSION = versionSeance(texte); TOUS = E; ETAPES = bons; if (M.length) MISSIONS = M; TESTS = T; PHASES = { ...PHASES, ...P }; }
+  if (bons.length) { TEXTE = texte; VERSION = versionSeance(texte); TOUS = E; ETAPES = bons; LOGOS = G; if (M.length) MISSIONS = M; TESTS = T; PHASES = { ...PHASES, ...P }; }
   return bons.length;
 }
 
@@ -93,6 +98,7 @@ function ecrireSeance(m) { // m = { phases, missions, tests, ecrans }
   Object.keys(m.phases).sort().forEach(p => L.push(`étape ${p} = ${net(m.phases[p].nom)} | ${net(m.phases[p].quoi)}`));
   L.push('', "# L'atelier : les informations de santé possibles. La première est celle de la séance (le menu du grand écran permet d'en changer).");
   m.missions.map(net).filter(Boolean).forEach(x => L.push('mission = ' + x));
+  if ((m.logos || []).length) L.push('', '# Les logos montrés en bas à gauche du grand écran (deux au plus).', ...m.logos.filter(logoSur).slice(0, 2).map(x => 'logo = ' + x));
   L.push('', "# L'atelier : les tests passés par chaque affiche de binôme (question | note 1 | note 5). « test 5 secondes » : l'affiche est cachée au bout de 5 secondes.");
   m.tests.filter(t => net(t.q)).forEach(t => L.push(`${t.cinq ? 'test 5 secondes' : 'test'} = ${net(t.q)} | ${net(t.a)} | ${net(t.b)}`));
   L.push('', '', '# ================= LA SÉANCE =================', '');
