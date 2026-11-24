@@ -96,6 +96,8 @@ textarea.champ{min-height:150px;resize:none}
 #statut:empty{display:none}
 .apercu{width:100%;border-radius:28px;display:block}
 /* en ligne, chez soi : les affiches sont sur la page, on les touche pour les agrandir */
+.tel .zones{display:block;margin:4px 0}.tel .zones img{width:100%;border-radius:20px}.tel .z{border-radius:12px}.tel .z b{border-radius:12px 0 12px 0;font-size:15px}
+.droite .zones img{max-height:calc(74vh*var(--ka,1))}.droite .z{border-width:.25vw;border-radius:.8vw;cursor:inherit}.droite .z b{border-radius:.8vw 0 .8vw 0;font-size:1.3vw;left:-.25vw;top:-.25vw}
 .vue{display:flex;gap:12px}
 .vue figure{margin:0;flex:1;min-width:0;display:flex;flex-direction:column;gap:6px;font-weight:800;font-size:26px;cursor:zoom-in}
 .vue img{width:100%;max-height:58vh;object-fit:contain;object-position:left top;border-radius:20px;display:block}
@@ -428,8 +430,9 @@ function telephone() {
     else {
       x = `<p class="sur">${sur(e)}</p><h2>${h(q.q)}</h2>${q.vote ? `<p class="note">Affiche ${q.k + 1}, sur le grand écran.</p>` : q.note ? `<p class="note">${h(q.note)}</p>` : ''}`;
       if (t === 'texte') x += `<textarea class="champ" id="txt" maxlength="200" placeholder="Votre réponse"></textarea><button class="btn" data-a="texte">Valider</button>`;
-      if (t === 'choix' || t === 'multi') x += `<div class="opts">${q.o.map((o, i) => `<button class="opt" data-o="${i}">${h(o)}${tete(e.p || 1)}</button>`).join('')}</div>`;
-      if (t === 'multi') x += `<p class="note">Plusieurs réponses possibles.</p><button class="btn" data-a="multi">Valider</button>`;
+      if (q.zones) x += carteZones(q, q.imgs[0]) + `<p class="note">Touchez ${t === 'multi' ? 'les zones, puis Valider' : 'une zone de l\'affiche'}. ${legendeZones(q)}</p>` + (t === 'multi' ? `<button class="btn" data-a="multi">Valider</button>` : '');
+      else if (t === 'choix' || t === 'multi') x += `<div class="opts">${q.o.map((o, i) => `<button class="opt" data-o="${i}">${h(o)}${tete(e.p || 1)}</button>`).join('')}</div>`;
+      if (t === 'multi' && !q.zones) x += `<p class="note">Plusieurs réponses possibles.</p><button class="btn" data-a="multi">Valider</button>`;
       if (t === 'echelle') x += `<div class="echelle">${q.o.map((o, i) => `<button data-o="${i}" style="width:${36 + i * 11}px;height:${36 + i * 11}px">${o}</button>`).join('')}</div><div class="bouts"><span>${h(q.a)}</span><span>${h(q.b)}</span></div>`;
       if (t === 'ab') x += `<p class="note">Regardez les ${e.o.length - 1} affiches.</p><div class="ab n${e.o.length - 1}">${e.o.slice(0, -1).map((l, i) => `<button data-o="${i}">${l}</button>`).join('')}</div><div class="opts"><button class="opt" data-o="${e.o.length - 1}">${h(e.o[e.o.length - 1])}${tete(e.p)}</button></div>`;
     }
@@ -445,7 +448,7 @@ function telephone() {
     if (o) { o.classList.add('on'); return setTimeout(() => repondre(id, +o.dataset.o), 350); }
     if (!a) return;
     const act = a.dataset.a;
-    if (act === 'multi') { const v = [...app.querySelectorAll('.opt.on')].map(b => +b.dataset.o); if (v.length) repondre(id, v); }
+    if (act === 'multi') { const v = [...app.querySelectorAll('[data-o].on')].map(b => +b.dataset.o); if (v.length) repondre(id, v); }
     if (act === 'texte') { const v = document.getElementById('txt').value.trim(); if (v) repondre(id, v); }
     if (act === 'autre') { photo = null; dessiner(true); }
     if (act === 'inscrire') { mes.nom = document.getElementById('nom').value.trim(); mes.inscrit = true; garder(); if (lien) lien.send({ k: 'salut', pid: mes.pid, nom: mes.nom }); dessiner(); }
@@ -521,10 +524,11 @@ function enLigne() {
     else if (e.t === 'fin') x = `<div class="haut"></div><h1>Merci !</h1><p><b>Vos observations vont servir à retravailler les affiches.</b></p><p id="envoi"></p>
       <button class="lien" data-a="autre">Une autre personne veut répondre sur cet appareil</button>`;
     else {
-      x = `<p class="sur">${sur(e)} · question ${QS.indexOf(e) + 1} sur ${QS.length}</p><h2>${h(e.q)}</h2>${e.note ? `<p class="note">${h(e.note)}</p>` : ''}${vue(e, e.jeu ? [] : (e.imgs || []).filter(Boolean))}`;
+      x = `<p class="sur">${sur(e)} · question ${QS.indexOf(e) + 1} sur ${QS.length}</p><h2>${h(e.q)}</h2>${e.note ? `<p class="note">${h(e.note)}</p>` : ''}${vue(e, e.jeu || e.zones ? [] : (e.imgs || []).filter(Boolean))}`;
       if (e.t === 'texte') x += `<textarea class="champ" id="txt" maxlength="200" placeholder="Votre réponse"></textarea><button class="btn" data-a="texte">Valider</button><button class="lien" data-a="suite">Passer cette question</button>`;
-      if (e.t === 'choix' || e.t === 'multi') x += `<div class="opts">${e.o.map((o, i) => `<button class="opt" data-o="${i}">${h(o)}${tete(e.p || 1)}</button>`).join('')}</div>`;
-      if (e.t === 'multi') x += `<p class="note">Plusieurs réponses possibles.</p><button class="btn" data-a="multi">Valider</button>`;
+      if (e.zones) x += carteZones(e, e.imgs[0]) + `<p class="note">Touchez ${e.t === 'multi' ? 'les zones, puis Valider' : 'une zone de l\'affiche'}. ${legendeZones(e)}</p>` + (e.t === 'multi' ? `<button class="btn" data-a="multi">Valider</button>` : '');
+      else if (e.t === 'choix' || e.t === 'multi') x += `<div class="opts">${e.o.map((o, i) => `<button class="opt" data-o="${i}">${h(o)}${tete(e.p || 1)}</button>`).join('')}</div>`;
+      if (e.t === 'multi' && !e.zones) x += `<p class="note">Plusieurs réponses possibles.</p><button class="btn" data-a="multi">Valider</button>`;
       if (e.t === 'echelle') x += `<div class="echelle">${e.o.map((o, i) => `<button data-o="${i}" style="width:${36 + i * 11}px;height:${36 + i * 11}px">${o}</button>`).join('')}</div><div class="bouts"><span>${h(e.a)}</span><span>${h(e.b)}</span></div>`;
       if (e.t === 'ab') x += `<div class="ab n${e.o.length - 1}">${e.o.slice(0, -1).map((l, i) => `<button data-o="${i}">${l}</button>`).join('')}</div><div class="opts"><button class="opt" data-o="${e.o.length - 1}">${h(e.o[e.o.length - 1])}${tete(e.p || 1)}</button></div>`;
     }
@@ -549,7 +553,7 @@ function enLigne() {
     if (act === 'partir') { M.nom = document.getElementById('nom').value.trim().slice(0, 24); M.parti = true; aller(M.i); }
     if (act === 'suite') aller(M.i + 1);
     if (act === 'voir') { a.disabled = true; montrer(e); }
-    if (act === 'multi') { const v = [...app.querySelectorAll('.opt.on')].map(b => +b.dataset.o); if (v.length) repondre(e, v); }
+    if (act === 'multi') { const v = [...app.querySelectorAll('[data-o].on')].map(b => +b.dataset.o); if (v.length) repondre(e, v); }
     if (act === 'texte') { const v = document.getElementById('txt').value.trim(); if (v) repondre(e, v); }
     if (act === 'autre') { const file = M.file; M = neuf(); M.file = file; garder(); dessiner(); }
   });
@@ -679,7 +683,7 @@ function ecran() {
       if (q.cinq && !S.rev && !masque) { clearTimeout(tm); tm = setTimeout(() => { masque = true; dessiner(true); }, 5000); } // vue 5 secondes, puis cachée
       if (e.img && S.rev) d = `<div class="droite"><figure><img src="${e.img}" alt="Affiche du jeu"></figure></div>`;
     }
-    if (vues.length) d = `<div class="droite${vues.length > 1 ? ' deux n' + vues.length : ''}${e.nb ? ' nb' : ''}">${vues.map(v => `<figure>${v.l}<img src="${v.src}" alt="Affiche ${v.l}"></figure>`).join('')}</div>`; // aussi pour une page de texte qui a une image
+    if (vues.length) d = `<div class="droite${vues.length > 1 ? ' deux n' + vues.length : ''}${e.nb ? ' nb' : ''}">${vues.map(v => `<figure>${v.l}${e.zones ? carteZones(e, v.src) : `<img src="${v.src}" alt="Affiche ${v.l}">`}</figure>`).join('')}</div>`; // aussi pour une page de texte qui a une image
     const prete = q.id && !S.rev && Object.keys(S.rep[q.id] || {}).length;
     app.innerHTML = `<div class="ecran"><div class="barre"><span class="sur">${h(souci || (APERCU ? 'Aperçu de vos modifications · flèches du clavier pour avancer · sans enregistrement' : ''))}</span><div class="gens"></div></div><div class="corps"><div class="gauche">${g}</div>${d}</div></div>
       <div class="cmd"><button class="home" data-a="menu">Menu</button><div class="liste">
@@ -735,6 +739,7 @@ function ecran() {
     if (!S.rev) return;
     if (q.t === 'texte') { const m = app.querySelector('.mots'); vals.slice(m.children.length).forEach(v => m.insertAdjacentHTML('beforeend', `<span>${h(v)}</span>`)); return; }
     const n = q.o.map(() => 0); vals.forEach(v => [].concat(v).forEach(x => n[x]++));
+    app.querySelectorAll('.droite .z').forEach((z, i) => { z.style.setProperty('--f', n[i] / Math.max(1, ...n)); z.querySelector('b').textContent = 'ABCDEFGHIJ'[i] + ' · ' + n[i]; }); // plus une zone est choisie, plus elle se colore
     const max = Math.max(1, ...n), cols = app.querySelectorAll('.col'), rond = cols[0].querySelector('.rond'), base = Math.min(rond.clientWidth, rond.clientHeight) * .9; // jamais superposés
     requestAnimationFrame(() => cols.forEach((c, i) => {
       c.querySelector('.tete').style.fontSize = base * (.16 + .84 * Math.sqrt(n[i] / max)) + 'px';

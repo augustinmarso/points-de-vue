@@ -52,12 +52,15 @@ function lireSeance(texte) {
       else if (mot === 'jeu') e = { id: id(reste), t: 'choix', jeu: 1, q: reste, o: [] };
       else if (mot === 'note') e = { id: id(reste), t: 'echelle', q: reste, o: cinq, a: '', b: '' };
       else if (mot === 'a ou b') e = { id: id(reste), t: 'ab', q: reste, o: ['A', 'B', 'Aucune différence'], imgs: [] };
-      else if (mot === 'question') e = { id: id(reste), t: 'choix', q: reste, o: [] };
+      else if (mot === 'zones') e = { id: id(reste), t: 'choix', q: reste, o: [], zones: [] };
+    else if (mot === 'question') e = { id: id(reste), t: 'choix', q: reste, o: [] };
       else if (mot === 'avis') e = { id: id(reste), t: 'texte', q: reste };
       else { e = null; continue; } // mot inconnu : l'écran est ignoré plutôt que de bloquer la séance
       E.push(e); continue;
     }
-    if (/^[-+]\s/.test(l) && e && e.o && e.o !== cinq && e.t !== 'ab') { if (l[0] === '+') e.bon = e.o.length; e.o.push(l.slice(1).trim()); continue; }
+    if (/^[-+]\s/.test(l) && e && e.o && e.o !== cinq && e.t !== 'ab') { if (l[0] === '+') e.bon = e.o.length; let r = l.slice(1).trim();
+      if (e.zones) { const z = /^(.*?)\s*@\s*(\d+) (\d+) (\d+) (\d+)$/.exec(r); e.zones.push(z ? z.slice(2).map(n => Math.min(100, +n)) : [5, Math.min(84, 5 + 18 * e.zones.length), 90, 16]); if (z) r = z[1]; } // « - Le titre @ 5 4 90 18 » : gauche, haut, largeur, hauteur, en % de l'affiche
+      e.o.push(r); continue; }
     const kv = /^([^:=]+?)\s*[:=]\s*(.*)$/.exec(l); if (!kv) continue;
     const k = sans(kv[1]), v = kv[2].trim(), part = v.split('|').map(x => x.trim());
     if (/^etape [123]$/.test(k) && !e) P[k.slice(-1)] = { nom: part[0], quoi: part[1] || '' };
@@ -81,7 +84,7 @@ function lireSeance(texte) {
 }
 
 // réécrit seance.txt à partir du contenu en mémoire (utilisé par l'éditeur)
-const AIDE = "# LA SÉANCE « POINTS DE VUE », ÉCRAN PAR ÉCRAN\n# ------------------------------------------------------------------\n# Le plus simple pour le modifier : la page « Modifier le test » du site (enregistré dans le Google Sheet, onglet « Tests »).\n# Ce fichier peut aussi se modifier sur GitHub : il reprend alors la main sur la dernière version enregistrée depuis le site.\n#\n# Chaque écran commence par un mot entre crochets. L'ordre du fichier est l'ordre de la séance.\n# Pour retirer un écran : supprimez ses lignes. Pour en déplacer un : coupez-collez ses lignes.\n# Une ligne qui commence par # est un commentaire, l'appli ne la lit pas.\n#\n#   [accueil]              la salle d'attente (QR code, code, participants connectés)\n#   [texte] petit titre | grand titre | phrase\n#   [5 secondes] image     une affiche montrée 5 secondes   (ajoutez « | étape 1 » pour la rattacher à une étape)\n#   [jeu] question         question avec une bonne réponse : « + » devant la bonne, « - » devant les autres\n#   [scores]               les réussites de chacun au jeu\n#   [étape 1]              l'écran de titre d'une étape (1, 2 ou 3)\n#   [question] question    question à choix : « - » devant chaque réponse\n#                          ligne « réponses : une » ou « réponses : plusieurs »\n#   [note] question        note de 1 à 5, avec les lignes « de : » et « à : »\n#   [a ou b] question      comparaison de 2 à 4 affiches, avec « affiche a : », « affiche b : » (puis c et d)\n#   [avis] question        avis libre : chacun écrit sa réponse (quelques mots)\n#   [mission] [photos] [tests] [palmarès] [fin]   l'atelier en binômes et la fin\n#\n# Lignes possibles sous une question :\n#   étape : 1                      (1, 2 ou 3 : donne la couleur et le titre de l'étape)\n#   affiche : affiches/nom.jpg     (l'affiche montrée à côté de la question)\n#   précision : une phrase sous la question\n#   noir et blanc : oui            (l'affiche passe en noir et blanc)\n#   masqué : oui                   (l'écran reste dans le fichier mais ne passe pas pendant la séance)\n#\n# Les images sont dans le dossier « affiches » du dépôt.\n# ------------------------------------------------------------------";
+const AIDE = "# LA SÉANCE « POINTS DE VUE », ÉCRAN PAR ÉCRAN\n# ------------------------------------------------------------------\n# Le plus simple pour le modifier : la page « Modifier le test » du site (enregistré dans le Google Sheet, onglet « Tests »).\n# Ce fichier peut aussi se modifier sur GitHub : il reprend alors la main sur la dernière version enregistrée depuis le site.\n#\n# Chaque écran commence par un mot entre crochets. L'ordre du fichier est l'ordre de la séance.\n# Pour retirer un écran : supprimez ses lignes. Pour en déplacer un : coupez-collez ses lignes.\n# Une ligne qui commence par # est un commentaire, l'appli ne la lit pas.\n#\n#   [accueil]              la salle d'attente (QR code, code, participants connectés)\n#   [texte] petit titre | grand titre | phrase\n#   [5 secondes] image     une affiche montrée 5 secondes   (ajoutez « | étape 1 » pour la rattacher à une étape)\n#   [jeu] question         question avec une bonne réponse : « + » devant la bonne, « - » devant les autres\n#   [scores]               les réussites de chacun au jeu\n#   [étape 1]              l'écran de titre d'une étape (1, 2 ou 3)\n#   [question] question    question à choix : « - » devant chaque réponse\n#                          ligne « réponses : une » ou « réponses : plusieurs »\n#   [note] question        note de 1 à 5, avec les lignes « de : » et « à : »\n#   [a ou b] question      comparaison de 2 à 4 affiches, avec « affiche a : », « affiche b : » (puis c et d)\n#   [zones] question       une affiche découpée en zones : on touche une zone. Une ligne par zone : « - nom @ gauche haut largeur hauteur » (en % de l'affiche)\n#   [avis] question        avis libre : chacun écrit sa réponse (quelques mots)\n#   [mission] [photos] [tests] [palmarès] [fin]   l'atelier en binômes et la fin\n#\n# Lignes possibles sous une question :\n#   étape : 1                      (1, 2 ou 3 : donne la couleur et le titre de l'étape)\n#   affiche : affiches/nom.jpg     (l'affiche montrée à côté de la question)\n#   précision : une phrase sous la question\n#   noir et blanc : oui            (l'affiche passe en noir et blanc)\n#   masqué : oui                   (l'écran reste dans le fichier mais ne passe pas pendant la séance)\n#\n# Les images sont dans le dossier « affiches » du dépôt.\n# ------------------------------------------------------------------";
 function ecrireSeance(m) { // m = { phases, missions, tests, ecrans }
   const net = x => String(x ?? '').replace(/[|\r\n]+/g, ' ').replace(/\s+/g, ' ').trim(); // une valeur tient sur une ligne, sans barre verticale
   const L = [AIDE, '', "# Les trois étapes : nom | phrase d'explication"];
@@ -98,7 +101,7 @@ function ecrireSeance(m) { // m = { phases, missions, tests, ecrans }
     else if (e.t === 'info') { L.push(`[texte] ${net(e.s)} | ${net(e.h)} | ${net(e.x)}`); if (e.p) L.push('étape : ' + e.p); if (net((e.imgs || [])[0])) L.push('affiche : ' + net(e.imgs[0])); }
     else if (e.t === 'flash') L.push(`[5 secondes] ${net(e.img)}${e.p ? ' | étape ' + e.p : ''}${e.s && e.s !== 5 ? ' | ' + e.s + ' s' : ''}`);
     else {
-      L.push(`[${e.jeu ? 'jeu' : e.t === 'echelle' ? 'note' : e.t === 'ab' ? 'a ou b' : e.t === 'texte' ? 'avis' : 'question'}] ${net(e.q)}`);
+      L.push(`[${e.zones ? 'zones' : e.jeu ? 'jeu' : e.t === 'echelle' ? 'note' : e.t === 'ab' ? 'a ou b' : e.t === 'texte' ? 'avis' : 'question'}] ${net(e.q)}`);
       if (e.p) L.push('étape : ' + e.p);
       if (!e.jeu && (e.t === 'choix' || e.t === 'multi')) L.push('réponses : ' + (e.t === 'multi' ? 'plusieurs' : 'une'));
       if (net(e.note)) L.push('précision : ' + net(e.note));
@@ -106,13 +109,21 @@ function ecrireSeance(m) { // m = { phases, missions, tests, ecrans }
       if (e.t === 'ab') im.slice(0, 4).forEach((s, i) => L.push('affiche ' + 'abcd'[i] + ' : ' + net(s))); else if (net(im[0])) L.push('affiche : ' + net(im[0]));
       if (e.nb) L.push('noir et blanc : oui');
       if (e.t === 'echelle') L.push('de : ' + net(e.a), 'à : ' + net(e.b));
-      else if (e.t !== 'ab') (e.o || []).forEach((o, i) => { if (net(o)) L.push((e.jeu && i === e.bon ? '+ ' : '- ') + net(o)); });
+      else if (e.t !== 'ab') (e.o || []).forEach((o, i) => { if (net(o)) L.push((e.jeu && i === e.bon ? '+ ' : '- ') + net(o) + (e.zones ? ' @ ' + e.zones[i].map(Math.round).join(' ') : '')); });
     }
     if (e.masque) L.push('masqué : oui');
     L.push('');
   }
   return L.join('\n');
 }
+
+// une affiche découpée en zones (écran [zones]) : chaque zone est une réponse, posée sur l'affiche et repérée par sa lettre (la même que sur la fiche papier)
+const carteZones = (e, src) => `<span class="zones"><img src="${h(src)}" alt="L'affiche, découpée en zones" draggable="false">${e.zones.map((z, i) => `<button type="button" class="z" data-o="${i}" style="left:${+z[0]}%;top:${+z[1]}%;width:${+z[2]}%;height:${+z[3]}%" aria-label="Zone ${'ABCDEFGHIJ'[i]} : ${h(e.o[i])}"><b>${'ABCDEFGHIJ'[i]}</b></button>`).join('')}</span>`;
+const legendeZones = e => e.o.map((o, i) => `<b>${'ABCDEFGHIJ'[i]}</b> ${h(o)}`).join(' · ');
+if (typeof document !== 'undefined') document.head.insertAdjacentHTML('beforeend', `<style>.zones{position:relative;display:inline-block;line-height:0;vertical-align:top}.zones img{display:block}
+.z{position:absolute;box-sizing:border-box;border:2px solid #141414;border-radius:8px;padding:0;cursor:pointer;font:inherit;line-height:1.3;color:#141414;background:rgba(31,111,224,calc(var(--f,0)*.75));transition:background .4s}
+.z b{position:absolute;left:-2px;top:-2px;background:#141414;color:#fff;border-radius:8px 0 8px 0;min-width:1.6em;padding:.1em .3em;font-size:max(13px,.55em);text-align:center;font-weight:800}
+.z.on{background:rgba(20,20,20,.55)}.z:focus-visible{outline:3px solid #1F6FE0;outline-offset:2px}</style>`);
 
 // l'identifiant d'une version : une empreinte courte du contenu utile du fichier (les commentaires ne comptent pas)
 function versionSeance(texte) {

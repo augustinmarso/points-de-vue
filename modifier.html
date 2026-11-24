@@ -101,6 +101,16 @@ header h1{margin:0;font-size:24px;font-weight:800;letter-spacing:-.04em;flex:1}
 .cote .bouts{display:flex;justify-content:space-between;gap:8px;font-size:9px}
 .cote .AB{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}.cote .AB i{width:64px;height:64px;font-size:28px;background:var(--c1)}.cote .AB i+i{background:var(--c3);color:#fff}.cote .AB i:nth-child(3){background:var(--c2);color:inherit}.cote .AB i:nth-child(4){background:#141414}
 [hidden]{display:none!important}
+/* l'affiche découpée en zones : dans l'éditeur, les zones se déplacent et se redimensionnent */
+.zones.ed{touch-action:none;user-select:none;cursor:crosshair}
+.zones.ed .z{cursor:move;background:rgba(255,255,255,.28)}.zones.ed .z:hover{background:rgba(31,111,224,.3)}
+.zones.ed .coin{position:absolute;width:14px;height:14px;background:#fff;border:2px solid #141414;border-radius:3px;z-index:1}
+.zones.ed .nw{left:-8px;top:-8px;cursor:nwse-resize}.zones.ed .se{right:-8px;bottom:-8px;cursor:nwse-resize}.zones.ed .ne{right:-8px;top:-8px;cursor:nesw-resize}.zones.ed .sw{left:-8px;bottom:-8px;cursor:nesw-resize}
+.zones.ed .z b{left:6px;top:6px;border-radius:6px}
+.cote .zones{display:block}.cote .zones img{width:100%;border-radius:8px}.cote .zones .z{border-width:1.5px;border-radius:5px;cursor:default}.cote .zones .z b{font-size:9px;border-radius:5px 0 5px 0}
+#decoupe{width:min(1100px,94vw)}.dec{display:flex;gap:24px;align-items:flex-start;margin:14px 0}#decAffiche{flex:none}#decAffiche .zones img{max-height:68vh;max-width:min(560px,52vw);border-radius:10px}#decListe{flex:1;min-width:200px}
+@media (max-width:700px){.dec{flex-direction:column}#decAffiche .zones img{max-width:100%}}
+.rep .lz{flex:none;width:30px;height:30px;border-radius:8px;background:var(--n);color:#fff;display:grid;place-items:center}
 .cote .lignes{height:54px;background:repeating-linear-gradient(transparent 0 17px,var(--n) 17px 18px)}
 .cote .champ{background:var(--t);border-radius:14px;min-height:60px;padding:8px 10px;font-size:11px;color:var(--gris)}
 .cote .val{background:var(--n);color:#fff;border-radius:99px;text-align:center;padding:8px;font-weight:800;font-size:11px}
@@ -128,7 +138,7 @@ header h1{margin:0;font-size:24px;font-weight:800;letter-spacing:-.04em;flex:1}
 .apercu.papier .lettres [contenteditable]{flex:1}
 .apercu.papier .lettres .plus{justify-self:start;align-self:center}
 .apercu.cache::after{content:'Écran masqué : il ne passe pas pendant la séance';position:absolute;inset:auto 0 0 0;background:var(--n);color:#fff;font-weight:700;font-size:14px;padding:8px 16px}
-#zone>.aide{margin:0 0 12px}
+#travail>.aide{margin:0 0 12px}
 form{max-width:760px;margin-top:22px;display:flex;flex-direction:column;gap:16px}
 #zone h3{margin:0 0 4px;font-size:22px;font-weight:800;letter-spacing:-.03em}
 label.c{display:flex;flex-direction:column;gap:6px;font-weight:800}
@@ -176,7 +186,10 @@ dialog h3{margin:0 0 6px;font-size:24px;font-weight:800;letter-spacing:-.03em}
 </header>
 <div class="corps">
   <ol id="liste" aria-label="Les écrans de la séance"></ol>
-  <div id="zone"></div>
+  <div id="zone"><div id="travail"></div>
+    <dialog id="decoupe"><h3>Découper l'affiche</h3><p class="aide">Un cadre par élément de l'affiche (le titre, l'image, la date…). Glissez un cadre pour le déplacer, tirez un de ses coins pour changer sa taille. Pour un nouveau cadre : tracez-le à la souris sur l'affiche, ou utilisez « + Nouveau cadre ».</p>
+      <div class="dec"><div id="decAffiche"></div><div class="c" id="decListe"></div></div>
+      <div class="ligne"><button type="button" class="btn clair" data-a="plus">+ Nouveau cadre</button><button type="button" class="btn clair" data-a="decouper" title="Repère les blocs de l'affiche et repose les cadres. Vos cadres actuels sont remplacés (« Revenir en arrière » les retrouve).">Découper automatiquement</button><button type="button" class="btn clair" data-a="affiche" data-k="imgs.0">Changer l'affiche</button><button type="button" class="btn" data-a="finDecoupe" style="margin-left:auto">Terminer</button></div></dialog></div>
 </div>
 <dialog id="galerie"><h3>Choisir une affiche</h3><p class="aide">Les affiches du site, et celles que vous ajoutez depuis cet ordinateur (elles sont enregistrées avec le test).</p><div class="galerie" id="images"></div>
   <div class="ligne"><label class="btn clair">Ajouter une image<input type="file" accept="image/*" hidden id="ajout"></label><button class="btn clair" data-a="fermer">Fermer</button><span class="aide" id="etatImage"></span></div></dialog>
@@ -200,7 +213,7 @@ const $ = id => document.getElementById(id);
 let M = null, depart = '', sel = 0, images = [], cible = null; // cible = le champ d'affiche en cours de choix
 
 const TYPE = e => ({ accueil: "Salle d'attente", scores: 'Scores du jeu', mission: "Atelier : la consigne", photo: "Atelier : les photos", vote: "Atelier : les tests", palmares: "Atelier : le palmarès", fin: 'Fin', info: 'Texte', flash: 'Affiche ' + (e.s || 5) + ' secondes', echelle: 'Note de 1 à 5', ab: 'Comparer des affiches' }[e.t]
-  || (e.t === 'phase' ? "Titre d'étape" : e.jeu ? 'Question du jeu' : e.t === 'texte' ? 'Avis libre' : 'Question à choix'));
+  || (e.t === 'phase' ? "Titre d'étape" : e.zones ? 'Affiche découpée en zones' : e.jeu ? 'Question du jeu' : e.t === 'texte' ? 'Avis libre' : 'Question à choix'));
 const TITRE = e => e.q || e.h || (e.t === 'phase' ? M.phases[e.p].nom : e.t === 'flash' ? nomImage(e.img || '') : TYPE(e));
 const COUL = e => e.p ? `var(--c${e.p})` : '#141414';
 const fixe = i => (i === 0 && M.ecrans[0].t === 'accueil') || (i === M.ecrans.length - 1 && M.ecrans[i].t === 'fin'); // le début et la fin ne bougent pas
@@ -255,7 +268,7 @@ function apercu(e) {
       : e.o.map((x, i) => `<span class="${e.jeu && i === e.bon ? 'bon' : ''}">${e.jeu ? `<button type="button" class="ok" data-a="bon" data-i="${i}" aria-pressed="${i === e.bon}" aria-label="Bonne réponse" title="C'est la bonne réponse">✓</button>` : ''}${ed('span', i, x, 'Réponse ' + (i + 1))}<button type="button" class="x" data-a="moins" data-i="${i}" aria-label="Retirer cette réponse" title="Retirer cette réponse" ${e.o.length < 3 ? 'disabled' : ''}>×</button></span>`).join('')
         + `<button type="button" class="plus" data-a="plus" ${e.o.length > 8 ? 'disabled' : ''}>+ Réponse</button>`;
     g = `<div class="sur">${e.p ? 'Étape ' + e.p + ' · ' + h(M.phases[e.p].nom) : e.jeu ? "Le jeu de l'œil" : ''}</div>${ed('h2', 'q', e.q, 'La question')}${e.jeu ? '' : ed('div', 'note', e.note || '', 'Précision sous la question (facultatif)')}${vue === 'tel' ? '' : `<div class="opts${e.t === 'echelle' || e.t === 'texte' ? '' : ' lettres'}">${o}</div>`}`;
-    im = e.t === 'ab' ? e.imgs.map((v, i) => `<span class="col">${img('imgs.' + i, v, e.imgs.length > 2)}<b>${'ABCD'[i]}</b></span>`).join('') + (e.imgs.length < 4 ? `<button type="button" class="vide" data-a="affiche" data-k="imgs.${e.imgs.length}">+ Affiche ${'ABCD'[e.imgs.length]}</button>` : '') : e.jeu ? img('img', e.img) : img('imgs.0', (e.imgs || [])[0], 1);
+    im = e.zones ? ((e.imgs || [])[0] ? zonesEd(e) : img('imgs.0', '')) : e.t === 'ab' ? e.imgs.map((v, i) => `<span class="col">${img('imgs.' + i, v, e.imgs.length > 2)}<b>${'ABCD'[i]}</b></span>`).join('') + (e.imgs.length < 4 ? `<button type="button" class="vide" data-a="affiche" data-k="imgs.${e.imgs.length}">+ Affiche ${'ABCD'[e.imgs.length]}</button>` : '') : e.jeu ? img('img', e.img) : img('imgs.0', (e.imgs || [])[0], 1);
   }
   else g = `<div class="sur">${h(TYPE(e))}</div><h2>${h({ accueil: 'Bienvenue !', scores: 'Les réussites', photo: 'Vos affiches', palmares: 'Le palmarès', fin: 'Merci !' }[e.t])}</h2>`;
   return `<div class="apercu ${vue}${cls}${e.masque ? ' cache' : ''}" style="${t}"><div class="in"><div class="g">${g}</div>${im ? `<div class="d${e.t === 'ab' ? ' deux n' + e.imgs.length : ''}">${im}</div>` : ''}</div></div>`;
@@ -271,6 +284,7 @@ function cote(e) {
       e.t === 'echelle' ? `<div class="ronds">${[1, 2, 3, 4, 5].map(n => `<i>${n}</i>`).join('')}</div><div class="bouts">${ed('span', 'a', e.a, 'Sens de la note 1')}${ed('span', 'b', e.b, 'Sens de la note 5')}</div>`
       : e.t === 'ab' ? `<div class="AB">${o.slice(0, -1).map(l => `<i>${l}</i>`).join('')}</div><span class="o">${h(o[o.length - 1])}</span>`
       : e.t === 'texte' ? `<span class="champ">Votre réponse</span><span class="val">Valider</span>`
+      : e.zones ? ((e.imgs || [])[0] ? carteZones(e, e.imgs[0]) : '') + `<small>${legendeZones(e)}</small>` + (e.t === 'multi' ? `<small>Plusieurs zones possibles.</small><span class="val">Valider</span>` : '')
       : o.map((r, i) => `<span class="o${e.jeu && i === e.bon ? ' bon' : ''}">${e.jeu ? `<button type="button" class="ok" data-a="bon" data-i="${i}" aria-pressed="${i === e.bon}" aria-label="Bonne réponse" title="C'est la bonne réponse">✓</button>` : ''}${ed('span', i, r, 'Réponse ' + (i + 1))}<button type="button" class="x" data-a="moins" data-i="${i}" aria-label="Retirer cette réponse" title="Retirer cette réponse" ${o.length < 3 ? 'disabled' : ''}>×</button></span>`).join('')
         + `<button type="button" class="plus" data-a="plus" ${o.length > 8 ? 'disabled' : ''}>+ Réponse</button>` + (e.t === 'multi' ? `<small>Plusieurs réponses possibles.</small><span class="val">Valider</span>` : ''));
   else x = !Q ? `<p class="att">Rien à remplir sur la fiche pour cet écran.</p>`
@@ -286,7 +300,10 @@ let vue = 'tel'; try { vue = localStorage.getItem('pdvVue') || 'tel'; } catch (e
 function zone() {
   const e = M.ecrans[sel], reglable = ['info', 'phase', 'flash', 'mission', 'vote'].includes(e.t) || e.q != null; let f = '';
   if (e.t === 'texte') f += `<p class="verrou">Chacun écrit sa réponse sur son téléphone. Sur la version papier, la réponse s'écrit à la main et n'est pas lue par la photo.</p>`;
-  if (e.t === 'choix' && !e.jeu || e.t === 'multi') f += `<label class="case"><input type="checkbox" data-k="multi" ${e.t === 'multi' ? 'checked' : ''}>Plusieurs réponses possibles</label>`;
+  if (e.zones) f += `<div class="c"><b>Les zones de l'affiche</b><small>Sur l'affiche : glissez une zone pour la déplacer, tirez un de ses quatre coins pour changer sa taille, tracez un rectangle à un endroit libre pour en ajouter une. Le × ci-dessous en supprime une. Chaque zone est une réponse possible.</small>
+    ${lignesZones(e)}
+    <div class="ligne"><button type="button" class="btn" data-a="decoupe">Modifier le découpage en grand</button><button type="button" class="btn clair" data-a="affiche" data-k="imgs.0">Changer l'affiche</button></div></div>`;
+  if (e.t === 'choix' && !e.jeu || e.t === 'multi') f += `<label class="case"><input type="checkbox" data-k="multi" ${e.t === 'multi' ? 'checked' : ''}>${e.zones ? 'Plusieurs zones possibles' : 'Plusieurs réponses possibles'}</label>`;
   if (e.t === 'flash') f += `<label class="c">Durée d'affichage (le compte à rebours)<select data-k="s">${[3, 5, 8, 10, 15, 20, 30].map(s => `<option value="${s}" ${(e.s || 5) === s ? 'selected' : ''}>${s} secondes</option>`).join('')}</select></label>`;
   if (e.t === 'echelle') f += `<label class="case"><input type="checkbox" data-k="nb" ${e.nb ? 'checked' : ''}>Montrer l'affiche en noir et blanc</label>`;
   if (vue === 'form' && ['accueil', 'mission', 'photo', 'vote', 'palmares'].includes(e.t)) f += `<p class="verrou">Dans la version formulaire, chacun répond seul chez soi : cet écran de la séance en groupe n'y passe pas.</p>`;
@@ -296,7 +313,8 @@ function zone() {
   if (libre) f += `<div class="ligne crea"><button type="button" class="btn clair" data-a="dupliquer">Dupliquer cet écran</button><button type="button" class="btn clair" data-a="supprimer">Supprimer cet écran</button></div>`;
   if (!fixe(sel)) f += `<label class="case"><input type="checkbox" data-k="masque" ${e.masque ? 'checked' : ''}>Masquer cet écran pendant la séance</label>`;
   else f += `<p class="verrou">Cet écran reste à sa place : la séance commence et finit toujours par lui.</p>`;
-  $('zone').innerHTML = `<button type="button" class="btn clair retour" data-a="retour">← Tous les écrans</button><div class="ligne vues" role="group" aria-label="Version montrée">${VUES.map(([v, n]) => `<button type="button" class="btn${v === vue ? '' : ' clair'}" data-a="vue" data-v="${v}" aria-pressed="${v === vue}">${n}</button>`).join('')}<button type="button" class="btn clair ouvrir" data-a="apercu" title="Ouvre cette version dans un autre onglet, avec vos modifications même non enregistrées. Rien ne part en ligne.">Prévisualiser</button>${vue === 'papier' ? `<a class="btn clair" href="papier.html${TEST ? '?test=' + TEST : ''}" target="_blank" rel="noopener">Imprimer la fiche</a>` : ''}</div><h3>${h(TYPE(e))}</h3>${reglable ? `<p class="aide">Cliquez sur un texte ou sur une affiche pour le modifier.</p>` : ''}<div id="vue">${apercu(e)}${cote(e)}</div><form onsubmit="return false">${f}</form>`;
+  $('travail').innerHTML = `<button type="button" class="btn clair retour" data-a="retour">← Tous les écrans</button><div class="ligne vues" role="group" aria-label="Version montrée">${VUES.map(([v, n]) => `<button type="button" class="btn${v === vue ? '' : ' clair'}" data-a="vue" data-v="${v}" aria-pressed="${v === vue}">${n}</button>`).join('')}<button type="button" class="btn clair ouvrir" data-a="apercu" title="Ouvre cette version dans un autre onglet, avec vos modifications même non enregistrées. Rien ne part en ligne.">Prévisualiser</button>${vue === 'papier' ? `<a class="btn clair" href="papier.html${TEST ? '?test=' + TEST : ''}" target="_blank" rel="noopener">Imprimer la fiche</a>` : ''}</div><h3>${h(TYPE(e))}</h3>${reglable ? `<p class="aide">Cliquez sur un texte ou sur une affiche pour le modifier.</p>` : ''}<div id="vue">${apercu(e)}${cote(e)}</div><form onsubmit="return false">${f}</form>`;
+  if ($('decoupe').open) { if (e.zones) dessinerDecoupe(); else $('decoupe').close(); }
 }
 const rafraichir = () => { $('vue').innerHTML = apercu(M.ecrans[sel]) + cote(M.ecrans[sel]); liste(); change(); };
 
@@ -324,8 +342,11 @@ $('zone').addEventListener('click', ev => {
   const b = ev.target.closest('[data-a]'); if (!b) return; const e = M.ecrans[sel], a = b.dataset.a;
   if (a === 'apercu') return previsualiser();
   if (a === 'retour') { document.body.classList.remove('detail'); const li = $('liste').querySelector(`[data-i="${sel}"]`); if (li) li.scrollIntoView({ block: 'center' }); return; }
-  if (a === 'plus') e.o.push('Nouvelle réponse');
-  if (a === 'moins') { const i = +b.dataset.i; e.o.splice(i, 1); if (e.jeu) e.bon = e.bon === i ? 0 : e.bon > i ? e.bon - 1 : e.bon; }
+  if (a === 'decouper') return decouper(e);
+  if (a === 'decoupe') return ouvrirDecoupe();
+  if (a === 'finDecoupe') return $('decoupe').close();
+  if (a === 'plus') { if (e.zones) { if (e.o.length > 9) return; e.zones.push([30, 40, 40, 20]); } e.o.push(e.zones ? 'Nouvelle zone' : 'Nouvelle réponse'); }
+  if (a === 'moins') { const i = +b.dataset.i; e.o.splice(i, 1); if (e.zones) e.zones.splice(i, 1); if (e.jeu) e.bon = e.bon === i ? 0 : e.bon > i ? e.bon - 1 : e.bon; }
   if (a === 'vue') { vue = b.dataset.v; try { localStorage.setItem('pdvVue', vue); } catch (x) { } }
   if (a === 'bon') e.bon = +b.dataset.i;
   if (a === 'sansAffiche') { if (e.t === 'ab') { e.imgs.splice(+b.dataset.k.split('.')[1], 1); e.o = optsAB(e.imgs.length); } else e.imgs = []; }
@@ -349,6 +370,82 @@ $('liste').addEventListener('dragover', ev => { const li = ev.target.closest('li
 $('liste').addEventListener('drop', ev => { const li = ev.target.closest('li[data-i]'); if (tire == null || !li) return; ev.preventDefault(); const vers = +li.dataset.i; deplacer(tire, vers > tire ? vers - 1 : vers); tire = null; });
 $('liste').addEventListener('dragend', () => { tire = null; liste(); });
 
+// ---------- l'affiche découpée en zones ----------
+const LZ = 'ABCDEFGHIJ';
+const cadres = e => `<img src="${h(e.imgs[0])}" alt="L'affiche à découper" draggable="false">${e.zones.map((z, i) => `<span class="z" data-z="${i}" style="left:${z[0]}%;top:${z[1]}%;width:${z[2]}%;height:${z[3]}%" title="${h(e.o[i])}"><b>${LZ[i]}</b>${['nw', 'ne', 'sw', 'se'].map(c => `<i class="coin ${c}" data-c="${c}"></i>`).join('')}</span>`).join('')}`;
+const zonesEd = e => `<span class="zones ed">${cadres(e)}</span>`;
+const lignesZones = e => e.o.map((o, i) => `<div class="rep"><b class="lz">${LZ[i]}</b><input type="text" data-o="${i}" value="${h(o)}" maxlength="60" aria-label="Nom du cadre ${LZ[i]}"><button type="button" data-a="moins" data-i="${i}" aria-label="Supprimer le cadre ${LZ[i]}" title="Supprimer ce cadre" ${e.o.length < 3 ? 'disabled' : ''}>×</button></div>`).join('');
+// l'étape de découpe : elle s'ouvre toute seule quand l'écran vient d'être ajouté, et se rouvre depuis ses réglages
+function dessinerDecoupe() { const e = M.ecrans[sel]; $('decAffiche').innerHTML = (e.imgs || [])[0] ? zonesEd(e) : img('imgs.0', ''); $('decListe').innerHTML = `<b>Les cadres</b><small>Chaque cadre est une réponse possible : donnez-lui le nom que liront les participants.</small>${lignesZones(e)}`; }
+$('decoupe').addEventListener('close', () => zone()); // les noms tapés dans la fenêtre reviennent dans les réglages
+const ouvrirDecoupe = () => { if (!M.ecrans[sel].zones) return; dessinerDecoupe(); if (!$('decoupe').open) $('decoupe').showModal(); };
+const grille = () => ({ o: ['Le titre', "L'image", 'Le texte', 'La date et le lieu', 'Les logos'], zones: [[5, 3, 90, 17], [5, 22, 90, 33], [5, 57, 90, 18], [5, 77, 90, 10], [5, 89, 90, 9]] });
+// Découpe automatique : sur une copie réduite de l'affiche, on cherche la couleur de fond (la plus fréquente), puis les bandes de lignes
+// « pleines » séparées par du fond. Au-delà de 5 blocs, les plus proches sont réunis. Chaque bloc est resserré sur ce qu'il contient.
+// shortcut: ne voit que des blocs séparés par un fond uni ; sur un fond photo (moins de 3 blocs trouvés) on pose la grille type, à corriger à la main. Passer à une vraie détection si cela arrive souvent.
+function blocsAffiche(d, W, H) { // → { zones : [gauche, haut, largeur, hauteur] en %, image : le numéro de la zone la plus riche en couleurs }
+  const cle = k => (d[k] >> 5) << 6 | (d[k + 1] >> 5) << 3 | d[k + 2] >> 5, n = {};
+  for (let k = 0; k < d.length; k += 4) { const c = n[cle(k)] = n[cle(k)] || [0, 0, 0, 0]; c[0]++; c[1] += d[k]; c[2] += d[k + 1]; c[3] += d[k + 2]; }
+  const [nb, ...fond] = Object.values(n).sort((a, b) => b[0] - a[0])[0];
+  const plein = (x, y) => { const k = (y * W + x) * 4; return Math.abs(d[k] - fond[0] / nb) + Math.abs(d[k + 1] - fond[1] / nb) + Math.abs(d[k + 2] - fond[2] / nb) > 90; };
+  const ligne = y => { let s = 0; for (let x = 0; x < W; x++) s += plein(x, y); return s > W * .03; };
+  let B = [];
+  for (let y = 0, deb = -1; y <= H; y++) { const p = y < H && ligne(y); if (p && deb < 0) deb = y; if (!p && deb >= 0) { B.push([deb, y]); deb = -1; } }
+  const unir = k => B.splice(k - 1, 2, [B[k - 1][0], B[k][1]]), ecart = k => B[k][0] - B[k - 1][1];
+  for (let t; B.length > 3 && (t = B.findIndex(b => b[1] - b[0] < H * .04)) >= 0;) unir(t === 0 || t < B.length - 1 && ecart(t + 1) < ecart(t) ? t + 1 : t); // un bloc trop mince pour le doigt rejoint son voisin le plus proche
+  while (B.length > 5) { let k = 1; for (let i = 2; i < B.length; i++) if (ecart(i) < ecart(k)) k = i; unir(k); }
+  const boite = (x0, x1, y0, y1) => { let g = x1, dr = x0, h = y1, bas = y0; for (let y = y0; y < y1; y++) for (let x = x0; x < x1; x++) if (plein(x, y)) { g = Math.min(g, x); dr = Math.max(dr, x + 1); h = Math.min(h, y); bas = Math.max(bas, y + 1); } return [g, h, dr, bas]; };
+  // une bande haute qui contient deux blocs côte à côte (un titre à gauche, une photo à droite) est coupée en deux, à sa plus large colonne vide
+  const R = B.map(([y0, y1]) => boite(0, W, y0, y1)).flatMap(r => {
+    const [g, h, dr, bas] = r; if (bas - h < H * .25) return [r];
+    let vide = 0, mieux = [0, 0];
+    for (let x = g; x < dr; x++) { let s = 0; for (let y = h; y < bas; y++) s += plein(x, y); if (s > (bas - h) * .02) vide = 0; else if (++vide > mieux[0]) mieux = [vide, x - vide + 1]; }
+    return mieux[0] >= W * .03 ? [boite(g, mieux[1], h, bas), boite(mieux[1] + mieux[0], dr, h, bas)] : [r];
+  }).filter(r => r[2] > r[0] && r[3] > r[1]);
+  const riche = R.map(([g, h, dr, bas]) => { const c = new Set(); for (let y = h; y < bas; y++) for (let x = g; x < dr; x++) c.add(cle((y * W + x) * 4)); return c.size > 20 ? c.size * (dr - g) * (bas - h) : 0; }); // une photo ou un dessin a bien plus de couleurs qu'un texte
+  return { image: Math.max(...riche) ? riche.indexOf(Math.max(...riche)) : -1, zones: R.map(([g, h, dr, bas]) => { const x = Math.max(0, g / W * 100 - 1), y = Math.max(0, h / H * 100 - 1); return [x, y, Math.min(100 - x, (dr - g) / W * 100 + 2), Math.min(100 - y, (bas - h) / H * 100 + 2)].map(Math.round); }) };
+}
+{ // vérification : un fond blanc avec trois blocs sombres donne trois zones, dans l'ordre, sans déborder
+  const W = 20, H = 40, d = new Uint8ClampedArray(W * H * 4).fill(255), noir = (y0, y1) => { for (let y = y0; y < y1; y++) for (let x = 4; x < 16; x++) d.fill(0, (y * W + x) * 4, (y * W + x) * 4 + 3); };
+  noir(2, 8); noir(12, 28); noir(34, 38); const B = blocsAffiche(d, W, H).zones;
+  console.assert(B.length === 3 && B[0][1] < B[1][1] && B[1][1] < B[2][1] && B.every(z => z[0] + z[2] <= 100 && z[1] + z[3] <= 100) && B[1][3] > B[0][3], 'blocsAffiche', B);
+}
+async function decouper(e) {
+  const src = (e.imgs || [])[0]; if (!src) return; let B = [], image = -1;
+  try {
+    const im = await new Promise((ok, ko) => { const i = new Image(); i.onload = () => ok(i); i.onerror = ko; i.src = src; });
+    const W = 100, H = Math.max(40, Math.min(300, Math.round(W * im.height / im.width))), c = document.createElement('canvas'); c.width = W; c.height = H;
+    const x = c.getContext('2d'); x.drawImage(im, 0, 0, W, H); ({ zones: B, image } = blocsAffiche(x.getImageData(0, 0, W, H).data, W, H));
+  } catch (err) { }
+  if (B.length < 3) Object.assign(e, grille());
+  else { // la zone la plus riche en couleurs est l'image, la première des autres le titre, la dernière les logos
+    const autres = ['Le texte', 'La date et le lieu', 'Les informations pratiques']; let titre = false;
+    e.zones = B; e.o = B.map((_, i) => i === image ? "L'image" : !titre ? (titre = true, 'Le titre') : i === B.length - 1 ? 'Les logos' : autres.shift() || 'Zone ' + LZ[i]);
+  }
+  if (M.ecrans[sel] === e) { zone(); liste(); change(); $('etat').textContent = B.length < 3 ? "Fond trop chargé pour un découpage automatique : zones types posées, à ajuster à la souris." : B.length + ' zones repérées : ajustez-les à la souris si besoin.'; }
+}
+// à la souris (ou au doigt) : glisser une zone la déplace, tirer son coin change sa taille, tracer dans un endroit libre en ajoute une
+$('zone').addEventListener('pointerdown', ev => {
+  const c = ev.target.closest('.zones.ed'); if (!c || ev.button) return; ev.preventDefault();
+  const e = M.ecrans[sel], r = c.getBoundingClientRect(), zEl = ev.target.closest('.z'), borne = (v, a, b) => Math.round(Math.max(a, Math.min(b, v)));
+  const pos = v => [(v.clientX - r.left) / r.width * 100, (v.clientY - r.top) / r.height * 100], [x0, y0] = pos(ev);
+  let i = zEl ? +zEl.dataset.z : -1, coin = (ev.target.closest('.coin') || { dataset: {} }).dataset.c || '', z0 = i >= 0 ? e.zones[i].slice() : null;
+  const bouge = v => {
+    const [x, y] = pos(v), dx = x - x0, dy = y - y0;
+    if (i < 0) { if (Math.abs(dx) + Math.abs(dy) < 3 || e.o.length > 9) return; z0 = [x0, y0, 0, 0]; coin = (dy < 0 ? 'n' : 's') + (dx < 0 ? 'w' : 'e'); e.zones.push(z0); e.o.push('Nouvelle zone'); i = e.zones.length - 1; c.innerHTML = cadres(e); }
+    let [X, Y, L, T] = z0; const droite = X + L, bas = Y + T; // la poignée tirée bouge son coin, le coin opposé reste en place
+    if (!coin) { X = borne(X + dx, 0, 100 - L); Y = borne(Y + dy, 0, 100 - T); }
+    else {
+      if (coin[1] === 'w') { X = borne(X + dx, 0, droite - 4); L = Math.round(droite) - X; } else L = borne(L + dx, 4, 100 - X);
+      if (coin[0] === 'n') { Y = borne(Y + dy, 0, bas - 3); T = Math.round(bas) - Y; } else T = borne(T + dy, 3, 100 - Y);
+    }
+    const z = e.zones[i] = [X, Y, L, T].map(Math.round);
+    const el = c.querySelector(`[data-z="${i}"]`); if (el) Object.assign(el.style, { left: z[0] + '%', top: z[1] + '%', width: z[2] + '%', height: z[3] + '%' });
+  };
+  const fin = () => { removeEventListener('pointermove', bouge); removeEventListener('pointerup', fin); removeEventListener('pointercancel', fin); if (i >= 0) { zone(); liste(); change(); } };
+  addEventListener('pointermove', bouge); addEventListener('pointerup', fin); addEventListener('pointercancel', fin);
+});
+
 // ---------- les affiches ----------
 function galerie() {
   $('images').innerHTML = images.map(s => `<button type="button" data-img="${h(s)}"><img src="${h(s)}" alt="" loading="lazy">${h(nomImage(s))}</button>`).join('');
@@ -358,7 +455,7 @@ $('galerie').addEventListener('click', ev => {
   const b = ev.target.closest('[data-img]'); if (ev.target.closest('[data-a=fermer]')) return $('galerie').close(); if (!b) return;
   if (cible === 'parcours') { $('galerie').close(); return inserer(p => parcours(b.dataset.img, p)); }
   const e = M.ecrans[sel]; if (cible === 'img') e.img = b.dataset.img; else { e.imgs = e.imgs || []; e.imgs[+cible.split('.')[1]] = b.dataset.img; if (e.t === 'ab') e.o = optsAB(e.imgs.length); }
-  $('galerie').close(); zone(); liste(); change();
+  $('galerie').close(); if (e.zones) return decouper(e); zone(); liste(); change();
 });
 $('ajout').addEventListener('change', async ev => { // une nouvelle image : réduite, puis gardée dans le test lui-même (enregistrée avec lui)
   const f = ev.target.files[0]; if (!f) return;
@@ -376,6 +473,7 @@ function verifier() { // ce qui empêcherait une question de passer
   for (const [i, e] of M.ecrans.entries()) {
     if (e.q != null && !e.q.trim()) return [i, 'Cette question est vide.'];
     if (e.o && e.t !== 'echelle' && e.t !== 'ab' && e.o.filter(o => o.trim()).length < 2) return [i, 'Il faut au moins deux réponses.'];
+    if (e.zones && !(e.imgs || [])[0]) return [i, "Choisissez l'affiche à découper."];
     if (e.t === 'ab' && !(e.imgs.length > 1 && e.imgs.every(Boolean))) return [i, 'Il manque une affiche à comparer : choisissez-la ou retirez-la.'];
   }
 }
@@ -426,6 +524,7 @@ const MODELES = [
   ['Avis libre', 'Chacun écrit son avis en quelques mots. Les réponses apparaissent sur le grand écran.', p => ({ t: 'texte', q: 'Que changeriez-vous sur cette affiche ?', ...p })],
   ['Oui ou non', 'Une question rapide, trois réponses toutes prêtes.', p => ({ t: 'choix', q: 'Votre question ?', o: ['Oui', 'Non', 'Je ne sais pas'], ...p })],
   ['Ressenti', 'Ce que l\'affiche fait ressentir, plusieurs réponses possibles.', p => ({ t: 'multi', q: 'Que ressentez-vous devant cette affiche ?', o: ['De la curiosité', 'De la confiance', "De l'envie", 'De la surprise', "De l'indifférence", 'De la confusion', "De l'agacement"], ...p })],
+  ['Affiche découpée en zones', "Une affiche découpée en 5 zones environ (titre, image, texte, date, logos) : chacun touche la zone qui répond à la question.", p => { const e = { t: 'choix', q: 'Quelle zone avez-vous regardée en premier ?', imgs: [images[0]], ...grille(), ...p }; decouper(e); setTimeout(ouvrirDecoupe); return e; }],
   ['Comparer des affiches', 'De 2 à 4 affiches côte à côte (A, B, C, D), on choisit.', p => ({ t: 'ab', q: 'Laquelle préférez-vous ?', o: ['A', 'B', 'Aucune différence'], imgs: [images[0], images[1] || images[0]], ...p })],
   ['Affiche 5 secondes', 'Une affiche montrée 5 secondes, puis cachée.', () => ({ t: 'flash', img: images[0] })],
   ['Question du jeu', 'Une question avec une bonne réponse, qui compte dans les scores.', () => ({ t: 'choix', jeu: 1, q: 'Votre question ?', o: ['La bonne réponse', 'Une autre réponse', 'Une autre réponse'], bon: 0, img: images[0] })]
