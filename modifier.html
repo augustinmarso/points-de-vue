@@ -31,7 +31,7 @@ header a[aria-label=Accueil]{display:inline-flex;align-items:center;gap:6px;font
 /* la colonne des écrans, comme les diapositives d'un diaporama */
 #liste{margin:0;padding:8px 10px 40px 14px;list-style:none;overflow:auto;background:var(--fond)}
 #liste li{display:flex;align-items:center;gap:10px;padding:8px;border-radius:14px;cursor:pointer;margin-bottom:4px;background:#fff;border:3px solid color-mix(in srgb,var(--c,#141414) 72%,#141414)}
-#liste li.sel{box-shadow:0 0 0 3px var(--n)}
+#liste li.sel{box-shadow:0 0 0 3px #fff,0 0 0 7px var(--n);z-index:1;transform:scale(1.02)}#liste li.sel>.num{background:var(--n);color:#fff;border-radius:99px;width:auto;min-width:1.9em;padding:3px 7px;text-align:center}
 #liste li{position:relative}#liste li.masque .mini,#liste li.masque .num{opacity:.4}
 #liste .etq{position:absolute;left:44px;bottom:14px;background:var(--n);color:#fff;font-size:11px;font-weight:800;padding:3px 9px;border-radius:99px;pointer-events:none}
 #liste li[data-i]:hover>.mv{visibility:visible}
@@ -62,14 +62,14 @@ header a[aria-label=Accueil]{display:inline-flex;align-items:center;gap:6px;font
 /* la zone de travail : l'aperçu de l'écran, puis ce qu'on peut y changer */
 #zone{overflow:auto;padding:14px 26px 60px}
 .apercu{aspect-ratio:16/9;max-width:1180px;container-type:inline-size;background:#fff;border-radius:18px;box-shadow:0 4px 24px rgba(20,20,20,.16);overflow:hidden;position:relative}
-.apercu .in{position:absolute;inset:0;padding:5cqw;font-size:2.1cqw;display:flex;gap:3cqw}
+.apercu .in{position:absolute;inset:0;padding:5cqw;font-size:calc(2.1cqw*var(--fit,1));display:flex;gap:3cqw}
 .apercu .lg{position:absolute;right:4cqw;bottom:2.2cqw;display:flex;gap:2cqw;align-items:center;pointer-events:none}.apercu .lg img{height:4.5cqw;max-width:18cqw;object-fit:contain}.apercu.form .lg{display:none}
 #choixLogos button[aria-pressed=true]{box-shadow:0 0 0 4px var(--n)}#choixLogos img{object-fit:contain;background:#fff}
 .apercu .g{flex:1;min-width:0;display:flex;flex-direction:column;gap:1.6cqw}
 .apercu .sur{font-weight:700}
-.apercu h2{margin:0;font-size:5cqw;line-height:.92;font-weight:800;letter-spacing:-.05em}
+.apercu h2{margin:0;font-size:calc(5cqw*var(--fit,1));line-height:.92;font-weight:800;letter-spacing:-.05em}
 .apercu .opts{display:flex;flex-wrap:wrap;gap:1cqw;margin-top:auto}
-.apercu .opts span{background:var(--t);border-radius:3cqw;padding:.8cqw 1.6cqw;font-weight:700;font-size:1.8cqw}
+.apercu .opts span{background:var(--t);border-radius:3cqw;padding:calc(.8cqw*var(--fit,1)) 1.6cqw;font-weight:700;font-size:calc(1.8cqw*var(--fit,1))}
 .apercu .opts span.bon{background:var(--n);color:#fff}
 .apercu .d{display:flex;gap:1.5cqw;align-items:center;flex:none}.apercu .d>.zones{margin-left:28px}
 .apercu .d img{max-height:46cqw;max-width:32cqw;border-radius:1.5cqw;display:block}
@@ -89,7 +89,7 @@ header a[aria-label=Accueil]{display:inline-flex;align-items:center;gap:6px;font
 .apercu .opts button{font-weight:800;line-height:1;flex:none;min-width:1.4em;min-height:1.4em;border-radius:50%}
 .apercu .opts .x{opacity:.55}.apercu .opts .x[disabled]{opacity:.15;cursor:default}
 .apercu .opts .ok{opacity:.3}.apercu .opts .bon .ok{opacity:1}
-.apercu .opts .plus{background:var(--n);color:#fff;border-radius:3cqw;padding:.8cqw 1.6cqw;font-weight:700;font-size:1.8cqw}
+.apercu .opts .plus{background:var(--n);color:#fff;border-radius:3cqw;padding:calc(.8cqw*var(--fit,1)) 1.6cqw;font-weight:700;font-size:calc(1.8cqw*var(--fit,1))}
 .apercu .opts .plus[disabled]{opacity:.3;cursor:default}
 .apercu .test{display:flex;flex-direction:column;gap:.5cqw}.apercu .test .opts{margin-top:0}
 .apercu .im{position:relative;display:block}
@@ -159,8 +159,8 @@ header a[aria-label=Accueil]{display:inline-flex;align-items:center;gap:6px;font
 .apercu .im .x{top:-8px;right:-8px}
 }
 /* sur papier, le grand écran montre les réponses en grandes tuiles, chacune avec sa lettre */
-.apercu.papier .lettres{counter-reset:lettre;display:grid;grid-template-columns:1fr 1fr;gap:1.2cqw}
-.apercu.papier .lettres>span{counter-increment:lettre;border-radius:2cqw;padding:1.4cqw 1.6cqw;font-size:2.2cqw;gap:1.2cqw}
+.apercu.papier .lettres{counter-reset:lettre;display:grid;grid-template-columns:1fr 1fr;gap:calc(1.2cqw*var(--fit,1))}.apercu.papier .lettres:has(>span:nth-child(7)){grid-template-columns:repeat(3,minmax(0,1fr))}.apercu.papier .lettres>span{min-width:0}
+.apercu.papier .lettres>span{counter-increment:lettre;border-radius:2cqw;padding:calc(1.4cqw*var(--fit,1)) 1.4cqw;font-size:calc(2.2cqw*var(--fit,1));gap:1cqw}
 .apercu.papier .lettres>span::before{content:counter(lettre,upper-alpha);flex:none;width:2em;height:2em;border-radius:50%;background:var(--n);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800}
 .apercu.papier .lettres>span.bon::before{background:#fff;color:var(--n)}
 .apercu.papier .lettres [contenteditable]{flex:1}
@@ -270,7 +270,7 @@ const fixe = i => (i === 0 && M.ecrans[0].t === 'accueil') || (i === M.ecrans.le
 let pile = [], dernier = '', tPile = 0;
 const noterPile = t => { if (dernier && t !== dernier) { if (Date.now() - tPile > 800) { pile.push(dernier); if (pile.length > 100) pile.shift(); } tPile = Date.now(); } dernier = t; $('annuler').disabled = !pile.length; $('annuler').title = pile.length ? "Revient à l'état d'avant votre dernière modification (Ctrl+Z). Plusieurs clics remontent plus loin." : "Rien à annuler pour l'instant : ce bouton s'allume dès que vous modifiez quelque chose."; };
 const annuler = () => { if (!pile.length) return; dernier = pile.pop(); tPile = 0; lireSeance(dernier); charger(); };
-const change = () => { noterPile(ecrireSeance(M)); const diff = ecrireSeance(M) !== depart; $('enregistrer').disabled = !diff; $('etat').textContent = diff ? 'Modifications non enregistrées' : 'Tout est enregistré'; $('etat').classList.toggle('non', diff); };
+const change = () => { noterPile(ecrireSeance(M)); const diff = ecrireSeance(M) !== depart; $('enregistrer').disabled = !diff; $('etat').textContent = diff ? 'Modifications non enregistrées' : 'Tout est enregistré'; $('etat').classList.toggle('non', diff); setTimeout(tenir, 0); };
 
 // une icône par sorte d'écran, sur sa miniature
 const svgI = d => `<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
@@ -398,8 +398,11 @@ function zone() {
   const atelier = ['mission', 'photo', 'vote', 'palmares', 'phase'].includes(e.t);
   if (libre || atelier) outils += `<button type="button" class="btn clair danger" data-a="supprimer" title="Enlève cet écran pour de bon. Pour seulement le retirer de la séance, utilisez « Masquer ».">Supprimer</button>`;
   $('travail').innerHTML = `<button type="button" class="btn clair retour" data-a="retour">← Tous les écrans</button><div class="ligne vues" role="group" aria-label="Version montrée">${VUES.map(([v, n]) => `<button type="button" class="btn${v === vue ? '' : ' clair'}" data-a="vue" data-v="${v}" aria-pressed="${v === vue}">${n}</button>`).join('')}<button type="button" class="btn clair ouvrir" data-a="apercu" title="Un essai, dans un autre onglet, à partir de l'écran choisi : vos modifications y sont, même non enregistrées. Rien n'est envoyé ni gardé.">Essayer cette version</button><a class="btn clair" href="${h(lienMailto())}"  title="Ouvre votre messagerie avec un message tout prêt qui contient le lien du formulaire en ligne. Pensez à enregistrer avant." ${vue === 'form' ? '' : 'hidden'}>Partager par mail</a>${vue === 'papier' ? `<a class="btn clair" href="papier.html${TEST ? '?test=' + TEST : ''}" target="_blank" rel="noopener">Imprimer la fiche</a>` : ''}</div><p class="aide expl">${{ tel: 'Le diaporama est projeté sur le grand écran ; chacun répond sur son téléphone.', form: 'Pas de grand écran : chacun répond seul, chez lui, par un lien (celui de « Partager par mail »).', papier: 'Le diaporama est projeté ; chacun répond sur une fiche imprimée, lue ensuite par une photo.' }[vue]}</p>${outils || reglages ? `<div class="ligne vues outils" role="group" aria-label="Cet écran">${outils}${reglages}</div>` : ''}<h3>${h(TYPE(e))}</h3>${reglable ? `<p class="aide fort">✎ Cliquez sur un texte pour le changer, sur l'affiche pour en choisir une autre.</p>` : ''}<div id="vue">${apercu(e)}${cote(e)}</div><form onsubmit="return false">${f}</form>`;
+  setTimeout(tenir, 0);
   if ($('decoupe').open) { if (e.zones) dessinerDecoupe(); else $('decoupe').close(); }
 }
+// comme sur le grand écran : si la question et ses réponses débordent de la diapositive, le texte rétrécit jusqu'à ce que tout rentre
+const tenir = () => { const a = document.querySelector('#vue .apercu:not(.form)'), i = a && a.querySelector('.in'); if (!i) return; a.style.setProperty('--fit', 1); for (let n = 0, k = 1; n < 10 && (i.scrollHeight > i.clientHeight + 2 || i.scrollWidth > i.clientWidth + 2); n++) a.style.setProperty('--fit', k *= .94); };
 const rafraichir = () => { $('vue').innerHTML = apercu(M.ecrans[sel]) + cote(M.ecrans[sel]); liste(); change(); };
 
 // ---------- les modifications ----------
