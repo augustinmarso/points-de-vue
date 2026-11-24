@@ -98,6 +98,7 @@ header a[aria-label=Accueil]{display:inline-flex;align-items:center;gap:6px;font
 .apercu .vide{width:19cqw;aspect-ratio:1000/1414;border-radius:1.5cqw;background:var(--fond);font-weight:700;font-size:1.7cqw;padding:1cqw}
 /* les trois versions du même écran */
 .vues{margin:0 0 14px;gap:8px}.outils .btn{min-height:38px;padding:6px 16px;font-size:14px}.outils .danger{color:#B3261E;order:9;margin-left:auto}.outils .case{font-size:14px;gap:8px}.outils [aria-pressed=true]{background:var(--n);color:#fff}
+.apercu.petit h2{font-size:calc(3.3cqw*var(--fit,1));line-height:1}.outils .taille{gap:2px;align-items:baseline;padding:6px 14px}
 .aide.fort{color:var(--n);font-weight:700}.apercu.depot{outline:4px dashed var(--c3);outline-offset:4px}.aide.expl{margin:-6px 0 14px}
 .apercu [contenteditable],.cote [contenteditable]{text-decoration:underline dotted rgba(20,20,20,.3);text-underline-offset:.18em;text-decoration-thickness:1px}
 .apercu [contenteditable]:hover:not(:focus)::after{content:' ✎';font-size:.55em;opacity:.55;font-weight:400}
@@ -353,7 +354,7 @@ function apercu(e) {
     im = e.zones ? ((e.imgs || [])[0] ? `<span class="zones" data-a="decoupe" role="button" tabindex="0" style="cursor:pointer" title="Cliquer pour modifier le découpage">${cadres(e, false)}</span>` : img('imgs.0', '')) : e.t === 'ab' ? e.imgs.map((v, i) => `<span class="col">${img('imgs.' + i, v, e.imgs.length > 2)}<b>${'ABCD'[i]}</b></span>`).join('') + (e.imgs.length < 4 ? `<button type="button" class="vide plusAff" data-a="affiche" data-k="imgs.${e.imgs.length}" aria-label="Ajouter une affiche ${'ABCD'[e.imgs.length]}" title="Ajouter une affiche ${'ABCD'[e.imgs.length]} à comparer">+</button>` : '') : e.jeu ? img('img', e.img) : imgCadree(e);
   }
   else g = `<div class="sur">${h(TYPE(e))}</div><h2>${h({ accueil: 'Bienvenue !', scores: 'Les réussites', photo: 'Vos affiches', palmares: 'Le palmarès', fin: 'Merci !' }[e.t])}</h2>`;
-  return `<div class="apercu ${vue}${cls}${e.masque ? ' cache' : ''}" style="${t}"><div class="in"><div class="g">${g}</div>${im ? `<div class="d${e.t === 'ab' ? ' deux n' + e.imgs.length : ''}">${im}</div>` : ''}</div>${(M.logos || []).length && (e.t === 'accueil' || e.t === 'fin') ? `<div class="lg">${M.logos.map(s => `<img src="${h(s)}" alt="">`).join('')}</div>` : ''}</div>`;
+  return `<div class="apercu ${vue}${cls}${e.petit ? ' petit' : ''}${e.masque ? ' cache' : ''}" style="${t}"><div class="in"><div class="g">${g}</div>${im ? `<div class="d${e.t === 'ab' ? ' deux n' + e.imgs.length : ''}">${im}</div>` : ''}</div>${(M.logos || []).length && (e.t === 'accueil' || e.t === 'fin') ? `<div class="lg">${M.logos.map(s => `<img src="${h(s)}" alt="">`).join('')}</div>` : ''}</div>`;
 }
 
 // ce que le participant a devant lui pendant que le grand écran montre cet écran : son téléphone, ou sa fiche à imprimer (lecture seule, suit la frappe)
@@ -394,6 +395,7 @@ function zone() {
   const libre = ['info', 'flash', 'choix', 'multi', 'echelle', 'ab', 'texte'].includes(e.t); // les écrans qu'on peut créer, copier, supprimer
   let outils = '';
   if (libre && e.t !== 'flash' && !e.jeu) outils += `<label class="etape">Étape<select data-k="p" class="btn clair"><option value="">Sans étape</option>${Object.keys(M.phases).map(Number).map(p => `<option value="${p}" ${e.p === p ? 'selected' : ''}>Étape ${p} · ${h(M.phases[p].nom)}</option>`).join('')}</select></label>`;
+  if (e.q != null || e.t === 'info') outils += `<button type="button" class="btn clair taille" data-a="petit" aria-pressed="${!!e.petit}" aria-label="Titre plus petit" title="${e.petit ? 'Le titre est en petit : cliquer pour le remettre en grand' : 'Écrire le titre de cet écran en plus petit'}"><span style="font-size:18px">A</span><span style="font-size:12px">A</span></button>`;
   if (libre) outils += `<button type="button" class="btn clair" data-a="dupliquer">Dupliquer</button>`;
   if (!e.zones && !e.jeu && ['info', 'choix', 'multi', 'echelle', 'texte'].includes(e.t) && (e.imgs || [])[0]) outils += `<button type="button" class="btn clair" data-a="cadrer" title="Masquer une partie de l'affiche, ou ne montrer qu'un élément en très gros : utile quand la question porte sur un élément précis.">${cadree(e) ? 'Changer le cadrage' : 'Masquer ou zoomer l’affiche'}</button>${cadree(e) ? `<button type="button" class="btn clair" data-a="affiche" data-k="imgs.0">Changer l'affiche</button>` : ''}`;
   const atelier = ['mission', 'photo', 'vote', 'palmares', 'phase'].includes(e.t);
@@ -449,6 +451,7 @@ $('zone').addEventListener('click', ev => {
   if (a === 'vue') { vue = b.dataset.v; try { localStorage.setItem('pdvVue', vue); } catch (x) { } }
   if (a === 'bon') e.bon = +b.dataset.i;
   if (a === 'masquer') e.masque = !e.masque;
+  if (a === 'petit') { if (e.petit) delete e.petit; else e.petit = true; }
   if (a === 'sansAffiche' && !e.zones) { delete e.caches; delete e.zoom; delete e.r; }
   if (a === 'sansAffiche') { if (e.t === 'ab') { e.imgs.splice(+b.dataset.k.split('.')[1], 1); e.o = optsAB(e.imgs.length); } else e.imgs = []; }
   if (a === 'dupliquer') { M.ecrans.splice(sel + 1, 0, JSON.parse(JSON.stringify({ ...e, id: undefined }))); sel++; }

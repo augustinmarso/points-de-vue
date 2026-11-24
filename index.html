@@ -110,7 +110,7 @@ textarea.champ{min-height:150px;resize:none}
 
 /* grand écran */
 .ecran{height:100vh;padding:5vh 4vw 5vh;position:relative;display:flex;flex-direction:column;overflow:hidden;font-size:clamp(18px,1.7vw,34px)}
-.ecran h1{font-size:calc(clamp(34px,4.3vw,92px)*var(--kt,1)*var(--fit,1))}
+.ecran h1{font-size:calc(clamp(34px,4.3vw,92px)*var(--kt,1)*var(--fit,1))}html.petitTitre .ecran h1{font-size:calc(clamp(34px,4.3vw,92px)*.66*var(--kt,1)*var(--fit,1))}
 .barre{position:absolute;top:2.5vh;left:4vw;right:4vw;display:flex;justify-content:space-between;align-items:flex-start;gap:2vw;font-size:.7em}
 .gens{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:.5vw;max-width:45vw}
 .gens .tete{font-size:2vw;opacity:.35;animation:pop .5s;transition:opacity .3s,transform .3s}
@@ -655,6 +655,7 @@ function ecran() {
   }
   function dessiner(force) {
     setTimeout(tenir, 0);
+    document.documentElement.classList.toggle('petitTitre', !!ETAPES[S.i].petit); // le réglage « titre plus petit » de l'éditeur
     const e = ETAPES[S.i], k = S.i + '|' + S.k + '|' + S.rev;
     document.documentElement.classList.toggle('logos', LOGOS.length > 0 && (e.t === 'accueil' || e.t === 'fin')); // les logos : sur l'écran d'accueil et sur l'écran de fin seulement
     const lgs = document.querySelector('.logosG'); if (lgs) document.documentElement.style.setProperty('--lw', lgs.offsetWidth + 18 + 'px'); // leur largeur, pour décaler la ligne d'infos

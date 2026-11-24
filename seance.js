@@ -78,6 +78,7 @@ function lireSeance(texte) {
     else if (k === 'de') e.a = v; else if (k === 'a') e.b = v;
     else if (k === 'noir et blanc') e.nb = /oui/.test(sans(v));
     else if (k === 'masque') e.masque = /oui/.test(sans(v));
+    else if (k === 'titre') e.petit = /petit/.test(sans(v)); // « titre : petit » : le titre de cet écran est écrit moins gros
     else if (k === 'zoom') { const z = /^(\d+) (\d+) (\d+) (\d+) (\d+)$/.exec(v); if (z && +z[3] && +z[4] && +z[5]) { e.zoom = z.slice(1, 5).map(n => Math.min(100, +n)); e.r = +z[5]; } } // « zoom : gauche haut largeur hauteur proportions » : l'écran ne montre que cette partie de l'affiche, agrandie
     else if (k === 'cache') { const z = /^(.*?)\s*@\s*(\d+) (\d+) (\d+) (\d+)$/.exec(v); if (z) (e.caches = e.caches || []).push({ n: z[1], z: z.slice(2).map(n => Math.min(100, +n)) }); }
     else if (/^affiche [a-d]$/.test(k) && e.imgs) e.imgs['abcd'.indexOf(k.slice(-1))] = imageSure(v);
@@ -121,6 +122,7 @@ function ecrireSeance(m) { // m = { phases, missions, tests, ecrans }
     }
     if (e.zoom) L.push('zoom : ' + e.zoom.map(Math.round).join(' ') + ' ' + Math.round(e.r));
     (e.caches || []).forEach(c => L.push('cache : ' + net(c.n) + ' @ ' + c.z.map(Math.round).join(' '))); // une partie de l'affiche recouverte
+    if (e.petit) L.push('titre : petit');
     if (e.masque) L.push('masqué : oui');
     L.push('');
   }
