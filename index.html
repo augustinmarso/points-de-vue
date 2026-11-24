@@ -121,8 +121,8 @@ textarea.champ{min-height:150px;resize:none}
 .droite{flex:none;display:flex;gap:1.5vw;align-items:center}
 .droite img,.flash img{max-height:100%;max-width:calc(36vw*var(--ka,1));border-radius:1.5vw;display:block}
 .droite.deux img{max-width:calc(25vw*var(--ka,1))}.droite.n3 img{max-width:calc(18vw*var(--ka,1))}.droite.n4 img{max-width:calc(14vw*var(--ka,1))}
-/* les logos tiennent dans la bande libre du haut, à gauche : ils ne recouvrent jamais une réponse ni une affiche ; la ligne d'infos se décale d'autant */
-.logosG{position:fixed;left:4vw;top:1.6vh;display:none;gap:1.5vw;align-items:center;z-index:1;pointer-events:none}.logosG img{height:5vh;max-width:14vw;object-fit:contain}html.logos .logosG{display:flex}html.logos .barre{left:calc(4vw + var(--lw,0px))}
+/* les logos : en bas à droite, sur l'accueil et la fin seulement (rien d'autre n'occupe ce coin sur ces deux écrans) */
+.logosG{position:fixed;right:4vw;bottom:4vh;display:none;gap:2vw;align-items:center;z-index:1;pointer-events:none}.logosG img{height:8vh;max-width:18vw;object-fit:contain}html.logos .logosG{display:flex}
 .droite figure{font-size:1.2em;cursor:zoom-in}
 .droite figure.zoom{position:fixed;inset:0;z-index:6;background:#fff;align-items:center;padding:3vh;cursor:zoom-out;height:auto}.droite figure.zoom img{max-width:92vw;max-height:88vh}
 .droite figure img{min-height:0;flex:0 1 auto;max-height:calc(100% - 2.4em)}

@@ -2,7 +2,7 @@
 // ---------- le contenu de la séance : il est dans le fichier seance.txt, modifiable directement sur GitHub ----------
 let PHASES = { 1: { nom: 'Étape 1', quoi: '' }, 2: { nom: 'Étape 2', quoi: '' }, 3: { nom: 'Étape 3', quoi: '' } }; // 3 étapes au départ, 6 au plus (une couleur chacune)
 let ETAPES = [{ t: 'accueil' }], MISSIONS = ["L'information à faire passer"], TESTS = [];
-let LOGOS = []; // un ou deux logos, montrés en haut à gauche du grand écran, au début et à la fin de la séance (ligne « logo = … » du test)
+let LOGOS = []; // un ou deux logos, montrés en bas à droite du grand écran, au début et à la fin de la séance (ligne « logo = … » du test)
 // un logo n'est accepté que s'il vient du dossier « logos » du site ou a été ajouté dans l'éditeur (data:) : même règle que pour les affiches
 const logoSur = v => /^logos\/[\w.-]+\.(svg|png|jpe?g|webp)$/i.test(v) || /^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+\/=]+$/.test(v) ? v : '';
 console.assert(logoSur('logos/granville-terre-et-mer.svg') && !logoSur('logos/x.svg" onload="alert(1)') && !logoSur('https://ailleurs.fr/x.png'), 'logoSur');
@@ -98,7 +98,7 @@ function ecrireSeance(m) { // m = { phases, missions, tests, ecrans }
   Object.keys(m.phases).sort().forEach(p => L.push(`étape ${p} = ${net(m.phases[p].nom)} | ${net(m.phases[p].quoi)}`));
   L.push('', "# L'atelier : les informations de santé possibles. La première est celle de la séance (le menu du grand écran permet d'en changer).");
   m.missions.map(net).filter(Boolean).forEach(x => L.push('mission = ' + x));
-  if ((m.logos || []).length) L.push('', '# Les logos montrés en haut à gauche du grand écran, au début et à la fin de la séance (deux au plus).', ...m.logos.filter(logoSur).slice(0, 2).map(x => 'logo = ' + x));
+  if ((m.logos || []).length) L.push('', '# Les logos montrés en bas à droite du grand écran, au début et à la fin de la séance (deux au plus).', ...m.logos.filter(logoSur).slice(0, 2).map(x => 'logo = ' + x));
   L.push('', "# L'atelier : les tests passés par chaque affiche de binôme (question | note 1 | note 5). « test 5 secondes » : l'affiche est cachée au bout de 5 secondes.");
   m.tests.filter(t => net(t.q)).forEach(t => L.push(`${t.cinq ? 'test 5 secondes' : 'test'} = ${net(t.q)} | ${net(t.a)} | ${net(t.b)}`));
   L.push('', '', '# ================= LA SÉANCE =================', '');
