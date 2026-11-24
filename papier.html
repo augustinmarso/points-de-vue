@@ -39,7 +39,7 @@ h1{margin:0;font-size:34px;line-height:.95;font-weight:800;letter-spacing:-.045e
 .diapo ol li::before{content:attr(data-l);font-weight:800;margin-right:8px}
 .diapo .d{display:flex;gap:4mm;align-items:center;flex:none}
 .diapo .d img{max-height:100%;max-width:105mm;border-radius:3mm;display:block}
-.diapo .d.deux img{max-width:66mm}.diapo .d .zones img{max-height:150mm}
+.diapo .d.deux img{max-width:66mm}.diapo .d .zones img{max-height:150mm}.diapo .d .vz{width:min(105mm,calc(150mm*var(--r)))}
 .diapo .d figure{margin:0;height:100%;display:flex;flex-direction:column;justify-content:center;gap:2mm;font-weight:800;font-size:18px}
 .diapo .d figure img{min-height:0;flex:0 1 auto;max-height:calc(100% - 9mm)}
 .diapo .no{position:absolute;right:10mm;bottom:7mm;font-size:13px;color:inherit;opacity:.6}
@@ -123,7 +123,7 @@ function diapos(Q) {
     else if (e.q != null) g = `<div class="sur">${e.p ? 'Étape ' + e.p + ' · ' + h(PHASES[e.p].nom) : "Le jeu de l'œil"} · question ${num[e.id]}</div><h3>${h(e.q)}</h3>${e.note ? `<p>${h(e.note)}</p>` : ''}${e.t === 'echelle' ? `<p>1 = ${h(e.a)} · 5 = ${h(e.b)}</p>` : ''}
       <ol>${choix(e).map((o, j) => `<li data-l="${etiq(e, j)}">${e.t === 'echelle' ? '' : h(o)}</li>`).join('')}</ol>`;
     else { const t = T[e.t] || ['', '', '']; g = `<div class="sur">${h(t[0])}</div><h3>${h(t[1])}</h3><p>${h(t[2])}</p>`; }
-    if (im.length) d = `<div class="d${im.length > 1 ? ' deux' : ''}">${im.map((s, j) => `<figure>${im.length > 1 ? 'AB'[j] : ''}${e.zones ? carteZones(e, s) : `<img src="${h(s)}" alt="">`}</figure>`).join('')}</div>`;
+    if (im.length) d = `<div class="d${im.length > 1 ? ' deux' : ''}">${im.map((s, j) => `<figure>${im.length > 1 ? 'AB'[j] : ''}${e.zones ? carteZones(e, s) : cadree(e) ? afficheCadree(e, s) : `<img src="${h(s)}" alt="">`}</figure>`).join('')}</div>`;
     return `<div class="page diapo" style="${st}"><div class="g">${g}</div>${d}<span class="no">${i + 1} / ${ETAPES.length}</span></div>`;
   }).join('');
 }

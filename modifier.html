@@ -114,6 +114,9 @@ header h1{margin:0;font-size:24px;font-weight:800;letter-spacing:-.04em;flex:1}
 .zones.ed .coin{position:absolute;width:14px;height:14px;background:#fff;border:2px solid #141414;border-radius:3px;z-index:1}
 .zones.ed .nw{left:-8px;top:-8px;cursor:nwse-resize}.zones.ed .se{right:-8px;bottom:-8px;cursor:nwse-resize}.zones.ed .ne{right:-8px;top:-8px;cursor:nesw-resize}.zones.ed .sw{left:-8px;bottom:-8px;cursor:nesw-resize}
 .cote .zones{display:block;margin-left:16px}.cote .zones img{width:100%;border-radius:8px}.cote .zones .z{border-width:1.5px;border-radius:5px;cursor:default}.cote .zones .z b{font-size:9px;border-radius:5px 0 0 5px}
+#cadrage{width:min(1100px,94vw)}#cadAffiche{flex:none;padding-left:34px}#cadAffiche .zones img{max-height:68vh;max-width:min(560px,52vw);border-radius:10px}#cadListe{flex:1;min-width:220px}
+#cadrage .zones.ed .z{background:repeating-linear-gradient(45deg,rgba(226,226,226,.9) 0 8px,rgba(207,207,207,.9) 8px 16px)}#cadrage .zones.ed .z.gros{background:rgba(31,111,224,.22);border-color:#1F6FE0}
+.apercu .d .vz{width:min(32cqw,calc(46cqw*var(--r)))}
 #decoupe{width:min(1100px,94vw)}.dec{display:flex;gap:24px;align-items:flex-start;margin:14px 0}#decAffiche{flex:none;padding-left:34px}#decAffiche .zones img{max-height:68vh;max-width:min(560px,52vw);border-radius:10px}#decListe{flex:1;min-width:200px}
 @media (max-width:700px){.dec{flex-direction:column}#decAffiche .zones img{max-width:100%}}
 .rep .lz{flex:none;width:30px;height:30px;border-radius:8px;background:var(--n);color:#fff;display:grid;place-items:center}
@@ -196,7 +199,10 @@ dialog h3{margin:0 0 6px;font-size:24px;font-weight:800;letter-spacing:-.03em}
     <dialog id="decoupe"><h3>Découper l'affiche</h3><p class="aide">Un cadre par élément de l'affiche (le titre, l'image, la date…). Glissez un cadre pour le déplacer, tirez un de ses coins pour changer sa taille. Pour un nouveau cadre : tracez-le à la souris sur l'affiche, ou utilisez « + Nouveau cadre ». L'œil d'un cadre masque sa partie de l'affiche.</p>
       <div class="ligne"><select id="typeAffiche" class="btn clair" style="width:auto" aria-label="Appliquer un type d'affiche"></select><button type="button" class="btn clair" data-a="typeNouveau" title="Garde ces cadres et leurs noms comme un type d'affiche, à réutiliser sur d'autres affiches depuis cet ordinateur.">Enregistrer ces cadres comme type</button></div>
       <div class="dec"><div id="decAffiche"></div><div class="c" id="decListe"></div></div>
-      <div class="ligne"><button type="button" class="btn clair" data-a="plus">+ Nouveau cadre</button><button type="button" class="btn clair" data-a="decouper" title="Repère les blocs de l'affiche et repose les cadres. Vos cadres actuels sont remplacés (« Revenir en arrière » les retrouve).">Découper automatiquement</button><button type="button" class="btn clair" data-a="affiche" data-k="imgs.0">Changer l'affiche</button><button type="button" class="btn" data-a="finDecoupe" style="margin-left:auto">Terminer</button></div></dialog></div>
+      <div class="ligne"><button type="button" class="btn clair" data-a="plus">+ Nouveau cadre</button><button type="button" class="btn clair" data-a="decouper" title="Repère les blocs de l'affiche et repose les cadres. Vos cadres actuels sont remplacés (« Revenir en arrière » les retrouve).">Découper automatiquement</button><button type="button" class="btn clair" data-a="affiche" data-k="imgs.0">Changer l'affiche</button><button type="button" class="btn" data-a="finDecoupe" style="margin-left:auto">Terminer</button></div></dialog>
+    <dialog id="cadrage"><h3>L'affiche pour cette question</h3><p class="aide">Tracez un rectangle sur l'affiche : il masque cette partie. Avec « Montrer en très gros », l'écran ne montre plus que cette partie, agrandie. Glissez un rectangle pour le déplacer, tirez un de ses coins pour changer sa taille.</p>
+      <div class="dec"><div id="cadAffiche"></div><div class="c" id="cadListe"></div></div>
+      <div class="ligne"><button type="button" class="btn" data-a="finCadrage" style="margin-left:auto">Terminer</button></div></dialog></div>
 </div>
 <dialog id="galerie"><h3>Choisir une affiche</h3><p class="aide">Les affiches du site, et celles que vous ajoutez depuis cet ordinateur (elles sont enregistrées avec le test).</p><div class="galerie" id="images"></div>
   <div class="ligne"><label class="btn clair">Ajouter une image<input type="file" accept="image/*" hidden id="ajout"></label><button class="btn clair" data-a="fermer">Fermer</button><span class="aide" id="etatImage"></span></div></dialog>
@@ -267,13 +273,14 @@ function deplacer(de, vers) { // jamais avant la salle d'attente ni après la fi
 
 // un texte de l'écran, modifiable sur place : k = le champ (ou le numéro de la réponse)
 const ed = (tag, k, v, vide, cls) => `<${tag} ${cls ? `class="${cls}" ` : ''}contenteditable="plaintext-only" spellcheck="false" role="textbox" aria-label="${h(vide)}" data-vide="${h(vide)}" ${typeof k === 'number' ? `data-o="${k}"` : `data-k="${k}"`}>${h(v)}</${tag}>`;
+const imgCadree = e => cadree(e) && (e.imgs || [])[0] ? `<span class="im" data-a="cadrer" role="button" tabindex="0" style="cursor:pointer" title="Cliquer pour changer le cadrage de l'affiche">${afficheCadree(e, e.imgs[0])}</span>` : img('imgs.0', (e.imgs || [])[0], 1);
 const img = (k, v, retirable) => v ? `<span class="im"><button type="button" data-a="affiche" data-k="${k}" title="Changer l'affiche"><img src="${h(v)}" alt="Affiche ${h(nomImage(v))} : cliquer pour la changer"></button>${retirable ? `<button type="button" class="x" data-a="sansAffiche" data-k="${k}" aria-label="Retirer l'affiche" title="Retirer l'affiche">×</button>` : ''}</span>`
   : `<button type="button" class="vide" data-a="affiche" data-k="${k}">+ Ajouter une affiche</button>`;
 function apercu(e) {
   const t = e.p ? `--t:var(--t${e.p});--c:var(--c${e.p})` : '--t:var(--fond);--c:#141414';
   let g = '', cls = '', im = '';
   if (e.t === 'phase') { cls = ' plein p' + e.p; g = `<div class="sur">Étape ${e.p} sur ${Math.max(3, M.ecrans.filter(x => x.t === 'phase' && !x.masque).length)}</div>${ed('h2', 'ph.nom', M.phases[e.p].nom, "Nom de l'étape")}${ed('b', 'ph.quoi', M.phases[e.p].quoi, "Phrase d'explication")}`; }
-  else if (e.t === 'info') { g = ed('div', 's', e.s, 'Petit titre', 'sur') + ed('h2', 'h', e.h, 'Grand titre') + ed('b', 'x', e.x, 'Phrase'); im = img('imgs.0', (e.imgs || [])[0], 1); }
+  else if (e.t === 'info') { g = ed('div', 's', e.s, 'Petit titre', 'sur') + ed('h2', 'h', e.h, 'Grand titre') + ed('b', 'x', e.x, 'Phrase'); im = imgCadree(e); }
   else if (e.t === 'flash') { g = `<div class="sur">Affiche montrée ${e.s || 5} secondes</div><h2>Le test des ${e.s || 5} secondes</h2>`; im = img('img', e.img); }
   else if (e.t === 'mission') g = `<div class="sur">${h(TYPE(e))}</div><h2>Fabriquez l'affiche qui fait le mieux passer cette information</h2>${ed('b', 'missions', M.missions.join('\n'), 'Les informations à faire passer')}<small>Une information par ligne. La première est celle de la séance.</small>`;
   else if (e.t === 'vote') g = `<div class="sur">${h(TYPE(e))} · chaque affiche de binôme reçoit ces notes de 1 à 5</div>` + M.tests.map((x, i) => `<div class="test"><small>Test ${i + 1}${x.cinq ? ' (affiche cachée au bout de 5 secondes)' : ''}</small>${ed('b', `tests.${i}.q`, x.q, 'Question du test ' + (i + 1))}<div class="opts"><span>1 · ${ed('span', `tests.${i}.a`, x.a, 'Sens de la note 1')}</span><span>5 · ${ed('span', `tests.${i}.b`, x.b, 'Sens de la note 5')}</span></div></div>`).join('');
@@ -284,7 +291,7 @@ function apercu(e) {
       : e.o.map((x, i) => `<span class="${e.jeu && i === e.bon ? 'bon' : ''}">${e.jeu ? `<button type="button" class="ok" data-a="bon" data-i="${i}" aria-pressed="${i === e.bon}" aria-label="Bonne réponse" title="C'est la bonne réponse">✓</button>` : ''}${ed('span', i, x, 'Réponse ' + (i + 1))}<button type="button" class="x" data-a="moins" data-i="${i}" aria-label="Retirer cette réponse" title="Retirer cette réponse" ${e.o.length < 3 ? 'disabled' : ''}>×</button></span>`).join('')
         + `<button type="button" class="plus" data-a="plus" ${e.o.length > 8 ? 'disabled' : ''}>+ Réponse</button>`;
     g = `<div class="sur">${e.p ? 'Étape ' + e.p + ' · ' + h(M.phases[e.p].nom) : e.jeu ? "Le jeu de l'œil" : ''}</div>${ed('h2', 'q', e.q, 'La question')}${e.jeu ? '' : ed('div', 'note', e.note || '', 'Précision sous la question (facultatif)')}${vue === 'tel' ? '' : `<div class="opts${e.t === 'echelle' || e.t === 'texte' ? '' : ' lettres'}">${o}</div>`}`;
-    im = e.zones ? ((e.imgs || [])[0] ? `<span class="zones" data-a="decoupe" role="button" tabindex="0" style="cursor:pointer" title="Cliquer pour modifier le découpage">${cadres(e, false)}</span>` : img('imgs.0', '')) : e.t === 'ab' ? e.imgs.map((v, i) => `<span class="col">${img('imgs.' + i, v, e.imgs.length > 2)}<b>${'ABCD'[i]}</b></span>`).join('') + (e.imgs.length < 4 ? `<button type="button" class="vide" data-a="affiche" data-k="imgs.${e.imgs.length}">+ Affiche ${'ABCD'[e.imgs.length]}</button>` : '') : e.jeu ? img('img', e.img) : img('imgs.0', (e.imgs || [])[0], 1);
+    im = e.zones ? ((e.imgs || [])[0] ? `<span class="zones" data-a="decoupe" role="button" tabindex="0" style="cursor:pointer" title="Cliquer pour modifier le découpage">${cadres(e, false)}</span>` : img('imgs.0', '')) : e.t === 'ab' ? e.imgs.map((v, i) => `<span class="col">${img('imgs.' + i, v, e.imgs.length > 2)}<b>${'ABCD'[i]}</b></span>`).join('') + (e.imgs.length < 4 ? `<button type="button" class="vide" data-a="affiche" data-k="imgs.${e.imgs.length}">+ Affiche ${'ABCD'[e.imgs.length]}</button>` : '') : e.jeu ? img('img', e.img) : imgCadree(e);
   }
   else g = `<div class="sur">${h(TYPE(e))}</div><h2>${h({ accueil: 'Bienvenue !', scores: 'Les réussites', photo: 'Vos affiches', palmares: 'Le palmarès', fin: 'Merci !' }[e.t])}</h2>`;
   return `<div class="apercu ${vue}${cls}${e.masque ? ' cache' : ''}" style="${t}"><div class="in"><div class="g">${g}</div>${im ? `<div class="d${e.t === 'ab' ? ' deux n' + e.imgs.length : ''}">${im}</div>` : ''}</div></div>`;
@@ -327,6 +334,7 @@ function zone() {
   const libre = ['info', 'flash', 'choix', 'multi', 'echelle', 'ab', 'texte'].includes(e.t); // les écrans qu'on peut créer, copier, supprimer
   if (libre && e.t !== 'flash' && !e.jeu) f += `<label class="c crea">Couleur de l'étape<select data-k="p"><option value="">Sans étape (noir)</option>${Object.keys(M.phases).map(Number).map(p => `<option value="${p}" ${e.p === p ? 'selected' : ''}>Étape ${p} · ${h(M.phases[p].nom)}</option>`).join('')}</select></label>`;
   if (libre) f += `<div class="ligne crea"><button type="button" class="btn clair" data-a="dupliquer">Dupliquer cet écran</button><button type="button" class="btn clair" data-a="supprimer">Supprimer cet écran</button></div>`;
+  if (!e.zones && !e.jeu && ['info', 'choix', 'multi', 'echelle', 'texte'].includes(e.t) && (e.imgs || [])[0]) f += `<div class="c"><b>L'affiche pour cette question</b><small>Vous pouvez masquer des parties de l'affiche, ou ne montrer qu'un élément en très gros : utile quand la question porte sur un élément précis.</small><div class="ligne"><button type="button" class="btn clair" data-a="cadrer">${cadree(e) ? 'Changer le cadrage' : 'Masquer une partie ou montrer un élément en très gros'}</button>${cadree(e) ? `<button type="button" class="btn clair" data-a="affiche" data-k="imgs.0">Changer l'affiche</button>` : ''}</div></div>`;
   const atelier = ['mission', 'photo', 'vote', 'palmares', 'phase'].includes(e.t);
   if (atelier) f += `<div class="ligne crea"><button type="button" class="btn clair" data-a="supprimer">Supprimer cet écran</button></div>`;
   if (!fixe(sel)) f += `<label class="case"><input type="checkbox" data-k="masque" ${e.masque ? 'checked' : ''}>Masquer cet écran pendant la séance</label>`;
@@ -362,6 +370,10 @@ $('zone').addEventListener('click', ev => {
   if (a === 'retour') { document.body.classList.remove('detail'); const li = $('liste').querySelector(`[data-i="${sel}"]`); if (li) li.scrollIntoView({ block: 'center' }); return; }
   if (a === 'decouper') return decouper(e);
   if (a === 'decoupe') return ouvrirDecoupe();
+  if (a === 'cadrer') return ouvrirCadrage();
+  if (a === 'finCadrage') return $('cadrage').close();
+  if (a === 'cadreZoom') { const i = +b.dataset.i; CADR.zoomI = CADR.zoomI === i ? -1 : i; return finCadrage(); }
+  if (a === 'cadreMoins') { const i = +b.dataset.i; CADR.zones.splice(i, 1); CADR.o.splice(i, 1); CADR.zoomI = CADR.zoomI === i ? -1 : CADR.zoomI > i ? CADR.zoomI - 1 : CADR.zoomI; return finCadrage(); }
   if (a === 'cacher') { const i = +b.dataset.i; (e.caches = e.caches || []).push({ n: e.o[i], z: e.zones[i] }); e.o.splice(i, 1); e.zones.splice(i, 1); }
   if (a === 'montrer') { const [c] = e.caches.splice(+b.dataset.i, 1); e.o.push(c.n); e.zones.push(c.z); }
   if (a === 'finDecoupe') return $('decoupe').close();
@@ -372,6 +384,7 @@ $('zone').addEventListener('click', ev => {
   if (a === 'moins') { const i = +b.dataset.i; e.o.splice(i, 1); if (e.zones) e.zones.splice(i, 1); if (e.jeu) e.bon = e.bon === i ? 0 : e.bon > i ? e.bon - 1 : e.bon; }
   if (a === 'vue') { vue = b.dataset.v; try { localStorage.setItem('pdvVue', vue); } catch (x) { } }
   if (a === 'bon') e.bon = +b.dataset.i;
+  if (a === 'sansAffiche' && !e.zones) { delete e.caches; delete e.zoom; delete e.r; }
   if (a === 'sansAffiche') { if (e.t === 'ab') { e.imgs.splice(+b.dataset.k.split('.')[1], 1); e.o = optsAB(e.imgs.length); } else e.imgs = []; }
   if (a === 'dupliquer') { M.ecrans.splice(sel + 1, 0, JSON.parse(JSON.stringify({ ...e, id: undefined }))); sel++; }
   if (a === 'supprimer') { if (!confirm('Êtes-vous sûr de vouloir supprimer cet écran ? Pour seulement le retirer de la séance, masquez-le plutôt (le bouton œil).' + (['mission', 'photo', 'vote', 'palmares'].includes(e.t) ? "\n\nAttention : un écran de l'atelier ne se rajoute pas depuis « + Ajouter un écran ». Seul « Revenir en arrière » le retrouve." : e.t === 'phase' ? "\n\nSeul l'écran de titre de l'étape est supprimé : ses questions restent, à supprimer ou à changer d'étape une par une." : ''))) return; M.ecrans.splice(sel, 1); sel = Math.min(sel, M.ecrans.length - 1); }
@@ -469,7 +482,7 @@ async function decouper(e) {
 // à la souris (ou au doigt) : glisser une zone la déplace, tirer son coin change sa taille, tracer dans un endroit libre en ajoute une
 $('zone').addEventListener('pointerdown', ev => {
   const c = ev.target.closest('.zones.ed'); if (!c || ev.button) return; ev.preventDefault();
-  const e = M.ecrans[sel], r = c.getBoundingClientRect(), zEl = ev.target.closest('.z'), borne = (v, a, b) => Math.round(Math.max(a, Math.min(b, v)));
+  const e = c.closest('#cadrage') ? CADR : M.ecrans[sel], r = c.getBoundingClientRect(), zEl = ev.target.closest('.z'), borne = (v, a, b) => Math.round(Math.max(a, Math.min(b, v)));
   const pos = v => [(v.clientX - r.left) / r.width * 100, (v.clientY - r.top) / r.height * 100], [x0, y0] = pos(ev);
   let i = zEl ? +zEl.dataset.z : -1, coin = (ev.target.closest('.coin') || { dataset: {} }).dataset.c || '', z0 = i >= 0 ? e.zones[i].slice() : null;
   const bouge = v => {
@@ -484,9 +497,32 @@ $('zone').addEventListener('pointerdown', ev => {
     const z = e.zones[i] = [X, Y, L, T].map(Math.round);
     const el = c.querySelector(`[data-z="${i}"]`); if (el) Object.assign(el.style, { left: z[0] + '%', top: z[1] + '%', width: z[2] + '%', height: z[3] + '%' });
   };
-  const fin = () => { removeEventListener('pointermove', bouge); removeEventListener('pointerup', fin); removeEventListener('pointercancel', fin); if (i >= 0) { zone(); liste(); change(); } };
+  const fin = () => { removeEventListener('pointermove', bouge); removeEventListener('pointerup', fin); removeEventListener('pointercancel', fin); if (i >= 0) { if (e === CADR) finCadrage(); else { zone(); liste(); change(); } } };
   addEventListener('pointermove', bouge); addEventListener('pointerup', fin); addEventListener('pointercancel', fin);
 });
+
+// ---------- cadrer l'affiche d'une question : des parties masquées, ou un seul élément montré en très gros ----------
+// CADR = les rectangles en cours dans la fenêtre (même forme qu'un écran à zones, pour le même geste à la souris) ; zoomI = celui qui est montré en gros
+let CADR = null;
+function ouvrirCadrage() {
+  const e = M.ecrans[sel], src = (e.imgs || [])[0]; if (!src) return;
+  const z = (e.caches || []).map(c => c.z.slice()); if (e.zoom) z.push(e.zoom.slice());
+  CADR = { imgs: [src], zones: z, o: z.map(() => ''), zoomI: e.zoom ? z.length - 1 : -1, r: e.r || 0 };
+  const im = new Image(); im.onload = () => { CADR.r = Math.round(im.width / im.height * 1000); }; im.src = src; // les proportions de l'image : il les faut pour agrandir une partie
+  dessinerCadrage(); $('cadrage').showModal();
+}
+function dessinerCadrage() {
+  $('cadAffiche').innerHTML = zonesEd(CADR); const g = $('cadAffiche').querySelector(`[data-z="${CADR.zoomI}"]`); if (g) g.classList.add('gros');
+  $('cadListe').innerHTML = CADR.zones.length ? '<b>Vos rectangles</b>' + CADR.zones.map((_, i) => `<div class="rep"><b class="lz">${LZ[i]}</b><span style="flex:1">${i === CADR.zoomI ? 'Montrée en très gros' : 'Partie masquée'}</span><button type="button" class="btn clair" style="width:auto;height:auto;border-radius:99px" data-a="cadreZoom" data-i="${i}">${i === CADR.zoomI ? 'Masquer plutôt' : 'Montrer en très gros'}</button><button type="button" data-a="cadreMoins" data-i="${i}" aria-label="Supprimer le rectangle ${LZ[i]}" title="Supprimer ce rectangle">×</button></div>`).join('')
+    : "<b>Aucun rectangle</b><small>L'affiche est montrée en entier. Tracez un rectangle dessus pour masquer une partie.</small>";
+}
+function finCadrage() { // ce qui est dans la fenêtre devient le cadrage de l'écran
+  const e = M.ecrans[sel]; CADR.o = CADR.zones.map(() => '');
+  e.caches = CADR.zones.filter((_, i) => i !== CADR.zoomI).map(z => ({ n: 'Partie', z })); if (!e.caches.length) delete e.caches;
+  if (CADR.zoomI >= 0 && CADR.r) { e.zoom = CADR.zones[CADR.zoomI]; e.r = CADR.r; } else { delete e.zoom; delete e.r; }
+  dessinerCadrage(); rafraichir();
+}
+$('cadrage').addEventListener('close', () => zone());
 
 // ---------- les affiches ----------
 function galerie() {
@@ -497,6 +533,7 @@ $('galerie').addEventListener('click', ev => {
   const b = ev.target.closest('[data-img]'); if (ev.target.closest('[data-a=fermer]')) return $('galerie').close(); if (!b) return;
   if (cible === 'parcours') { $('galerie').close(); return inserer(p => parcours(b.dataset.img, p)); }
   const e = M.ecrans[sel]; if (cible === 'img') e.img = b.dataset.img; else { e.imgs = e.imgs || []; e.imgs[+cible.split('.')[1]] = b.dataset.img; if (e.t === 'ab') e.o = optsAB(e.imgs.length); }
+  if (!e.zones) { delete e.caches; delete e.zoom; delete e.r; } // une autre affiche : le cadrage de l'ancienne ne vaut plus
   $('galerie').close(); if (e.zones) return decouper(e); zone(); liste(); change();
 });
 $('ajout').addEventListener('change', async ev => { // une nouvelle image : réduite, puis gardée dans le test lui-même (enregistrée avec lui)

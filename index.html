@@ -98,6 +98,7 @@ textarea.champ{min-height:150px;resize:none}
 /* en ligne, chez soi : les affiches sont sur la page, on les touche pour les agrandir */
 .tel .zones{display:block;margin:4px 0 4px 30px}.tel .zones img{width:100%;border-radius:20px}.tel .z{border-radius:12px}.tel .z b{border-radius:10px 0 0 10px;font-size:15px}
 .droite .zones img{max-height:calc(74vh*var(--ka,1))}.droite .z{border-width:.25vw;border-radius:.8vw;cursor:inherit}.droite .z b{border-radius:.8vw 0 0 .8vw;font-size:1.3vw;top:-.25vw;white-space:nowrap}
+.vue .zones{display:block}.vue .zones img{max-height:none}.droite .vz{width:min(calc(36vw*var(--ka,1)),calc(72vh*var(--ka,1)*var(--r)))}
 .vue{display:flex;gap:12px}
 .vue figure{margin:0;flex:1;min-width:0;display:flex;flex-direction:column;gap:6px;font-weight:800;font-size:26px;cursor:zoom-in}
 .vue img{width:100%;max-height:58vh;object-fit:contain;object-position:left top;border-radius:20px;display:block}
@@ -500,7 +501,7 @@ function enLigne() {
   const aller = i => { while (ETAPES[i] && SAUTE.includes(ETAPES[i].t)) i++; M.i = i; garder(); dessiner(); };
   const repondre = (e, v) => { M.rep[e.id] = v; M.file.push(ligne(e, v)); aller(M.i + 1); envoyer(); };
   const suite = '<button class="btn" data-a="suite">Continuer</button>';
-  const vue = (e, srcs) => srcs.length ? `<div class="vue${e.nb ? ' nb' : ''}">${srcs.map((s, k) => `<figure>${e.t === 'ab' ? 'ABCD'[k] : ''}<img src="${h(s)}" alt="${e.t === 'ab' ? 'Affiche ' + 'ABCD'[k] : 'L\'affiche'}"></figure>`).join('')}</div><p class="note">Touchez une affiche pour l'agrandir.</p>` : '';
+  const vue = (e, srcs) => srcs.length ? `<div class="vue${e.nb ? ' nb' : ''}">${srcs.map((s, k) => `<figure>${e.t === 'ab' ? 'ABCD'[k] : ''}${cadree(e) ? afficheCadree(e, s) : `<img src="${h(s)}" alt="${e.t === 'ab' ? 'Affiche ' + 'ABCD'[k] : 'L\'affiche'}">`}</figure>`).join('')}</div><p class="note">Touchez une affiche pour l'agrandir.</p>` : '';
 
   function dessiner() {
     const e = !M.parti ? { t: 'accueil' } : ETAPES[M.i] || { t: 'fin' }, ou = t => Math.max(0, ETAPES.findIndex(y => y.t === t));
@@ -683,7 +684,7 @@ function ecran() {
       if (q.cinq && !S.rev && !masque) { clearTimeout(tm); tm = setTimeout(() => { masque = true; dessiner(true); }, 5000); } // vue 5 secondes, puis cachée
       if (e.img && S.rev) d = `<div class="droite"><figure><img src="${e.img}" alt="Affiche du jeu"></figure></div>`;
     }
-    if (vues.length) d = `<div class="droite${vues.length > 1 ? ' deux n' + vues.length : ''}${e.nb ? ' nb' : ''}">${vues.map(v => `<figure>${v.l}${e.zones ? carteZones(e, v.src) : `<img src="${v.src}" alt="Affiche ${v.l}">`}</figure>`).join('')}</div>`; // aussi pour une page de texte qui a une image
+    if (vues.length) d = `<div class="droite${vues.length > 1 ? ' deux n' + vues.length : ''}${e.nb ? ' nb' : ''}">${vues.map(v => `<figure>${v.l}${e.zones ? carteZones(e, v.src) : cadree(e) ? afficheCadree(e, v.src) : `<img src="${v.src}" alt="Affiche ${v.l}">`}</figure>`).join('')}</div>`; // aussi pour une page de texte qui a une image
     const prete = q.id && !S.rev && Object.keys(S.rep[q.id] || {}).length;
     app.innerHTML = `<div class="ecran"><div class="barre"><span class="sur">${h(souci || (APERCU ? 'Aperçu de vos modifications · flèches du clavier pour avancer · sans enregistrement' : ''))}</span><div class="gens"></div></div><div class="corps"><div class="gauche">${g}</div>${d}</div></div>
       <div class="cmd"><button class="home" data-a="menu">Menu</button><div class="liste">
