@@ -11,11 +11,11 @@
 <link rel="preload" href="polices/scoutie.woff2" as="font" type="font/woff2" crossorigin>
 <style>@font-face{font-family:'Scoutie Sans';font-weight:200 800;font-display:swap;src:url(polices/scoutie.woff2) format('woff2')}</style>
 <style>
-:root{--n:#141414;--c1:#F5A0C6;--c2:#F7C33B;--c3:#1F6FE0;--t1:#FDE7F1;--t2:#FDF0CC;--t3:#DCE9FB;--c:var(--c1);--t:var(--t1)}
+:root{--n:#141414;--c1:#F5A0C6;--c2:#F7C33B;--c3:#1F6FE0;--c4:#7BD3A8;--c5:#B79CF2;--c6:#FF9A6B;--t1:#FDE7F1;--t2:#FDF0CC;--t3:#DCE9FB;--t4:#DDF4E8;--t5:#EBE3FB;--t6:#FFE4D6;--c:var(--c1);--t:var(--t1)}
 *{box-sizing:border-box}
 html,body{margin:0;min-height:100%}
 body{background:#fff;color:var(--n);font-family:'Scoutie Sans',Helvetica,Arial,sans-serif;font-size:20px;line-height:1.25;-webkit-tap-highlight-color:transparent}
-body.p1{--c:var(--c1);--t:var(--t1)} body.p2{--c:var(--c2);--t:var(--t2)} body.p3{--c:var(--c3);--t:var(--t3)}
+body.p1{--c:var(--c1);--t:var(--t1)} body.p2{--c:var(--c2);--t:var(--t2)} body.p3{--c:var(--c3);--t:var(--t3)} body.p4{--c:var(--c4);--t:var(--t4)} body.p5{--c:var(--c5);--t:var(--t5)} body.p6{--c:var(--c6);--t:var(--t6)}
 button,input,textarea{font:inherit;color:inherit}
 button{border:0;cursor:pointer;background:none;padding:0}
 h1{margin:0;font-weight:800;letter-spacing:-.05em;line-height:.9}
@@ -664,7 +664,7 @@ function ecran() {
         <p class="cpt"></p><div class="salle"></div>
         <div class="qr">${q.createSvgTag({ scalable: true, margin: 0 })}<span>Pour répondre depuis votre téléphone, photographiez ce code.<br>Ou ouvrez ${h(location.host + location.pathname)}<br>et tapez le code <b class="code">${h(SALLE)}</b></span></div>`;
     }
-    else if (e.t === 'phase') g = `<p class="sur">Étape ${e.p} sur 3</p><h1>${h(PHASES[e.p].nom)}</h1><p><b>${h(PHASES[e.p].quoi)}</b></p>`;
+    else if (e.t === 'phase') g = `<p class="sur">Étape ${e.p} sur ${NB_ETAPES()}</p><h1>${h(PHASES[e.p].nom)}</h1><p><b>${h(PHASES[e.p].quoi)}</b></p>`;
     else if (e.t === 'info') g = `<p class="sur">${h(e.s)}</p><h1>${h(e.h)}</h1><p><b>${h(e.x)}</b></p>`;
     else if (e.t === 'scores') g = `<p class="sur">Le jeu de l'œil</p><h1>Les réussites</h1><p><b>Un point noir par question trouvée, dans l'ordre des questions.</b></p><div class="scores"></div>`;
     else if (e.t === 'flash') g = flash

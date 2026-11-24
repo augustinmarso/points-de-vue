@@ -85,7 +85,7 @@ article .n{color:var(--gris);font-size:15px;margin:4px 0 12px}
 // et les présente dans l'ordre de la séance (seance.txt). Outils : choix d'une séance, comparaison de deux séances,
 // points à retenir calculés, recherche, tri par accord. Mise à jour toutes les 20 secondes.
 const SOURCE = 'https://script.google.com/macros/s/AKfycbzPof8sEj8tZLlA-MtVDYyODv32y8lXxc9hLVmaW5zCvHLilyRIxpk4Ix6TPhzJczjn/exec?vue=resultats';
-const COUL = { 'Étape 1': '#F5A0C6', 'Étape 2': '#F7C33B', 'Étape 3': '#1F6FE0' };
+const COUL = { 'Étape 1': '#F5A0C6', 'Étape 2': '#F7C33B', 'Étape 3': '#1F6FE0', 'Étape 4': '#7BD3A8', 'Étape 5': '#B79CF2', 'Étape 6': '#FF9A6B' };
 const h = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])).replace(/ ([?!:;»])/g, '&nbsp;$1').replace(/« /g, '«&nbsp;');
 const fr = (x, d = 1) => x.toFixed(d).replace('.', ','), pc = x => Math.round(x * 100) + ' %';
 const $ = id => document.getElementById(id), plat = x => x.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
@@ -131,7 +131,7 @@ function dessiner() {
 
   Q.filter(e => e.t === 'ab').map(e => { const c = T.compte[e.q] || {}, x = c.A || 0, y = c.B || 0; return [Math.abs(x - y) / T.rep[e.q], x > y ? 'A' : 'B', Math.max(x, y) / T.rep[e.q], e]; })
 
-  const titres = { "Jeu de l'œil": ["Le jeu de l'œil", 'Une affiche vue 5 secondes, puis des questions précises.'], 'Étape 1': [PHASES[1].nom, PHASES[1].quoi], 'Étape 2': [PHASES[2].nom, PHASES[2].quoi], 'Étape 3': [PHASES[3].nom, PHASES[3].quoi], Atelier: ["L'atelier", 'Les affiches fabriquées en binômes, notées par la salle.'], 'Autres questions': ['Autres questions', 'Des questions qui ne sont plus dans la séance actuelle.'] };
+  const titres = { "Jeu de l'œil": ["Le jeu de l'œil", 'Une affiche vue 5 secondes, puis des questions précises.'], ...Object.fromEntries(Object.keys(PHASES).sort().map(p => ['Étape ' + p, [PHASES[p].nom, PHASES[p].quoi]])), Atelier: ["L'atelier", 'Les affiches fabriquées en binômes, notées par la salle.'], 'Autres questions': ['Autres questions', 'Des questions qui ne sont plus dans la séance actuelle.'] };
   $('vue').innerHTML =
     `<div class="chiffres"><div><b>${gens}</b>participant${gens > 1 ? 's' : ''}</div><div><b>${seance ? 1 : codes.length}</b>séance${!seance && codes.length > 1 ? 's' : ''}</div><div><b>${total}</b>réponse${total > 1 ? 's' : ''}</div></div>`
     + (U ? `<div class="legende"><span><i class="a"></i>${seance ? 'Séance ' + h(seance) : 'Toutes les séances'}</span><span><i></i>Séance ${h($('comparer').value)} (barre fine, second pourcentage)</span></div>` : '')
