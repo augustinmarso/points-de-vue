@@ -48,7 +48,7 @@ function lireSeance(texte) {
       if (fixes[mot]) e = mot === 'tests' ? { t: 'vote', id: 'vote' } : { t: fixes[mot] };
       else if (/^etape [123]$/.test(mot)) e = { t: 'phase', p: +mot.slice(-1) };
       else if (mot === 'texte') e = { t: 'info', s: part[0] || '', h: part[1] || '', x: part[2] || '' };
-      else if (mot === '5 secondes') { e = { t: 'flash', img: imageSure(part[0]) }; const p = /([123])/.exec(sans(part[1] || '')); if (p) e.p = +p[1]; }
+      else if (mot === '5 secondes') { e = { t: 'flash', img: imageSure(part[0]) }; part.slice(1).forEach(x => { const d = /^(\d+)\s*s/.exec(sans(x)), p = /([123])/.exec(x); if (d) e.s = Math.max(1, Math.min(60, +d[1])); else if (p) e.p = +p[1]; }); } // « | étape 1 | 8 s » : la durée d'affichage, 5 secondes si rien n'est écrit
       else if (mot === 'jeu') e = { id: id(reste), t: 'choix', jeu: 1, q: reste, o: [] };
       else if (mot === 'note') e = { id: id(reste), t: 'echelle', q: reste, o: cinq, a: '', b: '' };
       else if (mot === 'a ou b') e = { id: id(reste), t: 'ab', q: reste, o: ['A', 'B', 'Aucune différence'], imgs: [] };
@@ -96,7 +96,7 @@ function ecrireSeance(m) { // m = { phases, missions, tests, ecrans }
     if (fixes[e.t]) L.push(`[${fixes[e.t]}]`);
     else if (e.t === 'phase') L.push(`[étape ${e.p}]`);
     else if (e.t === 'info') { L.push(`[texte] ${net(e.s)} | ${net(e.h)} | ${net(e.x)}`); if (e.p) L.push('étape : ' + e.p); if (net((e.imgs || [])[0])) L.push('affiche : ' + net(e.imgs[0])); }
-    else if (e.t === 'flash') L.push(`[5 secondes] ${net(e.img)}${e.p ? ' | étape ' + e.p : ''}`);
+    else if (e.t === 'flash') L.push(`[5 secondes] ${net(e.img)}${e.p ? ' | étape ' + e.p : ''}${e.s && e.s !== 5 ? ' | ' + e.s + ' s' : ''}`);
     else {
       L.push(`[${e.jeu ? 'jeu' : e.t === 'echelle' ? 'note' : e.t === 'ab' ? 'a ou b' : e.t === 'texte' ? 'avis' : 'question'}] ${net(e.q)}`);
       if (e.p) L.push('étape : ' + e.p);

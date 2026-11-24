@@ -119,7 +119,7 @@ function diapos(Q) {
     const im = (e.t === 'flash' ? [e.img] : e.jeu ? [] : e.imgs || []).filter(Boolean);
     if (e.t === 'phase') { st = `--b:var(--c${e.p});--f:${e.p === 3 ? '#fff' : '#141414'}`; g = `<div class="sur">Étape ${e.p} sur 3</div><h3>${h(PHASES[e.p].nom)}</h3><p>${h(PHASES[e.p].quoi)}</p>`; }
     else if (e.t === 'info') g = `<div class="sur">${h(e.s)}</div><h3>${h(e.h)}</h3><p>${h(e.x)}</p>`;
-    else if (e.t === 'flash') g = `<div class="sur">${e.p ? 'Étape ' + e.p : "Le jeu de l'œil"}</div><h3>Le test des 5 secondes</h3><p>L'affiche est montrée 5 secondes, puis cachée.</p>`;
+    else if (e.t === 'flash') g = `<div class="sur">${e.p ? 'Étape ' + e.p : "Le jeu de l'œil"}</div><h3>Le test des ${e.s || 5} secondes</h3><p>L'affiche est montrée ${e.s || 5} secondes, puis cachée.</p>`;
     else if (e.q != null) g = `<div class="sur">${e.p ? 'Étape ' + e.p + ' · ' + h(PHASES[e.p].nom) : "Le jeu de l'œil"} · question ${num[e.id]}</div><h3>${h(e.q)}</h3>${e.note ? `<p>${h(e.note)}</p>` : ''}${e.t === 'echelle' ? `<p>1 = ${h(e.a)} · 5 = ${h(e.b)}</p>` : ''}
       <ol>${choix(e).map((o, j) => `<li data-l="${etiq(e, j)}">${e.t === 'echelle' ? '' : h(o)}</li>`).join('')}</ol>`;
     else { const t = T[e.t] || ['', '', '']; g = `<div class="sur">${h(t[0])}</div><h3>${h(t[1])}</h3><p>${h(t[2])}</p>`; }

@@ -118,7 +118,8 @@ textarea.champ{min-height:150px;resize:none}
 .droite{flex:none;display:flex;gap:1.5vw;align-items:center}
 .droite img,.flash img{max-height:100%;max-width:36vw;border-radius:1.5vw;display:block}
 .droite.deux img{max-width:25vw}.droite.n3 img{max-width:18vw}.droite.n4 img{max-width:14vw}
-.droite figure{font-size:1.2em}
+.droite figure{font-size:1.2em;cursor:zoom-in}
+.droite figure.zoom{position:fixed;inset:0;z-index:6;background:#fff;align-items:center;padding:3vh;cursor:zoom-out;height:auto}.droite figure.zoom img{max-width:92vw;max-height:88vh}
 .droite figure img{min-height:0;flex:0 1 auto;max-height:calc(100% - 2.4em)}
 .nb img{filter:grayscale(1)}
 .droite figure{margin:0;height:100%;display:flex;flex-direction:column;gap:.6vw;font-weight:800;justify-content:center}
@@ -411,7 +412,7 @@ function telephone() {
         <div class="etapes">${J.map((j, i) => `<div><span class="pt${ok[i] ? ' o' : ''}"></span><span>${h(j.q)}<br><b>${h(j.o[j.bon])}</b></span></div>`).join('')}</div>
         <p class="note">Ce qui n'a pas été trouvé, c'est ce que l'affiche montre mal.</p>`;
     }
-    else if (e.t === 'flash') x = `<div class="haut"></div><h1>Levez les yeux</h1><p><b>L'affiche va apparaître 5 secondes sur le grand écran. Regardez-la comme si vous la croisiez dans la rue.</b></p>`;
+    else if (e.t === 'flash') x = `<div class="haut"></div><h1>Levez les yeux</h1><p><b>L'affiche va apparaître ${e.s || 5} secondes sur le grand écran. Regardez-la comme si vous la croisiez dans la rue.</b></p>`;
     else if (e.t === 'fin') x = `<div class="haut"></div><h1>Merci !</h1><p><b>Vos observations vont servir à retravailler l'affiche.</b></p><p>Nous vous montrerons ce qu'elles ont changé.</p>`;
     else if (e.t === 'mission') x = `<p class="sur">Atelier · à deux</p><h2>Fabriquez l'affiche qui fait le mieux passer cette information :</h2><h1 style="font-size:40px;line-height:1">${h(MISSIONS[mission])}</h1>
       <p>Servez-vous des modules sur la table : slogans, formes, illustrations, dates. Toute la salle a la même information, chaque binôme fait son affiche.</p>`;
@@ -510,7 +511,7 @@ function enLigne() {
       <p class="note">Vos réponses sont anonymes : votre prénom n'est pas enregistré avec elles. Vous pouvez vous arrêter et reprendre plus tard sur cet appareil. <a href="confidentialite.html">Vos données</a></p>`;
     else if (e.t === 'phase') x = `<div class="haut"></div><p class="sur">Étape ${e.p}</p><h1>${h(PHASES[e.p].nom)}</h1><p><b>${h(PHASES[e.p].quoi)}</b></p>${suite}`;
     else if (e.t === 'info') x = `<div class="haut"></div><p class="sur">${h(e.s)}</p><h1>${h(e.h)}</h1><p><b>${h(e.x)}</b></p>${vue(e, (e.imgs || []).filter(Boolean))}${suite}`;
-    else if (e.t === 'flash') x = `<div class="haut"></div><p class="sur">${sur(e)}</p><h1>Une affiche, 5 secondes</h1><p><b>Regardez-la comme si vous la croisiez dans la rue. Elle disparaît toute seule, puis viennent les questions.</b></p><button class="btn" data-a="voir">Voir l'affiche</button>`;
+    else if (e.t === 'flash') x = `<div class="haut"></div><p class="sur">${sur(e)}</p><h1>Une affiche, ${e.s || 5} secondes</h1><p><b>Regardez-la comme si vous la croisiez dans la rue. Elle disparaît toute seule, puis viennent les questions.</b></p><button class="btn" data-a="voir">Voir l'affiche</button>`;
     else if (e.t === 'scores') {
       const J = JEUX(), ok = J.map(j => M.rep[j.id] === j.bon);
       x = `<p class="sur">Le jeu de l'œil · vos réussites</p><h1>${ok.filter(Boolean).length} sur ${J.length}</h1>
@@ -535,7 +536,7 @@ function enLigne() {
     const d = document.createElement('div'); d.className = 'flash seul';
     d.innerHTML = `<img src="${h(e.img)}" alt="L'affiche à regarder">`; document.body.appendChild(d);
     let parti = false;
-    const img = d.querySelector('img'), go = () => { if (parti) return; parti = true; d.insertAdjacentHTML('beforeend', tete(e.p || 1)); setTimeout(() => { d.remove(); aller(M.i + 1); }, 5000); };
+    const img = d.querySelector('img'), go = () => { if (parti) return; parti = true; d.insertAdjacentHTML('beforeend', tete(e.p || 1)); setTimeout(() => { d.remove(); aller(M.i + 1); }, (e.s || 5) * 1000); };
     if (img.complete) go(); else { img.onload = img.onerror = go; setTimeout(go, 8000); } // connexion lente : on n'attend pas indéfiniment la fin du chargement
   }
   app.addEventListener('click', ev => {
@@ -635,7 +636,7 @@ function ecran() {
     }
     aller(S.i + 1);
   }
-  function montrer() { flash = true; dessiner(true); setTimeout(() => { if (flash && ETAPES[S.i].t === 'flash') aller(S.i + 1); }, 5000); }
+  function montrer() { flash = true; dessiner(true); setTimeout(() => { if (flash && ETAPES[S.i].t === 'flash') aller(S.i + 1); }, (ETAPES[S.i].s || 5) * 1000); }
 
   function dessiner(force) {
     const e = ETAPES[S.i], k = S.i + '|' + S.k + '|' + S.rev;
@@ -664,7 +665,7 @@ function ecran() {
     else if (e.t === 'scores') g = `<p class="sur">Le jeu de l'œil</p><h1>Les réussites</h1><p><b>Un point noir par question trouvée, dans l'ordre des questions.</b></p><div class="scores"></div>`;
     else if (e.t === 'flash') g = flash
       ? `<div class="flash">${e.img || affiches.A ? `<img src="${(e.p && affiches.A) || e.img || affiches.A}" alt="Affiche testée">` : '<h1>Regardez l\'affiche</h1>'}${tete(1)}</div>`
-      : `<p class="sur">${sur(e)}</p><h1>Le test des 5 secondes</h1><p><b>L'affiche va apparaître 5 secondes. Regardez-la comme si vous la croisiez dans la rue.</b></p>`;
+      : `<p class="sur">${sur(e)}</p><h1>Le test des ${e.s || 5} secondes</h1><p><b>L'affiche va apparaître ${e.s || 5} secondes. Regardez-la comme si vous la croisiez dans la rue.</b></p>`;
     else if (e.t === 'fin') g = `<h1>Merci !</h1><p><b>Vos observations vont servir à retravailler l'affiche.</b></p><p>Nous vous montrerons ce qu'elles ont changé.</p>`;
     else if (e.t === 'mission') g = `<p class="sur">Atelier · à deux</p><h1>Fabriquez l'affiche qui fait le mieux passer cette information</h1><p class="cpt" style="font-size:2em">${h(MISSIONS[S.mission])}</p><p>Servez-vous des modules sur la table : slogans, formes, illustrations, dates. Toute la salle a la même information, chaque binôme fait son affiche. La salle les testera ensuite.</p><p><button data-a="mission" style="text-decoration:underline;font-weight:700">Changer d'information</button></p>`;
     else if (e.t === 'photo') g = `<p class="sur">Atelier</p><h1>Vos affiches</h1><p><b>Photographiez l'affiche de votre binôme : elle apparaît ici.</b></p><div class="mur"></div>`;
@@ -683,7 +684,7 @@ function ecran() {
     app.innerHTML = `<div class="ecran"><div class="barre"><span class="sur">${h(souci || (APERCU ? 'Aperçu de vos modifications · flèches du clavier pour avancer · sans enregistrement' : ''))}</span><div class="gens"></div></div><div class="corps"><div class="gauche">${g}</div>${d}</div></div>
       <div class="cmd"><button class="home" data-a="menu">Menu</button><div class="liste">
         <span>Écran ${S.i + 1} sur ${ETAPES.length}</span>
-        <button data-a="suite">${e.t === 'flash' && !flash ? 'Montrer 5 secondes' : prete ? 'Révéler les réponses' : 'Suite →'}</button><button data-a="avant">← Retour</button>
+        <button data-a="suite">${e.t === 'flash' && !flash ? 'Montrer ' + (e.s || 5) + ' secondes' : prete ? 'Révéler les réponses' : 'Suite →'}</button><button data-a="avant">← Retour</button>
         ${PAPIER ? `<a href="papier.html?vue=lire&seance=${h(SALLE)}${TQ}" target="_blank" rel="noopener">Photographier les fiches</a>` : `<a href="resultats.html?seance=${h(SALLE)}${TQ}" target="_blank" rel="noopener">Résultats</a>`}
         <button data-a="plein">Plein écran</button><button data-a="neuve">Nouvelle séance</button>
         <a href="./" aria-label="Accueil" title="Accueil"><svg viewBox="0 0 24 24" width="1.35em" height="1.35em" fill="currentColor" aria-hidden="true" style="vertical-align:-.3em"><path d="M12 3 2.5 11.2h2.7V21h5.3v-6h3v6h5.3v-9.8h2.7z"/></svg></a>
@@ -768,7 +769,7 @@ function ecran() {
   if (!APERCU) { declarerVersion(); noterVisite(`Grand écran · séance ${SALLE} · ${PAPIER ? 'papier' : 'téléphone'}`); }
 
   document.addEventListener('click', ev => {
-    const fig = ev.target.closest('.mur figure'); if (fig) return fig.classList.toggle('zoom');
+    const fig = ev.target.closest('.mur figure, .droite figure'); if (fig) return fig.classList.toggle('zoom');
     const a = ev.target.closest('[data-a]'); if (!a) return;
     const act = a.dataset.a;
     if (act === 'menu') { // à l'ouverture, le menu va chercher les autres séances en cours
@@ -790,6 +791,7 @@ function ecran() {
   addEventListener('keydown', ev => {
     if (['ArrowRight', 'PageDown', ' '].includes(ev.key)) { ev.preventDefault(); suivant(); }
     if (['ArrowLeft', 'PageUp'].includes(ev.key)) aller(S.i - 1, -1);
+    if (ev.key === 'Escape') document.querySelectorAll('figure.zoom').forEach(f => f.classList.remove('zoom'));
   });
   addEventListener('resize', () => dessiner(true));
   dessiner();
