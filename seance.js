@@ -122,7 +122,7 @@ const carteZones = (e, src) => `<span class="zones"><img src="${h(src)}" alt="L'
 const legendeZones = e => e.o.map((o, i) => `<b>${'ABCDEFGHIJ'[i]}</b> ${h(o)}`).join(' · ');
 if (typeof document !== 'undefined') document.head.insertAdjacentHTML('beforeend', `<style>.zones{position:relative;display:inline-block;line-height:0;vertical-align:top}.zones img{display:block}
 .z{position:absolute;box-sizing:border-box;border:2px solid #141414;border-radius:8px;padding:0;cursor:pointer;font:inherit;line-height:1.3;color:#141414;background:rgba(31,111,224,calc(var(--f,0)*.75));transition:background .4s}
-.z b{position:absolute;left:-2px;top:-2px;background:#141414;color:#fff;border-radius:8px 0 8px 0;min-width:1.6em;padding:.1em .3em;font-size:max(13px,.55em);text-align:center;font-weight:800}
+.z b{position:absolute;right:100%;top:-2px;background:#141414;color:#fff;border-radius:8px 0 0 8px;min-width:1.6em;padding:.1em .3em;font-size:max(13px,.55em);text-align:center;font-weight:800}
 .z.on{background:rgba(20,20,20,.55)}.z:focus-visible{outline:3px solid #1F6FE0;outline-offset:2px}</style>`);
 
 // l'identifiant d'une version : une empreinte courte du contenu utile du fichier (les commentaires ne comptent pas)

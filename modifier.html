@@ -35,8 +35,9 @@ header h1{margin:0;font-size:24px;font-weight:800;letter-spacing:-.04em;flex:1}
 #liste small{display:block;font-size:12px;font-weight:700;color:var(--gris)}
 #liste b{display:block;font-size:14px;line-height:1.15;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #liste .oeil{flex:none;width:32px;height:32px;border-radius:50%;display:grid;place-items:center;color:var(--gris)}#liste .oeil:hover{background:var(--fond);color:var(--n)}
-#liste li.onglets{background:none;border:0;padding:0 0 4px;flex-wrap:wrap;gap:6px;cursor:default}
-#liste li.onglets button{font-size:13px;font-weight:800;padding:7px 12px;border-radius:99px;background:#fff}#liste li.onglets button[aria-pressed=true]{background:var(--n);color:#fff}
+#liste li.dossier{background:none;border:0;padding:0;margin:10px 0 4px;cursor:default}
+#liste li.dossier button{flex:1;min-width:0;display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:10px;text-align:left;font-size:14px}#liste li.dossier button:hover{background:#fff}
+#liste li.dossier svg{flex:none;color:var(--c)}#liste li.dossier b{flex:1;font-size:14px}#liste li.dossier small{flex:none;display:inline}#liste li.dossier i{flex:none;font-style:normal;font-weight:800;width:1em;text-align:center}
 #liste .mv{display:flex;flex-direction:column;gap:2px;flex:none}
 #liste .mv button{width:30px;height:22px;border-radius:8px;background:var(--fond);font-weight:800;line-height:1}
 #liste .mv button[disabled]{opacity:.25}
@@ -50,7 +51,7 @@ header h1{margin:0;font-size:24px;font-weight:800;letter-spacing:-.04em;flex:1}
 .apercu .opts{display:flex;flex-wrap:wrap;gap:1cqw;margin-top:auto}
 .apercu .opts span{background:var(--t);border-radius:3cqw;padding:.8cqw 1.6cqw;font-weight:700;font-size:1.8cqw}
 .apercu .opts span.bon{background:var(--n);color:#fff}
-.apercu .d{display:flex;gap:1.5cqw;align-items:center;flex:none}
+.apercu .d{display:flex;gap:1.5cqw;align-items:center;flex:none}.apercu .d>.zones{margin-left:28px}
 .apercu .d img{max-height:46cqw;max-width:32cqw;border-radius:1.5cqw;display:block}
 .apercu .d.deux img{max-width:24cqw}.apercu .d.n3 img{max-width:17cqw}.apercu .d.n4 img{max-width:13.5cqw}
 .apercu .col{display:flex;flex-direction:column;align-items:center;gap:.6cqw;font-weight:800;font-size:2.2cqw}
@@ -106,9 +107,8 @@ header h1{margin:0;font-size:24px;font-weight:800;letter-spacing:-.04em;flex:1}
 .zones.ed .z{cursor:move;background:rgba(255,255,255,.28)}.zones.ed .z:hover{background:rgba(31,111,224,.3)}
 .zones.ed .coin{position:absolute;width:14px;height:14px;background:#fff;border:2px solid #141414;border-radius:3px;z-index:1}
 .zones.ed .nw{left:-8px;top:-8px;cursor:nwse-resize}.zones.ed .se{right:-8px;bottom:-8px;cursor:nwse-resize}.zones.ed .ne{right:-8px;top:-8px;cursor:nesw-resize}.zones.ed .sw{left:-8px;bottom:-8px;cursor:nesw-resize}
-.zones.ed .z b{left:6px;top:6px;border-radius:6px}
-.cote .zones{display:block}.cote .zones img{width:100%;border-radius:8px}.cote .zones .z{border-width:1.5px;border-radius:5px;cursor:default}.cote .zones .z b{font-size:9px;border-radius:5px 0 5px 0}
-#decoupe{width:min(1100px,94vw)}.dec{display:flex;gap:24px;align-items:flex-start;margin:14px 0}#decAffiche{flex:none}#decAffiche .zones img{max-height:68vh;max-width:min(560px,52vw);border-radius:10px}#decListe{flex:1;min-width:200px}
+.cote .zones{display:block;margin-left:16px}.cote .zones img{width:100%;border-radius:8px}.cote .zones .z{border-width:1.5px;border-radius:5px;cursor:default}.cote .zones .z b{font-size:9px;border-radius:5px 0 0 5px}
+#decoupe{width:min(1100px,94vw)}.dec{display:flex;gap:24px;align-items:flex-start;margin:14px 0}#decAffiche{flex:none;padding-left:34px}#decAffiche .zones img{max-height:68vh;max-width:min(560px,52vw);border-radius:10px}#decListe{flex:1;min-width:200px}
 @media (max-width:700px){.dec{flex-direction:column}#decAffiche .zones img{max-width:100%}}
 .rep .lz{flex:none;width:30px;height:30px;border-radius:8px;background:var(--n);color:#fff;display:grid;place-items:center}
 .cote .lignes{height:54px;background:repeating-linear-gradient(transparent 0 17px,var(--n) 17px 18px)}
@@ -224,8 +224,9 @@ const annuler = () => { if (!pile.length) return; dernier = pile.pop(); tPile = 
 const change = () => { noterPile(ecrireSeance(M)); const diff = ecrireSeance(M) !== depart; $('enregistrer').disabled = !diff; $('etat').textContent = diff ? 'Modifications non enregistrées' : 'Tout est enregistré'; };
 
 const OEIL = ferme => `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12z"/><circle cx="12" cy="12" r="2.8"/>${ferme ? '<path d="M4 20 20 4"/>' : ''}</svg>`;
-// les onglets : la liste ne montre qu'une partie de la séance à la fois (le jeu, chaque étape, l'atelier). Un écran sans partie suit celle de l'écran d'après.
-let onglet = '';
+// les dossiers : dans la liste, chaque partie de la séance (le jeu, chaque étape, l'atelier) est un dossier qui s'ouvre et se referme. Un écran sans partie suit celle de l'écran d'après.
+const fermes = new Set(); let selVu = -1;
+const DOSSIER = '<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true"><path d="M3 6.5A2.5 2.5 0 0 1 5.500 4h4l2 2.500h7A2.500 2.500 0 0 1 21 9v8.500a2.500 2.500 0 0 1-2.500 2.500h-13A2.500 2.500 0 0 1 3 17.500z"/></svg>';
 const NOM_PARTIE = { jeu: "Jeu de l'œil", atelier: 'Atelier', 1: 'Étape 1', 2: 'Étape 2', 3: 'Étape 3' };
 function parties() {
   const P = M.ecrans.map(e => e.p || (e.jeu || e.t === 'scores' ? 'jeu' : ['mission', 'photo', 'vote', 'palmares'].includes(e.t) ? 'atelier' : 0));
@@ -233,13 +234,14 @@ function parties() {
   for (let i = 1; i < P.length; i++) if (!P[i]) P[i] = P[i - 1];
   return P.map(String);
 }
-const visibles = () => { const P = parties(); return M.ecrans.map((_, i) => i).filter(i => !onglet || P[i] === onglet); };
+const visibles = () => { const P = parties(); return M.ecrans.map((_, i) => i).filter(i => !fermes.has(P[i])); };
 function liste() {
   let n = 0; const P = parties(), noms = [...new Set(P)].filter(p => NOM_PARTIE[p]);
-  if (onglet && P[sel] !== onglet) onglet = ''; // l'écran choisi reste toujours dans la liste
-  $('liste').innerHTML = `<li class="ajout"><button type="button" class="btn" data-a="nouveau">+ Ajouter un écran</button></li>` + (noms.length > 1 ? `<li class="onglets" role="group" aria-label="Partie de la séance montrée">${['', ...noms].map(p => `<button type="button" data-og="${p}" aria-pressed="${p === onglet}" title="${p > 0 ? h(M.phases[p].nom) : ''}">${p ? NOM_PARTIE[p] : 'Tout'}</button>`).join('')}</li>` : '') + M.ecrans.map((e, i) => (e.masque || ++n, onglet && P[i] !== onglet) ? '' : `<li data-i="${i}" draggable="${!fixe(i)}" class="${i === sel ? 'sel' : ''}${e.masque ? ' masque' : ''}" style="--c:${COUL(e)}">
+  if (sel !== selVu) { fermes.delete(P[sel]); selVu = sel; } // le dossier de l'écran qu'on vient de choisir s'ouvre
+  const tete = (p, i) => `<li class="dossier" style="--c:${p > 0 ? `var(--c${p})` : '#141414'}"><button type="button" data-og="${p}" aria-expanded="${!fermes.has(p)}" title="${fermes.has(p) ? 'Ouvrir ce dossier' : 'Refermer ce dossier'}">${DOSSIER}<b>${NOM_PARTIE[p]}${p > 0 ? ' · ' + h(M.phases[p].nom) : ''}</b><small>${P.filter(x => x === p).length} écrans</small><i>${fermes.has(p) ? '▸' : '▾'}</i></button></li>`;
+  $('liste').innerHTML = `<li class="ajout"><button type="button" class="btn" data-a="nouveau">+ Ajouter un écran</button></li>` + M.ecrans.map((e, i) => (e.masque || ++n, noms.length > 1 && NOM_PARTIE[P[i]] && P[i] !== P[i - 1] ? tete(P[i], i) : '') + (fermes.has(P[i]) ? '' : `<li data-i="${i}" draggable="${!fixe(i)}" class="${i === sel ? 'sel' : ''}${e.masque ? ' masque' : ''}" style="--c:${COUL(e)}">
     <span class="num">${e.masque ? '–' : n}</span><span class="txt"><small>${h(TYPE(e))}${e.masque ? ' · masqué' : ''}</small><b>${h(TITRE(e))}</b></span>
-    ${fixe(i) ? '' : `<button type="button" class="oeil" data-oeil aria-pressed="${!!e.masque}" aria-label="${e.masque ? 'Montrer cet écran pendant la séance' : 'Masquer cet écran pendant la séance'}" title="${e.masque ? 'Écran masqué : cliquer pour le montrer' : 'Masquer cet écran pendant la séance'}">${OEIL(e.masque)}</button>`}<span class="mv"><button data-m="-1" aria-label="Monter" ${fixe(i) || fixe(i - 1) || i === 0 ? 'disabled' : ''}>↑</button><button data-m="1" aria-label="Descendre" ${fixe(i) || fixe(i + 1) || i === M.ecrans.length - 1 ? 'disabled' : ''}>↓</button></span></li>`).join('');
+    ${fixe(i) ? '' : `<button type="button" class="oeil" data-oeil aria-pressed="${!!e.masque}" aria-label="${e.masque ? 'Montrer cet écran pendant la séance' : 'Masquer cet écran pendant la séance'}" title="${e.masque ? 'Écran masqué : cliquer pour le montrer' : 'Masquer cet écran pendant la séance'}">${OEIL(e.masque)}</button>`}<span class="mv"><button data-m="-1" aria-label="Monter" ${fixe(i) || fixe(i - 1) || i === 0 ? 'disabled' : ''}>↑</button><button data-m="1" aria-label="Descendre" ${fixe(i) || fixe(i + 1) || i === M.ecrans.length - 1 ? 'disabled' : ''}>↓</button></span></li>`)).join('');
 }
 function deplacer(de, vers) { // jamais avant la salle d'attente ni après la fin
   if (fixe(de)) return;
@@ -357,7 +359,7 @@ $('zone').addEventListener('click', ev => {
 });
 $('liste').addEventListener('click', ev => {
   if (ev.target.closest('[data-a=nouveau]')) return $('nouveau').showModal();
-  const og = ev.target.closest('[data-og]'); if (og) { onglet = og.dataset.og; const v = visibles(); if (!v.includes(sel)) { sel = v[0]; zone(); } return liste(); }
+  const og = ev.target.closest('[data-og]'); if (og) { const p = og.dataset.og; if (!fermes.delete(p)) fermes.add(p); return liste(); }
   const li = ev.target.closest('li[data-i]'); if (!li) return; const i = +li.dataset.i, m = ev.target.closest('[data-m]');
   if (ev.target.closest('[data-oeil]')) { M.ecrans[i].masque = !M.ecrans[i].masque; liste(); zone(); return change(); }
   if (m) return deplacer(i, i + +m.dataset.m);
