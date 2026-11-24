@@ -188,6 +188,7 @@ dialog h3{margin:0 0 6px;font-size:24px;font-weight:800;letter-spacing:-.03em}
   <ol id="liste" aria-label="Les écrans de la séance"></ol>
   <div id="zone"><div id="travail"></div>
     <dialog id="decoupe"><h3>Découper l'affiche</h3><p class="aide">Un cadre par élément de l'affiche (le titre, l'image, la date…). Glissez un cadre pour le déplacer, tirez un de ses coins pour changer sa taille. Pour un nouveau cadre : tracez-le à la souris sur l'affiche, ou utilisez « + Nouveau cadre ».</p>
+      <div class="ligne"><select id="typeAffiche" class="btn clair" style="width:auto" aria-label="Appliquer un type d'affiche"></select><button type="button" class="btn clair" data-a="typeNouveau" title="Garde ces cadres et leurs noms comme un type d'affiche, à réutiliser sur d'autres affiches depuis cet ordinateur.">Enregistrer ces cadres comme type</button></div>
       <div class="dec"><div id="decAffiche"></div><div class="c" id="decListe"></div></div>
       <div class="ligne"><button type="button" class="btn clair" data-a="plus">+ Nouveau cadre</button><button type="button" class="btn clair" data-a="decouper" title="Repère les blocs de l'affiche et repose les cadres. Vos cadres actuels sont remplacés (« Revenir en arrière » les retrouve).">Découper automatiquement</button><button type="button" class="btn clair" data-a="affiche" data-k="imgs.0">Changer l'affiche</button><button type="button" class="btn" data-a="finDecoupe" style="margin-left:auto">Terminer</button></div></dialog></div>
 </div>
@@ -195,7 +196,7 @@ dialog h3{margin:0 0 6px;font-size:24px;font-weight:800;letter-spacing:-.03em}
   <div class="ligne"><label class="btn clair">Ajouter une image<input type="file" accept="image/*" hidden id="ajout"></label><button class="btn clair" data-a="fermer">Fermer</button><span class="aide" id="etatImage"></span></div></dialog>
 <dialog id="nouveau"><h3>Ajouter un écran</h3><p class="aide">Il se place juste après l'écran choisi. Vous pourrez ensuite le déplacer.</p><div class="types" id="types"></div>
   <div class="ligne"><button class="btn clair" data-a="fermer">Fermer</button></div></dialog>
-<dialog id="creer"><h3>Nouveau test</h3><p class="aide">Un test à part, avec son propre lien et ses propres écrans. Le test principal ne change pas. Choisissez un nom, puis une structure de départ : tout reste modifiable ensuite.</p>
+<dialog id="creer"><h3>Nouveau test</h3><p class="aide">Un test à part, avec son propre lien et ses propres écrans. Le test principal ne change pas. Choisissez un nom, puis une structure de départ (un modèle, ou la copie d'un test déjà créé) : tout reste modifiable ensuite.</p>
   <label class="c">Nom du test<input type="text" id="nomTest" maxlength="60" placeholder="Par exemple : Affiches vaccination, décembre"></label>
   <div class="types" id="gabarits"></div>
   <div class="ligne"><button class="btn clair" data-a="fermer">Fermer</button><span class="aide" id="etatCreer" role="status"></span></div></dialog>
@@ -347,6 +348,9 @@ $('zone').addEventListener('click', ev => {
   if (a === 'decouper') return decouper(e);
   if (a === 'decoupe') return ouvrirDecoupe();
   if (a === 'finDecoupe') return $('decoupe').close();
+  if (a === 'typeNouveau') { const n = (prompt("Nom de ce type d'affiche (par exemple : Flyer A5, Kakémono) :") || '').replace(/\s+/g, ' ').trim().slice(0, 40); if (!n) return;
+    let p = {}; try { p = JSON.parse(localStorage.getItem('pdvTypes')) || {}; localStorage.setItem('pdvTypes', JSON.stringify({ ...p, [n]: { o: e.o, zones: e.zones } })); } catch (x) { return alert("Ce navigateur n'a pas pu garder le type."); }
+    return listeTypes(); }
   if (a === 'plus') { if (e.zones) { if (e.o.length > 9) return; e.zones.push([30, 40, 40, 20]); } e.o.push(e.zones ? 'Nouvelle zone' : 'Nouvelle réponse'); }
   if (a === 'moins') { const i = +b.dataset.i; e.o.splice(i, 1); if (e.zones) e.zones.splice(i, 1); if (e.jeu) e.bon = e.bon === i ? 0 : e.bon > i ? e.bon - 1 : e.bon; }
   if (a === 'vue') { vue = b.dataset.v; try { localStorage.setItem('pdvVue', vue); } catch (x) { } }
@@ -382,6 +386,20 @@ function dessinerDecoupe() { const e = M.ecrans[sel]; $('decAffiche').innerHTML 
 $('decoupe').addEventListener('close', () => zone()); // les noms tapés dans la fenêtre reviennent dans les réglages
 const ouvrirDecoupe = () => { if (!M.ecrans[sel].zones) return; dessinerDecoupe(); if (!$('decoupe').open) $('decoupe').showModal(); };
 const grille = () => ({ o: ['Le titre', "L'image", 'Le texte', 'La date et le lieu', 'Les logos'], zones: [[5, 3, 90, 17], [5, 22, 90, 33], [5, 57, 90, 18], [5, 77, 90, 10], [5, 89, 90, 9]] });
+// les types d'affiche : des jeux de cadres tout prêts, à poser d'un coup puis à ajuster. « Enregistrer ces cadres comme type » en ajoute.
+// shortcut: les types créés restent dans ce navigateur (localStorage), ils ne sont pas partagés entre ordinateurs ; les ranger dans le Google Sheet si toute l'équipe doit les retrouver.
+const TYPES_AFFICHE = { 'Affiche': grille(),
+  'Flyer': { o: ['Le titre', "L'image", 'Le texte', 'Les informations pratiques', 'Le contact ou le QR code'], zones: [[5, 3, 90, 15], [5, 20, 90, 30], [5, 52, 90, 20], [5, 74, 55, 22], [63, 74, 32, 22]] },
+  'Publication réseaux sociaux': { o: ["L'accroche", "L'image", 'Le texte', 'Le logo'], zones: [[5, 4, 90, 18], [5, 24, 90, 46], [5, 72, 62, 24], [70, 72, 25, 24]] } };
+const typesAffiche = () => { let p = {}; try { p = JSON.parse(localStorage.getItem('pdvTypes')) || {}; } catch (e) { } return { ...TYPES_AFFICHE, ...p }; };
+const listeTypes = () => { $('typeAffiche').innerHTML = '<option value="">Appliquer un type d’affiche…</option>' + Object.keys(typesAffiche()).map(n => `<option>${h(n)}</option>`).join(''); };
+listeTypes();
+$('typeAffiche').addEventListener('change', ev => { // ce qui vient du navigateur est remis au propre : des noms, et des nombres de 0 à 100
+  const t = typesAffiche()[ev.target.value], e = M.ecrans[sel]; ev.target.value = ''; if (!t || !e.zones || !Array.isArray(t.o) || !Array.isArray(t.zones)) return;
+  const n = Math.min(10, t.o.length, t.zones.length); if (n < 2) return;
+  e.o = t.o.slice(0, n).map(x => String(x).slice(0, 60)); e.zones = t.zones.slice(0, n).map(z => [0, 1, 2, 3].map(k => Math.max(0, Math.min(100, Math.round(+(z || [])[k]) || 0))));
+  zone(); liste(); change();
+});
 // Découpe automatique : sur une copie réduite de l'affiche, on cherche la couleur de fond (la plus fréquente), puis les bandes de lignes
 // « pleines » séparées par du fond. Au-delà de 5 blocs, les plus proches sont réunis. Chaque bloc est resserré sur ce qu'il contient.
 // shortcut: ne voit que des blocs séparés par un fond uni ; sur un fond photo (moins de 3 blocs trouvés) on pose la grille type, à corriger à la main. Passer à une vraie détection si cela arrive souvent.
@@ -570,7 +588,8 @@ async function creerTest(g) {
   if (!nom) { dit.textContent = "Donnez d'abord un nom au test."; return $('nomTest').focus(); }
   creation = true; dit.textContent = 'Création du test…';
   try {
-    const texte = g === 'principal' ? await lireFichier('') : ecrireSeance({ phases: JSON.parse(JSON.stringify(PHASES)), missions: MISSIONS.slice(), tests: JSON.parse(JSON.stringify(TESTS)), ecrans: g() });
+    const id = g === 'principal' ? '' : g; // un nom de test : on le copie ; celui qui est ouvert ici part avec les modifications en cours
+    const texte = typeof g === 'string' ? (id === TEST ? ecrireSeance(M) : await lireFichier(id)) : ecrireSeance({ phases: JSON.parse(JSON.stringify(PHASES)), missions: MISSIONS.slice(), tests: JSON.parse(JSON.stringify(TESTS)), ecrans: g() });
     await connexion('Modifier le test', 1);
     const r = await sauverTest({ id: nomCourt(nom), nom, texte, nouveau: true }); // le Sheet choisit un nom-court libre et note la création dans le journal
     location.href = 'modifier.html?test=' + r.id;
@@ -578,12 +597,14 @@ async function creerTest(g) {
 }
 $('gabarits').innerHTML = GABARITS.map((m, i) => `<button type="button" data-g="${i}"><b>${h(m[0])}</b><span>${h(m[1])}</span></button>`).join('');
 const nouveauTest = () => { $('etatCreer').textContent = ''; $('creer').showModal(); $('nomTest').focus(); };
-$('creer').addEventListener('click', ev => { if (ev.target.closest('[data-a=fermer]')) return $('creer').close(); const b = ev.target.closest('[data-g]'); if (b) creerTest(GABARITS[+b.dataset.g][2]); });
+$('creer').addEventListener('click', ev => { if (ev.target.closest('[data-a=fermer]')) return $('creer').close(); const b = ev.target.closest('[data-g]'); if (b) creerTest(GABARITS[+b.dataset.g][2]); const t = ev.target.closest('[data-t]'); if (t) creerTest(t.dataset.t); });
 // le choix du test modifié, et les liens qui suivent ce test
 listeTests().then(l => {
   if (TEST && !l.some(x => x.id === TEST)) l.push({ id: TEST, nom: TEST });
   NOM = (l.find(x => x.id === TEST) || {}).nom || NOM;
   $('test').innerHTML = l.map(x => `<option value="${h(x.id)}" ${x.id === TEST ? 'selected' : ''}>${h(x.nom)}</option>`).join('') + '<option value="+">+ Nouveau test…</option>';
+  // chaque test déjà créé est proposé comme modèle (le principal l'est déjà : « Notre structure »)
+  $('gabarits').insertAdjacentHTML('beforeend', l.filter(x => x.id).map(x => `<button type="button" data-t="${h(x.id)}"><b>Copie de « ${h(x.nom)} »</b><span>${x.id === TEST ? 'Le test ouvert ici, avec vos modifications en cours : mêmes écrans, mêmes affiches, à changer ensuite.' : 'Un test déjà créé : mêmes écrans, mêmes affiches, à changer ensuite.'}</span></button>`).join(''));
 });
 $('test').addEventListener('change', ev => { if (ev.target.value === '+') { ev.target.value = TEST; return nouveauTest(); } location.href = 'modifier.html' + (ev.target.value ? '?test=' + ev.target.value : ''); });
 if (location.hash === '#nouveau') { history.replaceState(null, '', location.pathname + location.search); nouveauTest(); } // « + Nouveau test » du profil
