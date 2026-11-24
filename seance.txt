@@ -58,7 +58,6 @@ test = Se lit-elle facilement, même de loin ? | Difficilement | Très facilemen
 test = Donne-t-elle envie d'y aller ? | Pas du tout | Tout à fait
 test = Vous en souviendrez-vous demain ? | Sûrement pas | Sûrement
 
-
 # ================= LA SÉANCE =================
 
 [accueil]
@@ -208,11 +207,6 @@ affiche a : affiches/origine-refaite.jpg
 affiche b : affiches/origine-dates-grosses.jpg
 affiche c : affiches/origine-dates-en-haut.jpg
 
-[a ou b] Sur laquelle voit-on le mieux que c'est gratuit ?
-étape : 2
-affiche a : affiches/origine-refaite.jpg
-affiche b : affiches/origine-gratuit.jpg
-
 [a ou b] Quelles couleurs préférez-vous ?
 étape : 2
 précision : Quatre couleurs, une seule couleur, puis un fond foncé.
@@ -328,17 +322,5 @@ de : Pas du tout
 [avis] Près de chez vous, où faudrait-il l'afficher ?
 étape : 3
 affiche : affiches/origine.jpg
-
-[mission]
-masqué : oui
-
-[photos]
-masqué : oui
-
-[tests]
-masqué : oui
-
-[palmarès]
-masqué : oui
 
 [fin]
