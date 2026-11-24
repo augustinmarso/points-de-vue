@@ -72,7 +72,7 @@ h1{margin:0;font-size:34px;line-height:.95;font-weight:800;letter-spacing:-.045e
 //    on corrige d'un clic si besoin, puis les réponses partent dans le Google Sheet comme celles des téléphones.
 const h = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])).replace(/ ([?!:;»])/g, '&nbsp;$1').replace(/« /g, '«&nbsp;');
 const $ = id => document.getElementById(id), LETTRES = 'ABCDEFGHIJ';
-const etiq = (e, i) => e.t === 'echelle' ? String(i + 1) : e.t === 'ab' ? ['A', 'B', '='][i] : LETTRES[i]; // ce qui est écrit dans chaque rond
+const etiq = (e, i) => e.t === 'echelle' ? String(i + 1) : e.t === 'ab' && i === e.o.length - 1 ? '=' : LETTRES[i]; // ce qui est écrit dans chaque rond
 const choix = e => e.t === 'echelle' ? ['1', '2', '3', '4', '5'] : e.o || []; // un avis libre n'a pas de rond
 const groupe = e => e.p ? 'Étape ' + e.p : "Jeu de l'œil";
 let vue = new URLSearchParams(location.search).get('vue'); if (vue !== 'diapos' && vue !== 'lire') vue = 'fiche';

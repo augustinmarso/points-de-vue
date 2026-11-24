@@ -48,8 +48,10 @@ header h1{margin:0;font-size:24px;font-weight:800;letter-spacing:-.04em;flex:1}
 .apercu .opts span{background:var(--t);border-radius:3cqw;padding:.8cqw 1.6cqw;font-weight:700;font-size:1.8cqw}
 .apercu .opts span.bon{background:var(--n);color:#fff}
 .apercu .d{display:flex;gap:1.5cqw;align-items:center;flex:none}
-.apercu .d img{max-height:46cqw;max-width:26cqw;border-radius:1.5cqw;display:block}
-.apercu .d.deux img{max-width:19cqw}
+.apercu .d img{max-height:46cqw;max-width:32cqw;border-radius:1.5cqw;display:block}
+.apercu .d.deux img{max-width:24cqw}.apercu .d.n3 img{max-width:17cqw}.apercu .d.n4 img{max-width:13.5cqw}
+.apercu .col{display:flex;flex-direction:column;align-items:center;gap:.6cqw;font-weight:800;font-size:2.2cqw}
+.apercu .d.deux .vide{width:8cqw;font-size:1.3cqw}
 .apercu.plein{background:var(--c)}
 .apercu.plein.p3{color:#fff}
 .apercu .in{overflow:auto}
@@ -94,7 +96,8 @@ header h1{margin:0;font-size:24px;font-weight:800;letter-spacing:-.04em;flex:1}
 .cote.tel .ronds{justify-content:space-between}.cote.tel .ronds i{background:var(--t)}
 .cote.papier .ronds i{box-shadow:inset 0 0 0 1px var(--n);color:#A8A8A8}
 .cote .bouts{display:flex;justify-content:space-between;gap:8px;font-size:9px}
-.cote .AB{display:flex;gap:8px;justify-content:center}.cote .AB i{width:64px;height:64px;font-size:28px;background:var(--c1)}.cote .AB i+i{background:var(--c3);color:#fff}
+.cote .AB{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}.cote .AB i{width:64px;height:64px;font-size:28px;background:var(--c1)}.cote .AB i+i{background:var(--c3);color:#fff}.cote .AB i:nth-child(3){background:var(--c2);color:inherit}.cote .AB i:nth-child(4){background:#141414}
+[hidden]{display:none!important}
 .cote .lignes{height:54px;background:repeating-linear-gradient(transparent 0 17px,var(--n) 17px 18px)}
 .cote .champ{background:var(--t);border-radius:14px;min-height:60px;padding:8px 10px;font-size:11px;color:var(--gris)}
 .cote .val{background:var(--n);color:#fff;border-radius:99px;text-align:center;padding:8px;font-weight:800;font-size:11px}
@@ -110,7 +113,7 @@ header h1{margin:0;font-size:24px;font-weight:800;letter-spacing:-.04em;flex:1}
 .apercu h2{font-size:30px}
 .apercu .opts span,.apercu .opts .plus{font-size:16px;padding:12px 16px;border-radius:22px;gap:8px}
 .apercu .opts span [contenteditable]{flex:1}
-.apercu .d img{max-width:100%;max-height:none;width:100%}.apercu .d.deux .im{flex:1}
+.apercu .d img{max-width:100%;max-height:none;width:100%}.apercu .d.deux .col{flex:1;font-size:18px}.apercu .d.deux{flex-wrap:wrap}.apercu .d.deux .vide{width:100%;font-size:15px}
 .apercu .vide{width:100%;aspect-ratio:3/1;font-size:15px;border-radius:14px}
 .apercu .im .x{top:-8px;right:-8px}
 }
@@ -162,6 +165,7 @@ dialog h3{margin:0 0 6px;font-size:24px;font-weight:800;letter-spacing:-.03em}
   <a href="./" aria-label="Accueil" title="Accueil"><svg viewBox="0 0 24 24" width="1.35em" height="1.35em" fill="currentColor" aria-hidden="true" style="vertical-align:-.3em"><path d="M12 3 2.5 11.2h2.7V21h5.3v-6h3v6h5.3v-9.8h2.7z"/></svg></a>
   <h1>Modifier le test</h1>
   <select class="btn clair" id="test" aria-label="Le test modifié"><option>Séance Points de vue (principale)</option></select>
+  <button class="btn clair" id="supprTest" hidden title="Supprime ce test et son lien. Les réponses déjà données restent dans le Google Sheet.">Supprimer ce test</button>
   <a class="btn clair" id="lancer" href="./?passer" target="_blank" rel="noopener">Lancer ce test</a>
   <span id="etat">Chargement…</span>
   <button class="btn clair" id="annuler" disabled title="Revient à l'état d'avant votre dernière modification. Plusieurs clics remontent plus loin.">← Revenir en arrière</button>
@@ -192,7 +196,7 @@ const h = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&l
 const $ = id => document.getElementById(id);
 let M = null, depart = '', sel = 0, images = [], cible = null; // cible = le champ d'affiche en cours de choix
 
-const TYPE = e => ({ accueil: "Salle d'attente", scores: 'Scores du jeu', mission: "Atelier : la consigne", photo: "Atelier : les photos", vote: "Atelier : les tests", palmares: "Atelier : le palmarès", fin: 'Fin', info: 'Texte', flash: 'Affiche 5 secondes', echelle: 'Note de 1 à 5', ab: 'Comparaison A / B' }[e.t]
+const TYPE = e => ({ accueil: "Salle d'attente", scores: 'Scores du jeu', mission: "Atelier : la consigne", photo: "Atelier : les photos", vote: "Atelier : les tests", palmares: "Atelier : le palmarès", fin: 'Fin', info: 'Texte', flash: 'Affiche 5 secondes', echelle: 'Note de 1 à 5', ab: 'Comparer des affiches' }[e.t]
   || (e.t === 'phase' ? "Titre d'étape" : e.jeu ? 'Question du jeu' : e.t === 'texte' ? 'Avis libre' : 'Question à choix'));
 const TITRE = e => e.q || e.h || (e.t === 'phase' ? M.phases[e.p].nom : e.t === 'flash' ? nomImage(e.img || '') : TYPE(e));
 const COUL = e => e.p ? `var(--c${e.p})` : '#141414';
@@ -219,7 +223,7 @@ function deplacer(de, vers) { // jamais avant la salle d'attente ni après la fi
 
 // un texte de l'écran, modifiable sur place : k = le champ (ou le numéro de la réponse)
 const ed = (tag, k, v, vide, cls) => `<${tag} ${cls ? `class="${cls}" ` : ''}contenteditable="plaintext-only" spellcheck="false" role="textbox" aria-label="${h(vide)}" data-vide="${h(vide)}" ${typeof k === 'number' ? `data-o="${k}"` : `data-k="${k}"`}>${h(v)}</${tag}>`;
-const img = (k, v, retirable) => v ? `<span class="im"><button type="button" data-a="affiche" data-k="${k}" title="Changer l'affiche"><img src="${h(v)}" alt="Affiche ${h(nomImage(v))} : cliquer pour la changer"></button>${retirable ? `<button type="button" class="x" data-a="sansAffiche" aria-label="Retirer l'affiche" title="Retirer l'affiche">×</button>` : ''}</span>`
+const img = (k, v, retirable) => v ? `<span class="im"><button type="button" data-a="affiche" data-k="${k}" title="Changer l'affiche"><img src="${h(v)}" alt="Affiche ${h(nomImage(v))} : cliquer pour la changer"></button>${retirable ? `<button type="button" class="x" data-a="sansAffiche" data-k="${k}" aria-label="Retirer l'affiche" title="Retirer l'affiche">×</button>` : ''}</span>`
   : `<button type="button" class="vide" data-a="affiche" data-k="${k}">+ Ajouter une affiche</button>`;
 function apercu(e) {
   const t = e.p ? `--t:var(--t${e.p});--c:var(--c${e.p})` : '--t:var(--fond);--c:#141414';
@@ -236,10 +240,10 @@ function apercu(e) {
       : e.o.map((x, i) => `<span class="${e.jeu && i === e.bon ? 'bon' : ''}">${e.jeu ? `<button type="button" class="ok" data-a="bon" data-i="${i}" aria-pressed="${i === e.bon}" aria-label="Bonne réponse" title="C'est la bonne réponse">✓</button>` : ''}${ed('span', i, x, 'Réponse ' + (i + 1))}<button type="button" class="x" data-a="moins" data-i="${i}" aria-label="Retirer cette réponse" title="Retirer cette réponse" ${e.o.length < 3 ? 'disabled' : ''}>×</button></span>`).join('')
         + `<button type="button" class="plus" data-a="plus" ${e.o.length > 8 ? 'disabled' : ''}>+ Réponse</button>`;
     g = `<div class="sur">${e.p ? 'Étape ' + e.p + ' · ' + h(M.phases[e.p].nom) : e.jeu ? "Le jeu de l'œil" : ''}</div>${ed('h2', 'q', e.q, 'La question')}${e.jeu ? '' : ed('div', 'note', e.note || '', 'Précision sous la question (facultatif)')}${vue === 'tel' ? '' : `<div class="opts${e.t === 'echelle' || e.t === 'texte' ? '' : ' lettres'}">${o}</div>`}`;
-    im = e.t === 'ab' ? img('imgs.0', (e.imgs || [])[0]) + img('imgs.1', (e.imgs || [])[1]) : e.jeu ? img('img', e.img) : img('imgs.0', (e.imgs || [])[0], 1);
+    im = e.t === 'ab' ? e.imgs.map((v, i) => `<span class="col">${img('imgs.' + i, v, e.imgs.length > 2)}<b>${'ABCD'[i]}</b></span>`).join('') + (e.imgs.length < 4 ? `<button type="button" class="vide" data-a="affiche" data-k="imgs.${e.imgs.length}">+ Affiche ${'ABCD'[e.imgs.length]}</button>` : '') : e.jeu ? img('img', e.img) : img('imgs.0', (e.imgs || [])[0], 1);
   }
   else g = `<div class="sur">${h(TYPE(e))}</div><h2>${h({ accueil: 'Bienvenue !', scores: 'Les réussites', photo: 'Vos affiches', palmares: 'Le palmarès', fin: 'Merci !' }[e.t])}</h2>`;
-  return `<div class="apercu ${vue}${cls}${e.masque ? ' cache' : ''}" style="${t}"><div class="in"><div class="g">${g}</div>${im ? `<div class="d${e.t === 'ab' ? ' deux' : ''}">${im}</div>` : ''}</div></div>`;
+  return `<div class="apercu ${vue}${cls}${e.masque ? ' cache' : ''}" style="${t}"><div class="in"><div class="g">${g}</div>${im ? `<div class="d${e.t === 'ab' ? ' deux n' + e.imgs.length : ''}">${im}</div>` : ''}</div></div>`;
 }
 
 // ce que le participant a devant lui pendant que le grand écran montre cet écran : son téléphone, ou sa fiche à imprimer (lecture seule, suit la frappe)
@@ -250,7 +254,7 @@ function cote(e) {
   if (vue === 'tel') x = !Q ? `<p class="att">${['mission', 'photo', 'vote'].includes(e.t) ? "Atelier : le binôme photographie son affiche, puis note celles des autres." : e.t === 'accueil' ? 'Le participant écrit son prénom et attend le début.' : 'Regardez le grand écran.'}</p>`
     : `<small>${e.p ? 'Étape ' + e.p : e.jeu ? "Le jeu de l'œil" : ''}</small>${ed('b', 'q', e.q, 'La question', 'q')}` + (
       e.t === 'echelle' ? `<div class="ronds">${[1, 2, 3, 4, 5].map(n => `<i>${n}</i>`).join('')}</div><div class="bouts">${ed('span', 'a', e.a, 'Sens de la note 1')}${ed('span', 'b', e.b, 'Sens de la note 5')}</div>`
-      : e.t === 'ab' ? `<div class="AB"><i>A</i><i>B</i></div><span class="o">${h(o[2])}</span>`
+      : e.t === 'ab' ? `<div class="AB">${o.slice(0, -1).map(l => `<i>${l}</i>`).join('')}</div><span class="o">${h(o[o.length - 1])}</span>`
       : e.t === 'texte' ? `<span class="champ">Votre réponse</span><span class="val">Valider</span>`
       : o.map((r, i) => `<span class="o${e.jeu && i === e.bon ? ' bon' : ''}">${e.jeu ? `<button type="button" class="ok" data-a="bon" data-i="${i}" aria-pressed="${i === e.bon}" aria-label="Bonne réponse" title="C'est la bonne réponse">✓</button>` : ''}${ed('span', i, r, 'Réponse ' + (i + 1))}<button type="button" class="x" data-a="moins" data-i="${i}" aria-label="Retirer cette réponse" title="Retirer cette réponse" ${o.length < 3 ? 'disabled' : ''}>×</button></span>`).join('')
         + `<button type="button" class="plus" data-a="plus" ${o.length > 8 ? 'disabled' : ''}>+ Réponse</button>` + (e.t === 'multi' ? `<small>Plusieurs réponses possibles.</small><span class="val">Valider</span>` : ''));
@@ -258,7 +262,7 @@ function cote(e) {
     : `<b class="q">${M.ecrans.slice(0, sel + 1).filter(y => y.q != null && !y.masque).length}. ${ed('span', 'q', e.q, 'La question')}${e.t === 'multi' ? ' *' : ''}</b>` + (
       e.t === 'texte' ? `<small>Écrivez votre réponse sur les lignes.</small><div class="lignes"></div>`
       : (e.t === 'echelle' ? `<small>1 = ${ed('span', 'a', e.a, 'Sens de la note 1')} · 5 = ${ed('span', 'b', e.b, 'Sens de la note 5')}</small>` : e.t === 'ab' ? `<small>= si vous ne voyez pas de différence.</small>` : '')
-        + `<div class="ronds">${(e.t === 'echelle' ? ['1', '2', '3', '4', '5'] : e.t === 'ab' ? ['A', 'B', '='] : o.map((_, i) => 'ABCDEFGHIJ'[i])).map(l => `<i>${l}</i>`).join('')}</div>`);
+        + `<div class="ronds">${(e.t === 'echelle' ? ['1', '2', '3', '4', '5'] : e.t === 'ab' ? [...o.slice(0, -1), '='] : o.map((_, i) => 'ABCDEFGHIJ'[i])).map(l => `<i>${l}</i>`).join('')}</div>`);
   return `<aside class="cote ${vue}" style="${t}" aria-label="${vue === 'tel' ? 'Le téléphone du participant' : 'La fiche à imprimer'}"><div class="ecr">${x}</div>${vue === 'tel' ? 'Sur le téléphone du participant' : 'Sur la fiche à imprimer'}</aside>`;
 }
 // les trois versions d'une même séance : on passe de l'une à l'autre d'un clic, et « Prévisualiser » ouvre celle qui est choisie
@@ -307,7 +311,7 @@ $('zone').addEventListener('click', ev => {
   if (a === 'moins') { const i = +b.dataset.i; e.o.splice(i, 1); if (e.jeu) e.bon = e.bon === i ? 0 : e.bon > i ? e.bon - 1 : e.bon; }
   if (a === 'vue') { vue = b.dataset.v; try { localStorage.setItem('pdvVue', vue); } catch (x) { } }
   if (a === 'bon') e.bon = +b.dataset.i;
-  if (a === 'sansAffiche') e.imgs = [];
+  if (a === 'sansAffiche') { if (e.t === 'ab') { e.imgs.splice(+b.dataset.k.split('.')[1], 1); e.o = optsAB(e.imgs.length); } else e.imgs = []; }
   if (a === 'dupliquer') { M.ecrans.splice(sel + 1, 0, JSON.parse(JSON.stringify({ ...e, id: undefined }))); sel++; }
   if (a === 'supprimer') { if (!confirm('Supprimer cet écran ? Pour seulement le retirer de la séance, cochez plutôt « Masquer ».')) return; M.ecrans.splice(sel, 1); sel = Math.min(sel, M.ecrans.length - 1); }
   if (a === 'affiche') { cible = b.dataset.k; return galerie(); }
@@ -334,7 +338,7 @@ function galerie() {
 $('galerie').addEventListener('click', ev => {
   const b = ev.target.closest('[data-img]'); if (ev.target.closest('[data-a=fermer]')) return $('galerie').close(); if (!b) return;
   if (cible === 'parcours') { $('galerie').close(); return inserer(p => parcours(b.dataset.img, p)); }
-  const e = M.ecrans[sel]; if (cible === 'img') e.img = b.dataset.img; else { e.imgs = e.imgs || []; e.imgs[+cible.split('.')[1]] = b.dataset.img; }
+  const e = M.ecrans[sel]; if (cible === 'img') e.img = b.dataset.img; else { e.imgs = e.imgs || []; e.imgs[+cible.split('.')[1]] = b.dataset.img; if (e.t === 'ab') e.o = optsAB(e.imgs.length); }
   $('galerie').close(); zone(); liste(); change();
 });
 $('ajout').addEventListener('change', async ev => { // une nouvelle image : réduite, puis gardée dans le test lui-même (enregistrée avec lui)
@@ -353,7 +357,7 @@ function verifier() { // ce qui empêcherait une question de passer
   for (const [i, e] of M.ecrans.entries()) {
     if (e.q != null && !e.q.trim()) return [i, 'Cette question est vide.'];
     if (e.o && e.t !== 'echelle' && e.t !== 'ab' && e.o.filter(o => o.trim()).length < 2) return [i, 'Il faut au moins deux réponses.'];
-    if (e.t === 'ab' && !((e.imgs || [])[0] && e.imgs[1])) return [i, 'Il faut une affiche A et une affiche B.'];
+    if (e.t === 'ab' && !(e.imgs.length > 1 && e.imgs.every(Boolean))) return [i, 'Il manque une affiche à comparer : choisissez-la ou retirez-la.'];
   }
 }
 async function enregistrer() {
@@ -371,14 +375,14 @@ const previsualiser = () => {
 addEventListener('beforeunload', ev => { if (M && ecrireSeance(M) !== depart) ev.preventDefault(); });
 
 // ---------- ajouter un écran à partir d'un modèle ----------
-// le parcours type d'une affiche : vue 5 secondes, ce qu'on a vu, trois notes, un avis. Le nom de l'affiche est dans chaque question
+// le parcours type d'une affiche : vue 5 secondes, ce qu'on a vu, trois questions, un avis. Le nom de l'affiche est dans chaque question
 // pour que les réponses de deux affiches ne se mélangent jamais dans les données.
-const parcours = (img, p) => { const n = nomImage(img), cinq = ['1', '2', '3', '4', '5']; return [
+const parcours = (img, p) => { const n = nomImage(img); return [
   { t: 'flash', img, ...p },
   { t: 'choix', q: n + " : qu'avez-vous vu en premier ?", o: ['Le titre', "L'image", 'La date ou le lieu', 'Les couleurs', 'Rien de précis'], ...p },
-  { t: 'echelle', q: n + ' : le texte se lit-il facilement ?', o: cinq, a: 'Très difficilement', b: 'Très facilement', imgs: [img], ...p },
-  { t: 'echelle', q: n + " : comprend-on vite de quoi il s'agit ?", o: cinq, a: 'Pas du tout', b: 'Tout de suite', imgs: [img], ...p },
-  { t: 'echelle', q: n + " : donne-t-elle envie d'y aller ?", o: cinq, a: 'Pas du tout', b: 'Beaucoup', imgs: [img], ...p },
+  { t: 'choix', q: n + ' : le texte se lit-il facilement ?', o: ['Très facilement', 'Plutôt facilement', 'Plutôt difficilement', 'Très difficilement'], imgs: [img], ...p },
+  { t: 'choix', q: n + " : comprend-on vite de quoi il s'agit ?", o: ['Tout de suite', 'Assez vite', 'Avec du mal', 'Pas du tout'], imgs: [img], ...p },
+  { t: 'choix', q: n + " : donne-t-elle envie d'y aller ?", o: ['Beaucoup', 'Un peu', 'Pas vraiment', 'Pas du tout'], imgs: [img], ...p },
   { t: 'texte', q: n + ' : que changeriez-vous ?', imgs: [img], ...p }]; };
 function inserer(faire) { // juste après l'écran choisi, dans la même étape, jamais après la fin
   const p = M.ecrans.slice(0, sel + 1).reverse().find(x => x.p), ou = Math.min(sel + 1, M.ecrans.length - (M.ecrans[M.ecrans.length - 1].t === 'fin' ? 1 : 0));
@@ -387,14 +391,13 @@ function inserer(faire) { // juste après l'écran choisi, dans la même étape,
   const li = $('liste').querySelector(`[data-i="${sel}"]`); if (li) li.scrollIntoView({ block: 'center' });
 }
 const MODELES = [
-  ['Une affiche à tester', "Choisissez votre affiche : ses écrans s'ajoutent d'un coup (5 secondes, ce qu'on a vu, trois notes, un avis libre). Tout reste modifiable.", 'affiche'],
+  ['Une affiche à tester', "Choisissez votre affiche : ses écrans s'ajoutent d'un coup (5 secondes, ce qu'on a vu, trois questions, un avis libre). Tout reste modifiable.", 'affiche'],
   ['Page libre', 'Un petit titre, un grand titre, une phrase et une image si vous voulez.', () => ({ t: 'info', s: 'Petit titre', h: 'Grand titre', x: 'Votre phrase.' })],
   ['Question à choix', 'Une question, plusieurs réponses au choix.', p => ({ t: 'choix', q: 'Votre question ?', o: ['Réponse 1', 'Réponse 2', 'Réponse 3'], ...p })],
-  ['Note de 1 à 5', 'Les participants donnent une note.', p => ({ t: 'echelle', q: 'Votre question ?', o: ['1', '2', '3', '4', '5'], a: 'Pas du tout', b: 'Tout à fait', ...p })],
   ['Avis libre', 'Chacun écrit son avis en quelques mots. Les réponses apparaissent sur le grand écran.', p => ({ t: 'texte', q: 'Que changeriez-vous sur cette affiche ?', ...p })],
   ['Oui ou non', 'Une question rapide, trois réponses toutes prêtes.', p => ({ t: 'choix', q: 'Votre question ?', o: ['Oui', 'Non', 'Je ne sais pas'], ...p })],
   ['Ressenti', 'Ce que l\'affiche fait ressentir, plusieurs réponses possibles.', p => ({ t: 'multi', q: 'Que ressentez-vous devant cette affiche ?', o: ['De la curiosité', 'De la confiance', "De l'envie", 'De la surprise', "De l'indifférence", 'De la confusion', "De l'agacement"], ...p })],
-  ['Comparaison A / B', 'Deux affiches côte à côte, on choisit.', p => ({ t: 'ab', q: 'Laquelle préférez-vous ?', o: ['A', 'B', 'Aucune différence'], imgs: [images[0], images[1] || images[0]], ...p })],
+  ['Comparer des affiches', 'De 2 à 4 affiches côte à côte (A, B, C, D), on choisit.', p => ({ t: 'ab', q: 'Laquelle préférez-vous ?', o: ['A', 'B', 'Aucune différence'], imgs: [images[0], images[1] || images[0]], ...p })],
   ['Affiche 5 secondes', 'Une affiche montrée 5 secondes, puis cachée.', () => ({ t: 'flash', img: images[0] })],
   ['Question du jeu', 'Une question avec une bonne réponse, qui compte dans les scores.', () => ({ t: 'choix', jeu: 1, q: 'Votre question ?', o: ['La bonne réponse', 'Une autre réponse', 'Une autre réponse'], bon: 0, img: images[0] })]
 ];
@@ -407,12 +410,11 @@ $('nouveau').addEventListener('click', ev => {
   inserer(m);
 });
 // ---------- un nouveau test : une ligne de plus dans l'onglet « Tests » du Google Sheet, à partir d'une structure de départ ----------
-const cinq = ['1', '2', '3', '4', '5'];
 const affiche = re => images.find(x => re.test(x)) || images[0];
 const debut = (titre, phrase) => [{ t: 'accueil' }, { t: 'info', s: 'Pour commencer', h: titre, x: phrase }];
 const GABARITS = [
   ['Notre structure', "La séance Points de vue complète : le jeu de l'œil, les trois étapes et l'atelier en binômes. Vous changez ensuite les affiches et les questions.", 'principal'],
-  ['Une affiche à tester', "Pour un graphiste qui fait tester son affiche : vue 5 secondes, ce qu'on a vu, trois notes, un avis libre.", () => [...debut('Une affiche à tester', "Elle apparaît 5 secondes, puis quelques questions. Il n'y a pas de bonne ou de mauvaise réponse."), ...parcours(affiche(/reference/), { p: 1 }), { t: 'fin' }]],
+  ['Une affiche à tester', "Pour un graphiste qui fait tester son affiche : vue 5 secondes, ce qu'on a vu, trois questions, un avis libre.", () => [...debut('Une affiche à tester', "Elle apparaît 5 secondes, puis quelques questions. Il n'y a pas de bonne ou de mauvaise réponse."), ...parcours(affiche(/reference/), { p: 1 }), { t: 'fin' }]],
   ['Comparer deux affiches', 'Deux versions côte à côte, trois comparaisons A / B, puis ce qui fait la différence.', () => {
     const a = affiche(/origine/), b = affiche(/reference/), ab = q => ({ t: 'ab', q, o: ['A', 'B', 'Aucune différence'], imgs: [a, b], p: 2 });
     return [...debut('Deux affiches', "Pour chaque question, choisissez l'affiche A ou l'affiche B."), ab('Laquelle comprenez-vous le plus vite ?'), ab('Laquelle liriez-vous de loin ?'), ab("Laquelle vous donne le plus envie d'y aller ?"), { t: 'texte', q: "Qu'est-ce qui fait la différence pour vous ?", imgs: [b], p: 2 }, { t: 'fin' }];
@@ -421,26 +423,28 @@ const GABARITS = [
     const a = affiche(/reference/);
     return [...debut('Une affiche, six questions', "Elle apparaît 5 secondes, puis quelques questions. Il n'y a pas de bonne ou de mauvaise réponse."), { t: 'flash', img: a, p: 1 },
       { t: 'multi', q: 'Après 5 secondes, que vous reste-t-il en tête ?', o: ['Le titre', 'Une image', 'Une couleur', 'La date', 'Le lieu', 'Le sujet de santé', 'Presque rien'], p: 1 },
-      { t: 'echelle', q: "Après l'avoir vue, savez-vous quoi faire ?", o: cinq, a: 'Pas du tout', b: 'Parfaitement', imgs: [a], p: 1 },
+      { t: 'choix', q: "Après l'avoir vue, savez-vous quoi faire ?", o: ['Parfaitement', 'À peu près', 'Pas vraiment', 'Pas du tout'], imgs: [a], p: 1 },
       { t: 'choix', q: "Où votre regard s'est-il posé en premier ?", o: ['Le titre', "L'image", 'Les couleurs', 'La date et le lieu', 'Les logos', 'Ailleurs'], imgs: [a], p: 2 },
       { t: 'multi', q: "Qu'est-ce qui gêne la lecture ?", o: ['Des mots trop techniques', 'Trop de texte', 'Des lettres trop petites', 'Un manque de contraste', 'Rien, tout est clair'], imgs: [a], p: 2 },
-      { t: 'echelle', q: 'Cette information vous serait-elle utile, à vous ou à un proche ?', o: cinq, a: 'Pas du tout', b: 'Tout à fait', imgs: [a], p: 3 },
+      { t: 'choix', q: 'Cette information vous serait-elle utile, à vous ou à un proche ?', o: ['Tout à fait', 'Plutôt oui', 'Plutôt non', 'Pas du tout'], imgs: [a], p: 3 },
       { t: 'texte', q: 'Que changeriez-vous sur cette affiche ?', imgs: [a], p: 3 }, { t: 'fin' }];
   }],
   ['Page blanche', "Juste l'accueil et la fin : vous ajoutez vos écrans un par un.", () => [{ t: 'accueil' }, { t: 'fin' }]]
 ];
 const nomCourt = nom => nom.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-zA-Z0-9]+/g, '-').replace(/^-|-$/g, '').toLowerCase().slice(0, 30) || 'test';
 console.assert(nomCourt('Affiches vaccination, décembre !') === 'affiches-vaccination-decembre' && nomCourt('???') === 'test', 'nomCourt');
+let creation = false; // un second clic pendant la création faisait un deuxième test (« nom-2 »)
 async function creerTest(g) {
+  if (creation) return;
   const nom = $('nomTest').value.replace(/[|\r\n]+/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 60), dit = $('etatCreer');
   if (!nom) { dit.textContent = "Donnez d'abord un nom au test."; return $('nomTest').focus(); }
-  dit.textContent = 'Création du test…';
+  creation = true; dit.textContent = 'Création du test…';
   try {
     const texte = g === 'principal' ? await lireFichier('') : ecrireSeance({ phases: JSON.parse(JSON.stringify(PHASES)), missions: MISSIONS.slice(), tests: JSON.parse(JSON.stringify(TESTS)), ecrans: g() });
     await connexion('Modifier le test', 1);
     const r = await sauverTest({ id: nomCourt(nom), nom, texte, nouveau: true }); // le Sheet choisit un nom-court libre et note la création dans le journal
     location.href = 'modifier.html?test=' + r.id;
-  } catch (err) { dit.textContent = 'Pas créé : ' + err.message + '.'; }
+  } catch (err) { creation = false; dit.textContent = 'Pas créé : ' + err.message + '.'; }
 }
 $('gabarits').innerHTML = GABARITS.map((m, i) => `<button type="button" data-g="${i}"><b>${h(m[0])}</b><span>${h(m[1])}</span></button>`).join('');
 const nouveauTest = () => { $('etatCreer').textContent = ''; $('creer').showModal(); $('nomTest').focus(); };
@@ -454,6 +458,13 @@ listeTests().then(l => {
 $('test').addEventListener('change', ev => { if (ev.target.value === '+') { ev.target.value = TEST; return nouveauTest(); } location.href = 'modifier.html' + (ev.target.value ? '?test=' + ev.target.value : ''); });
 if (location.hash === '#nouveau') { history.replaceState(null, '', location.pathname + location.search); nouveauTest(); } // « + Nouveau test » du profil
 $('lancer').href = './?passer' + TQ;
+$('supprTest').hidden = !TEST; // le test principal ne se supprime pas
+$('supprTest').addEventListener('click', async () => {
+  if (!confirm('Supprimer le test « ' + NOM + ' » ? Son lien ne marchera plus. Les réponses déjà données restent dans le Google Sheet.')) return;
+  $('etat').textContent = 'Suppression…';
+  try { await connexion('Modifier le test', 1); await supprimerTest(TEST); depart = ecrireSeance(M); location.href = 'modifier.html'; }
+  catch (err) { $('etat').textContent = 'Pas supprimé : ' + err.message + '.'; }
+});
 
 // ---------- démarrage ----------
 function charger() { M = { phases: PHASES, missions: MISSIONS.slice(), tests: TESTS, ecrans: TOUS }; sel = Math.min(sel, M.ecrans.length - 1); liste(); zone(); change(); }
