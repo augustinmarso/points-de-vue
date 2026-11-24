@@ -184,22 +184,40 @@ affiche : affiches/origine.jpg
 
 [a ou b] Sur laquelle le titre se détache-t-il le mieux ?
 étape : 2
-précision : Deux tailles de titre.
-affiche a : affiches/origine.jpg
-affiche b : affiches/origine.jpg
-masqué : oui
+précision : Deux écritures du titre : manuscrite, puis droite.
+affiche a : affiches/origine-refaite.jpg
+affiche b : affiches/origine-titre-droit.jpg
 
 [a ou b] Laquelle liriez-vous de loin ?
 étape : 2
 précision : Deux contrastes.
-affiche a : affiches/origine.jpg
-affiche b : affiches/couleurs-multi.jpg
+affiche a : affiches/origine-refaite.jpg
+affiche b : affiches/origine-contraste-fort.jpg
 
 [a ou b] Laquelle est la plus claire ?
 étape : 2
 précision : Une version chargée, puis une version allégée.
-affiche a : affiches/couleurs-multi.jpg
-affiche b : affiches/origine.jpg
+affiche a : affiches/origine-refaite.jpg
+affiche b : affiches/origine-allegee.jpg
+
+[a ou b] Sur laquelle trouvez-vous la date le plus vite ?
+étape : 2
+précision : La date d'origine, la date en plus gros, puis la date tout en haut.
+affiche a : affiches/origine-refaite.jpg
+affiche b : affiches/origine-dates-grosses.jpg
+affiche c : affiches/origine-dates-en-haut.jpg
+
+[a ou b] Sur laquelle voit-on le mieux que c'est gratuit ?
+étape : 2
+affiche a : affiches/origine-refaite.jpg
+affiche b : affiches/origine-gratuit.jpg
+
+[a ou b] Quelles couleurs préférez-vous ?
+étape : 2
+précision : Quatre couleurs, une seule couleur, puis un fond foncé.
+affiche a : affiches/origine-refaite.jpg
+affiche b : affiches/origine-une-couleur.jpg
+affiche c : affiches/origine-fond-fonce.jpg
 
 [question] Que vous évoque l'image de cette affiche ?
 étape : 2
