@@ -401,6 +401,7 @@ $('zone').addEventListener('click', ev => {
   if (a === 'decoupe') return ouvrirDecoupe();
   if (a === 'cadrer') return ouvrirCadrage();
   if (a === 'finCadrage') return $('cadrage').close();
+  if (a === 'cadreZone') { const z = decoupeDe(CADR.imgs[0]).zones[+b.dataset.i].slice(); if (CADR.zoomI >= 0) CADR.zones[CADR.zoomI] = z; else CADR.zoomI = CADR.zones.push(z) - 1; return finCadrage(); }
   if (a === 'cadreZoom') { const i = +b.dataset.i; CADR.zoomI = CADR.zoomI === i ? -1 : i; return finCadrage(); }
   if (a === 'cadreMoins') { const i = +b.dataset.i; CADR.zones.splice(i, 1); CADR.o.splice(i, 1); CADR.zoomI = CADR.zoomI === i ? -1 : CADR.zoomI > i ? CADR.zoomI - 1 : CADR.zoomI; return finCadrage(); }
   if (a === 'cacher') { const i = +b.dataset.i; (e.caches = e.caches || []).push({ n: e.o[i], z: e.zones[i] }); e.o.splice(i, 1); e.zones.splice(i, 1); }
@@ -534,6 +535,7 @@ $('zone').addEventListener('pointerdown', ev => {
 // ---------- cadrer l'affiche d'une question : des parties masquées, ou un seul élément montré en très gros ----------
 // CADR = les rectangles en cours dans la fenêtre (même forme qu'un écran à zones, pour le même geste à la souris) ; zoomI = celui qui est montré en gros
 let CADR = null;
+const decoupeDe = src => M.ecrans.find(x => x.zones && x.zones.length && (x.imgs || [])[0] === src);
 function ouvrirCadrage() {
   const e = M.ecrans[sel], src = (e.imgs || [])[0]; if (!src) return;
   const z = (e.caches || []).map(c => c.z.slice()); if (e.zoom) z.push(e.zoom.slice());
@@ -545,6 +547,8 @@ function dessinerCadrage() {
   $('cadAffiche').innerHTML = zonesEd(CADR); const g = $('cadAffiche').querySelector(`[data-z="${CADR.zoomI}"]`); if (g) g.classList.add('gros');
   $('cadListe').innerHTML = CADR.zones.length ? '<b>Vos rectangles</b>' + CADR.zones.map((_, i) => `<div class="rep"><b class="lz">${LZ[i]}</b><span style="flex:1">${i === CADR.zoomI ? 'Montrée en très gros' : 'Partie masquée'}</span><button type="button" class="btn clair" style="width:auto;height:auto;border-radius:99px" data-a="cadreZoom" data-i="${i}">${i === CADR.zoomI ? 'Masquer plutôt' : 'Montrer en très gros'}</button><button type="button" data-a="cadreMoins" data-i="${i}" aria-label="Supprimer le rectangle ${LZ[i]}" title="Supprimer ce rectangle">×</button></div>`).join('')
     : "<b>Aucun rectangle</b><small>L'affiche est montrée en entier. Tracez un rectangle dessus pour masquer une partie.</small>";
+  const dec = decoupeDe(CADR.imgs[0]); // les zones déjà découpées sur cette affiche (écran « Affiche découpée en zones ») servent aussi à montrer une partie en gros
+  if (dec) $('cadListe').innerHTML += '<b>Les zones déjà découpées</b><small>Un clic : l’écran ne montre plus que cette zone, en très gros.</small><div class="ligne">' + dec.o.map((n, i) => `<button type="button" class="btn clair" style="width:auto;height:auto;border-radius:99px;padding:8px 14px" data-a="cadreZone" data-i="${i}">${h(n)}</button>`).join('') + '</div>';
 }
 function finCadrage() { // ce qui est dans la fenêtre devient le cadrage de l'écran
   const e = M.ecrans[sel]; CADR.o = CADR.zones.map(() => '');
