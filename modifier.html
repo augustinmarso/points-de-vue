@@ -532,6 +532,7 @@ function galerie() {
 $('galerie').addEventListener('click', ev => {
   const b = ev.target.closest('[data-img]'); if (ev.target.closest('[data-a=fermer]')) return $('galerie').close(); if (!b) return;
   if (cible === 'parcours') { $('galerie').close(); return inserer(p => parcours(b.dataset.img, p)); }
+  if (cible === 'gabarit') { $('galerie').close(); return creerTest(() => toutesEtapes(b.dataset.img)); }
   const e = M.ecrans[sel]; if (cible === 'img') e.img = b.dataset.img; else { e.imgs = e.imgs || []; e.imgs[+cible.split('.')[1]] = b.dataset.img; if (e.t === 'ab') e.o = optsAB(e.imgs.length); }
   if (!e.zones) { delete e.caches; delete e.zoom; delete e.r; } // une autre affiche : le cadrage de l'ancienne ne vaut plus
   $('galerie').close(); if (e.zones) return decouper(e); zone(); liste(); change();
@@ -627,8 +628,32 @@ $('nouveau').addEventListener('click', ev => {
 // ---------- un nouveau test : une ligne de plus dans l'onglet « Tests » du Google Sheet, à partir d'une structure de départ ----------
 const affiche = re => images.find(x => re.test(x)) || images[0];
 const debut = (titre, phrase) => [{ t: 'accueil' }, { t: 'info', s: 'Pour commencer', h: titre, x: phrase }];
+// une seule affiche, suivie sur les trois étapes : les questions de la séance Points de vue qui ne demandent qu'une affiche (ni jeu de l'œil, ni comparaisons, ni atelier)
+async function toutesEtapes(img) {
+  const i = [img], zones = { t: 'choix', q: "Où votre regard s'est-il posé en premier ?", imgs: i, ...grille(), p: 2 }; await decouper(zones); // la découpe automatique de cette affiche
+  return [...debut('Une affiche, trois étapes', "Vous allez regarder une affiche, puis répondre à quelques questions. Il n'y a pas de bonne ou de mauvaise réponse : si quelque chose n'est pas clair, c'est l'affiche qui est en cause."),
+    { t: 'phase', p: 1 }, { t: 'flash', img, p: 1 },
+    { t: 'multi', q: 'Après 5 secondes, que vous reste-t-il en tête ?', o: ['Le titre', 'Une image', 'Une couleur', 'La date', 'Le lieu', 'Un logo', 'Le sujet de santé', 'Une impression générale', 'Presque rien'], p: 1 },
+    { t: 'multi', q: 'À quoi cette affiche vous invite-t-elle ?', o: ['Participer à un atelier', 'Donner mon avis', "Assister à une réunion d'information", 'Faire un dépistage ou un bilan', 'Rencontrer des professionnels', "M'inscrire quelque part", 'Je ne vois pas'], imgs: i, p: 1 },
+    { t: 'multi', q: "À votre avis, à qui s'adresse-t-elle ?", o: ['À moi', 'Aux personnes âgées', 'Aux familles', 'Aux jeunes', 'Aux professionnels', 'Difficile à dire'], imgs: i, p: 1 },
+    { t: 'echelle', q: "Après l'avoir vue, savez-vous quoi faire ?", a: 'Pas du tout', b: 'Parfaitement', imgs: i, p: 1 },
+    { t: 'multi', q: "Qu'est-ce qui pourrait vous retenir d'y aller ?", o: ["L'horaire", 'Le trajet', 'Y aller seul', 'Ne pas me sentir concerné', 'Ne pas savoir ce qui va se passer', "Devoir m'inscrire", 'Rien'], imgs: i, p: 1 },
+    { t: 'texte', q: 'Avec vos mots, que dit cette affiche ?', imgs: i, p: 1 },
+    { t: 'phase', p: 2 }, zones,
+    { t: 'multi', q: "Qu'est-ce qui gêne la lecture ?", o: ['Des mots trop techniques', 'Des phrases trop longues', 'Des sigles', 'Des lettres trop petites', 'Trop de texte', "Du texte posé sur l'image", 'Un manque de contraste', 'Rien, tout est clair'], imgs: i, p: 2 },
+    { t: 'echelle', q: "L'image et les couleurs vont-elles avec le sujet ?", a: 'Pas du tout', b: 'Tout à fait', imgs: i, p: 2 },
+    { t: 'texte', q: "Qu'est-ce qui vous plaît le plus sur cette affiche ?", imgs: i, p: 2 },
+    { t: 'texte', q: 'Que changeriez-vous sur cette affiche ?', imgs: i, p: 2 },
+    { t: 'phase', p: 3 },
+    { t: 'multi', q: 'Où auriez-vous une chance de croiser cette information ?', o: ["Salle d'attente", 'Pharmacie', 'Mairie', 'Association', 'Commerce', 'Marché', 'Boîte aux lettres', 'Journal local', 'Réseaux sociaux'], imgs: i, p: 3 },
+    { t: 'choix', q: 'Sous quelle forme vous serait-elle la plus utile ?', o: ['Grande affiche (A3)', 'Affiche (A4)', 'Flyer à emporter (A5)', 'Message sur le téléphone', 'De vive voix'], imgs: i, p: 3 },
+    { t: 'choix', q: "En version papier, l'emporteriez-vous avec vous ?", o: ['Oui', 'Je la prendrais en photo', 'Non'], imgs: i, p: 3 },
+    { t: 'echelle', q: 'Cette information vous serait-elle utile, à vous ou à un proche ?', a: 'Pas du tout', b: 'Tout à fait', imgs: i, p: 3 },
+    { t: 'texte', q: "Près de chez vous, où faudrait-il l'afficher ?", p: 3 }, { t: 'fin' }];
+}
 const GABARITS = [
   ['Notre structure', "La séance Points de vue complète : le jeu de l'œil, les trois étapes et l'atelier en binômes. Vous changez ensuite les affiches et les questions.", 'principal'],
+  ['Une affiche sur toutes les étapes', "Choisissez votre affiche : elle est testée d'un bout à l'autre, sur les trois étapes (le message, le visuel avec sa découpe en zones, le format). Tout reste modifiable.", 'uneAffiche'],
   ['Une affiche à tester', "Pour un graphiste qui fait tester son affiche : vue 5 secondes, ce qu'on a vu, trois questions, un avis libre.", () => [...debut('Une affiche à tester', "Elle apparaît 5 secondes, puis quelques questions. Il n'y a pas de bonne ou de mauvaise réponse."), ...parcours(affiche(/reference/), { p: 1 }), { t: 'fin' }]],
   ['Comparer deux affiches', 'Deux versions côte à côte, trois comparaisons A / B, puis ce qui fait la différence.', () => {
     const a = affiche(/origine/), b = affiche(/reference/), ab = q => ({ t: 'ab', q, o: ['A', 'B', 'Aucune différence'], imgs: [a, b], p: 2 });
@@ -656,7 +681,7 @@ async function creerTest(g) {
   creation = true; dit.textContent = 'Création du test…';
   try {
     const id = g === 'principal' ? '' : g; // un nom de test : on le copie ; celui qui est ouvert ici part avec les modifications en cours
-    const texte = typeof g === 'string' ? (id === TEST ? ecrireSeance(M) : await lireFichier(id)) : ecrireSeance({ phases: JSON.parse(JSON.stringify(PHASES)), missions: MISSIONS.slice(), tests: JSON.parse(JSON.stringify(TESTS)), ecrans: g() });
+    const texte = typeof g === 'string' ? (id === TEST ? ecrireSeance(M) : await lireFichier(id)) : ecrireSeance({ phases: JSON.parse(JSON.stringify(PHASES)), missions: MISSIONS.slice(), tests: JSON.parse(JSON.stringify(TESTS)), ecrans: await g() });
     await connexion('Modifier le test', 1);
     const r = await sauverTest({ id: nomCourt(nom), nom, texte, nouveau: true }); // le Sheet choisit un nom-court libre et note la création dans le journal
     location.href = 'modifier.html?test=' + r.id;
@@ -664,7 +689,9 @@ async function creerTest(g) {
 }
 $('gabarits').innerHTML = GABARITS.map((m, i) => `<button type="button" data-g="${i}"><b>${h(m[0])}</b><span>${h(m[1])}</span></button>`).join('');
 const nouveauTest = () => { $('etatCreer').textContent = ''; $('creer').showModal(); $('nomTest').focus(); };
-$('creer').addEventListener('click', ev => { if (ev.target.closest('[data-a=fermer]')) return $('creer').close(); const b = ev.target.closest('[data-g]'); if (b) creerTest(GABARITS[+b.dataset.g][2]); const t = ev.target.closest('[data-t]'); if (t) creerTest(t.dataset.t); });
+$('creer').addEventListener('click', ev => { if (ev.target.closest('[data-a=fermer]')) return $('creer').close(); const b = ev.target.closest('[data-g]');
+  if (b && GABARITS[+b.dataset.g][2] === 'uneAffiche') { if (!$('nomTest').value.trim()) { $('etatCreer').textContent = "Donnez d'abord un nom au test."; return $('nomTest').focus(); } cible = 'gabarit'; return galerie(); } // d'abord choisir (ou ajouter) l'affiche
+  if (b) creerTest(GABARITS[+b.dataset.g][2]); const t = ev.target.closest('[data-t]'); if (t) creerTest(t.dataset.t); });
 // le choix du test modifié, et les liens qui suivent ce test
 listeTests().then(l => {
   if (TEST && !l.some(x => x.id === TEST)) l.push({ id: TEST, nom: TEST });
