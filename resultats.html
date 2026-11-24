@@ -39,8 +39,20 @@ section{margin-top:60px}
 h2{display:flex;align-items:center;gap:14px;margin:0;font-size:clamp(28px,4.4vw,44px);line-height:1;font-weight:800;letter-spacing:-.04em}
 h2 i{width:.9em;height:.9em;border-radius:50%;background:var(--c);flex:none}
 h2+p{margin:8px 0 0;color:var(--gris)}
-.grille{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,440px),1fr));gap:34px 44px;margin-top:28px}
-article{break-inside:avoid}
+.grille{display:grid;grid-template-columns:minmax(0,1fr);gap:20px;margin-top:28px}
+article{break-inside:avoid;background:#fff;border:1.5px solid #E1E1E1;border-left:8px solid var(--c);border-radius:18px;padding:22px 24px;display:flex;gap:22px 30px;align-items:flex-start;flex-wrap:wrap}
+article .q{flex:1 1 340px;min-width:0}
+.aff{flex:none;display:flex;gap:12px;align-items:flex-start;max-width:100%;flex-wrap:wrap}
+.aff figure{margin:0;cursor:zoom-in;text-align:center;font-weight:800}.aff img{display:block;max-height:300px;max-width:220px;border-radius:10px}
+.aff .vz{width:min(220px,calc(300px*var(--r)))}.aff .zones{margin-left:26px}.aff .z{cursor:inherit}
+.aff figure.zoom{position:fixed;inset:0;z-index:5;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;cursor:zoom-out}
+.aff figure.zoom img{max-height:90vh;max-width:88vw}.aff figure.zoom .vz{width:min(88vw,calc(90vh*var(--r)))}
+.camembert{display:flex;gap:22px;align-items:center;flex-wrap:wrap;margin-top:6px}.camembert svg{width:170px;height:170px;flex:none}
+.camembert ul,.avis{list-style:none;margin:0;padding:0}.camembert ul{flex:1 1 220px;min-width:0}
+.camembert li{display:flex;align-items:center;gap:10px;font-size:16px;padding:4px 0}.camembert li i{width:14px;height:14px;border-radius:50%;flex:none}.camembert li span{flex:1;min-width:0;overflow-wrap:anywhere}.camembert li b{white-space:nowrap}.camembert li.zero{color:var(--gris)}
+.histo{display:flex;gap:10px;align-items:flex-end;height:170px;margin-top:6px;max-width:420px}.histo div{flex:1;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:4px;font-weight:800}
+.histo i{width:100%;min-height:2px;background:var(--c);border-radius:8px 8px 0 0}.histo span{font-size:15px}
+.avis li{background:var(--fond);border-radius:12px;padding:10px 14px;margin-top:8px;font-size:16px;overflow-wrap:anywhere}.avis small{color:var(--gris);font-weight:700}
 article h3{margin:0;font-size:22px;line-height:1.12;font-weight:800;letter-spacing:-.02em}
 article .n{color:var(--gris);font-size:15px;margin:4px 0 12px}
 .moy{font-size:40px;font-weight:800;letter-spacing:-.04em;line-height:1;margin:8px 0 12px}
@@ -87,6 +99,7 @@ article .n{color:var(--gris);font-size:15px;margin:4px 0 12px}
 const SOURCE = 'https://script.google.com/macros/s/AKfycbzPof8sEj8tZLlA-MtVDYyODv32y8lXxc9hLVmaW5zCvHLilyRIxpk4Ix6TPhzJczjn/exec?vue=resultats';
 const COUL = { 'Étape 1': '#F5A0C6', 'Étape 2': '#F7C33B', 'Étape 3': '#1F6FE0', 'Étape 4': '#7BD3A8', 'Étape 5': '#B79CF2', 'Étape 6': '#FF9A6B' };
 const h = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])).replace(/ ([?!:;»])/g, '&nbsp;$1').replace(/« /g, '«&nbsp;');
+const TEINTES = ['#1F6FE0', '#F7C33B', '#F5A0C6', '#7BD3A8', '#B79CF2', '#FF9A6B', '#141414', '#9A9A9A', '#5BC0DE', '#C2185B']; // les parts d'un camembert
 const fr = (x, d = 1) => x.toFixed(d).replace('.', ','), pc = x => Math.round(x * 100) + ' %';
 const $ = id => document.getElementById(id), plat = x => x.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
 let D = null, seance = new URLSearchParams(location.search).get('seance') || '';
@@ -112,20 +125,35 @@ function dessiner() {
   const gens = codes.filter(c => !seance || c === seance).reduce((a, c) => a + D.seances[c], 0), total = Object.values(T.rep).reduce((a, n) => a + n, 0);
   if (!total) { $('vue').innerHTML = `<p class="vide">Pas encore de réponses. Cette page se met à jour toute seule pendant la séance.</p>`; return; }
 
-  const carte = (g, q, opts, bon, bornes) => { // une question : ses réponses en barres, dans l'ordre du questionnaire
+  // l'affiche de la question, telle que les participants l'ont vue (zones, parties masquées, élément en gros) ; les zones se colorent selon les réponses
+  const affiche = (e, c) => { if (!e) return ''; const max = Math.max(1, ...Object.values(c));
+    const im = (e.jeu ? [e.img] : e.imgs || []).filter(Boolean); if (!im.length) return '';
+    return `<div class="aff">${im.map((src, k) => `<figure title="Cliquer pour agrandir">${e.zones ? carteZones(e, src).replace(/class="z" data-o="(\d+)" style="/g, (m, i) => `class="z" data-o="${i}" tabindex="-1" style="--f:${(c[e.o[i]] || 0) / max};`) : cadree(e) ? afficheCadree(e, src) : `<img src="${h(src)}" alt="L'affiche testée" loading="lazy">`}${e.t === 'ab' ? `<figcaption>${'ABCD'[k]}</figcaption>` : ''}</figure>`).join('')}</div>`; };
+  // une seule réponse possible : un camembert, avec sa légende
+  const camembert = (liste, c, n, bon) => { let a = 0; const pt = t => (50 + 50 * Math.sin(2 * Math.PI * t)).toFixed(2) + ' ' + (50 - 50 * Math.cos(2 * Math.PI * t)).toFixed(2);
+    const parts = liste.map((o, i) => { const p = n ? (c[o] || 0) / n : 0, d = a; a += p; return !p ? '' : p > .9999 ? `<circle cx="50" cy="50" r="50" fill="${TEINTES[i % 10]}"/>` : `<path d="M50 50L${pt(d)}A50 50 0 ${p > .5 ? 1 : 0} 1 ${pt(d + p)}Z" fill="${TEINTES[i % 10]}"/>`; }).join('');
+    return `<div class="camembert"><svg viewBox="0 0 100 100" role="img" aria-label="Répartition des réponses">${parts}</svg><ul>${liste.map((o, i) => `<li class="${c[o] ? '' : 'zero'}"><i style="background:${TEINTES[i % 10]}"></i><span>${h(o)}${i === bon ? ' (bonne réponse)' : ''}</span><b>${c[o] || 0} · ${pc(n ? (c[o] || 0) / n : 0)}</b></li>`).join('')}</ul></div>`; };
+  // une note de 1 à 5 : cinq colonnes
+  const colonnes = (liste, c, n) => `<div class="histo">${liste.map((o, i) => `<div><b>${c[o] || 0}</b><i style="height:${n ? (c[o] || 0) / n * 100 : 0}%"></i><span>${i + 1}</span></div>`).join('')}</div>`;
+  const carte = (g, q, opts, bon, bornes, e) => { // une question : son graphique (ou ses barres), dans l'ordre du questionnaire, et son affiche en face
+    const c0 = T.compte[q] || {}, n0 = T.rep[q] || 0, l0 = opts || Object.keys(c0).sort((a, b) => c0[b] - c0[a]);
+    const graphe = !e || U ? '' : e.t === 'echelle' ? colonnes(l0, c0, n0) + `<div class="bornes"><span>1 = ${h(e.a)}</span><span>5 = ${h(e.b)}</span></div>`
+      : e.t === 'texte' ? `<ul class="avis">${l0.map(o => `<li>${h(o)}${c0[o] > 1 ? ` <small>× ${c0[o]}</small>` : ''}</li>`).join('')}</ul>`
+      : e.t === 'choix' || e.t === 'ab' ? camembert(l0, c0, n0, bon) : '';
+    if (graphe) { const nt = T.notes[q]; return `<article><div class="q"><h3>${h(q)}</h3><p class="n">${n0} réponse${n0 > 1 ? 's' : ''}</p>${nt ? `<div class="moy">${fr(nt[0] / nt[1])} <small>sur 5 en moyenne</small></div>` : ''}${graphe}</div>${affiche(e, c0)}</article>`; }
     const c = T.compte[q] || {}, n = T.rep[q] || 0, liste = opts || Object.keys(c).sort((a, b) => c[b] - c[a]), nt = T.notes[q], cu = U && U.compte[q] || {}, nu = U && U.rep[q] || 0, ntu = U && U.notes[q], oubli = [];
-    return `<article><h3>${h(q)}</h3><p class="n">${n} réponse${n > 1 ? 's' : ''}${U ? ` · ${nu} dans l'autre séance` : ''}</p>${nt ? `<div class="moy">${fr(nt[0] / nt[1])} <small>sur 5 en moyenne${ntu ? ` · ${fr(ntu[0] / ntu[1])} dans l'autre séance` : ''}</small></div>` : ''}`
+    return `<article><div class="q"><h3>${h(q)}</h3><p class="n">${n} réponse${n > 1 ? 's' : ''}${U ? ` · ${nu} dans l'autre séance` : ''}</p>${nt ? `<div class="moy">${fr(nt[0] / nt[1])} <small>sur 5 en moyenne${ntu ? ` · ${fr(ntu[0] / ntu[1])} dans l'autre séance` : ''}</small></div>` : ''}`
       + liste.map((o, i) => { const k = c[o] || 0, p = n ? k / n : 0, pu = nu ? (cu[o] || 0) / nu : 0;
         if (!k && !nt && i !== bon && !cu[o]) { oubli.push(o); return ''; } // personne ne l'a choisie : citée en une ligne, sans barre
         return `<div class="barre${k ? '' : ' zero'}${i === bon ? ' bon' : ''}"><span>${h(o)}${i === bon ? ' (bonne réponse)' : ''}</span><b>${k} · ${pc(p)}${U ? ' / ' + pc(pu) : ''}</b><div class="piste"><i style="width:${p * 100}%${bon != null && i !== bon ? ';background:#BDBDBD' : ''}"></i></div>${U ? `<div class="piste autre"><i style="width:${pu * 100}%"></i></div>` : ''}</div>`; }).join('')
       + (oubli.length ? `<p class="n" style="margin:10px 0 0">Personne n'a choisi : ${h(oubli.join(', '))}.</p>` : '')
-      + (bornes ? `<div class="bornes"><span>1 = ${h(bornes[0])}</span><span>5 = ${h(bornes[1])}</span></div>` : '') + `</article>`;
+      + (bornes ? `<div class="bornes"><span>1 = ${h(bornes[0])}</span><span>5 = ${h(bornes[1])}</span></div>` : '') + `</div>${affiche(e, c)}</article>`;
   };
   // les questions de la séance, dans l'ordre de seance.txt ; puis celles de l'atelier et celles qui ne sont plus dans la séance
   const vues = new Set(), blocs = {}, Q = ETAPES.filter(e => e.id && e.t !== 'vote' && T.rep[e.q]);
   const ranger = (g, q, html) => { if (!mot || plat(q).includes(mot)) (blocs[g] = blocs[g] || []).push([accord(T, q), html]); };
   Q.forEach(e => { vues.add(e.q); const g = e.p ? 'Étape ' + e.p : "Jeu de l'œil";
-    ranger(g, e.q, carte(g, e.q, e.t === 'echelle' ? e.o.map(x => x + ' sur 5') : e.o, e.bon, e.t === 'echelle' ? [e.a, e.b] : null)); });
+    ranger(g, e.q, carte(g, e.q, e.t === 'echelle' ? e.o.map(x => x + ' sur 5') : e.o, e.bon, e.t === 'echelle' ? [e.a, e.b] : null, e)); });
   T.ordre.filter(q => !vues.has(q)).forEach(q => { const g = T.groupe[q] === 'Atelier' ? 'Atelier' : 'Autres questions'; ranger(g, q, carte(g, q, T.notes[q] ? ['1', '2', '3', '4', '5'].map(x => x + ' sur 5') : null)); });
   if (tri) Object.values(blocs).forEach(b => b.sort((x, y) => tri === 'fort' ? y[0] - x[0] : x[0] - y[0]));
 
@@ -151,6 +179,7 @@ function charger() {
 $('choix').addEventListener('click', ev => { const b = ev.target.closest('[data-s]'); if (b) { seance = b.dataset.s; history.replaceState(null, '', (seance ? '?seance=' + seance : '?') + TQ); dessiner(); } });
 ['comparer', 'tri'].forEach(id => $(id).addEventListener('change', dessiner));
 $('chercher').addEventListener('input', dessiner);
+$('vue').addEventListener('click', ev => { const g = ev.target.closest('.aff figure'); if (g) g.classList.toggle('zoom'); }); // l'affiche en grand, puis de nouveau en petit
 connexion('Étudier les données').then(() => lireFichier()).then(lireSeance).catch(() => { }).then(() => { dessiner(); charger(); setInterval(charger, 20000); });
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => { }); // garde le site en mémoire pour les visites suivantes
 </script>
