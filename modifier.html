@@ -43,10 +43,11 @@ header a[aria-label=Accueil]{display:inline-flex;align-items:center;gap:6px;font
 #liste b{display:block;font-size:14px;line-height:1.15;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #liste .mini{flex:1;min-width:0;aspect-ratio:16/9;background:var(--t);border-radius:8px;padding:8px;display:flex;gap:5px;align-items:center;overflow:hidden}
 #liste .mini.plein{background:var(--c)}
-#liste .mini .tx{flex:1;min-width:0;align-self:stretch}
+#liste .mini .tx{flex:1 1 50%;min-width:50%;align-self:stretch;overflow:hidden}
 #liste .mini small{font-size:10.5px;color:#3d3d3d;line-height:1.2;margin-bottom:3px;display:flex;align-items:center;gap:4px}#liste .mini small svg{flex:none}
 #liste .mini b{font-size:13px;line-height:1.02;letter-spacing:-.03em;white-space:normal;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical}
-#liste .mini img{flex:0 1 auto;min-width:0;max-height:100%;max-width:42%;object-fit:contain;border-radius:3px}
+#liste .mini .ims{flex:0 1 auto;max-width:50%;height:100%;display:flex;gap:3px;align-items:center;justify-content:flex-end}#liste .mini .ims:empty{display:none}
+#liste .mini img{flex:0 1 auto;min-width:0;max-height:100%;max-width:100%;object-fit:contain;border-radius:3px}
 #liste .oeil{flex:none;width:32px;height:32px;border-radius:50%;display:grid;place-items:center;color:var(--gris)}#liste .oeil:hover{background:var(--fond);color:var(--n)}
 #liste li.dossier{background:none;border:0;padding:0;margin:14px 0 6px;cursor:default;flex-direction:column;align-items:stretch;gap:4px}
 #liste li.dossier .nom{font-size:15px;font-weight:800;line-height:1.15;padding:0 2px}#liste li.dossier .nom small{display:inline;font-size:12px}
@@ -72,10 +73,10 @@ header a[aria-label=Accueil]{display:inline-flex;align-items:center;gap:6px;font
 .apercu .opts span{background:var(--t);border-radius:3cqw;padding:calc(.8cqw*var(--fit,1)) 1.6cqw;font-weight:700;font-size:calc(1.8cqw*var(--fit,1))}
 .apercu .opts span.bon{background:var(--n);color:#fff}
 .apercu .d{display:flex;gap:1.5cqw;align-items:center;flex:none}.apercu .d>.zones{margin-left:28px}
-.apercu .d img{max-height:46cqw;max-width:32cqw;border-radius:1.5cqw;display:block}
+.apercu .d img{max-height:39cqw;max-width:32cqw;border-radius:1.5cqw;display:block}
 .apercu .d.deux img{max-width:24cqw}.apercu .d.n3 img{max-width:17cqw}.apercu .d.n4 img{max-width:13.5cqw}
 .apercu .col{display:flex;flex-direction:column;align-items:center;gap:.6cqw;font-weight:800;font-size:2.2cqw}
-.apercu .d.deux .vide{width:8cqw;font-size:1.3cqw}
+.apercu .d.deux .vide.plusAff{width:4.4cqw;height:4.4cqw;aspect-ratio:1;border-radius:50%;padding:0;font-size:2.6cqw;font-weight:800;line-height:1;flex:none}
 .apercu.plein{background:var(--c)}
 .apercu.plein.p3{color:#fff}
 .apercu .in{overflow:auto}
@@ -100,7 +101,7 @@ header a[aria-label=Accueil]{display:inline-flex;align-items:center;gap:6px;font
 .aide.fort{color:var(--n);font-weight:700}.apercu.depot{outline:4px dashed var(--c3);outline-offset:4px}.aide.expl{margin:-6px 0 14px}
 .apercu [contenteditable],.cote [contenteditable]{text-decoration:underline dotted rgba(20,20,20,.3);text-underline-offset:.18em;text-decoration-thickness:1px}
 .apercu [contenteditable]:hover:not(:focus)::after{content:' ✎';font-size:.55em;opacity:.55;font-weight:400}
-.apercu .im .chg{position:absolute;left:50%;bottom:1cqw;transform:translateX(-50%);background:var(--n);color:#fff;font-weight:800;font-size:max(11px,1.25cqw);padding:.45em 1em;border-radius:99px;white-space:nowrap}.outils .etape{display:inline-flex;align-items:center;gap:8px;font-weight:800;font-size:14px}.outils select{max-width:260px}.vues .ouvrir{margin-left:auto}
+.apercu .d .im{display:flex;flex-direction:column;align-items:center}.apercu .im .chg{margin-top:.8cqw;background:var(--fond);color:var(--n);font-weight:800;font-size:max(11px,1.15cqw);padding:.4em .9em;border-radius:99px;white-space:nowrap}.outils .etape{display:inline-flex;align-items:center;gap:8px;font-weight:800;font-size:14px}.outils select{max-width:260px}.vues .ouvrir{margin-left:auto}
 #liste li[data-i]:not(.sel)>.mv{visibility:hidden}/* les flèches seulement sur l'écran choisi : la liste reste lisible */
 /* à côté du grand écran : le téléphone du participant, ou sa fiche à imprimer */
 #vue{display:flex;flex-wrap:wrap;gap:22px;align-items:flex-start}
@@ -159,13 +160,13 @@ header a[aria-label=Accueil]{display:inline-flex;align-items:center;gap:6px;font
 .apercu .im .x{top:-8px;right:-8px}
 }
 /* sur papier, le grand écran montre les réponses en grandes tuiles, chacune avec sa lettre */
-.apercu.papier .lettres{counter-reset:lettre;display:grid;grid-template-columns:1fr 1fr;gap:calc(1.2cqw*var(--fit,1))}.apercu.papier .lettres:has(>span:nth-child(7)){grid-template-columns:repeat(3,minmax(0,1fr))}.apercu.papier .lettres>span{min-width:0}
+.apercu.papier .lettres{counter-reset:lettre;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:calc(1.2cqw*var(--fit,1))}.apercu.papier .lettres:has(>span:nth-child(7)){grid-template-columns:repeat(3,minmax(0,1fr))}.apercu.papier .lettres>span{min-width:0;overflow-wrap:break-word}.apercu.papier .lettres.ab>span:last-of-type{grid-column:1/-1}.apercu.papier .lettres>span>span{min-width:0}.apercu .in>.g{min-width:20cqw}
 .apercu.papier .lettres>span{counter-increment:lettre;border-radius:2cqw;padding:calc(1.4cqw*var(--fit,1)) 1.4cqw;font-size:calc(2.2cqw*var(--fit,1));gap:1cqw}
 .apercu.papier .lettres>span::before{content:counter(lettre,upper-alpha);flex:none;width:2em;height:2em;border-radius:50%;background:var(--n);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800}
 .apercu.papier .lettres>span.bon::before{background:#fff;color:var(--n)}
 .apercu.papier .lettres [contenteditable]{flex:1}
 .apercu.papier .lettres .plus{justify-self:start;align-self:center}
-.apercu.cache::after{content:'Écran masqué : il ne passe pas pendant la séance';position:absolute;inset:auto 0 0 0;background:var(--n);color:#fff;font-weight:700;font-size:14px;padding:8px 16px}
+.apercu.cache .in{bottom:32px}.apercu.cache::after{content:'Écran masqué : il ne passe pas pendant la séance';position:absolute;inset:auto 0 0 0;background:var(--n);color:#fff;font-weight:700;font-size:14px;padding:8px 16px}
 #travail>.aide{margin:0 0 12px}
 form{max-width:1180px;margin-top:22px;display:flex;flex-direction:column;gap:16px}
 #zone h3{margin:0 0 4px;font-size:22px;font-weight:800;letter-spacing:-.03em}
@@ -308,7 +309,7 @@ function liste() {
   if (sel !== selVu) { fermes.delete(P[sel]); selVu = sel; } // le dossier de l'écran qu'on vient de choisir s'ouvre
   const mots = simple(filtre).trim(), foc = document.activeElement && document.activeElement.id === 'cherche';
   const carte = (e, i) => (e.masque || ++n, mots && !simple(TITRE(e) + ' ' + TYPE(e) + ' ' + (e.o || []).join(' ')).includes(mots)) ? '' : (`<li data-i="${i}" draggable="${!fixe(i)}" class="${i === sel ? 'sel' : ''}${e.masque ? ' masque' : ''}" style="--c:${COUL(e)}">
-    <span class="num">${e.masque ? '–' : n}</span><span class="mini${e.t === 'phase' ? ' plein' : ''}" style="--t:${e.p ? `var(--t${e.p})` : 'var(--fond)'}"><span class="tx"><small>${ICONE(e)} ${h(TYPE(e))}${e.masque ? ' · masqué' : ''}</small><b>${h(TITRE(e))}</b></span>${[e.img, ...(e.imgs || [])].filter(Boolean).slice(0, 4).map(s => `<img src="${h(s)}" alt="" loading="lazy">`).join('')}</span>
+    <span class="num">${e.masque ? '–' : n}</span><span class="mini${e.t === 'phase' ? ' plein' : ''}" style="--t:${e.p ? `var(--t${e.p})` : 'var(--fond)'}"><span class="tx"><small>${ICONE(e)} ${h(TYPE(e))}${e.masque ? ' · masqué' : ''}</small><b>${h(TITRE(e))}</b></span><span class="ims">${[e.img, ...(e.imgs || [])].filter(Boolean).slice(0, 4).map(s => `<img src="${h(s)}" alt="" loading="lazy">`).join('')}</span></span>
     ${fixe(i) ? '' : `<button type="button" class="oeil" data-oeil aria-pressed="${!!e.masque}" aria-label="${e.masque ? 'Montrer cet écran pendant la séance' : 'Masquer cet écran pendant la séance'}" title="${e.masque ? 'Écran masqué : cliquer pour le montrer' : 'Masquer cet écran pendant la séance'}">${OEIL(e.masque)}</button>`}${e.masque ? '<span class="etq">Masqué</span>' : ''}<span class="mv"><button data-m="-1" aria-label="Monter" title="Monter cet écran" ${fixe(i) || fixe(i - 1) || i === 0 ? 'disabled' : ''}>↑</button><button data-m="1" aria-label="Descendre" title="Descendre cet écran" ${fixe(i) || fixe(i + 1) || i === M.ecrans.length - 1 ? 'disabled' : ''}>↓</button></span></li>`);
   for (let i = 0, j; i < M.ecrans.length; i = j) { // une partie = une suite d'écrans, rangée dans son dossier
     const p = P[i]; for (j = i; j < M.ecrans.length && P[j] === p; j++);
@@ -348,8 +349,8 @@ function apercu(e) {
       : e.t === 'ab' ? e.o.map(x => `<span>${h(x)}</span>`).join('')
       : e.o.map((x, i) => `<span class="${e.jeu && i === e.bon ? 'bon' : ''}">${e.jeu ? `<button type="button" class="ok" data-a="bon" data-i="${i}" aria-pressed="${i === e.bon}" aria-label="Bonne réponse" title="C'est la bonne réponse">✓</button>` : ''}${ed('span', i, x, 'Réponse ' + (i + 1))}<button type="button" class="x" data-a="moins" data-i="${i}" aria-label="Retirer cette réponse" title="Retirer cette réponse" ${e.o.length < 3 ? 'disabled' : ''}>×</button></span>`).join('')
         + `<button type="button" class="plus" data-a="plus" ${e.o.length > 8 ? 'disabled' : ''}>+ Réponse</button>`;
-    g = `<div class="sur">${e.p ? 'Étape ' + e.p + ' · ' + h(M.phases[e.p].nom) : e.jeu ? "Le jeu de l'œil" : ''}</div>${ed('h2', 'q', e.q, 'La question')}${e.jeu ? '' : ed('div', 'note', e.note || '', 'Précision sous la question (facultatif)')}${vue === 'tel' ? '' : `<div class="opts${e.t === 'echelle' || e.t === 'texte' ? '' : ' lettres'}">${o}</div>`}`;
-    im = e.zones ? ((e.imgs || [])[0] ? `<span class="zones" data-a="decoupe" role="button" tabindex="0" style="cursor:pointer" title="Cliquer pour modifier le découpage">${cadres(e, false)}</span>` : img('imgs.0', '')) : e.t === 'ab' ? e.imgs.map((v, i) => `<span class="col">${img('imgs.' + i, v, e.imgs.length > 2)}<b>${'ABCD'[i]}</b></span>`).join('') + (e.imgs.length < 4 ? `<button type="button" class="vide" data-a="affiche" data-k="imgs.${e.imgs.length}">+ Affiche ${'ABCD'[e.imgs.length]}</button>` : '') : e.jeu ? img('img', e.img) : imgCadree(e);
+    g = `<div class="sur">${e.p ? 'Étape ' + e.p + ' · ' + h(M.phases[e.p].nom) : e.jeu ? "Le jeu de l'œil" : ''}</div>${ed('h2', 'q', e.q, 'La question')}${e.jeu ? '' : ed('div', 'note', e.note || '', 'Précision sous la question (facultatif)')}${vue === 'tel' ? '' : `<div class="opts${e.t === 'echelle' || e.t === 'texte' ? '' : ' lettres'}${e.t === 'ab' ? ' ab' : ''}">${o}</div>`}`;
+    im = e.zones ? ((e.imgs || [])[0] ? `<span class="zones" data-a="decoupe" role="button" tabindex="0" style="cursor:pointer" title="Cliquer pour modifier le découpage">${cadres(e, false)}</span>` : img('imgs.0', '')) : e.t === 'ab' ? e.imgs.map((v, i) => `<span class="col">${img('imgs.' + i, v, e.imgs.length > 2)}<b>${'ABCD'[i]}</b></span>`).join('') + (e.imgs.length < 4 ? `<button type="button" class="vide plusAff" data-a="affiche" data-k="imgs.${e.imgs.length}" aria-label="Ajouter une affiche ${'ABCD'[e.imgs.length]}" title="Ajouter une affiche ${'ABCD'[e.imgs.length]} à comparer">+</button>` : '') : e.jeu ? img('img', e.img) : imgCadree(e);
   }
   else g = `<div class="sur">${h(TYPE(e))}</div><h2>${h({ accueil: 'Bienvenue !', scores: 'Les réussites', photo: 'Vos affiches', palmares: 'Le palmarès', fin: 'Merci !' }[e.t])}</h2>`;
   return `<div class="apercu ${vue}${cls}${e.masque ? ' cache' : ''}" style="${t}"><div class="in"><div class="g">${g}</div>${im ? `<div class="d${e.t === 'ab' ? ' deux n' + e.imgs.length : ''}">${im}</div>` : ''}</div>${(M.logos || []).length && (e.t === 'accueil' || e.t === 'fin') ? `<div class="lg">${M.logos.map(s => `<img src="${h(s)}" alt="">`).join('')}</div>` : ''}</div>`;
@@ -403,6 +404,7 @@ function zone() {
 }
 // comme sur le grand écran : si la question et ses réponses débordent de la diapositive, le texte rétrécit jusqu'à ce que tout rentre
 const tenir = () => { const a = document.querySelector('#vue .apercu:not(.form)'), i = a && a.querySelector('.in'); if (!i) return; a.style.setProperty('--fit', 1); for (let n = 0, k = 1; n < 10 && (i.scrollHeight > i.clientHeight + 2 || i.scrollWidth > i.clientWidth + 2); n++) a.style.setProperty('--fit', k *= .94); };
+$('zone').addEventListener('load', () => tenir(), true); // une affiche qui finit de charger change la place prise : on revérifie que tout tient
 const rafraichir = () => { $('vue').innerHTML = apercu(M.ecrans[sel]) + cote(M.ecrans[sel]); liste(); change(); };
 
 // ---------- les modifications ----------
