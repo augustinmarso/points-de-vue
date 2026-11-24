@@ -26,7 +26,7 @@ h1{margin:30px 0 0;font-size:clamp(44px,8vw,84px);line-height:.9;font-weight:800
 .outils{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px;align-items:center}
 .btn{display:inline-flex;align-items:center;background:var(--n);color:#fff;font-weight:800;text-decoration:none;border:0;border-radius:99px;padding:10px 20px;min-height:44px;cursor:pointer}
 .btn.clair,.choix button{background:var(--fond);color:var(--n)}
-.choix{display:flex;flex-wrap:wrap;gap:10px;margin-top:26px}
+.choix{display:flex;flex-wrap:wrap;gap:10px;margin-top:26px}.choix label{display:flex;flex-direction:column;gap:6px;font-weight:800;font-size:15px}.choix select{background:var(--fond);border:0;border-radius:14px;padding:11px 14px;min-height:46px;font-weight:400;font-size:17px;min-width:260px}[hidden]{display:none!important}
 .choix button{font-weight:700;border:0;cursor:pointer;border-radius:99px;padding:10px 18px;min-height:44px}
 .choix button[aria-pressed=true]{background:var(--n);color:#fff}
 .reglages{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-top:18px}
@@ -102,13 +102,14 @@ article .n{color:var(--gris);font-size:15px;margin:4px 0 12px}
 <p class="maj" id="maj">Chargement…</p>
 <div class="outils">
   <a class="btn" href="https://docs.google.com/spreadsheets/d/14uvOfNQwjgMOH83hJhnWea9Df3Cidhhs4rUefRrQ2wk" target="_blank" rel="noopener">Ouvrir le Google Sheet</a>
-  <button class="btn" id="pdf" title="Ouvre la fenêtre d'impression : choisissez « Enregistrer au format PDF ». Le document reprend la séance choisie ci-dessous.">Restitution en PDF</button>
+  <button class="btn" id="pdf" title="Ouvre la fenêtre d'impression : choisissez « Enregistrer au format PDF ». Le document reprend la séance choisie ci-dessous."><svg viewBox="0 0 24 24" width="1.2em" height="1.2em" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:-.25em;margin-right:.45em"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4M9 13h6M9 17h6"/></svg>Restitution en PDF</button>
+  <a class="btn" id="mail" href="mailto:" title="Ouvre votre messagerie avec un message tout prêt et le lien vers ces résultats. Pour joindre la restitution, enregistrez-la d'abord en PDF."><svg viewBox="0 0 24 24" width="1.2em" height="1.2em" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:-.25em;margin-right:.45em"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3.500 7 12 13l8.500-6"/></svg>Envoyer par mail</a>
 </div>
 <div class="choix" id="choix" role="group" aria-label="Choisir une séance"></div>
 <div class="reglages">
-  <label>Comparer avec<select id="comparer"><option value="">Aucune comparaison</option></select></label>
+  <label hidden>Comparer avec<select id="comparer"><option value="">Aucune comparaison</option></select></label>
   <label>Chercher une question<input type="search" id="chercher" placeholder="Un mot de la question"></label>
-  <label>Ranger les questions<select id="tri"><option value="">Dans l'ordre de la séance</option><option value="fort">Les plus unanimes d'abord</option><option value="faible">Les plus partagées d'abord</option></select></label>
+  <label hidden>Ranger les questions<select id="tri"><option value="">Dans l'ordre de la séance</option><option value="fort">Les plus unanimes d'abord</option><option value="faible">Les plus partagées d'abord</option></select></label>
 </div>
 <div id="rapport" class="imprime"></div>
 <div id="vue"></div>
@@ -142,7 +143,7 @@ function dessiner() {
   if (!D) return;
   const codes = Object.keys(D.seances).sort();
   if (seance && !D.seances[seance]) seance = '';
-  $('choix').innerHTML = [['', 'Toutes les séances'], ...codes.map(c => [c, 'Séance ' + c])].map(([c, nom]) => `<button data-s="${h(c)}" aria-pressed="${c === seance}">${h(nom)}</button>`).join('');
+  if (document.activeElement.id !== 'seanceSel') $('choix').innerHTML = `<label>Séance montrée<select id="seanceSel">${[['', 'Toutes les séances'], ...codes.map(c => [c, 'Séance ' + c])].map(([c, nom]) => `<option value="${h(c)}" ${c === seance ? 'selected' : ''}>${h(nom)}</option>`).join('')}</select></label>`; // pas reconstruite pendant qu'on choisit dedans
   const autre = $('comparer').value;
   $('comparer').innerHTML = '<option value="">Aucune comparaison</option>' + codes.filter(c => c !== seance).map(c => `<option value="${h(c)}" ${c === autre ? 'selected' : ''}>Séance ${h(c)}</option>`).join('');
   const T = totaux(seance), U = $('comparer').value ? totaux($('comparer').value) : null, mot = plat($('chercher').value.trim()), tri = $('tri').value;
@@ -216,13 +217,15 @@ function charger() {
   fetch(SOURCE + '&jeton=' + JETON()).then(x => x.json()).then(d => { if (d.refus) return deconnexion(); D = propre(d); $('maj').textContent = 'Mis à jour à ' + new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) + '. Résultats anonymes, actualisés toutes les 20 secondes.'; if (document.activeElement !== $('chercher')) dessiner(); if (pdfVoulu && Object.keys(D.seances).length) { pdfVoulu = false; setTimeout(print, 1200); } })
     .catch(() => { $('maj').textContent = 'Les résultats ne se chargent pas. Vérifiez la connexion internet.'; });
 }
-$('choix').addEventListener('click', ev => { const b = ev.target.closest('[data-s]'); if (b) { seance = b.dataset.s; history.replaceState(null, '', (seance ? '?seance=' + seance : '?') + TQ); dessiner(); } });
+$('choix').addEventListener('change', ev => { const b = ev.target.closest('#seanceSel'); if (b) { seance = b.value; history.replaceState(null, '', (seance ? '?seance=' + seance : '?') + TQ); dessiner(); } });
 ['comparer', 'tri'].forEach(id => $(id).addEventListener('change', dessiner));
 $('chercher').addEventListener('input', dessiner);
 // la restitution en PDF : la fenêtre d'impression du navigateur, où l'on choisit « Enregistrer au format PDF ». « ?pdf » dans l'adresse l'ouvre dès que les réponses sont là.
 // shortcut: pas de fabrication de fichier PDF dans la page (il faudrait une bibliothèque) ; à revoir si l'équipe veut un bouton qui télécharge directement.
 let pdfVoulu = new URLSearchParams(location.search).has('pdf');
 $('pdf').addEventListener('click', () => { if (D) { dessiner(); print(); } });
+// envoyer par mail : le lien vers ces résultats (la séance choisie), à ouvrir avec un compte de l'équipe
+$('mail').addEventListener('click', () => { $('mail').href = 'mailto:?subject=' + encodeURIComponent('Points de vue : résultats' + (seance ? ' de la séance ' + seance : '')) + '&body=' + encodeURIComponent('Bonjour,\n\nVoici les résultats' + (seance ? ' de la séance ' + seance : ' des séances') + ' du groupe Points de vue :\n' + location.href + "\n\n(La page demande un compte de l'équipe. La restitution en PDF peut être jointe à ce message.)\n\nBonne lecture."); });
 $('vue').addEventListener('click', ev => { const g = ev.target.closest('.aff figure'); if (g) g.classList.toggle('zoom'); }); // l'affiche en grand, puis de nouveau en petit
 connexion('Étudier les données').then(() => lireFichier()).then(lireSeance).catch(() => { }).then(() => { dessiner(); charger(); setInterval(charger, 20000); });
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => { }); // garde le site en mémoire pour les visites suivantes
