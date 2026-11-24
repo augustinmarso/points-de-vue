@@ -108,6 +108,7 @@ header h1 small{display:block;font-size:13px;font-weight:400;letter-spacing:0;co
 /* à côté du grand écran : le téléphone du participant, ou sa fiche à imprimer */
 #vue{display:flex;flex-wrap:wrap;gap:22px;align-items:flex-start}
 #vue .apercu{flex:1 1 380px;min-width:0}
+.cote .bascule{display:flex;gap:2px;padding:3px;border-radius:999px;background:var(--fond)}.cote .bascule button{display:flex;align-items:center;gap:5px;padding:6px 11px;border-radius:999px;font-size:12px;font-weight:800;color:var(--gris)}.cote .bascule [aria-pressed=true]{background:var(--n);color:#fff}
 .cote{flex:none;width:290px;display:flex;flex-direction:column;gap:8px;align-items:center;font-size:12px;color:var(--gris);font-weight:700}
 .cote .ecr{width:100%;color:var(--n);background:#fff;box-shadow:0 4px 24px rgba(20,20,20,.16);display:flex;flex-direction:column;gap:8px;font-weight:400;overflow:hidden}
 .cote.tel .ecr{aspect-ratio:9/18;border-radius:26px;border:6px solid var(--n);padding:24px 12px 14px}
@@ -364,6 +365,13 @@ function apercu(e) {
 }
 
 // ce que le participant a devant lui pendant que le grand écran montre cet écran : son téléphone, ou sa fiche à imprimer (lecture seule, suit la frappe)
+// sous l'aperçu téléphone : deux états au choix. Comparaison : toucher les affiches ou les boutons A, B, C ; autre question avec affiche : affiches montrées ou masquées sur le téléphone
+const choixDeux = (a, quoi, deux, actif) => `<div class="bascule" role="group" aria-label="${quoi}">${deux.map(([ic, n], v) => `<button type="button" data-a="${a}" data-v="${v}" aria-pressed="${v === actif}">${ic}${n}</button>`).join('')}</div>`;
+function bascule(e) {
+  if (e.t === 'ab') return choixDeux('abc', 'Réponse sur le téléphone', [[svgI(ICONE_AFFICHE), 'Toucher l’affiche'], ['', 'A, B, C']], e.abc ? 1 : 0);
+  if (e.q != null && !e.jeu && !e.zones && (e.imgs || []).some(Boolean)) return choixDeux('telAff', 'Affiches sur le téléphone', [[OEIL(false), 'Affiches montrées'], [OEIL(true), 'Masquées']], e.telSans ? 1 : 0);
+  return '';
+}
 function cote(e) {
   if (vue === 'form') return '';
   const t = e.p ? `--t:var(--t${e.p});--c:var(--c${e.p})` : '--t:var(--fond);--c:#141414', Q = e.q != null, o = e.o || [];
@@ -382,7 +390,7 @@ function cote(e) {
       e.t === 'texte' ? `<small>Écrivez votre réponse sur les lignes.</small><div class="lignes"></div>`
       : (e.t === 'echelle' ? `<small>1 = ${ed('span', 'a', e.a, 'Sens de la note 1')} · 5 = ${ed('span', 'b', e.b, 'Sens de la note 5')}</small>` : e.t === 'ab' ? `<small>= si vous ne voyez pas de différence.</small>` : '')
         + `<div class="ronds">${(e.t === 'echelle' ? ['1', '2', '3', '4', '5'] : e.t === 'ab' ? [...o.slice(0, -1), '='] : o.map((_, i) => 'ABCDEFGHIJ'[i])).map(l => `<i>${l}</i>`).join('')}</div>`);
-  return `<aside class="cote ${vue}" style="${t}" aria-label="${vue === 'tel' ? 'Le téléphone du participant' : 'La fiche à imprimer'}"><div class="ecr">${x}</div>${vue === 'tel' ? 'Sur le téléphone du participant' : 'Sur la fiche à imprimer'}</aside>`;
+  return `<aside class="cote ${vue}" style="${t}" aria-label="${vue === 'tel' ? 'Le téléphone du participant' : 'La fiche à imprimer'}"><div class="ecr">${x}</div>${vue === 'tel' ? 'Sur le téléphone du participant' : 'Sur la fiche à imprimer'}${vue === 'tel' ? bascule(e) : ''}</aside>`;
 }
 // les trois versions d'une même séance : on passe de l'une à l'autre d'un clic, et « Prévisualiser » ouvre celle qui est choisie
 const VUES = [['tel', 'Diaporama + téléphone', '?ecran&apercu&salle=apercu'], ['form', 'Formulaire', '?enligne&essai&apercu&salle=apercu'], ['papier', 'Diaporama + papier', '?ecran&papier&apercu&salle=apercu']];
@@ -396,7 +404,6 @@ function zone() {
     <div class="ligne"><button type="button" class="btn" data-a="decoupe">Modifier le découpage en grand</button><button type="button" class="btn clair" data-a="affiche" data-k="imgs.0">Changer l'affiche</button></div></div>`;
   if (e.t === 'choix' && !e.jeu || e.t === 'multi') reglages += `<label class="case"><input type="checkbox" data-k="multi" ${e.t === 'multi' ? 'checked' : ''}>${e.zones ? 'Plusieurs zones possibles' : 'Plusieurs réponses possibles'}</label>`;
   if (e.t === 'flash') reglages += `<label class="etape">Durée d'affichage<select data-k="s" class="btn clair">${[3, 5, 8, 10, 15, 20, 30].map(s => `<option value="${s}" ${(e.s || 5) === s ? 'selected' : ''}>${s} secondes</option>`).join('')}</select></label>`;
-  if (e.q != null && !e.jeu && !e.zones && e.t !== 'ab') reglages += `<label class="case"><input type="checkbox" data-k="tel" ${e.telSans ? '' : 'checked'}>Montrer les affiches sur le téléphone</label>`;
   if (e.t === 'echelle') reglages += `<label class="case"><input type="checkbox" data-k="nb" ${e.nb ? 'checked' : ''}>Montrer l'affiche en noir et blanc</label>`;
   if (vue === 'form' && ['accueil', 'mission', 'photo', 'vote', 'palmares'].includes(e.t)) f += `<p class="verrou">Dans la version formulaire, chacun répond seul chez soi : cet écran de la séance en groupe n'y passe pas.</p>`;
   else if (!reglable) f = `<p class="verrou">Cet écran n'a pas de réglage : son contenu est fabriqué par l'appli pendant la séance.</p>`;
@@ -404,7 +411,6 @@ function zone() {
   let outils = '';
   if (libre && e.t !== 'flash' && !e.jeu) outils += `<label class="etape">Étape<select data-k="p" class="btn clair"><option value="">Sans étape</option>${Object.keys(M.phases).map(Number).map(p => `<option value="${p}" ${e.p === p ? 'selected' : ''}>Étape ${p} · ${h(M.phases[p].nom)}</option>`).join('')}</select></label>`;
   if (e.q != null || e.t === 'info') outils += `<button type="button" class="btn clair taille" data-a="petit" aria-pressed="${!!e.petit}" aria-label="Titre plus petit" title="${e.petit ? 'Le titre est en petit : cliquer pour le remettre en grand' : 'Écrire le titre de cet écran en plus petit'}"><span style="font-size:18px">A</span><span style="font-size:12px">A</span></button>`;
-  if (e.t === 'ab') outils += `<button type="button" class="btn clair taille" data-a="abc" aria-pressed="${!!e.abc}" aria-label="${e.abc ? 'Réponse avec les boutons A, B, C' : 'Réponse en touchant les affiches'}" title="${e.abc ? 'Sur le téléphone, on répond avec les boutons A, B, C. Cliquer pour répondre en touchant les affiches.' : 'Sur le téléphone, on touche une affiche puis Valider. Cliquer pour répondre avec les boutons A, B, C.'}">${e.abc ? '<b style="font-size:14px">ABC</b>' : svgI(ICONE_AFFICHE).replace(/13/g, '18')}</button>`;
   if (libre) outils += `<button type="button" class="btn clair" data-a="dupliquer">Dupliquer</button>`;
   if (!e.zones && !e.jeu && ['info', 'choix', 'multi', 'echelle', 'texte'].includes(e.t) && (e.imgs || [])[0]) outils += `<button type="button" class="btn clair" data-a="cadrer" title="Masquer une partie de l'affiche, ou ne montrer qu'un élément en très gros : utile quand la question porte sur un élément précis.">${cadree(e) ? 'Changer le cadrage' : 'Masquer ou zoomer l’affiche'}</button>${cadree(e) ? `<button type="button" class="btn clair" data-a="affiche" data-k="imgs.0">Changer l'affiche</button>` : ''}`;
   const atelier = ['mission', 'photo', 'vote', 'palmares', 'phase'].includes(e.t);
@@ -428,7 +434,6 @@ $('zone').addEventListener('input', ev => {
   else if (k === 's') e.s = +t.value;
   else if (k === 'p') { if (t.value) e.p = +t.value; else delete e.p; }
   else if (k === 'nb' || k === 'masque') e[k] = t.checked;
-  else if (k === 'tel') { if (t.checked) delete e.telSans; else e.telSans = true; }
   else if (k && k.startsWith('ph.')) M.phases[e.p][k.slice(3)] = t.value;
   else if (k && k.startsWith('tests.')) { const [, i, c] = k.split('.'); M.tests[+i][c] = t.value; }
   else if (k) e[k] = t.value;
@@ -462,7 +467,8 @@ $('zone').addEventListener('click', ev => {
   if (a === 'bon') e.bon = +b.dataset.i;
   if (a === 'masquer') e.masque = !e.masque;
   if (a === 'petit') { if (e.petit) delete e.petit; else e.petit = true; }
-  if (a === 'abc') { if (e.abc) delete e.abc; else e.abc = true; }
+  if (a === 'abc') { if (b.dataset.v === '1') e.abc = true; else delete e.abc; }
+  if (a === 'telAff') { if (b.dataset.v === '1') e.telSans = true; else delete e.telSans; }
   if (a === 'sansAffiche' && !e.zones) { delete e.caches; delete e.zoom; delete e.r; }
   if (a === 'sansAffiche') { if (e.t === 'ab') { e.imgs.splice(+b.dataset.k.split('.')[1], 1); e.o = optsAB(e.imgs.length); } else e.imgs = []; }
   if (a === 'dupliquer') { M.ecrans.splice(sel + 1, 0, JSON.parse(JSON.stringify({ ...e, id: undefined }))); sel++; }
