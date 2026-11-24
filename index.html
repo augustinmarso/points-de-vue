@@ -437,7 +437,7 @@ function telephone() {
       if (t === 'multi' && !q.zones) x += `<p class="note">Plusieurs réponses possibles.</p><button class="btn" data-a="multi">Valider</button>`;
       if (t === 'echelle') x += `<div class="echelle">${q.o.map((o, i) => `<button data-o="${i}" style="width:${36 + i * 11}px;height:${36 + i * 11}px">${o}</button>`).join('')}</div><div class="bouts"><span>${h(q.a)}</span><span>${h(q.b)}</span></div>`;
       if (!q.zones && !q.vote && !e.jeu && !e.telSans) x += VUE(e, (e.imgs || []).filter(Boolean)); // la même affiche que sur le grand écran (pas pour le jeu : l'affiche y est cachée)
-      if (t === 'ab') x += `<button class="btn" data-a="ab">Valider</button><div class="opts"><button class="opt" data-o="${e.o.length - 1}">${h(e.o[e.o.length - 1])}${tete(e.p)}</button></div>`; // on touche une affiche puis Valider ; « Aucune différence » répond tout de suite
+      if (t === 'ab') x += `<div class="opts"><button class="opt" data-o="${e.o.length - 1}">${h(e.o[e.o.length - 1])}${tete(e.p)}</button></div><button class="btn" data-a="ab">Valider</button>`; // on touche une affiche puis Valider ; « Aucune différence » répond tout de suite
     }
     app.innerHTML = `<div class="tel${e.t === 'accueil' ? ' fixe' : ''}">${x}</div>`;
     if (!SALLE) salons();
@@ -537,7 +537,7 @@ function enLigne() {
       else if (e.t === 'choix' || e.t === 'multi') x += `<div class="opts">${e.o.map((o, i) => `<button class="opt" data-o="${i}">${h(o)}${tete(e.p || 1)}</button>`).join('')}</div>`;
       if (e.t === 'multi' && !e.zones) x += `<p class="note">Plusieurs réponses possibles.</p><button class="btn" data-a="multi">Valider</button>`;
       if (e.t === 'echelle') x += `<div class="echelle">${e.o.map((o, i) => `<button data-o="${i}" style="width:${36 + i * 11}px;height:${36 + i * 11}px">${o}</button>`).join('')}</div><div class="bouts"><span>${h(e.a)}</span><span>${h(e.b)}</span></div>`;
-      if (e.t === 'ab') x += `<button class="btn" data-a="ab">Valider</button><div class="opts"><button class="opt" data-o="${e.o.length - 1}">${h(e.o[e.o.length - 1])}${tete(e.p || 1)}</button></div>`;
+      if (e.t === 'ab') x += `<div class="opts"><button class="opt" data-o="${e.o.length - 1}">${h(e.o[e.o.length - 1])}${tete(e.p || 1)}</button></div><button class="btn" data-a="ab">Valider</button>`;
     }
     app.innerHTML = `<div class="tel${e.t === 'accueil' ? ' fixe' : ''}">${x}</div>`;
     [ETAPES[M.i], ETAPES[M.i + 1]].filter(Boolean).forEach(z => [...(z.imgs || []), z.img].filter(Boolean).forEach(u => { new Image().src = u; })); // l'affiche à venir est prête avant qu'on y arrive
