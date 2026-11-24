@@ -79,11 +79,6 @@ textarea.champ{min-height:150px;resize:none}
 .echelle button{border-radius:50%;background:var(--t);font-weight:800;font-size:22px;transition:background .25s}
 .echelle button.on{background:var(--c)}
 .bouts{display:flex;justify-content:space-between;font-size:17px}
-.ab{display:flex;justify-content:center;gap:14px;flex-wrap:wrap}
-.ab button{width:42vw;max-width:230px;aspect-ratio:1;border-radius:50%;font-size:80px;font-weight:800;letter-spacing:-.05em;transition:transform .2s}
-.ab button:first-child{background:var(--c1)}.ab button:nth-child(2){background:var(--c3);color:#fff}.ab button:nth-child(3){background:var(--c2)}.ab button:nth-child(4){background:#141414;color:#fff}
-.ab.n3 button,.ab.n4 button{width:36vw;max-width:170px;font-size:60px}
-.ab button:active{transform:scale(1.08)}
 .note{font-size:.85em}
 .fait{display:flex;flex-direction:column;gap:18px;align-items:flex-start;margin-top:8vh}
 .fait .tete{font-size:96px;animation:pop .5s}
@@ -440,7 +435,7 @@ function telephone() {
       if (t === 'multi' && !q.zones) x += `<p class="note">Plusieurs réponses possibles.</p><button class="btn" data-a="multi">Valider</button>`;
       if (t === 'echelle') x += `<div class="echelle">${q.o.map((o, i) => `<button data-o="${i}" style="width:${36 + i * 11}px;height:${36 + i * 11}px">${o}</button>`).join('')}</div><div class="bouts"><span>${h(q.a)}</span><span>${h(q.b)}</span></div>`;
       if (!q.zones && !q.vote && !e.jeu) x += VUE(e, (e.imgs || []).filter(Boolean)); // la même affiche que sur le grand écran (pas pour le jeu : l'affiche y est cachée)
-      if (t === 'ab') x += `<div class="ab n${e.o.length - 1}">${e.o.slice(0, -1).map((l, i) => `<button data-o="${i}">${l}</button>`).join('')}</div><div class="opts"><button class="opt" data-o="${e.o.length - 1}">${h(e.o[e.o.length - 1])}${tete(e.p)}</button></div>`;
+      if (t === 'ab') x += `<div class="opts">${e.o.map((o, i) => `<button class="opt" data-o="${i}">${h(o)}${tete(e.p)}</button>`).join('')}</div>`; // la lettre est déjà sur chaque affiche
     }
     app.innerHTML = `<div class="tel${e.t === 'accueil' ? ' fixe' : ''}">${x}</div>`;
     if (!SALLE) salons();
@@ -538,7 +533,7 @@ function enLigne() {
       else if (e.t === 'choix' || e.t === 'multi') x += `<div class="opts">${e.o.map((o, i) => `<button class="opt" data-o="${i}">${h(o)}${tete(e.p || 1)}</button>`).join('')}</div>`;
       if (e.t === 'multi' && !e.zones) x += `<p class="note">Plusieurs réponses possibles.</p><button class="btn" data-a="multi">Valider</button>`;
       if (e.t === 'echelle') x += `<div class="echelle">${e.o.map((o, i) => `<button data-o="${i}" style="width:${36 + i * 11}px;height:${36 + i * 11}px">${o}</button>`).join('')}</div><div class="bouts"><span>${h(e.a)}</span><span>${h(e.b)}</span></div>`;
-      if (e.t === 'ab') x += `<div class="ab n${e.o.length - 1}">${e.o.slice(0, -1).map((l, i) => `<button data-o="${i}">${l}</button>`).join('')}</div><div class="opts"><button class="opt" data-o="${e.o.length - 1}">${h(e.o[e.o.length - 1])}${tete(e.p || 1)}</button></div>`;
+      if (e.t === 'ab') x += `<div class="opts">${e.o.map((o, i) => `<button class="opt" data-o="${i}">${h(o)}${tete(e.p || 1)}</button>`).join('')}</div>`;
     }
     app.innerHTML = `<div class="tel${e.t === 'accueil' ? ' fixe' : ''}">${x}</div>`;
     [ETAPES[M.i], ETAPES[M.i + 1]].filter(Boolean).forEach(z => [...(z.imgs || []), z.img].filter(Boolean).forEach(u => { new Image().src = u; })); // l'affiche à venir est prête avant qu'on y arrive
