@@ -34,6 +34,12 @@ header h1{margin:0;font-size:24px;font-weight:800;letter-spacing:-.04em;flex:1}
 #liste .txt{flex:1;min-width:0}
 #liste small{display:block;font-size:12px;font-weight:700;color:var(--gris)}
 #liste b{display:block;font-size:14px;line-height:1.15;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#liste .mini{flex:1;min-width:0;aspect-ratio:16/9;background:var(--t);border-radius:8px;padding:8px;display:flex;gap:5px;align-items:center;overflow:hidden}
+#liste .mini.plein{background:var(--c)}
+#liste .mini .tx{flex:1;min-width:0;align-self:stretch}
+#liste .mini small{font-size:9px;line-height:1.2;margin-bottom:3px}
+#liste .mini b{font-size:13px;line-height:1.02;letter-spacing:-.03em;white-space:normal;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical}
+#liste .mini img{flex:0 1 auto;min-width:0;max-height:100%;max-width:42%;object-fit:contain;border-radius:3px}
 #liste .oeil{flex:none;width:32px;height:32px;border-radius:50%;display:grid;place-items:center;color:var(--gris)}#liste .oeil:hover{background:var(--fond);color:var(--n)}
 #liste li.dossier{background:none;border:0;padding:0;margin:14px 0 6px;cursor:default;flex-direction:column;align-items:stretch;gap:4px}
 #liste li.dossier .nom{font-size:15px;font-weight:800;line-height:1.15;padding:0 2px}#liste li.dossier .nom small{display:inline;font-size:12px}
@@ -81,7 +87,7 @@ header h1{margin:0;font-size:24px;font-weight:800;letter-spacing:-.04em;flex:1}
 .apercu .im .x{position:absolute;top:-1cqw;right:-1cqw;width:3.4cqw;height:3.4cqw;min-width:26px;min-height:26px;border-radius:50%;background:var(--n);color:#fff;font-weight:800;line-height:1}
 .apercu .vide{width:19cqw;aspect-ratio:1000/1414;border-radius:1.5cqw;background:var(--fond);font-weight:700;font-size:1.7cqw;padding:1cqw}
 /* les trois versions du même écran */
-.vues{margin:0 0 14px;gap:8px}.vues .ouvrir{margin-left:auto}
+.vues{margin:0 0 14px;gap:8px}.outils .btn{min-height:38px;padding:6px 16px;font-size:14px}.outils .etape{display:inline-flex;align-items:center;gap:8px;font-weight:800;font-size:14px}.outils select{max-width:260px}.vues .ouvrir{margin-left:auto}
 #liste li:not(.sel) .mv{visibility:hidden}/* les flèches seulement sur l'écran choisi : la liste reste lisible */
 /* à côté du grand écran : le téléphone du participant, ou sa fiche à imprimer */
 #vue{display:flex;flex-wrap:wrap;gap:22px;align-items:flex-start}
@@ -251,7 +257,7 @@ function liste() {
   let n = 0, x = ''; const P = parties(), dossiers = [...new Set(P)].filter(p => NOM_PARTIE[p]).length > 1;
   if (sel !== selVu) { fermes.delete(P[sel]); selVu = sel; } // le dossier de l'écran qu'on vient de choisir s'ouvre
   const carte = (e, i) => (e.masque || ++n, `<li data-i="${i}" draggable="${!fixe(i)}" class="${i === sel ? 'sel' : ''}${e.masque ? ' masque' : ''}" style="--c:${COUL(e)}">
-    <span class="num">${e.masque ? '–' : n}</span><span class="txt"><small>${h(TYPE(e))}${e.masque ? ' · masqué' : ''}</small><b>${h(TITRE(e))}</b></span>
+    <span class="num">${e.masque ? '–' : n}</span><span class="mini${e.t === 'phase' ? ' plein' : ''}" style="--t:${e.p ? `var(--t${e.p})` : 'var(--fond)'}"><span class="tx"><small>${h(TYPE(e))}${e.masque ? ' · masqué' : ''}</small><b>${h(TITRE(e))}</b></span>${[e.img, ...(e.imgs || [])].filter(Boolean).slice(0, 4).map(s => `<img src="${h(s)}" alt="" loading="lazy">`).join('')}</span>
     ${fixe(i) ? '' : `<button type="button" class="oeil" data-oeil aria-pressed="${!!e.masque}" aria-label="${e.masque ? 'Montrer cet écran pendant la séance' : 'Masquer cet écran pendant la séance'}" title="${e.masque ? 'Écran masqué : cliquer pour le montrer' : 'Masquer cet écran pendant la séance'}">${OEIL(e.masque)}</button>`}<span class="mv"><button data-m="-1" aria-label="Monter" ${fixe(i) || fixe(i - 1) || i === 0 ? 'disabled' : ''}>↑</button><button data-m="1" aria-label="Descendre" ${fixe(i) || fixe(i + 1) || i === M.ecrans.length - 1 ? 'disabled' : ''}>↓</button></span></li>`);
   for (let i = 0, j; i < M.ecrans.length; i = j) { // une partie = une suite d'écrans, rangée dans son dossier
     const p = P[i]; for (j = i; j < M.ecrans.length && P[j] === p; j++);
@@ -322,7 +328,6 @@ const VUES = [['tel', 'Diaporama + téléphone', '?ecran&apercu&salle=apercu'], 
 let vue = 'tel'; try { vue = localStorage.getItem('pdvVue') || 'tel'; } catch (e) { } if (!VUES.some(v => v[0] === vue)) vue = 'tel';
 function zone() {
   const e = M.ecrans[sel], reglable = ['info', 'phase', 'flash', 'mission', 'vote'].includes(e.t) || e.q != null; let f = '';
-  if (e.t === 'texte') f += `<p class="verrou">Chacun écrit sa réponse sur son téléphone. Sur la version papier, la réponse s'écrit à la main et n'est pas lue par la photo.</p>`;
   if (e.zones) f += `<div class="c"><b>Les zones de l'affiche</b><small>Chaque zone est une réponse possible. Pour déplacer un cadre, changer sa taille ou en tracer un nouveau : « Modifier le découpage en grand », ou un clic sur l'affiche. Le × ci-dessous supprime une zone.</small>
     ${lignesZones(e)}
     <div class="ligne"><button type="button" class="btn" data-a="decoupe">Modifier le découpage en grand</button><button type="button" class="btn clair" data-a="affiche" data-k="imgs.0">Changer l'affiche</button></div></div>`;
@@ -332,14 +337,14 @@ function zone() {
   if (vue === 'form' && ['accueil', 'mission', 'photo', 'vote', 'palmares'].includes(e.t)) f += `<p class="verrou">Dans la version formulaire, chacun répond seul chez soi : cet écran de la séance en groupe n'y passe pas.</p>`;
   else if (!reglable) f = `<p class="verrou">Cet écran n'a pas de réglage : son contenu est fabriqué par l'appli pendant la séance.</p>`;
   const libre = ['info', 'flash', 'choix', 'multi', 'echelle', 'ab', 'texte'].includes(e.t); // les écrans qu'on peut créer, copier, supprimer
-  if (libre && e.t !== 'flash' && !e.jeu) f += `<label class="c crea">Couleur de l'étape<select data-k="p"><option value="">Sans étape (noir)</option>${Object.keys(M.phases).map(Number).map(p => `<option value="${p}" ${e.p === p ? 'selected' : ''}>Étape ${p} · ${h(M.phases[p].nom)}</option>`).join('')}</select></label>`;
-  if (libre) f += `<div class="ligne crea"><button type="button" class="btn clair" data-a="dupliquer">Dupliquer cet écran</button><button type="button" class="btn clair" data-a="supprimer">Supprimer cet écran</button></div>`;
+  let outils = '';
+  if (libre && e.t !== 'flash' && !e.jeu) outils += `<label class="etape">Étape<select data-k="p" class="btn clair"><option value="">Sans étape (noir)</option>${Object.keys(M.phases).map(Number).map(p => `<option value="${p}" ${e.p === p ? 'selected' : ''}>Étape ${p} · ${h(M.phases[p].nom)}</option>`).join('')}</select></label>`;
+  if (libre) outils += `<button type="button" class="btn clair" data-a="dupliquer">Dupliquer</button>`;
   if (!e.zones && !e.jeu && ['info', 'choix', 'multi', 'echelle', 'texte'].includes(e.t) && (e.imgs || [])[0]) f += `<div class="c"><b>L'affiche pour cette question</b><small>Vous pouvez masquer des parties de l'affiche, ou ne montrer qu'un élément en très gros : utile quand la question porte sur un élément précis.</small><div class="ligne"><button type="button" class="btn clair" data-a="cadrer">${cadree(e) ? 'Changer le cadrage' : 'Masquer une partie ou montrer un élément en très gros'}</button>${cadree(e) ? `<button type="button" class="btn clair" data-a="affiche" data-k="imgs.0">Changer l'affiche</button>` : ''}</div></div>`;
   const atelier = ['mission', 'photo', 'vote', 'palmares', 'phase'].includes(e.t);
-  if (atelier) f += `<div class="ligne crea"><button type="button" class="btn clair" data-a="supprimer">Supprimer cet écran</button></div>`;
-  if (!fixe(sel)) f += `<label class="case"><input type="checkbox" data-k="masque" ${e.masque ? 'checked' : ''}>Masquer cet écran pendant la séance</label>`;
-  else f += `<p class="verrou">Cet écran reste à sa place : la séance commence et finit toujours par lui.</p>`;
-  $('travail').innerHTML = `<button type="button" class="btn clair retour" data-a="retour">← Tous les écrans</button><div class="ligne vues" role="group" aria-label="Version montrée">${VUES.map(([v, n]) => `<button type="button" class="btn${v === vue ? '' : ' clair'}" data-a="vue" data-v="${v}" aria-pressed="${v === vue}">${n}</button>`).join('')}<button type="button" class="btn clair ouvrir" data-a="apercu" title="Ouvre cette version dans un autre onglet, avec vos modifications même non enregistrées. Rien ne part en ligne.">Prévisualiser</button>${vue === 'papier' ? `<a class="btn clair" href="papier.html${TEST ? '?test=' + TEST : ''}" target="_blank" rel="noopener">Imprimer la fiche</a>` : ''}</div><h3>${h(TYPE(e))}</h3>${reglable ? `<p class="aide">Cliquez sur un texte ou sur une affiche pour le modifier.</p>` : ''}<div id="vue">${apercu(e)}${cote(e)}</div><form onsubmit="return false">${f}</form>`;
+  if (libre || atelier) outils += `<button type="button" class="btn clair" data-a="supprimer">Supprimer</button>`;
+  if (!fixe(sel)) outils += `<button type="button" class="btn clair" data-a="masquer" aria-pressed="${!!e.masque}">${OEIL(e.masque)}&nbsp;${e.masque ? 'Montrer' : 'Masquer'}</button>`;
+  $('travail').innerHTML = `<button type="button" class="btn clair retour" data-a="retour">← Tous les écrans</button><div class="ligne vues" role="group" aria-label="Version montrée">${VUES.map(([v, n]) => `<button type="button" class="btn${v === vue ? '' : ' clair'}" data-a="vue" data-v="${v}" aria-pressed="${v === vue}">${n}</button>`).join('')}<button type="button" class="btn clair ouvrir" data-a="apercu" title="Ouvre cette version dans un autre onglet, avec vos modifications même non enregistrées. Rien ne part en ligne.">Prévisualiser</button>${vue === 'papier' ? `<a class="btn clair" href="papier.html${TEST ? '?test=' + TEST : ''}" target="_blank" rel="noopener">Imprimer la fiche</a>` : ''}</div>${outils ? `<div class="ligne vues outils" role="group" aria-label="Cet écran">${outils}</div>` : ''}<h3>${h(TYPE(e))}</h3>${reglable ? `<p class="aide">Cliquez sur un texte ou sur une affiche pour le modifier.</p>` : ''}<div id="vue">${apercu(e)}${cote(e)}</div><form onsubmit="return false">${f}</form>`;
   if ($('decoupe').open) { if (e.zones) dessinerDecoupe(); else $('decoupe').close(); }
 }
 const rafraichir = () => { $('vue').innerHTML = apercu(M.ecrans[sel]) + cote(M.ecrans[sel]); liste(); change(); };
@@ -384,6 +389,7 @@ $('zone').addEventListener('click', ev => {
   if (a === 'moins') { const i = +b.dataset.i; e.o.splice(i, 1); if (e.zones) e.zones.splice(i, 1); if (e.jeu) e.bon = e.bon === i ? 0 : e.bon > i ? e.bon - 1 : e.bon; }
   if (a === 'vue') { vue = b.dataset.v; try { localStorage.setItem('pdvVue', vue); } catch (x) { } }
   if (a === 'bon') e.bon = +b.dataset.i;
+  if (a === 'masquer') e.masque = !e.masque;
   if (a === 'sansAffiche' && !e.zones) { delete e.caches; delete e.zoom; delete e.r; }
   if (a === 'sansAffiche') { if (e.t === 'ab') { e.imgs.splice(+b.dataset.k.split('.')[1], 1); e.o = optsAB(e.imgs.length); } else e.imgs = []; }
   if (a === 'dupliquer') { M.ecrans.splice(sel + 1, 0, JSON.parse(JSON.stringify({ ...e, id: undefined }))); sel++; }
