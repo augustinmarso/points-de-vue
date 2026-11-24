@@ -148,26 +148,27 @@ affiche : affiches/origine.jpg
 - Réponse 3
 masqué : oui
 
-[question] Quels sont les mots que vous ne comprenez pas ?
+[zones] Dans quelle partie y a-t-il des mots que vous ne comprenez pas ?
 étape : 1
-réponses : une
+réponses : plusieurs
 affiche : affiches/origine.jpg
-- Réponse 1
-- Réponse 2
-- Réponse 3
+- Le titre @ 16 3 67 17
+- Les ateliers et le dessin @ 4 21 92 41
+- Gratuit, animé par @ 8 62 84 8
+- Les dates et les lieux @ 2 70 95 15
+- Les logos @ 10 86 81 11
 
 [étape 2]
 
-[question] Où votre regard s'est-il posé en premier ?
+[zones] Où votre regard s'est-il posé en premier ?
 étape : 2
 réponses : une
 affiche : affiches/origine.jpg
-- Le titre
-- L'image
-- Les couleurs
-- La date et le lieu
-- Les logos
-- Ailleurs
+- Le titre @ 16 3 67 17
+- Les ateliers et le dessin @ 4 21 92 41
+- Gratuit, animé par @ 8 62 84 8
+- Les dates et les lieux @ 2 70 95 15
+- Les logos @ 10 86 81 11
 
 [question] Qu'est-ce qui gêne la lecture ?
 étape : 2
@@ -264,13 +265,24 @@ de : Pas du tout
 étape : 2
 affiche : affiches/origine.jpg
 
-[zones] Quelle zone avez-vous regardée en premier ?
+[zones] Quelle partie est la plus difficile à lire ?
+étape : 2
+réponses : plusieurs
+affiche : affiches/origine.jpg
+- Le titre @ 16 3 67 17
+- Les ateliers et le dessin @ 4 21 92 41
+- Gratuit, animé par @ 8 62 84 8
+- Les dates et les lieux @ 2 70 95 15
+- Les logos @ 10 86 81 11
+
+[zones] Quelle partie changeriez-vous en premier ?
 étape : 2
 réponses : une
 affiche : affiches/origine.jpg
 - Le titre @ 16 3 67 17
-- L'image @ 4 20 92 44
-- Le texte @ 2 64 95 23
+- Les ateliers et le dessin @ 4 21 92 41
+- Gratuit, animé par @ 8 62 84 8
+- Les dates et les lieux @ 2 70 95 15
 - Les logos @ 10 86 81 11
 
 [étape 3]
@@ -292,7 +304,7 @@ réponses : plusieurs
 [question] Sous quelle forme vous serait-elle la plus utile ?
 étape : 3
 réponses : une
-affiche : affiches/cercles-qr.jpg
+affiche : affiches/origine.jpg
 - Grande affiche (A3)
 - Affiche (A4)
 - Flyer à emporter (A5)
@@ -302,14 +314,14 @@ affiche : affiches/cercles-qr.jpg
 [question] Ce flyer, l'emporteriez-vous avec vous ?
 étape : 3
 réponses : une
-affiche : affiches/gym-equilibre.jpg
+affiche : affiches/origine.jpg
 - Oui
 - Je la prendrais en photo
 - Non
 
 [note] Cette information vous serait-elle utile, à vous ou à un proche ?
 étape : 3
-affiche : affiches/cercles-qr.jpg
+affiche : affiches/origine.jpg
 de : Pas du tout
 à : Tout à fait
 
