@@ -63,7 +63,7 @@ header a[aria-label=Accueil]{display:inline-flex;align-items:center;gap:6px;font
 #zone{overflow:auto;padding:14px 26px 60px}
 .apercu{aspect-ratio:16/9;max-width:1180px;container-type:inline-size;background:#fff;border-radius:18px;box-shadow:0 4px 24px rgba(20,20,20,.16);overflow:hidden;position:relative}
 .apercu .in{position:absolute;inset:0;padding:5cqw;font-size:2.1cqw;display:flex;gap:3cqw}
-.apercu .lg{position:absolute;left:5cqw;bottom:2.2cqw;display:flex;gap:2cqw;align-items:center;pointer-events:none}.apercu .lg img{height:4.6cqw;max-width:16cqw;object-fit:contain}.apercu.form .lg{display:none}
+.apercu .lg{position:absolute;left:5cqw;top:1.2cqw;display:flex;gap:1.5cqw;align-items:center;pointer-events:none}.apercu .lg img{height:3.2cqw;max-width:14cqw;object-fit:contain}.apercu.form .lg{display:none}
 #choixLogos button[aria-pressed=true]{box-shadow:0 0 0 4px var(--n)}#choixLogos img{object-fit:contain;background:#fff}
 .apercu .g{flex:1;min-width:0;display:flex;flex-direction:column;gap:1.6cqw}
 .apercu .sur{font-weight:700}
@@ -209,7 +209,7 @@ dialog h3{margin:0 0 6px;font-size:24px;font-weight:800;letter-spacing:-.03em}
   <a class="btn clair" id="lancer" href="./?passer" target="_blank" rel="noopener" title="Ouvre la vraie séance dans un autre onglet : grand écran, téléphones, réponses enregistrées. Pour un simple essai, utilisez « Essayer cette version ».">Démarrer la séance</a>
   <details class="plus" id="plus"><summary class="btn clair">Plus ▾</summary><div>
   <button class="btn clair" id="btnNouveau" title="Crée un test à part, avec son propre lien. Le test ouvert ne change pas.">+ Nouveau test</button>
-  <button class="btn clair" id="btnLogos" title="Un ou deux logos montrés en bas à gauche du grand écran">Logos</button>
+  <button class="btn clair" id="btnLogos" title="Un ou deux logos montrés en haut à gauche du grand écran">Logos</button>
   <a class="btn clair" id="resultats" href="resultats.html" title="Les réponses déjà reçues pour ce test">Résultats</a>
   <a class="btn clair" id="mailPlus" title="Ouvre votre messagerie avec un message tout prêt qui contient le lien du formulaire en ligne.">Partager par mail</a>
   <button class="btn clair" id="btnAide" aria-label="Aide et raccourcis" title="Aide et raccourcis">Aide et raccourcis</button>
@@ -232,7 +232,7 @@ dialog h3{margin:0 0 6px;font-size:24px;font-weight:800;letter-spacing:-.03em}
 </div>
 <dialog id="galerie"><h3>Choisir une affiche</h3><p class="aide">Les affiches du site, et celles que vous ajoutez depuis cet ordinateur (elles sont enregistrées avec le test).</p><div class="galerie" id="images"></div>
   <div class="ligne"><label class="btn clair">Ajouter une image<input type="file" accept="image/*" hidden id="ajout"></label><button class="btn clair" data-a="fermer">Fermer</button><span class="aide" id="etatImage"></span></div></dialog>
-<dialog id="logos"><h3>Les logos du grand écran</h3><p class="aide">Un ou deux logos, montrés en bas à gauche de chaque écran. Cliquez sur un logo pour le choisir ou le retirer.</p><div class="galerie" id="choixLogos"></div>
+<dialog id="logos"><h3>Les logos du grand écran</h3><p class="aide">Un ou deux logos, montrés en haut à gauche de chaque écran. Cliquez sur un logo pour le choisir ou le retirer.</p><div class="galerie" id="choixLogos"></div>
   <div class="ligne"><label class="btn clair">Ajouter un logo<input type="file" accept="image/png,image/jpeg,image/webp" hidden id="ajoutLogo"></label><button class="btn clair" data-a="fermer">Fermer</button><span class="aide" id="etatLogo" role="status"></span></div></dialog>
 <dialog id="aide"><h3>Comment ça marche</h3>
   <p><b>1.</b> À gauche, choisissez un écran (une diapositive de la séance). <b>2.</b> À droite, cliquez sur un texte ou sur l'affiche pour le changer. <b>3.</b> Cliquez « Enregistrer » en haut : le site est à jour tout de suite.</p>
