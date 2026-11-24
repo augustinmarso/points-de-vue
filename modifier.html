@@ -15,11 +15,15 @@ body{margin:0;background:#fff;color:var(--n);font-family:'Scoutie Sans',Helvetic
 button,input,textarea,select{font:inherit;color:inherit}
 button{border:0;background:none;cursor:pointer;padding:0}
 :focus-visible{outline:3px solid var(--c3);outline-offset:2px}
-header{display:flex;align-items:center;gap:16px;padding:12px 20px;flex:none;flex-wrap:wrap}
+header{display:flex;align-items:center;gap:10px 12px;padding:12px 20px;flex:none;flex-wrap:wrap}
 header a{color:inherit;font-weight:700}
-header select{width:auto;max-width:300px}
-header h1{margin:0;font-size:24px;font-weight:800;letter-spacing:-.04em;flex:1}
-#etat{font-size:14px;color:var(--gris);font-weight:700}
+header select{width:auto;max-width:440px}
+header h1{margin:0;font-size:24px;font-weight:800;letter-spacing:-.04em;flex:1 1 230px}
+#etat{font-size:14px;color:var(--gris);font-weight:700}#etat.non{color:var(--n);background:var(--c2);padding:7px 14px;border-radius:99px}
+.plus{position:relative}.plus summary{list-style:none;cursor:pointer}.plus summary::-webkit-details-marker{display:none}
+.plus>div{position:absolute;right:0;top:calc(100% + 6px);z-index:5;background:#fff;border-radius:18px;box-shadow:0 8px 40px rgba(20,20,20,.25);padding:10px;display:flex;flex-direction:column;gap:6px;min-width:240px}.plus>div .btn{justify-content:flex-start}
+header h1 small{display:block;font-size:13px;font-weight:400;letter-spacing:0;color:var(--gris);margin-top:2px}
+header a[aria-label=Accueil]{display:inline-flex;align-items:center;gap:6px;font-size:14px}
 .btn{background:var(--n);color:#fff;font-weight:800;border-radius:99px;padding:10px 20px;min-height:44px;display:inline-flex;align-items:center;text-decoration:none}
 .btn.clair{background:var(--fond);color:var(--n)}
 .btn[disabled]{opacity:.35;cursor:default}
@@ -28,16 +32,19 @@ header h1{margin:0;font-size:24px;font-weight:800;letter-spacing:-.04em;flex:1}
 #liste{margin:0;padding:8px 10px 40px 14px;list-style:none;overflow:auto;background:var(--fond)}
 #liste li{display:flex;align-items:center;gap:10px;padding:8px;border-radius:14px;cursor:pointer;margin-bottom:4px;background:#fff;border:3px solid color-mix(in srgb,var(--c,#141414) 72%,#141414)}
 #liste li.sel{box-shadow:0 0 0 3px var(--n)}
-#liste li.masque{opacity:.45}
+#liste li{position:relative}#liste li.masque .mini,#liste li.masque .num{opacity:.4}
+#liste .etq{position:absolute;left:44px;bottom:14px;background:var(--n);color:#fff;font-size:11px;font-weight:800;padding:3px 9px;border-radius:99px;pointer-events:none}
+#liste li[data-i]:hover>.mv{visibility:visible}
+#cherche{width:100%;margin-top:8px;padding:10px 14px;border-radius:99px;border:0;background:#fff;font:inherit;font-size:14px}
 #liste li.dessus{box-shadow:0 -4px 0 0 var(--c3)}
-#liste .num{width:1.7em;flex:none;text-align:right;font-weight:800;color:var(--gris);font-size:14px}
+#liste .num{width:1.7em;flex:none;text-align:right;font-weight:800;color:#3d3d3d;font-size:15px}
 #liste .txt{flex:1;min-width:0}
 #liste small{display:block;font-size:12px;font-weight:700;color:var(--gris)}
 #liste b{display:block;font-size:14px;line-height:1.15;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #liste .mini{flex:1;min-width:0;aspect-ratio:16/9;background:var(--t);border-radius:8px;padding:8px;display:flex;gap:5px;align-items:center;overflow:hidden}
 #liste .mini.plein{background:var(--c)}
 #liste .mini .tx{flex:1;min-width:0;align-self:stretch}
-#liste .mini small{font-size:9px;line-height:1.2;margin-bottom:3px;display:flex;align-items:center;gap:4px}#liste .mini small svg{flex:none}
+#liste .mini small{font-size:10.5px;color:#3d3d3d;line-height:1.2;margin-bottom:3px;display:flex;align-items:center;gap:4px}#liste .mini small svg{flex:none}
 #liste .mini b{font-size:13px;line-height:1.02;letter-spacing:-.03em;white-space:normal;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical}
 #liste .mini img{flex:0 1 auto;min-width:0;max-height:100%;max-width:42%;object-fit:contain;border-radius:3px}
 #liste .oeil{flex:none;width:32px;height:32px;border-radius:50%;display:grid;place-items:center;color:var(--gris)}#liste .oeil:hover{background:var(--fond);color:var(--n)}
@@ -89,8 +96,12 @@ header h1{margin:0;font-size:24px;font-weight:800;letter-spacing:-.04em;flex:1}
 .apercu .im .x{position:absolute;top:-1cqw;right:-1cqw;width:3.4cqw;height:3.4cqw;min-width:26px;min-height:26px;border-radius:50%;background:var(--n);color:#fff;font-weight:800;line-height:1}
 .apercu .vide{width:19cqw;aspect-ratio:1000/1414;border-radius:1.5cqw;background:var(--fond);font-weight:700;font-size:1.7cqw;padding:1cqw}
 /* les trois versions du même écran */
-.vues{margin:0 0 14px;gap:8px}.outils .btn{min-height:38px;padding:6px 16px;font-size:14px}.outils .etape{display:inline-flex;align-items:center;gap:8px;font-weight:800;font-size:14px}.outils select{max-width:260px}.vues .ouvrir{margin-left:auto}
-#liste li:not(.sel) .mv{visibility:hidden}/* les flèches seulement sur l'écran choisi : la liste reste lisible */
+.vues{margin:0 0 14px;gap:8px}.outils .btn{min-height:38px;padding:6px 16px;font-size:14px}.outils .danger{color:#B3261E;order:9;margin-left:auto}.outils .case{font-size:14px;gap:8px}.outils [aria-pressed=true]{background:var(--n);color:#fff}
+.aide.fort{color:var(--n);font-weight:700}.aide.expl{margin:-6px 0 14px}
+.apercu [contenteditable],.cote [contenteditable]{text-decoration:underline dotted rgba(20,20,20,.3);text-underline-offset:.18em;text-decoration-thickness:1px}
+.apercu [contenteditable]:hover:not(:focus)::after{content:' ✎';font-size:.55em;opacity:.55;font-weight:400}
+.apercu .im .chg{position:absolute;left:50%;bottom:1cqw;transform:translateX(-50%);background:var(--n);color:#fff;font-weight:800;font-size:max(11px,1.25cqw);padding:.45em 1em;border-radius:99px;white-space:nowrap}.outils .etape{display:inline-flex;align-items:center;gap:8px;font-weight:800;font-size:14px}.outils select{max-width:260px}.vues .ouvrir{margin-left:auto}
+#liste li[data-i]:not(.sel)>.mv{visibility:hidden}/* les flèches seulement sur l'écran choisi : la liste reste lisible */
 /* à côté du grand écran : le téléphone du participant, ou sa fiche à imprimer */
 #vue{display:flex;flex-wrap:wrap;gap:22px;align-items:flex-start}
 #vue .apercu{flex:1 1 380px;min-width:0}
@@ -172,7 +183,7 @@ textarea{resize:vertical;min-height:110px}
 .affiche{display:flex;align-items:center;gap:14px}
 .affiche img{width:74px;height:104px;object-fit:cover;border-radius:10px;background:var(--fond);flex:none}
 .verrou{background:var(--fond);border-radius:14px;padding:14px 16px;color:var(--gris);font-size:15px}
-dialog{border:0;border-radius:22px;padding:22px;max-width:min(880px,92vw);box-shadow:0 10px 60px rgba(20,20,20,.35)}
+dialog{border:0;border-radius:22px;padding:22px;max-width:min(880px,92vw);max-height:92vh;overflow:auto;box-shadow:0 10px 60px rgba(20,20,20,.35)}
 dialog::backdrop{background:rgba(20,20,20,.45)}
 dialog h3{margin:0 0 6px;font-size:24px;font-weight:800;letter-spacing:-.03em}
 .galerie{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:12px;margin:16px 0}
@@ -187,19 +198,25 @@ dialog h3{margin:0 0 6px;font-size:24px;font-weight:800;letter-spacing:-.03em}
 #liste .ajout .btn{width:100%;justify-content:center}
 .crea{display:flex}
 .retour{display:none;margin-bottom:14px}
-@media (max-width:900px){.corps{display:block}#liste,#zone{height:100%}#zone{display:none;padding:14px 16px 60px}body.detail #liste{display:none}body.detail #zone{display:block}.retour{display:inline-flex}header{padding:10px 14px;gap:10px}header h1{font-size:20px;flex-basis:auto}#annuler{display:none}.apercu{aspect-ratio:auto}}
+@media (max-width:900px){.corps{display:block}#liste,#zone{height:100%}#zone{display:none;padding:14px 16px 60px}body.detail #liste{display:none}body.detail #zone{display:block}.retour{display:inline-flex}header{padding:10px 14px;gap:10px}header h1{font-size:20px;flex-basis:auto}#annuler{font-size:14px;padding:6px 14px;min-height:38px}header h1 small{display:none}.outils{gap:12px}.cote .x,.apercu .opts .x{min-width:34px;min-height:34px}.apercu{aspect-ratio:auto}}
 </style>
 </head>
 <body>
 <header>
-  <a href="./" aria-label="Accueil" title="Accueil"><svg viewBox="0 0 24 24" width="1.35em" height="1.35em" fill="currentColor" aria-hidden="true" style="vertical-align:-.3em"><path d="M12 3 2.5 11.2h2.7V21h5.3v-6h3v6h5.3v-9.8h2.7z"/></svg></a>
-  <h1>Modifier le test</h1>
+  <a href="./" aria-label="Accueil" title="Accueil"><svg viewBox="0 0 24 24" width="1.35em" height="1.35em" fill="currentColor" aria-hidden="true" style="vertical-align:-.3em"><path d="M12 3 2.5 11.2h2.7V21h5.3v-6h3v6h5.3v-9.8h2.7z"/></svg> Accueil</a>
+  <h1>Modifier le test<small>Ici, vous composez la séance que verront les participants.</small></h1>
   <select class="btn clair" id="test" aria-label="Le test modifié"><option>Séance Points de vue (principale)</option></select>
+  <a class="btn clair" id="lancer" href="./?passer" target="_blank" rel="noopener" title="Ouvre la vraie séance dans un autre onglet : grand écran, téléphones, réponses enregistrées. Pour un simple essai, utilisez « Essayer cette version ».">Démarrer la séance</a>
+  <details class="plus" id="plus"><summary class="btn clair">Plus ▾</summary><div>
+  <button class="btn clair" id="btnNouveau" title="Crée un test à part, avec son propre lien. Le test ouvert ne change pas.">+ Nouveau test</button>
   <button class="btn clair" id="btnLogos" title="Un ou deux logos montrés en bas à gauche du grand écran">Logos</button>
+  <a class="btn clair" id="resultats" href="resultats.html" title="Les réponses déjà reçues pour ce test">Résultats</a>
+  <a class="btn clair" id="mailPlus" title="Ouvre votre messagerie avec un message tout prêt qui contient le lien du formulaire en ligne.">Partager par mail</a>
+  <button class="btn clair" id="btnAide" aria-label="Aide et raccourcis" title="Aide et raccourcis">Aide et raccourcis</button>
   <button class="btn clair" id="supprTest" hidden title="Supprime ce test et son lien. Les réponses déjà données restent dans le Google Sheet.">Supprimer ce test</button>
-  <a class="btn clair" id="lancer" href="./?passer" target="_blank" rel="noopener">Lancer ce test</a>
+  </div></details>
   <span id="etat">Chargement…</span>
-  <button class="btn clair" id="annuler" disabled title="Revient à l'état d'avant votre dernière modification. Plusieurs clics remontent plus loin.">← Revenir en arrière</button>
+  <button class="btn clair" id="annuler" disabled title="Rien à annuler pour l'instant">← Annuler</button>
   <button class="btn" id="enregistrer" disabled>Enregistrer</button>
 </header>
 <div class="corps">
@@ -217,7 +234,15 @@ dialog h3{margin:0 0 6px;font-size:24px;font-weight:800;letter-spacing:-.03em}
   <div class="ligne"><label class="btn clair">Ajouter une image<input type="file" accept="image/*" hidden id="ajout"></label><button class="btn clair" data-a="fermer">Fermer</button><span class="aide" id="etatImage"></span></div></dialog>
 <dialog id="logos"><h3>Les logos du grand écran</h3><p class="aide">Un ou deux logos, montrés en bas à gauche de chaque écran. Cliquez sur un logo pour le choisir ou le retirer.</p><div class="galerie" id="choixLogos"></div>
   <div class="ligne"><label class="btn clair">Ajouter un logo<input type="file" accept="image/png,image/jpeg,image/webp" hidden id="ajoutLogo"></label><button class="btn clair" data-a="fermer">Fermer</button><span class="aide" id="etatLogo" role="status"></span></div></dialog>
-<dialog id="nouveau"><h3>Ajouter un écran</h3><p class="aide">Il se place juste après l'écran choisi. Vous pourrez ensuite le déplacer.</p><div class="types" id="types"></div>
+<dialog id="aide"><h3>Comment ça marche</h3>
+  <p><b>1.</b> À gauche, choisissez un écran (une diapositive de la séance). <b>2.</b> À droite, cliquez sur un texte ou sur l'affiche pour le changer. <b>3.</b> Cliquez « Enregistrer » en haut : le site est à jour tout de suite.</p>
+  <p class="aide"><b>Les mots.</b> Un <b>test</b> = une séance complète, avec son lien. Un <b>écran</b> = une diapositive : une question, une affiche ou un texte. Une <b>étape</b> = une partie de la séance, avec sa couleur.<br>
+  <b>L'œil</b> masque un écran : il reste dans la liste mais ne passe pas pendant la séance. <b>Supprimer</b> l'enlève pour de bon (« Annuler » le fait revenir tant que la page est ouverte).<br>
+  <b>Déplacer un écran</b> : glissez sa miniature, ou utilisez ses flèches ↑ ↓.<br>
+  <b>Essayer cette version</b> ouvre un essai sans rien enregistrer. <b>Démarrer la séance</b> ouvre la vraie séance.</p>
+  <p class="aide"><b>Au clavier.</b> ↑ ↓ : écran d'avant ou d'après · Suppr : supprimer l'écran (avec confirmation) · Ctrl+Z : annuler la dernière modification · Échap : sortir d'un texte.</p>
+  <div class="ligne"><button class="btn clair" data-a="fermer">Fermer</button></div></dialog>
+<dialog id="nouveau"><h3>Ajouter un écran (une question, une affiche, un texte)</h3><p class="aide">Il se place juste après l'écran choisi. Vous pourrez ensuite le déplacer.</p><div class="types" id="types"></div>
   <div class="ligne"><button class="btn clair" data-a="fermer">Fermer</button></div></dialog>
 <dialog id="creer"><h3>Nouveau test</h3><p class="aide">Un test à part, avec son propre lien et ses propres écrans. Le test principal ne change pas. Choisissez un nom, puis une structure de départ (un modèle, ou la copie d'un test déjà créé) : tout reste modifiable ensuite.</p>
   <label class="c">Nom du test<input type="text" id="nomTest" maxlength="60" placeholder="Par exemple : Affiches vaccination, décembre"></label>
@@ -243,9 +268,9 @@ const COUL = e => e.p ? `var(--c${e.p})` : '#141414';
 const fixe = i => (i === 0 && M.ecrans[0].t === 'accueil') || (i === M.ecrans.length - 1 && M.ecrans[i].t === 'fin'); // le début et la fin ne bougent pas
 // revenir en arrière : chaque modification garde l'état d'avant ; une frappe continue (moins de 0,8 s entre deux touches) compte pour une seule
 let pile = [], dernier = '', tPile = 0;
-const noterPile = t => { if (dernier && t !== dernier) { if (Date.now() - tPile > 800) { pile.push(dernier); if (pile.length > 100) pile.shift(); } tPile = Date.now(); } dernier = t; $('annuler').disabled = !pile.length; };
+const noterPile = t => { if (dernier && t !== dernier) { if (Date.now() - tPile > 800) { pile.push(dernier); if (pile.length > 100) pile.shift(); } tPile = Date.now(); } dernier = t; $('annuler').disabled = !pile.length; $('annuler').title = pile.length ? "Revient à l'état d'avant votre dernière modification (Ctrl+Z). Plusieurs clics remontent plus loin." : "Rien à annuler pour l'instant : ce bouton s'allume dès que vous modifiez quelque chose."; };
 const annuler = () => { if (!pile.length) return; dernier = pile.pop(); tPile = 0; lireSeance(dernier); charger(); };
-const change = () => { noterPile(ecrireSeance(M)); const diff = ecrireSeance(M) !== depart; $('enregistrer').disabled = !diff; $('etat').textContent = diff ? 'Modifications non enregistrées' : 'Tout est enregistré'; };
+const change = () => { noterPile(ecrireSeance(M)); const diff = ecrireSeance(M) !== depart; $('enregistrer').disabled = !diff; $('etat').textContent = diff ? 'Modifications non enregistrées' : 'Tout est enregistré'; $('etat').classList.toggle('non', diff); };
 
 // une icône par sorte d'écran, sur sa miniature
 const svgI = d => `<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
@@ -268,7 +293,8 @@ const ICONE = e => svgI(e.zones ? '<rect x="4" y="3" width="16" height="18" rx="
 }[e.t] || '<circle cx="12" cy="12" r="8"/>'));
 const OEIL = ferme => `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12z"/><circle cx="12" cy="12" r="2.8"/>${ferme ? '<path d="M4 20 20 4"/>' : ''}</svg>`;
 // les dossiers : dans la liste, chaque partie de la séance (le jeu, chaque étape, l'atelier) est un dossier qui s'ouvre et se referme. Un écran sans partie suit celle de l'écran d'après.
-const fermes = new Set(); let selVu = -1;
+const fermes = new Set(); let selVu = -1, filtre = '';
+const simple = x => String(x).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
 const NOM_PARTIE = { jeu: "Jeu de l'œil", atelier: 'Atelier', 1: 'Étape 1', 2: 'Étape 2', 3: 'Étape 3', 4: 'Étape 4', 5: 'Étape 5', 6: 'Étape 6' };
 function parties() {
   const P = M.ecrans.map(e => e.p || (e.jeu || e.t === 'scores' ? 'jeu' : ['mission', 'photo', 'vote', 'palmares'].includes(e.t) ? 'atelier' : 0));
@@ -280,18 +306,20 @@ const visibles = () => { const P = parties(); return M.ecrans.map((_, i) => i).f
 function liste() {
   let n = 0, x = ''; const P = parties(), dossiers = [...new Set(P)].filter(p => NOM_PARTIE[p]).length > 1;
   if (sel !== selVu) { fermes.delete(P[sel]); selVu = sel; } // le dossier de l'écran qu'on vient de choisir s'ouvre
-  const carte = (e, i) => (e.masque || ++n, `<li data-i="${i}" draggable="${!fixe(i)}" class="${i === sel ? 'sel' : ''}${e.masque ? ' masque' : ''}" style="--c:${COUL(e)}">
+  const mots = simple(filtre).trim(), foc = document.activeElement && document.activeElement.id === 'cherche';
+  const carte = (e, i) => (e.masque || ++n, mots && !simple(TITRE(e) + ' ' + TYPE(e) + ' ' + (e.o || []).join(' ')).includes(mots)) ? '' : (`<li data-i="${i}" draggable="${!fixe(i)}" class="${i === sel ? 'sel' : ''}${e.masque ? ' masque' : ''}" style="--c:${COUL(e)}">
     <span class="num">${e.masque ? '–' : n}</span><span class="mini${e.t === 'phase' ? ' plein' : ''}" style="--t:${e.p ? `var(--t${e.p})` : 'var(--fond)'}"><span class="tx"><small>${ICONE(e)} ${h(TYPE(e))}${e.masque ? ' · masqué' : ''}</small><b>${h(TITRE(e))}</b></span>${[e.img, ...(e.imgs || [])].filter(Boolean).slice(0, 4).map(s => `<img src="${h(s)}" alt="" loading="lazy">`).join('')}</span>
-    ${fixe(i) ? '' : `<button type="button" class="oeil" data-oeil aria-pressed="${!!e.masque}" aria-label="${e.masque ? 'Montrer cet écran pendant la séance' : 'Masquer cet écran pendant la séance'}" title="${e.masque ? 'Écran masqué : cliquer pour le montrer' : 'Masquer cet écran pendant la séance'}">${OEIL(e.masque)}</button>`}<span class="mv"><button data-m="-1" aria-label="Monter" ${fixe(i) || fixe(i - 1) || i === 0 ? 'disabled' : ''}>↑</button><button data-m="1" aria-label="Descendre" ${fixe(i) || fixe(i + 1) || i === M.ecrans.length - 1 ? 'disabled' : ''}>↓</button></span></li>`);
+    ${fixe(i) ? '' : `<button type="button" class="oeil" data-oeil aria-pressed="${!!e.masque}" aria-label="${e.masque ? 'Montrer cet écran pendant la séance' : 'Masquer cet écran pendant la séance'}" title="${e.masque ? 'Écran masqué : cliquer pour le montrer' : 'Masquer cet écran pendant la séance'}">${OEIL(e.masque)}</button>`}${e.masque ? '<span class="etq">Masqué</span>' : ''}<span class="mv"><button data-m="-1" aria-label="Monter" title="Monter cet écran" ${fixe(i) || fixe(i - 1) || i === 0 ? 'disabled' : ''}>↑</button><button data-m="1" aria-label="Descendre" title="Descendre cet écran" ${fixe(i) || fixe(i + 1) || i === M.ecrans.length - 1 ? 'disabled' : ''}>↓</button></span></li>`);
   for (let i = 0, j; i < M.ecrans.length; i = j) { // une partie = une suite d'écrans, rangée dans son dossier
     const p = P[i]; for (j = i; j < M.ecrans.length && P[j] === p; j++);
-    const cartes = () => M.ecrans.slice(i, j).map((e, k) => carte(e, i + k)).join(''), ferme = fermes.has(p);
+    const cartes = () => M.ecrans.slice(i, j).map((e, k) => carte(e, i + k)).join(''), ferme = !mots && fermes.has(p);
     if (!dossiers || !NOM_PARTIE[p]) { x += cartes(); continue; }
     if (ferme) M.ecrans.slice(i, j).forEach(e => e.masque || ++n); // les numéros continuent après un dossier fermé
     x += `<li class="dossier${ferme ? ' ferme' : ''}" style="--c:${p > 0 ? `var(--c${p})` : '#141414'};--f:${p > 0 && p != 3 ? '#141414' : '#fff'}"><span class="nom">${p > 0 ? `<small>${NOM_PARTIE[p]} · </small><span contenteditable="plaintext-only" spellcheck="false" role="textbox" aria-label="Nom de l'étape ${p}" title="Cliquer pour changer le nom de l'étape" data-ph="${p}">${h(M.phases[p].nom)}</span>` : NOM_PARTIE[p]}</span>
       <div class="chemise"><button type="button" data-og="${p}" aria-expanded="${!ferme}" aria-label="${ferme ? 'Ouvrir' : 'Refermer'} le dossier ${NOM_PARTIE[p]}, ${j - i} écrans" title="${ferme ? 'Ouvrir ce dossier' : 'Refermer ce dossier'}">${j - i} écran${j - i > 1 ? 's' : ''} ${ferme ? '▸' : '▾'}</button>${ferme ? '' : `<ol class="dedans">${cartes()}</ol>`}</div></li>`;
   }
-  $('liste').innerHTML = `<li class="ajout"><button type="button" class="btn" data-a="nouveau">+ Ajouter un écran</button></li>` + x;
+  $('liste').innerHTML = `<li class="ajout"><button type="button" class="btn" data-a="nouveau">+ Ajouter un écran</button><input type="search" id="cherche" placeholder="Chercher un écran…" aria-label="Chercher un écran" value="${h(filtre)}"></li>` + (x || '<li class="dossier"><span class="nom">Aucun écran ne contient ces mots.</span></li>');
+  if (foc) { const c = $('cherche'); c.focus(); c.setSelectionRange(c.value.length, c.value.length); }
 }
 function deplacer(de, vers) { // jamais avant la salle d'attente ni après la fin
   if (fixe(de)) return;
@@ -304,7 +332,7 @@ function deplacer(de, vers) { // jamais avant la salle d'attente ni après la fi
 // un texte de l'écran, modifiable sur place : k = le champ (ou le numéro de la réponse)
 const ed = (tag, k, v, vide, cls) => `<${tag} ${cls ? `class="${cls}" ` : ''}contenteditable="plaintext-only" spellcheck="false" role="textbox" aria-label="${h(vide)}" data-vide="${h(vide)}" ${typeof k === 'number' ? `data-o="${k}"` : `data-k="${k}"`}>${h(v)}</${tag}>`;
 const imgCadree = e => cadree(e) && (e.imgs || [])[0] ? `<span class="im" data-a="cadrer" role="button" tabindex="0" style="cursor:pointer" title="Cliquer pour changer le cadrage de l'affiche">${afficheCadree(e, e.imgs[0])}</span>` : img('imgs.0', (e.imgs || [])[0], 1);
-const img = (k, v, retirable) => v ? `<span class="im"><button type="button" data-a="affiche" data-k="${k}" title="Changer l'affiche"><img src="${h(v)}" alt="Affiche ${h(nomImage(v))} : cliquer pour la changer"></button>${retirable ? `<button type="button" class="x" data-a="sansAffiche" data-k="${k}" aria-label="Retirer l'affiche" title="Retirer l'affiche">×</button>` : ''}</span>`
+const img = (k, v, retirable) => v ? `<span class="im"><button type="button" data-a="affiche" data-k="${k}" title="Changer l'affiche"><img src="${h(v)}" alt="Affiche ${h(nomImage(v))} : cliquer pour la changer"></button><button type="button" class="chg" data-a="affiche" data-k="${k}">Changer l'affiche</button>${retirable ? `<button type="button" class="x" data-a="sansAffiche" data-k="${k}" aria-label="Retirer l'affiche" title="Retirer l'affiche">×</button>` : ''}</span>`
   : `<button type="button" class="vide" data-a="affiche" data-k="${k}">+ Ajouter une affiche</button>`;
 function apercu(e) {
   const t = e.p ? `--t:var(--t${e.p});--c:var(--c${e.p})` : '--t:var(--fond);--c:#141414';
@@ -353,24 +381,23 @@ let vue = 'tel'; try { vue = localStorage.getItem('pdvVue') || 'tel'; } catch (e
 // partager le formulaire : un mail tout prêt avec le lien du test en ligne (chacun répond chez soi)
 const lienMailto = () => 'mailto:?subject=' + encodeURIComponent('Votre avis sur une affiche de santé (5 minutes)') + '&body=' + encodeURIComponent('Bonjour,\n\nLe groupe Points de vue fait tester des affiches de santé par des habitants. Votre regard nous aide à les rendre plus claires : quelques questions, environ 5 minutes, sur téléphone ou ordinateur.\n\n' + location.origin + location.pathname.replace(/[^/]*$/, '') + '?enligne' + TQ + '\n\nMerci !');
 function zone() {
-  const e = M.ecrans[sel], reglable = ['info', 'phase', 'flash', 'mission', 'vote'].includes(e.t) || e.q != null; let f = '';
+  const e = M.ecrans[sel], reglable = ['info', 'phase', 'flash', 'mission', 'vote'].includes(e.t) || e.q != null; let f = '', reglages = ''; // reglages : les réglages courts de l'écran, montés dans la barre pour qu'on les voie sans descendre
   if (e.zones) f += `<div class="c"><b>Les zones de l'affiche</b><small>Chaque zone est une réponse possible. Pour déplacer un cadre, changer sa taille ou en tracer un nouveau : « Modifier le découpage en grand », ou un clic sur l'affiche. Le × ci-dessous supprime une zone.</small>
     ${lignesZones(e)}
     <div class="ligne"><button type="button" class="btn" data-a="decoupe">Modifier le découpage en grand</button><button type="button" class="btn clair" data-a="affiche" data-k="imgs.0">Changer l'affiche</button></div></div>`;
-  if (e.t === 'choix' && !e.jeu || e.t === 'multi') f += `<label class="case"><input type="checkbox" data-k="multi" ${e.t === 'multi' ? 'checked' : ''}>${e.zones ? 'Plusieurs zones possibles' : 'Plusieurs réponses possibles'}</label>`;
-  if (e.t === 'flash') f += `<label class="c">Durée d'affichage (le compte à rebours)<select data-k="s">${[3, 5, 8, 10, 15, 20, 30].map(s => `<option value="${s}" ${(e.s || 5) === s ? 'selected' : ''}>${s} secondes</option>`).join('')}</select></label>`;
-  if (e.t === 'echelle') f += `<label class="case"><input type="checkbox" data-k="nb" ${e.nb ? 'checked' : ''}>Montrer l'affiche en noir et blanc</label>`;
+  if (e.t === 'choix' && !e.jeu || e.t === 'multi') reglages += `<label class="case"><input type="checkbox" data-k="multi" ${e.t === 'multi' ? 'checked' : ''}>${e.zones ? 'Plusieurs zones possibles' : 'Plusieurs réponses possibles'}</label>`;
+  if (e.t === 'flash') reglages += `<label class="etape">Durée d'affichage<select data-k="s" class="btn clair">${[3, 5, 8, 10, 15, 20, 30].map(s => `<option value="${s}" ${(e.s || 5) === s ? 'selected' : ''}>${s} secondes</option>`).join('')}</select></label>`;
+  if (e.t === 'echelle') reglages += `<label class="case"><input type="checkbox" data-k="nb" ${e.nb ? 'checked' : ''}>Montrer l'affiche en noir et blanc</label>`;
   if (vue === 'form' && ['accueil', 'mission', 'photo', 'vote', 'palmares'].includes(e.t)) f += `<p class="verrou">Dans la version formulaire, chacun répond seul chez soi : cet écran de la séance en groupe n'y passe pas.</p>`;
   else if (!reglable) f = `<p class="verrou">Cet écran n'a pas de réglage : son contenu est fabriqué par l'appli pendant la séance.</p>`;
   const libre = ['info', 'flash', 'choix', 'multi', 'echelle', 'ab', 'texte'].includes(e.t); // les écrans qu'on peut créer, copier, supprimer
   let outils = '';
-  if (libre && e.t !== 'flash' && !e.jeu) outils += `<label class="etape">Étape<select data-k="p" class="btn clair"><option value="">Sans étape (noir)</option>${Object.keys(M.phases).map(Number).map(p => `<option value="${p}" ${e.p === p ? 'selected' : ''}>Étape ${p} · ${h(M.phases[p].nom)}</option>`).join('')}</select></label>`;
+  if (libre && e.t !== 'flash' && !e.jeu) outils += `<label class="etape">Étape<select data-k="p" class="btn clair"><option value="">Sans étape</option>${Object.keys(M.phases).map(Number).map(p => `<option value="${p}" ${e.p === p ? 'selected' : ''}>Étape ${p} · ${h(M.phases[p].nom)}</option>`).join('')}</select></label>`;
   if (libre) outils += `<button type="button" class="btn clair" data-a="dupliquer">Dupliquer</button>`;
   if (!e.zones && !e.jeu && ['info', 'choix', 'multi', 'echelle', 'texte'].includes(e.t) && (e.imgs || [])[0]) f += `<div class="c"><b>L'affiche pour cette question</b><small>Vous pouvez masquer des parties de l'affiche, ou ne montrer qu'un élément en très gros : utile quand la question porte sur un élément précis.</small><div class="ligne"><button type="button" class="btn clair" data-a="cadrer">${cadree(e) ? 'Changer le cadrage' : 'Masquer une partie ou montrer un élément en très gros'}</button>${cadree(e) ? `<button type="button" class="btn clair" data-a="affiche" data-k="imgs.0">Changer l'affiche</button>` : ''}</div></div>`;
   const atelier = ['mission', 'photo', 'vote', 'palmares', 'phase'].includes(e.t);
-  if (libre || atelier) outils += `<button type="button" class="btn clair" data-a="supprimer">Supprimer</button>`;
-  if (!fixe(sel)) outils += `<button type="button" class="btn clair" data-a="masquer" aria-pressed="${!!e.masque}">${OEIL(e.masque)}&nbsp;${e.masque ? 'Montrer' : 'Masquer'}</button>`;
-  $('travail').innerHTML = `<button type="button" class="btn clair retour" data-a="retour">← Tous les écrans</button><div class="ligne vues" role="group" aria-label="Version montrée">${VUES.map(([v, n]) => `<button type="button" class="btn${v === vue ? '' : ' clair'}" data-a="vue" data-v="${v}" aria-pressed="${v === vue}">${n}</button>`).join('')}<button type="button" class="btn clair ouvrir" data-a="apercu" title="Ouvre cette version dans un autre onglet, avec vos modifications même non enregistrées. Rien ne part en ligne.">Prévisualiser</button><a class="btn clair" href="${h(lienMailto())}" title="Ouvre votre messagerie avec un message tout prêt qui contient le lien du formulaire en ligne. Pensez à enregistrer avant.">Partager par mail</a>${vue === 'papier' ? `<a class="btn clair" href="papier.html${TEST ? '?test=' + TEST : ''}" target="_blank" rel="noopener">Imprimer la fiche</a>` : ''}</div>${outils ? `<div class="ligne vues outils" role="group" aria-label="Cet écran">${outils}</div>` : ''}<h3>${h(TYPE(e))}</h3>${reglable ? `<p class="aide">Cliquez sur un texte ou sur une affiche pour le modifier.</p>` : ''}<div id="vue">${apercu(e)}${cote(e)}</div><form onsubmit="return false">${f}</form>`;
+  if (libre || atelier) outils += `<button type="button" class="btn clair danger" data-a="supprimer" title="Enlève cet écran pour de bon. Pour seulement le retirer de la séance, utilisez « Masquer ».">Supprimer</button>`;
+  $('travail').innerHTML = `<button type="button" class="btn clair retour" data-a="retour">← Tous les écrans</button><div class="ligne vues" role="group" aria-label="Version montrée">${VUES.map(([v, n]) => `<button type="button" class="btn${v === vue ? '' : ' clair'}" data-a="vue" data-v="${v}" aria-pressed="${v === vue}">${n}</button>`).join('')}<button type="button" class="btn clair ouvrir" data-a="apercu" title="Un essai, dans un autre onglet, à partir de l'écran choisi : vos modifications y sont, même non enregistrées. Rien n'est envoyé ni gardé.">Essayer cette version</button><a class="btn clair" href="${h(lienMailto())}"  title="Ouvre votre messagerie avec un message tout prêt qui contient le lien du formulaire en ligne. Pensez à enregistrer avant." ${vue === 'form' ? '' : 'hidden'}>Partager par mail</a>${vue === 'papier' ? `<a class="btn clair" href="papier.html${TEST ? '?test=' + TEST : ''}" target="_blank" rel="noopener">Imprimer la fiche</a>` : ''}</div><p class="aide expl">${{ tel: 'Le diaporama est projeté sur le grand écran ; chacun répond sur son téléphone.', form: 'Pas de grand écran : chacun répond seul, chez lui, par un lien (celui de « Partager par mail »).', papier: 'Le diaporama est projeté ; chacun répond sur une fiche imprimée, lue ensuite par une photo.' }[vue]}</p>${outils || reglages ? `<div class="ligne vues outils" role="group" aria-label="Cet écran">${outils}${reglages}</div>` : ''}<h3>${h(TYPE(e))}</h3>${reglable ? `<p class="aide fort">✎ Cliquez sur un texte pour le changer, sur l'affiche pour en choisir une autre.</p>` : ''}<div id="vue">${apercu(e)}${cote(e)}</div><form onsubmit="return false">${f}</form>`;
   if ($('decoupe').open) { if (e.zones) dessinerDecoupe(); else $('decoupe').close(); }
 }
 const rafraichir = () => { $('vue').innerHTML = apercu(M.ecrans[sel]) + cote(M.ecrans[sel]); liste(); change(); };
@@ -433,7 +460,7 @@ $('liste').addEventListener('click', ev => {
   sel = i; liste(); zone(); document.body.classList.add('detail'); $('zone').scrollTop = 0; // sur écran étroit, les réglages prennent toute la place
 });
 // le nom d'une étape se change sur son dossier : pendant la frappe la liste n'est pas redessinée, elle l'est quand on sort du champ
-$('liste').addEventListener('input', ev => { const t = ev.target.closest('[data-ph]'); if (t) { M.phases[+t.dataset.ph].nom = t.textContent.replace(/\s+/g, ' ').trim(); change(); } });
+$('liste').addEventListener('input', ev => { if (ev.target.id === 'cherche') { filtre = ev.target.value; return liste(); } const t = ev.target.closest('[data-ph]'); if (t) { M.phases[+t.dataset.ph].nom = t.textContent.replace(/\s+/g, ' ').trim(); change(); } });
 $('liste').addEventListener('focusout', ev => { const t = ev.target.closest('[data-ph]'); if (!t) return; const p = +t.dataset.ph; if (!M.phases[p].nom) M.phases[p].nom = 'Étape ' + p; liste(); zone(); change(); });
 $('liste').addEventListener('keydown', ev => { if (ev.key === 'Enter' && ev.target.closest('[data-ph]')) { ev.preventDefault(); ev.target.blur(); } });
 // glisser-déposer pour changer l'ordre
@@ -755,13 +782,18 @@ $('creer').addEventListener('click', ev => { if (ev.target.closest('[data-a=ferm
 listeTests().then(l => {
   if (TEST && !l.some(x => x.id === TEST)) l.push({ id: TEST, nom: TEST });
   NOM = (l.find(x => x.id === TEST) || {}).nom || NOM;
-  $('test').innerHTML = l.map(x => `<option value="${h(x.id)}" ${x.id === TEST ? 'selected' : ''}>${h(x.nom)}</option>`).join('') + '<option value="+">+ Nouveau test…</option>';
+  $('test').innerHTML = l.map(x => `<option value="${h(x.id)}" ${x.id === TEST ? 'selected' : ''}>${h(x.nom)}${x.quand ? ' · créé le ' + new Date(x.quand).toLocaleDateString('fr-FR') : ''}</option>`).join('') + '<option value="+">+ Nouveau test…</option>';
   // chaque test déjà créé est proposé comme modèle (le principal l'est déjà : « Notre structure »)
   $('gabarits').insertAdjacentHTML('beforeend', l.filter(x => x.id).map(x => `<button type="button" data-t="${h(x.id)}"><b>Copie de « ${h(x.nom)} »</b><span>${x.id === TEST ? 'Le test ouvert ici, avec vos modifications en cours : mêmes écrans, mêmes affiches, à changer ensuite.' : 'Un test déjà créé : mêmes écrans, mêmes affiches, à changer ensuite.'}</span></button>`).join(''));
 });
 $('test').addEventListener('change', ev => { if (ev.target.value === '+') { ev.target.value = TEST; return nouveauTest(); } location.href = 'modifier.html' + (ev.target.value ? '?test=' + ev.target.value : ''); });
 if (location.hash === '#nouveau') { history.replaceState(null, '', location.pathname + location.search); nouveauTest(); } // « + Nouveau test » du profil
-$('lancer').href = './?passer' + TQ;
+$('lancer').href = './?passer' + TQ; $('resultats').href = 'resultats.html' + (TEST ? '?test=' + TEST : '');
+$('btnNouveau').addEventListener('click', () => nouveauTest()); $('mailPlus').href = lienMailto();
+$('plus').addEventListener('click', ev => { if (ev.target.closest('.btn') && !ev.target.closest('summary')) $('plus').open = false; }); // un choix fait, le menu se referme
+addEventListener('click', ev => { if (!ev.target.closest('#plus')) $('plus').open = false; });
+$('btnAide').addEventListener('click', () => $('aide').showModal());
+$('aide').addEventListener('click', ev => { if (ev.target.closest('[data-a=fermer]')) $('aide').close(); });
 $('supprTest').hidden = !TEST; // le test principal ne se supprime pas
 $('supprTest').addEventListener('click', async () => {
   if (!confirm('Supprimer le test « ' + NOM + ' » ? Son lien ne marchera plus. Les réponses déjà données restent dans le Google Sheet.')) return;
