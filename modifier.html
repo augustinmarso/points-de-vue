@@ -635,7 +635,9 @@ addEventListener('keydown', ev => {
 noterVisite('Modifier le test');
 // prévisualiser : la version choisie s'ouvre dans un autre onglet avec les écrans tels qu'ils sont ici, enregistrés ou non. Rien ne part en ligne.
 const previsualiser = () => {
-  try { localStorage.setItem('pdvApercu', ecrireSeance(M)); localStorage.removeItem('apercupdvSeance'); localStorage.removeItem('apercupdvEnLigne'); } catch (e) { } open('./' + VUES.find(v => v[0] === vue)[2], '_blank'); };
+  try { localStorage.setItem('pdvApercu', ecrireSeance(M)); localStorage.removeItem('apercupdvSeance'); localStorage.removeItem('apercupdvEnLigne'); } catch (e) { } 
+  const passe = x => !x.masque && (!x.o || x.o.length > 1), e = M.ecrans.slice(0, sel).filter(passe).length; // le rang de l'écran choisi parmi ceux qui passent en séance
+  open('./' + VUES.find(v => v[0] === vue)[2] + (e ? '&e=' + e : ''), '_blank'); };
 addEventListener('beforeunload', ev => { if (M && ecrireSeance(M) !== depart) ev.preventDefault(); });
 
 // ---------- ajouter un écran à partir d'un modèle ----------

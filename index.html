@@ -480,6 +480,7 @@ function enLigne() {
   const ESSAI = P.has('essai'), SAUTE = ['accueil', 'mission', 'photo', 'vote', 'palmares'];
   const neuf = () => ({ pid: Math.random().toString(36).slice(2, 8), nom: '', parti: false, i: 0, v: VERSION, rep: {}, file: [] });
   let M = lire('pdvEnLigne', null) || neuf(), pris = false;
+  if (APERCU && P.get('e')) M.i = Math.max(0, Math.min(ETAPES.length - 1, +P.get('e') || 0)); // « Prévisualiser » de l'éditeur ouvre directement l'écran qu'on était en train de modifier
   // shortcut: si le test change entre deux visites, la personne reprend au début (ses réponses déjà parties restent dans le Sheet), à revoir si on modifie le test pendant l'envoi des mails
   if (M.v !== VERSION) { M.i = 0; M.v = VERSION; }
   const garder = () => ecrire('pdvEnLigne', M);
@@ -568,6 +569,7 @@ function enLigne() {
 function ecran() {
   const neuve = () => ({ sid: Math.random().toString(36).slice(2, 8), i: 0, k: 0, rev: false, gens: {}, rep: {}, mission: 0, photos: [] });
   let S = lire('pdvSeance', null) || neuve();
+  if (APERCU && P.get('e')) S.i = Math.max(0, Math.min(ETAPES.length - 1, +P.get('e') || 0)); // « Prévisualiser » de l'éditeur ouvre directement l'écran qu'on était en train de modifier
   S.photos = lire('pdvPhotos', []); sous = S.k = S.k || 0; mission = S.mission = MISSIONS[S.mission] ? S.mission : 0; if (!ETAPES[S.i]) S.i = 0;
   let affiches = lire('pdvAffiches', {}), conns = new Set(), cle = '', flash = false, souci = '', masque = false, tm, tAuto = 0;
   const garder = () => { const { photos, ...reste } = S; ecrire('pdvSeance', reste); ecrire('pdvPhotos', photos); };
