@@ -23,7 +23,6 @@ header h1{margin:0;font-size:24px;font-weight:800;letter-spacing:-.04em;flex:1 1
 .plus{position:relative}.plus summary{list-style:none;cursor:pointer}.plus summary::-webkit-details-marker{display:none}
 .plus>div{position:absolute;right:0;top:calc(100% + 6px);z-index:5;background:#fff;border-radius:18px;box-shadow:0 8px 40px rgba(20,20,20,.25);padding:10px;display:flex;flex-direction:column;gap:6px;min-width:240px}.plus>div .btn{justify-content:flex-start}
 header h1 small{display:block;font-size:13px;font-weight:400;letter-spacing:0;color:var(--gris);margin-top:2px}
-header a[aria-label=Accueil]{display:inline-flex;align-items:center;gap:6px;font-size:14px}
 .btn{background:var(--n);color:#fff;font-weight:800;border-radius:99px;padding:10px 20px;min-height:44px;display:inline-flex;align-items:center;text-decoration:none}
 .btn.clair{background:var(--fond);color:var(--n)}
 .btn[disabled]{opacity:.35;cursor:default}
@@ -127,7 +126,7 @@ header a[aria-label=Accueil]{display:inline-flex;align-items:center;gap:6px;font
 .cote.tel .ronds{justify-content:space-between}.cote.tel .ronds i{background:var(--t)}
 .cote.papier .ronds i{box-shadow:inset 0 0 0 1px var(--n);color:#A8A8A8}
 .cote .bouts{display:flex;justify-content:space-between;gap:8px;font-size:9px}
-.cote .AB{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}.cote .AB i{width:64px;height:64px;font-size:28px;background:var(--c1)}.cote .AB i+i{background:var(--c3);color:#fff}.cote .AB i:nth-child(3){background:var(--c2);color:inherit}.cote .AB i:nth-child(4){background:#141414}
+.cote .vu.pile{flex-direction:column}.cote .vu.pile figure{flex:none;width:60%}
 [hidden]{display:none!important}
 /* l'affiche découpée en zones : dans l'éditeur, les zones se déplacent et se redimensionnent */
 .zones.ed{touch-action:none;user-select:none;cursor:crosshair}
@@ -208,7 +207,6 @@ dialog h3{margin:0 0 6px;font-size:24px;font-weight:800;letter-spacing:-.03em}
 </head>
 <body>
 <header>
-  <a href="./" aria-label="Accueil" title="Accueil"><svg viewBox="0 0 24 24" width="1.35em" height="1.35em" fill="currentColor" aria-hidden="true" style="vertical-align:-.3em"><path d="M12 3 2.5 11.2h2.7V21h5.3v-6h3v6h5.3v-9.8h2.7z"/></svg> Accueil</a>
   <h1>Modifier le test<small>Ici, vous composez la séance que verront les participants.</small></h1>
   <select class="btn clair" id="test" aria-label="Le test modifié"><option>Séance Points de vue (principale)</option></select>
   <a class="btn clair" id="lancer" href="./?passer" target="_blank" rel="noopener" title="Ouvre la vraie séance dans un autre onglet : grand écran, téléphones, réponses enregistrées. Pour un simple essai, utilisez « Essayer cette version ».">Démarrer la séance</a>
@@ -366,9 +364,9 @@ function cote(e) {
   const t = e.p ? `--t:var(--t${e.p});--c:var(--c${e.p})` : '--t:var(--fond);--c:#141414', Q = e.q != null, o = e.o || [];
   let x;
   if (vue === 'tel') x = !Q ? `<p class="att">${['mission', 'photo', 'vote'].includes(e.t) ? "Atelier : le binôme photographie son affiche, puis note celles des autres." : e.t === 'accueil' ? 'Le participant écrit son prénom et attend le début.' : 'Regardez le grand écran.'}</p>`
-    : `<small>${e.p ? 'Étape ' + e.p : e.jeu ? "Le jeu de l'œil" : ''}</small>${ed('b', 'q', e.q, 'La question', 'q')}` + (e.jeu || e.zones ? '' : `<div class="vu">${(e.imgs || []).filter(Boolean).map((s, i) => `<figure>${e.t === 'ab' ? 'ABCD'[i] : ''}<img src="${h(s)}" alt=""></figure>`).join('')}</div>`) + (
+    : `<small>${e.p ? 'Étape ' + e.p : e.jeu ? "Le jeu de l'œil" : ''}</small>${ed('b', 'q', e.q, 'La question', 'q')}` + (e.jeu || e.zones ? '' : `<div class="vu${e.t === 'ab' ? ' pile' : ''}">${(e.imgs || []).filter(Boolean).map((s, i) => `<figure>${e.t === 'ab' ? 'ABCD'[i] : ''}<img src="${h(s)}" alt=""></figure>`).join('')}</div>`) + (
       e.t === 'echelle' ? `<div class="ronds">${[1, 2, 3, 4, 5].map(n => `<i>${n}</i>`).join('')}</div><div class="bouts">${ed('span', 'a', e.a, 'Sens de la note 1')}${ed('span', 'b', e.b, 'Sens de la note 5')}</div>`
-      : e.t === 'ab' ? `<div class="AB">${o.slice(0, -1).map(l => `<i>${l}</i>`).join('')}</div><span class="o">${h(o[o.length - 1])}</span>`
+      : e.t === 'ab' ? o.map(l => `<span class="o">${h(l)}</span>`).join('')
       : e.t === 'texte' ? `<span class="champ">Votre réponse</span><span class="val">Valider</span>`
       : e.zones ? ((e.imgs || [])[0] ? carteZones(e, e.imgs[0]) : '') + `<small>${legendeZones(e)}</small>` + (e.t === 'multi' ? `<small>Plusieurs zones possibles.</small><span class="val">Valider</span>` : '')
       : o.map((r, i) => `<span class="o${e.jeu && i === e.bon ? ' bon' : ''}">${e.jeu ? `<button type="button" class="ok" data-a="bon" data-i="${i}" aria-pressed="${i === e.bon}" aria-label="Bonne réponse" title="C'est la bonne réponse">✓</button>` : ''}${ed('span', i, r, 'Réponse ' + (i + 1))}<button type="button" class="x" data-a="moins" data-i="${i}" aria-label="Retirer cette réponse" title="Retirer cette réponse" ${o.length < 3 ? 'disabled' : ''}>×</button></span>`).join('')
