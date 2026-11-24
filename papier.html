@@ -31,7 +31,7 @@ nav a.lien{font-weight:700}
 .page.diapo{width:297mm;min-height:0;height:210mm;padding:16mm 18mm;display:flex;gap:10mm;overflow:hidden;background:var(--b,#fff);color:var(--f,#141414)}
 h1{margin:0;font-size:34px;line-height:.95;font-weight:800;letter-spacing:-.045em}
 .diapo .g{flex:1;min-width:0;display:flex;flex-direction:column;gap:5mm}
-.diapo .sur{font-weight:700;font-size:16px}
+.diapo .sur{font-weight:700;font-size:16px}.diapo .sur::before{content:'';display:inline-block;width:.8em;height:.8em;border-radius:50%;background:var(--a,#141414);margin-right:.5em;vertical-align:-.06em}.diapo .sur:empty::before{display:none}
 .diapo h3{margin:0;font-size:46px;line-height:.92;font-weight:800;letter-spacing:-.05em}
 .diapo p{margin:0;font-size:20px;font-weight:700}
 .diapo ol{margin:auto 0 0;padding:0;list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:3mm 6mm;font-size:19px;font-weight:700}
@@ -98,7 +98,7 @@ function fiche(Q) {
     <text x="24" y="26" font-size="4.2">Les réponses sont sur le grand écran. Noircissez le rond de la lettre choisie. Avec un astérisque (*), plusieurs ronds sont possibles.</text>
     <text x="24" y="37" font-size="4.6" font-weight="700" xml:space="preserve">Séance : ........................      Participant n° : ............      Test ${h(VERSION)}</text>
     <text x="24" y="45" font-size="3.2" fill="#6B6B6B">Les quatre carrés noirs servent à la lecture de la photo : ne rien écrire dessus.</text>
-    ${G.map(g => `<text x="${g.x + 7}" y="${g.y + 5.6}" font-size="5.6" font-weight="800" text-anchor="end">${g.e.n}${g.e.t === 'multi' ? '*' : ''}</text>`
+    ${G.map(g => `<rect x="${g.x + .6}" y="${g.y + 7.4}" width="6.6" height="1.7" rx=".85" style="fill:${g.e.p ? `var(--c${g.e.p})` : '#141414'}"/><text x="${g.x + 7}" y="${g.y + 5.6}" font-size="5.6" font-weight="800" text-anchor="end">${g.e.n}${g.e.t === 'multi' ? '*' : ''}</text>`
       + (g.e.t === 'texte' ? [4, 13].map(d => `<line x1="${g.x + 9}" x2="${g.x + LCOL - 8}" y1="${g.y + g.h - d}" y2="${g.y + g.h - d}" stroke="#141414" stroke-width=".2" stroke-dasharray=".4 1"/>`).join('') : '')
       + g.ronds.map(([x, y], j) => `<circle cx="${x}" cy="${y}" r="${RAYON}" fill="#fff" stroke="#141414" stroke-width=".35"/><text x="${x}" y="${y + 2}" font-size="5.6" font-weight="800" text-anchor="middle" fill="#A8A8A8">${etiq(g.e, j)}</text>`
         + (EXEMPLE && (j === (g.e.n * 3 + 1) % g.ronds.length || g.e.t === 'multi' && j === g.e.n % g.ronds.length) ? `<circle cx="${x + .3}" cy="${y - .2}" r="${RAYON * .86}" fill="#1B2A6B"/>` : '')).join('')).join('')}
@@ -117,14 +117,14 @@ function diapos(Q) {
   return ETAPES.map((e, i) => {
     let g, d = '', st = '';
     const im = (e.t === 'flash' ? [e.img] : e.jeu ? [] : e.imgs || []).filter(Boolean);
-    if (e.t === 'phase') { st = `--b:var(--c${e.p});--f:${e.p === 3 ? '#fff' : '#141414'}`; g = `<div class="sur">Étape ${e.p} sur ${NB_ETAPES()}</div><h3>${h(PHASES[e.p].nom)}</h3><p>${h(PHASES[e.p].quoi)}</p>`; }
+    if (e.t === 'phase') { st = `--b:var(--c${e.p});--f:${e.p === 3 ? '#fff' : '#141414'};--a:transparent`; g = `<div class="sur">Étape ${e.p} sur ${NB_ETAPES()}</div><h3>${h(PHASES[e.p].nom)}</h3><p>${h(PHASES[e.p].quoi)}</p>`; }
     else if (e.t === 'info') g = `<div class="sur">${h(e.s)}</div><h3>${h(e.h)}</h3><p>${h(e.x)}</p>`;
     else if (e.t === 'flash') g = `<div class="sur">${e.p ? 'Étape ' + e.p : "Le jeu de l'œil"}</div><h3>Le test des ${e.s || 5} secondes</h3><p>L'affiche est montrée ${e.s || 5} secondes, puis cachée.</p>`;
     else if (e.q != null) g = `<div class="sur">${e.p ? 'Étape ' + e.p + ' · ' + h(PHASES[e.p].nom) : "Le jeu de l'œil"} · question ${num[e.id]}</div><h3>${h(e.q)}</h3>${e.note ? `<p>${h(e.note)}</p>` : ''}${e.t === 'echelle' ? `<p>1 = ${h(e.a)} · 5 = ${h(e.b)}</p>` : ''}
       <ol>${choix(e).map((o, j) => `<li data-l="${etiq(e, j)}">${e.t === 'echelle' ? '' : h(o)}</li>`).join('')}</ol>`;
     else { const t = T[e.t] || ['', '', '']; g = `<div class="sur">${h(t[0])}</div><h3>${h(t[1])}</h3><p>${h(t[2])}</p>`; }
     if (im.length) d = `<div class="d${im.length > 1 ? ' deux' : ''}">${im.map((s, j) => `<figure>${im.length > 1 ? 'AB'[j] : ''}${e.zones ? carteZones(e, s) : cadree(e) ? afficheCadree(e, s) : `<img src="${h(s)}" alt="">`}</figure>`).join('')}</div>`;
-    return `<div class="page diapo" style="${st}"><div class="g">${g}</div>${d}<span class="no">${i + 1} / ${ETAPES.length}</span></div>`;
+    return `<div class="page diapo" style="${st || (e.p ? `--a:var(--c${e.p})` : '')}"><div class="g">${g}</div>${d}<span class="no">${i + 1} / ${ETAPES.length}</span></div>`;
   }).join('');
 }
 
