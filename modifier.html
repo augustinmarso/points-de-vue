@@ -279,6 +279,7 @@ const change = () => { noterPile(ecrireSeance(M)); const diff = ecrireSeance(M) 
 
 // une icône par sorte d'écran, sur sa miniature
 const svgI = d => `<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
+const ICONE_AFFICHE = '<rect x="5" y="2.500" width="14" height="19" rx="1.500"/><path d="M5 15l4-4 3 3 2-2 5 5"/><circle cx="14.500" cy="7.500" r="1.500"/>';
 const ICONE = e => svgI(e.zones ? '<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M4 9h16M4 15h16M12 9v6"/>' : e.jeu ? '<path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12z"/><circle cx="12" cy="12" r="2.8"/>' : ({
   accueil: '<circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.5 2.7-6 6-6s6 2.5 6 6M16 5.2a3.2 3.2 0 0 1 0 5.6M18 14.5c2 .8 3 2.800 3 5.500"/>',
   info: '<path d="M5 6h14M5 12h14M5 18h9"/>',
@@ -370,6 +371,7 @@ function cote(e) {
   if (vue === 'tel') x = !Q ? `<p class="att">${['mission', 'photo', 'vote'].includes(e.t) ? "Atelier : le binôme photographie son affiche, puis note celles des autres." : e.t === 'accueil' ? 'Le participant écrit son prénom et attend le début.' : 'Regardez le grand écran.'}</p>`
     : `<small>${e.p ? 'Étape ' + e.p : e.jeu ? "Le jeu de l'œil" : ''}</small>${ed('b', 'q', e.q, 'La question', 'q')}` + (e.jeu || e.zones || e.telSans ? '' : `<div class="vu${e.t === 'ab' ? ' pile' : ''}">${(e.imgs || []).filter(Boolean).map((s, i) => `<figure>${e.t === 'ab' ? 'ABCD'[i] : ''}<img src="${h(s)}" alt=""></figure>`).join('')}</div>`) + (
       e.t === 'echelle' ? `<div class="ronds">${[1, 2, 3, 4, 5].map(n => `<i>${n}</i>`).join('')}</div><div class="bouts">${ed('span', 'a', e.a, 'Sens de la note 1')}${ed('span', 'b', e.b, 'Sens de la note 5')}</div>`
+      : e.t === 'ab' && e.abc ? o.map(l => `<span class="o">${h(l)}</span>`).join('')
       : e.t === 'ab' ? `<small>Touchez l'affiche choisie.</small><span class="o">${h(o[o.length - 1])}</span>`
       : e.t === 'texte' ? `<span class="champ">Votre réponse</span>`
       : e.zones ? ((e.imgs || [])[0] ? carteZones(e, e.imgs[0]) : '') + `<small>${legendeZones(e)}</small>` + (e.t === 'multi' ? `<small>Plusieurs zones possibles.</small>` : '')
@@ -402,6 +404,7 @@ function zone() {
   let outils = '';
   if (libre && e.t !== 'flash' && !e.jeu) outils += `<label class="etape">Étape<select data-k="p" class="btn clair"><option value="">Sans étape</option>${Object.keys(M.phases).map(Number).map(p => `<option value="${p}" ${e.p === p ? 'selected' : ''}>Étape ${p} · ${h(M.phases[p].nom)}</option>`).join('')}</select></label>`;
   if (e.q != null || e.t === 'info') outils += `<button type="button" class="btn clair taille" data-a="petit" aria-pressed="${!!e.petit}" aria-label="Titre plus petit" title="${e.petit ? 'Le titre est en petit : cliquer pour le remettre en grand' : 'Écrire le titre de cet écran en plus petit'}"><span style="font-size:18px">A</span><span style="font-size:12px">A</span></button>`;
+  if (e.t === 'ab') outils += `<button type="button" class="btn clair taille" data-a="abc" aria-pressed="${!!e.abc}" aria-label="${e.abc ? 'Réponse avec les boutons A, B, C' : 'Réponse en touchant les affiches'}" title="${e.abc ? 'Sur le téléphone, on répond avec les boutons A, B, C. Cliquer pour répondre en touchant les affiches.' : 'Sur le téléphone, on touche une affiche puis Valider. Cliquer pour répondre avec les boutons A, B, C.'}">${e.abc ? '<b style="font-size:14px">ABC</b>' : svgI(ICONE_AFFICHE).replace(/13/g, '18')}</button>`;
   if (libre) outils += `<button type="button" class="btn clair" data-a="dupliquer">Dupliquer</button>`;
   if (!e.zones && !e.jeu && ['info', 'choix', 'multi', 'echelle', 'texte'].includes(e.t) && (e.imgs || [])[0]) outils += `<button type="button" class="btn clair" data-a="cadrer" title="Masquer une partie de l'affiche, ou ne montrer qu'un élément en très gros : utile quand la question porte sur un élément précis.">${cadree(e) ? 'Changer le cadrage' : 'Masquer ou zoomer l’affiche'}</button>${cadree(e) ? `<button type="button" class="btn clair" data-a="affiche" data-k="imgs.0">Changer l'affiche</button>` : ''}`;
   const atelier = ['mission', 'photo', 'vote', 'palmares', 'phase'].includes(e.t);
@@ -459,6 +462,7 @@ $('zone').addEventListener('click', ev => {
   if (a === 'bon') e.bon = +b.dataset.i;
   if (a === 'masquer') e.masque = !e.masque;
   if (a === 'petit') { if (e.petit) delete e.petit; else e.petit = true; }
+  if (a === 'abc') { if (e.abc) delete e.abc; else e.abc = true; }
   if (a === 'sansAffiche' && !e.zones) { delete e.caches; delete e.zoom; delete e.r; }
   if (a === 'sansAffiche') { if (e.t === 'ab') { e.imgs.splice(+b.dataset.k.split('.')[1], 1); e.o = optsAB(e.imgs.length); } else e.imgs = []; }
   if (a === 'dupliquer') { M.ecrans.splice(sel + 1, 0, JSON.parse(JSON.stringify({ ...e, id: undefined }))); sel++; }
@@ -722,7 +726,7 @@ function inserer(faire) { // juste après l'écran choisi, dans la même étape,
 }
 // [nom, phrase, ce qui s'ajoute, l'écran dont il prend l'icône (ou le dessin de l'icône)]
 const MODELES = [
-  ['Une affiche à tester', "Choisissez votre affiche : ses écrans s'ajoutent d'un coup (5 secondes, ce qu'on a vu, trois questions, un avis libre). Tout reste modifiable.", 'affiche', '<rect x="5" y="2.500" width="14" height="19" rx="1.500"/><path d="M5 15l4-4 3 3 2-2 5 5"/><circle cx="14.500" cy="7.500" r="1.500"/>'],
+  ['Une affiche à tester', "Choisissez votre affiche : ses écrans s'ajoutent d'un coup (5 secondes, ce qu'on a vu, trois questions, un avis libre). Tout reste modifiable.", 'affiche', ICONE_AFFICHE],
   ['Nouvelle étape', "Une étape de plus dans la séance : son écran de titre, sa couleur et son dossier. Elle se place après les étapes déjà là ; vous y ajoutez ensuite vos écrans.", 'etape', { t: 'phase' }],
   ['Page libre', 'Un petit titre, un grand titre, une phrase et une image si vous voulez.', () => ({ t: 'info', s: 'Petit titre', h: 'Grand titre', x: 'Votre phrase.' }), { t: 'info' }],
   // « Oui ou non » et « Ressenti » fusionnés ici : les réponses se changent, et la case « Plusieurs réponses possibles » fait le ressenti
