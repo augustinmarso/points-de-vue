@@ -692,7 +692,7 @@ function ecran() {
         <button data-a="suite">${e.t === 'flash' && !flash ? 'Montrer ' + (e.s || 5) + ' secondes' : prete ? 'Révéler les réponses' : 'Suite →'}</button><button data-a="avant">← Retour</button>
         ${PAPIER ? `<a href="papier.html?vue=lire&seance=${h(SALLE)}${TQ}" target="_blank" rel="noopener">Photographier les fiches</a>` : `<a href="resultats.html?seance=${h(SALLE)}${TQ}" target="_blank" rel="noopener">Résultats</a>`}
         <span>Titres <button data-a="t-" aria-label="Titres plus petits">−</button><button data-a="t+" aria-label="Titres plus grands">+</button></span><span>Affiches <button data-a="a-" aria-label="Affiches plus petites">−</button><button data-a="a+" aria-label="Affiches plus grandes">+</button></span>
-        <button data-a="plein">Plein écran</button><button data-a="neuve">Nouvelle séance</button>
+        <button data-a="auto" title="Quand tout le monde a répondu : révéler les réponses puis passer à la suite sans appuyer">Avance automatique : ${S.auto === true ? 'oui' : 'non'}</button><button data-a="plein">Plein écran</button><button data-a="neuve">Nouvelle séance</button>
         <a href="./" aria-label="Accueil" title="Accueil"><svg viewBox="0 0 24 24" width="1.35em" height="1.35em" fill="currentColor" aria-hidden="true" style="vertical-align:-.3em"><path d="M12 3 2.5 11.2h2.7V21h5.3v-6h3v6h5.3v-9.8h2.7z"/></svg></a>
       </div></div><span class="auto"></span>`;
     maj(); regards();
@@ -733,7 +733,7 @@ function ecran() {
     cpt.textContent = `${vals.length} réponse${vals.length > 1 ? 's' : ''} sur ${Math.max(tous.size, vals.length)} participant${Math.max(tous.size, vals.length) > 1 ? 's' : ''}`;
     // tout le monde a répondu : les réponses se révèlent seules, puis la séance passe à la suite
     const attendus = new Set([...la, ...[...vus].filter(([, t]) => Date.now() - t < 45000).map(([pid]) => pid)]); // une coupure de quelques secondes ne compte pas comme un départ
-    if (S.auto !== false && !tAuto && la.size > 0 && [...attendus].every(pid => pid in rep)) {
+    if (S.auto === true && !tAuto && la.size > 0 && [...attendus].every(pid => pid in rep)) {
       const c0 = cle; tAuto = setTimeout(() => { tAuto = 0; if (cle === c0) suivant(); }, S.rev ? 8000 : 1200);
       if (S.rev) app.querySelector('.auto').textContent = 'Suite dans 8 secondes';
     }
@@ -791,6 +791,7 @@ function ecran() {
     if (act === 'avant') aller(S.i - 1, -1);
     if (act === 'mission') { mission = S.mission = (S.mission + 1) % MISSIONS.length; garder(); diffuser(); dessiner(true); }
     if (/^[ta][-+]$/.test(act)) { TAILLE[act[0]] = Math.round(Math.max(.5, Math.min(1.5, TAILLE[act[0]] + (act[1] === '+' ? .1 : -.1))) * 10) / 10; tailles(); try { localStorage.setItem('pdvTailles', JSON.stringify(TAILLE)); } catch (e) { } }
+    if (act === 'auto') { S.auto = S.auto !== true; clearTimeout(tAuto); tAuto = 0; garder(); dessiner(true); }
     if (act === 'plein') document.documentElement.requestFullscreen();
     if (act === 'neuve' && confirm('Commencer une nouvelle séance ? Les réponses déjà données restent dans le Google Sheet.')) { // une nouvelle séance = un nouveau code et un nouveau QR code ; les affiches A et B chargées sont gardées
       if (!APERCU) journal('Nouvelle séance', 'après la séance ' + SALLE);
