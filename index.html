@@ -54,6 +54,7 @@ p{margin:0}
 /* téléphone */
 .tel{min-height:100vh;min-height:100dvh;padding:104px 22px 70px;display:flex;flex-direction:column;gap:20px;max-width:560px;margin:0 auto}
 .tel h1{font-size:54px}
+body.fondtel,body.fondtel #fond{background:var(--t)}body.fondtel .opt:not(.on),body.fondtel .champ,body.fondtel .echelle button:not(.on){background:#fff}
 .tel h2{margin:0;font-size:31px;line-height:1.05;font-weight:800;letter-spacing:-.03em}
 .tel .haut{height:12vh;flex:none}
 .tel.fixe{gap:12px;padding-top:22px;padding-bottom:44px}
@@ -199,7 +200,7 @@ body.plein.p3 #app{color:#fff}
 // ---------- outils ----------
 const P = new URLSearchParams(location.search);
 // les affiches d'une question, montrées sur le téléphone (en séance comme en ligne) : côte à côte avec leur lettre pour une comparaison, un toucher les agrandit
-const VUE = (e, srcs) => srcs.length ? `<div class="vue${e.nb ? ' nb' : ''}${e.t === 'ab' ? ' pile' : ''}">${srcs.map((s, k) => `<figure${e.t === 'ab' ? ` data-p="${k}"` : ''}>${e.t === 'ab' ? 'ABCD'[k] : ''}${cadree(e) ? afficheCadree(e, s) : `<img src="${h(s)}" alt="${e.t === 'ab' ? 'Affiche ' + 'ABCD'[k] : 'L\'affiche'}">`}</figure>`).join('')}</div><p class="note">${e.t === 'ab' ? 'Touchez l’affiche choisie, puis Valider.' : 'Touchez une affiche pour l’agrandir.'}</p>` : '';
+const VUE = (e, srcs) => srcs.length ? `<div class="vue${e.nb ? ' nb' : ''}${e.t === 'ab' ? ' pile' : ''}">${srcs.map((s, k) => `<figure${e.t === 'ab' ? ` data-p="${k}"` : ''}>${e.t === 'ab' ? 'ABCD'[k] : ''}${cadree(e) ? afficheCadree(e, s) : `<img src="${h(s)}" alt="${e.t === 'ab' ? 'Affiche ' + 'ABCD'[k] : 'L\'affiche'}">`}</figure>`).join('')}</div><p class="note">${e.t === 'ab' ? 'Touchez l’affiche choisie.' : 'Touchez une affiche pour l’agrandir.'}</p>` : '';
 const ECRAN = P.has('ecran');
 const APERCU = P.has('apercu'); // ouvert depuis « Modifier le test » : la séance vient de l'éditeur, pas du fichier en ligne
 const PAPIER = ECRAN && P.has('papier'); // séance sur papier : le grand écran montre les affiches et les questions, chacun répond sur sa fiche A3
@@ -437,9 +438,10 @@ function telephone() {
       if (t === 'multi' && !q.zones) x += `<p class="note">Plusieurs réponses possibles.</p><button class="btn" data-a="multi">Valider</button>`;
       if (t === 'echelle') x += `<div class="echelle">${q.o.map((o, i) => `<button data-o="${i}" style="width:${36 + i * 11}px;height:${36 + i * 11}px">${o}</button>`).join('')}</div><div class="bouts"><span>${h(q.a)}</span><span>${h(q.b)}</span></div>`;
       if (!q.zones && !q.vote && !e.jeu && !e.telSans) x += VUE(e, (e.imgs || []).filter(Boolean)); // la même affiche que sur le grand écran (pas pour le jeu : l'affiche y est cachée)
-      if (t === 'ab') x += `<div class="opts"><button class="opt" data-o="${e.o.length - 1}">${h(e.o[e.o.length - 1])}${tete(e.p)}</button></div><button class="btn" data-a="ab">Valider</button>`; // on touche une affiche puis Valider ; « Aucune différence » répond tout de suite
+      if (t === 'ab') x += `<div class="opts"><button class="opt" data-o="${e.o.length - 1}">${h(e.o[e.o.length - 1])}${tete(e.p)}</button></div>`; // on touche une affiche : la réponse part tout de suite, comme « Aucune différence »
     }
     app.innerHTML = `<div class="tel${e.t === 'accueil' ? ' fixe' : ''}">${x}</div>`;
+    document.body.className = 'fondtel' + (e.p ? ' p' + e.p : ''); // le téléphone prend la teinte claire de l'étape (rose hors étape)
     if (!SALLE) salons();
     regards(); statut();
   }
@@ -449,12 +451,11 @@ function telephone() {
     const e = ETAPES[courant], id = ident(e), o = ev.target.closest('[data-o]'), a = ev.target.closest('[data-a]');
     if (o && genre(e) === 'multi') return o.classList.toggle('on');
     if (o) { o.classList.add('on'); return setTimeout(() => repondre(id, +o.dataset.o), 350); }
-    const choisie = ev.target.closest('[data-p]'); if (choisie) return app.querySelectorAll('[data-p]').forEach(f => f.classList.toggle('on', f === choisie));
+    const choisie = ev.target.closest('[data-p]'); if (choisie) { choisie.classList.add('on'); return setTimeout(() => repondre(id, +choisie.dataset.p), 350); } // comparaison : toucher une affiche répond tout de suite
     const fig = ev.target.closest('.vue figure'); if (fig) return fig.classList.toggle('zoom');
     if (!a) return;
     const act = a.dataset.a;
     if (act === 'multi') { const v = [...app.querySelectorAll('[data-o].on')].map(b => +b.dataset.o); if (v.length) repondre(id, v); }
-    if (act === 'ab') { const f = app.querySelector('[data-p].on'); if (f) repondre(id, +f.dataset.p); }
     if (act === 'texte') { const v = document.getElementById('txt').value.trim(); if (v) repondre(id, v); }
     if (act === 'autre') { photo = null; dessiner(true); }
     if (act === 'inscrire') { mes.nom = document.getElementById('nom').value.trim(); mes.inscrit = true; garder(); if (lien) lien.send({ k: 'salut', pid: mes.pid, nom: mes.nom }); dessiner(); }
@@ -537,9 +538,10 @@ function enLigne() {
       else if (e.t === 'choix' || e.t === 'multi') x += `<div class="opts">${e.o.map((o, i) => `<button class="opt" data-o="${i}">${h(o)}${tete(e.p || 1)}</button>`).join('')}</div>`;
       if (e.t === 'multi' && !e.zones) x += `<p class="note">Plusieurs réponses possibles.</p><button class="btn" data-a="multi">Valider</button>`;
       if (e.t === 'echelle') x += `<div class="echelle">${e.o.map((o, i) => `<button data-o="${i}" style="width:${36 + i * 11}px;height:${36 + i * 11}px">${o}</button>`).join('')}</div><div class="bouts"><span>${h(e.a)}</span><span>${h(e.b)}</span></div>`;
-      if (e.t === 'ab') x += `<div class="opts"><button class="opt" data-o="${e.o.length - 1}">${h(e.o[e.o.length - 1])}${tete(e.p || 1)}</button></div><button class="btn" data-a="ab">Valider</button>`;
+      if (e.t === 'ab') x += `<div class="opts"><button class="opt" data-o="${e.o.length - 1}">${h(e.o[e.o.length - 1])}${tete(e.p || 1)}</button></div>`;
     }
     app.innerHTML = `<div class="tel${e.t === 'accueil' ? ' fixe' : ''}">${x}</div>`;
+    document.body.className = 'fondtel' + (e.p ? ' p' + e.p : ''); // le téléphone prend la teinte claire de l'étape (rose hors étape)
     [ETAPES[M.i], ETAPES[M.i + 1]].filter(Boolean).forEach(z => [...(z.imgs || []), z.img].filter(Boolean).forEach(u => { new Image().src = u; })); // l'affiche à venir est prête avant qu'on y arrive
     regards(); statut();
   }
@@ -551,7 +553,7 @@ function enLigne() {
     if (img.complete) go(); else { img.onload = img.onerror = go; setTimeout(go, 8000); } // connexion lente : on n'attend pas indéfiniment la fin du chargement
   }
   app.addEventListener('click', ev => {
-    const choisie = ev.target.closest('[data-p]'); if (choisie) return app.querySelectorAll('[data-p]').forEach(f => f.classList.toggle('on', f === choisie));
+    const choisie = ev.target.closest('[data-p]'); if (choisie) { if (pris) return; pris = true; choisie.classList.add('on'); return setTimeout(() => repondre(ETAPES[M.i], +choisie.dataset.p), 350); }
     const f = ev.target.closest('.vue figure'); if (f) return f.classList.toggle('zoom');
     const e = ETAPES[M.i], o = ev.target.closest('[data-o]'), a = ev.target.closest('[data-a]');
     if (o && e.t === 'multi') return o.classList.toggle('on');
@@ -562,7 +564,6 @@ function enLigne() {
     if (act === 'suite') aller(M.i + 1);
     if (act === 'voir') { a.disabled = true; montrer(e); }
     if (act === 'multi') { const v = [...app.querySelectorAll('[data-o].on')].map(b => +b.dataset.o); if (v.length) repondre(e, v); }
-    if (act === 'ab') { const f = app.querySelector('[data-p].on'); if (f && !pris) { pris = true; repondre(e, +f.dataset.p); } }
     if (act === 'texte') { const v = document.getElementById('txt').value.trim(); if (v) repondre(e, v); }
     if (act === 'autre') { const file = M.file; M = neuf(); M.file = file; garder(); dessiner(); }
   });
