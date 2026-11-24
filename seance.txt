@@ -157,10 +157,8 @@ affiche : affiches/origine.jpg
 - Les dates et les lieux @ 2 70 95 15
 - Les logos @ 10 86 81 11
 
-[étape 2]
-
 [zones] Où votre regard s'est-il posé en premier ?
-étape : 2
+étape : 1
 réponses : une
 affiche : affiches/origine.jpg
 - Le titre @ 16 3 67 17
@@ -168,6 +166,20 @@ affiche : affiches/origine.jpg
 - Gratuit, animé par @ 8 62 84 8
 - Les dates et les lieux @ 2 70 95 15
 - Les logos @ 10 86 81 11
+
+[question] Que ressentez-vous en regardant cette affiche ?
+étape : 1
+réponses : plusieurs
+affiche : affiches/origine.jpg
+- De la curiosité
+- De la confiance
+- De l'envie d'y aller
+- De la surprise
+- De l'inquiétude
+- De l'indifférence
+- De la confusion
+
+[étape 2]
 
 [question] Qu'est-ce qui gêne la lecture ?
 étape : 2
@@ -226,18 +238,6 @@ affiche : affiches/origine.jpg
 - La fête
 - Autre chose que le sujet
 - Rien de précis
-
-[question] Que ressentez-vous en regardant cette affiche ?
-étape : 2
-réponses : plusieurs
-affiche : affiches/origine.jpg
-- De la curiosité
-- De la confiance
-- De l'envie d'y aller
-- De la surprise
-- De l'inquiétude
-- De l'indifférence
-- De la confusion
 
 [question] Après l'avoir vue, comment vous sentez-vous ?
 étape : 2
