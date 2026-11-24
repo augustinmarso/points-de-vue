@@ -48,7 +48,7 @@ mission = Bilan de prévention gratuit à 60 ans
 mission = Marche collective du jeudi matin
 mission = Don du sang à la salle des fêtes
 
-# Les logos montrés en haut à gauche du grand écran (deux au plus).
+# Les logos montrés en haut à gauche du grand écran, au début et à la fin de la séance (deux au plus).
 logo = logos/granville-terre-et-mer.svg
 
 # L'atelier : les tests passés par chaque affiche de binôme (question | note 1 | note 5). « test 5 secondes » : l'affiche est cachée au bout de 5 secondes.
