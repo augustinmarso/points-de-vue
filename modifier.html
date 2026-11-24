@@ -35,9 +35,13 @@ header h1{margin:0;font-size:24px;font-weight:800;letter-spacing:-.04em;flex:1}
 #liste small{display:block;font-size:12px;font-weight:700;color:var(--gris)}
 #liste b{display:block;font-size:14px;line-height:1.15;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #liste .oeil{flex:none;width:32px;height:32px;border-radius:50%;display:grid;place-items:center;color:var(--gris)}#liste .oeil:hover{background:var(--fond);color:var(--n)}
-#liste li.dossier{background:none;border:0;padding:0;margin:10px 0 4px;cursor:default}
-#liste li.dossier button{flex:1;min-width:0;display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:10px;text-align:left;font-size:14px}#liste li.dossier button:hover{background:#fff}
-#liste li.dossier svg{flex:none;color:var(--c)}#liste li.dossier b{flex:1;font-size:14px}#liste li.dossier small{flex:none;display:inline}#liste li.dossier i{flex:none;font-style:normal;font-weight:800;width:1em;text-align:center}
+#liste li.dossier{background:none;border:0;padding:0;margin:14px 0 6px;cursor:default;flex-direction:column;align-items:flex-start;gap:4px}
+#liste li.dossier .nom{font-size:15px;font-weight:800;line-height:1.15;padding:0 2px}#liste li.dossier .nom small{display:inline;font-size:12px}
+#liste li.dossier [contenteditable]{cursor:text;border-radius:4px;outline-offset:2px}#liste li.dossier [contenteditable]:hover{box-shadow:0 0 0 2px rgba(20,20,20,.18)}
+#liste li.dossier button{position:relative;width:132px;color:var(--c);border-radius:12px;display:block;line-height:0}#liste li.dossier button:hover{filter:brightness(.94)}
+#liste li.dossier svg{width:100%;height:auto;display:block}
+#liste li.dossier button span{position:absolute;left:0;right:0;top:46%;text-align:center;line-height:1.2;font-size:13px;font-weight:800;color:var(--f)}
+#liste li.dossier.ferme button{width:132px}#liste li.dossier:not(.ferme) button{width:96px}
 #liste .mv{display:flex;flex-direction:column;gap:2px;flex:none}
 #liste .mv button{width:30px;height:22px;border-radius:8px;background:var(--fond);font-weight:800;line-height:1}
 #liste .mv button[disabled]{opacity:.25}
@@ -227,7 +231,7 @@ const change = () => { noterPile(ecrireSeance(M)); const diff = ecrireSeance(M) 
 const OEIL = ferme => `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12z"/><circle cx="12" cy="12" r="2.8"/>${ferme ? '<path d="M4 20 20 4"/>' : ''}</svg>`;
 // les dossiers : dans la liste, chaque partie de la séance (le jeu, chaque étape, l'atelier) est un dossier qui s'ouvre et se referme. Un écran sans partie suit celle de l'écran d'après.
 const fermes = new Set(); let selVu = -1;
-const DOSSIER = '<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true"><path d="M3 6.5A2.5 2.5 0 0 1 5.500 4h4l2 2.500h7A2.500 2.500 0 0 1 21 9v8.500a2.500 2.500 0 0 1-2.500 2.500h-13A2.500 2.500 0 0 1 3 17.500z"/></svg>';
+const DOSSIER = '<svg viewBox="0 0 24 19" fill="currentColor" aria-hidden="true"><path d="M1 3.500A2.500 2.500 0 0 1 3.500 1h5l2.200 2.600h9.800A2.500 2.500 0 0 1 23 6.100v9.400a2.500 2.500 0 0 1-2.500 2.500h-17A2.500 2.500 0 0 1 1 15.500z"/></svg>';
 const NOM_PARTIE = { jeu: "Jeu de l'œil", atelier: 'Atelier', 1: 'Étape 1', 2: 'Étape 2', 3: 'Étape 3' };
 function parties() {
   const P = M.ecrans.map(e => e.p || (e.jeu || e.t === 'scores' ? 'jeu' : ['mission', 'photo', 'vote', 'palmares'].includes(e.t) ? 'atelier' : 0));
@@ -239,7 +243,7 @@ const visibles = () => { const P = parties(); return M.ecrans.map((_, i) => i).f
 function liste() {
   let n = 0; const P = parties(), noms = [...new Set(P)].filter(p => NOM_PARTIE[p]);
   if (sel !== selVu) { fermes.delete(P[sel]); selVu = sel; } // le dossier de l'écran qu'on vient de choisir s'ouvre
-  const tete = (p, i) => `<li class="dossier" style="--c:${p > 0 ? `var(--c${p})` : '#141414'}"><button type="button" data-og="${p}" aria-expanded="${!fermes.has(p)}" title="${fermes.has(p) ? 'Ouvrir ce dossier' : 'Refermer ce dossier'}">${DOSSIER}<b>${NOM_PARTIE[p]}${p > 0 ? ' · ' + h(M.phases[p].nom) : ''}</b><small>${P.filter(x => x === p).length} écrans</small><i>${fermes.has(p) ? '▸' : '▾'}</i></button></li>`;
+  const tete = (p, i) => { const n = P.filter(x => x === p).length, ferme = fermes.has(p); return `<li class="dossier${ferme ? ' ferme' : ''}" style="--c:${p > 0 ? `var(--c${p})` : '#141414'};--f:${p == 1 || p == 2 ? '#141414' : '#fff'}"><span class="nom">${p > 0 ? `<small>${NOM_PARTIE[p]} · </small><span contenteditable="plaintext-only" spellcheck="false" role="textbox" aria-label="Nom de l'étape ${p}" title="Cliquer pour changer le nom de l'étape" data-ph="${p}">${h(M.phases[p].nom)}</span>` : NOM_PARTIE[p]}</span><button type="button" data-og="${p}" aria-expanded="${!ferme}" aria-label="${ferme ? 'Ouvrir' : 'Refermer'} le dossier ${NOM_PARTIE[p]}, ${n} écrans" title="${ferme ? 'Ouvrir ce dossier' : 'Refermer ce dossier'}">${DOSSIER}<span>${n} écran${n > 1 ? 's' : ''} ${ferme ? '▸' : '▾'}</span></button></li>`; };
   $('liste').innerHTML = `<li class="ajout"><button type="button" class="btn" data-a="nouveau">+ Ajouter un écran</button></li>` + M.ecrans.map((e, i) => (e.masque || ++n, noms.length > 1 && NOM_PARTIE[P[i]] && P[i] !== P[i - 1] ? tete(P[i], i) : '') + (fermes.has(P[i]) ? '' : `<li data-i="${i}" draggable="${!fixe(i)}" class="${i === sel ? 'sel' : ''}${e.masque ? ' masque' : ''}" style="--c:${COUL(e)}">
     <span class="num">${e.masque ? '–' : n}</span><span class="txt"><small>${h(TYPE(e))}${e.masque ? ' · masqué' : ''}</small><b>${h(TITRE(e))}</b></span>
     ${fixe(i) ? '' : `<button type="button" class="oeil" data-oeil aria-pressed="${!!e.masque}" aria-label="${e.masque ? 'Montrer cet écran pendant la séance' : 'Masquer cet écran pendant la séance'}" title="${e.masque ? 'Écran masqué : cliquer pour le montrer' : 'Masquer cet écran pendant la séance'}">${OEIL(e.masque)}</button>`}<span class="mv"><button data-m="-1" aria-label="Monter" ${fixe(i) || fixe(i - 1) || i === 0 ? 'disabled' : ''}>↑</button><button data-m="1" aria-label="Descendre" ${fixe(i) || fixe(i + 1) || i === M.ecrans.length - 1 ? 'disabled' : ''}>↓</button></span></li>`)).join('');
@@ -314,6 +318,8 @@ function zone() {
   const libre = ['info', 'flash', 'choix', 'multi', 'echelle', 'ab', 'texte'].includes(e.t); // les écrans qu'on peut créer, copier, supprimer
   if (libre && e.t !== 'flash' && !e.jeu) f += `<label class="c crea">Couleur de l'étape<select data-k="p"><option value="">Sans étape (noir)</option>${[1, 2, 3].map(p => `<option value="${p}" ${e.p === p ? 'selected' : ''}>Étape ${p} · ${h(M.phases[p].nom)}</option>`).join('')}</select></label>`;
   if (libre) f += `<div class="ligne crea"><button type="button" class="btn clair" data-a="dupliquer">Dupliquer cet écran</button><button type="button" class="btn clair" data-a="supprimer">Supprimer cet écran</button></div>`;
+  const atelier = ['mission', 'photo', 'vote', 'palmares'].includes(e.t);
+  if (atelier) f += `<div class="ligne crea"><button type="button" class="btn clair" data-a="supprimer">Supprimer cet écran</button></div>`;
   if (!fixe(sel)) f += `<label class="case"><input type="checkbox" data-k="masque" ${e.masque ? 'checked' : ''}>Masquer cet écran pendant la séance</label>`;
   else f += `<p class="verrou">Cet écran reste à sa place : la séance commence et finit toujours par lui.</p>`;
   $('travail').innerHTML = `<button type="button" class="btn clair retour" data-a="retour">← Tous les écrans</button><div class="ligne vues" role="group" aria-label="Version montrée">${VUES.map(([v, n]) => `<button type="button" class="btn${v === vue ? '' : ' clair'}" data-a="vue" data-v="${v}" aria-pressed="${v === vue}">${n}</button>`).join('')}<button type="button" class="btn clair ouvrir" data-a="apercu" title="Ouvre cette version dans un autre onglet, avec vos modifications même non enregistrées. Rien ne part en ligne.">Prévisualiser</button>${vue === 'papier' ? `<a class="btn clair" href="papier.html${TEST ? '?test=' + TEST : ''}" target="_blank" rel="noopener">Imprimer la fiche</a>` : ''}</div><h3>${h(TYPE(e))}</h3>${reglable ? `<p class="aide">Cliquez sur un texte ou sur une affiche pour le modifier.</p>` : ''}<div id="vue">${apercu(e)}${cote(e)}</div><form onsubmit="return false">${f}</form>`;
@@ -357,7 +363,7 @@ $('zone').addEventListener('click', ev => {
   if (a === 'bon') e.bon = +b.dataset.i;
   if (a === 'sansAffiche') { if (e.t === 'ab') { e.imgs.splice(+b.dataset.k.split('.')[1], 1); e.o = optsAB(e.imgs.length); } else e.imgs = []; }
   if (a === 'dupliquer') { M.ecrans.splice(sel + 1, 0, JSON.parse(JSON.stringify({ ...e, id: undefined }))); sel++; }
-  if (a === 'supprimer') { if (!confirm('Êtes-vous sûr de vouloir supprimer cet écran ? Pour seulement le retirer de la séance, masquez-le plutôt (le bouton œil).')) return; M.ecrans.splice(sel, 1); sel = Math.min(sel, M.ecrans.length - 1); }
+  if (a === 'supprimer') { if (!confirm('Êtes-vous sûr de vouloir supprimer cet écran ? Pour seulement le retirer de la séance, masquez-le plutôt (le bouton œil).' + (['mission', 'photo', 'vote', 'palmares'].includes(e.t) ? "\n\nAttention : un écran de l'atelier ne se rajoute pas depuis « + Ajouter un écran ». Seul « Revenir en arrière » le retrouve." : ''))) return; M.ecrans.splice(sel, 1); sel = Math.min(sel, M.ecrans.length - 1); }
   if (a === 'affiche') { cible = b.dataset.k; return galerie(); }
   zone(); liste(); change();
 });
@@ -369,6 +375,10 @@ $('liste').addEventListener('click', ev => {
   if (m) return deplacer(i, i + +m.dataset.m);
   sel = i; liste(); zone(); document.body.classList.add('detail'); $('zone').scrollTop = 0; // sur écran étroit, les réglages prennent toute la place
 });
+// le nom d'une étape se change sur son dossier : pendant la frappe la liste n'est pas redessinée, elle l'est quand on sort du champ
+$('liste').addEventListener('input', ev => { const t = ev.target.closest('[data-ph]'); if (t) { M.phases[+t.dataset.ph].nom = t.textContent.replace(/\s+/g, ' ').trim(); change(); } });
+$('liste').addEventListener('focusout', ev => { const t = ev.target.closest('[data-ph]'); if (!t) return; const p = +t.dataset.ph; if (!M.phases[p].nom) M.phases[p].nom = 'Étape ' + p; liste(); zone(); change(); });
+$('liste').addEventListener('keydown', ev => { if (ev.key === 'Enter' && ev.target.closest('[data-ph]')) { ev.preventDefault(); ev.target.blur(); } });
 // glisser-déposer pour changer l'ordre
 let tire = null;
 $('liste').addEventListener('dragstart', ev => { const li = ev.target.closest('li[data-i]'); if (li) { tire = +li.dataset.i; ev.dataTransfer.effectAllowed = 'move'; } });
