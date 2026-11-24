@@ -97,7 +97,7 @@ header a[aria-label=Accueil]{display:inline-flex;align-items:center;gap:6px;font
 .apercu .vide{width:19cqw;aspect-ratio:1000/1414;border-radius:1.5cqw;background:var(--fond);font-weight:700;font-size:1.7cqw;padding:1cqw}
 /* les trois versions du même écran */
 .vues{margin:0 0 14px;gap:8px}.outils .btn{min-height:38px;padding:6px 16px;font-size:14px}.outils .danger{color:#B3261E;order:9;margin-left:auto}.outils .case{font-size:14px;gap:8px}.outils [aria-pressed=true]{background:var(--n);color:#fff}
-.aide.fort{color:var(--n);font-weight:700}.aide.expl{margin:-6px 0 14px}
+.aide.fort{color:var(--n);font-weight:700}.apercu.depot{outline:4px dashed var(--c3);outline-offset:4px}.aide.expl{margin:-6px 0 14px}
 .apercu [contenteditable],.cote [contenteditable]{text-decoration:underline dotted rgba(20,20,20,.3);text-underline-offset:.18em;text-decoration-thickness:1px}
 .apercu [contenteditable]:hover:not(:focus)::after{content:' ✎';font-size:.55em;opacity:.55;font-weight:400}
 .apercu .im .chg{position:absolute;left:50%;bottom:1cqw;transform:translateX(-50%);background:var(--n);color:#fff;font-weight:800;font-size:max(11px,1.25cqw);padding:.45em 1em;border-radius:99px;white-space:nowrap}.outils .etape{display:inline-flex;align-items:center;gap:8px;font-weight:800;font-size:14px}.outils select{max-width:260px}.vues .ouvrir{margin-left:auto}
@@ -397,7 +397,7 @@ function zone() {
   if (!e.zones && !e.jeu && ['info', 'choix', 'multi', 'echelle', 'texte'].includes(e.t) && (e.imgs || [])[0]) outils += `<button type="button" class="btn clair" data-a="cadrer" title="Masquer une partie de l'affiche, ou ne montrer qu'un élément en très gros : utile quand la question porte sur un élément précis.">${cadree(e) ? 'Changer le cadrage' : 'Masquer ou zoomer l’affiche'}</button>${cadree(e) ? `<button type="button" class="btn clair" data-a="affiche" data-k="imgs.0">Changer l'affiche</button>` : ''}`;
   const atelier = ['mission', 'photo', 'vote', 'palmares', 'phase'].includes(e.t);
   if (libre || atelier) outils += `<button type="button" class="btn clair danger" data-a="supprimer" title="Enlève cet écran pour de bon. Pour seulement le retirer de la séance, utilisez « Masquer ».">Supprimer</button>`;
-  $('travail').innerHTML = `<button type="button" class="btn clair retour" data-a="retour">← Tous les écrans</button><div class="ligne vues" role="group" aria-label="Version montrée">${VUES.map(([v, n]) => `<button type="button" class="btn${v === vue ? '' : ' clair'}" data-a="vue" data-v="${v}" aria-pressed="${v === vue}">${n}</button>`).join('')}<button type="button" class="btn clair ouvrir" data-a="apercu" title="Un essai, dans un autre onglet, à partir de l'écran choisi : vos modifications y sont, même non enregistrées. Rien n'est envoyé ni gardé.">Essayer cette version</button><a class="btn clair" href="${h(lienMailto())}"  title="Ouvre votre messagerie avec un message tout prêt qui contient le lien du formulaire en ligne. Pensez à enregistrer avant." ${vue === 'form' ? '' : 'hidden'}>Partager par mail</a>${vue === 'papier' ? `<a class="btn clair" href="papier.html${TEST ? '?test=' + TEST : ''}" target="_blank" rel="noopener">Imprimer la fiche</a>` : ''}</div><p class="aide expl">${{ tel: 'Le diaporama est projeté sur le grand écran ; chacun répond sur son téléphone.', form: 'Pas de grand écran : chacun répond seul, chez lui, par un lien (celui de « Partager par mail »).', papier: 'Le diaporama est projeté ; chacun répond sur une fiche imprimée, lue ensuite par une photo.' }[vue]}</p>${outils || reglages ? `<div class="ligne vues outils" role="group" aria-label="Cet écran">${outils}${reglages}</div>` : ''}<h3>${h(TYPE(e))}</h3>${reglable ? `<p class="aide fort">✎ Cliquez sur un texte pour le changer, sur l'affiche pour en choisir une autre.</p>` : ''}<div id="vue">${apercu(e)}${cote(e)}</div><form onsubmit="return false">${f}</form>`;
+  $('travail').innerHTML = `<button type="button" class="btn clair retour" data-a="retour">← Tous les écrans</button><div class="ligne vues" role="group" aria-label="Version montrée">${VUES.map(([v, n]) => `<button type="button" class="btn${v === vue ? '' : ' clair'}" data-a="vue" data-v="${v}" aria-pressed="${v === vue}">${n}</button>`).join('')}<button type="button" class="btn clair ouvrir" data-a="apercu" title="Un essai, dans un autre onglet, à partir de l'écran choisi : vos modifications y sont, même non enregistrées. Rien n'est envoyé ni gardé.">Essayer cette version</button><a class="btn clair" href="${h(lienMailto())}"  title="Ouvre votre messagerie avec un message tout prêt qui contient le lien du formulaire en ligne. Pensez à enregistrer avant." ${vue === 'form' ? '' : 'hidden'}>Partager par mail</a>${vue === 'papier' ? `<a class="btn clair" href="papier.html${TEST ? '?test=' + TEST : ''}" target="_blank" rel="noopener">Imprimer la fiche</a>` : ''}</div><p class="aide expl">${{ tel: 'Le diaporama est projeté sur le grand écran ; chacun répond sur son téléphone.', form: 'Pas de grand écran : chacun répond seul, chez lui, par un lien (celui de « Partager par mail »).', papier: 'Le diaporama est projeté ; chacun répond sur une fiche imprimée, lue ensuite par une photo.' }[vue]}</p>${outils || reglages ? `<div class="ligne vues outils" role="group" aria-label="Cet écran">${outils}${reglages}</div>` : ''}<h3>${h(TYPE(e))}</h3>${reglable ? `<p class="aide fort">✎ Cliquez sur un texte pour le changer, sur l'affiche pour en choisir une autre, ou glissez une image depuis votre ordinateur.</p>` : ''}<div id="vue">${apercu(e)}${cote(e)}</div><form onsubmit="return false">${f}</form>`;
   setTimeout(tenir, 0);
   if ($('decoupe').open) { if (e.zones) dessinerDecoupe(); else $('decoupe').close(); }
 }
@@ -599,18 +599,35 @@ $('galerie').addEventListener('click', ev => {
   const b = ev.target.closest('[data-img]'); if (ev.target.closest('[data-a=fermer]')) return $('galerie').close(); if (!b) return;
   if (cible === 'parcours') { $('galerie').close(); return inserer(p => parcours(b.dataset.img, p)); }
   if (cible === 'gabarit') { $('galerie').close(); return creerTest(() => toutesEtapes(b.dataset.img)); }
-  const e = M.ecrans[sel]; if (cible === 'img') e.img = b.dataset.img; else { e.imgs = e.imgs || []; e.imgs[+cible.split('.')[1]] = b.dataset.img; if (e.t === 'ab') e.o = optsAB(e.imgs.length); }
-  if (!e.zones) { delete e.caches; delete e.zoom; delete e.r; } // une autre affiche : le cadrage de l'ancienne ne vaut plus
-  $('galerie').close(); if (e.zones) return decouper(e); zone(); liste(); change();
+  $('galerie').close(); poser(cible, b.dataset.img);
 });
-$('ajout').addEventListener('change', async ev => { // une nouvelle image : réduite, puis gardée dans le test lui-même (enregistrée avec lui)
+// met une image à une place de l'écran choisi (k = « img » ou « imgs.N ») : depuis la galerie, ou déposée sur l'aperçu
+function poser(k, src) {
+  const e = M.ecrans[sel]; if (k === 'img') e.img = src; else { e.imgs = e.imgs || []; e.imgs[+k.split('.')[1]] = src; if (e.t === 'ab') e.o = optsAB(e.imgs.length); }
+  if (!e.zones) { delete e.caches; delete e.zoom; delete e.r; } // une autre affiche : le cadrage de l'ancienne ne vaut plus
+  if (e.zones) return decouper(e); zone(); liste(); change();
+}
+// une image de l'ordinateur : réduite, puis gardée dans le test lui-même (enregistrée avec lui)
+async function reduire(f) {
+  const img = await new Promise((ok, ko) => { const i = new Image(); i.onload = () => ok(i); i.onerror = ko; i.src = URL.createObjectURL(f); });
+  const k = Math.min(1, 1000 / Math.max(img.width, img.height)), c = document.createElement('canvas'); c.width = img.width * k; c.height = img.height * k; c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+  const d = c.toDataURL('image/jpeg', .72); NOMS[d] = f.name.replace(/\.[^.]+$/, '').slice(0, 40) || 'Image ajoutée';
+  if (!images.includes(d)) images.unshift(d); return d;
+}
+// glisser-déposer : une image lâchée sur l'aperçu devient l'affiche de l'écran (sur une affiche précise si on la vise, sinon la première place libre)
+const placeLibre = (e, vise) => vise ? vise.dataset.k : e.t === 'flash' || e.jeu ? 'img' : e.t === 'ab' ? 'imgs.' + (e.imgs.findIndex(x => !x) >= 0 ? e.imgs.findIndex(x => !x) : e.imgs.length < 4 ? e.imgs.length : 0) : e.t === 'info' || e.q != null ? 'imgs.0' : '';
+$('zone').addEventListener('dragover', ev => { const a = ev.target.closest('.apercu'); if (!a || ![...ev.dataTransfer.types].includes('Files')) return; ev.preventDefault(); ev.dataTransfer.dropEffect = 'copy'; a.classList.add('depot'); });
+$('zone').addEventListener('dragleave', ev => { const a = ev.target.closest('.apercu'); if (a && !a.contains(ev.relatedTarget)) a.classList.remove('depot'); });
+$('zone').addEventListener('drop', async ev => {
+  const a = ev.target.closest('.apercu'); if (!a || !ev.dataTransfer.files.length) return; ev.preventDefault(); a.classList.remove('depot');
+  const f = [...ev.dataTransfer.files].find(x => x.type.startsWith('image/')), k = placeLibre(M.ecrans[sel], ev.target.closest('[data-a=affiche][data-k]'));
+  if (!f) return $('etat').textContent = "Ce fichier n'est pas une image."; if (!k) return $('etat').textContent = "Cet écran n'a pas d'affiche.";
+  try { poser(k, await reduire(f)); } catch (err) { $('etat').textContent = "Cette image n'a pas pu être lue."; }
+});
+$('ajout').addEventListener('change', async ev => {
   const f = ev.target.files[0]; if (!f) return;
-  try {
-    const img = await new Promise((ok, ko) => { const i = new Image(); i.onload = () => ok(i); i.onerror = ko; i.src = URL.createObjectURL(f); });
-    const k = Math.min(1, 1000 / Math.max(img.width, img.height)), c = document.createElement('canvas'); c.width = img.width * k; c.height = img.height * k; c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
-    const d = c.toDataURL('image/jpeg', .72); NOMS[d] = f.name.replace(/\.[^.]+$/, '').slice(0, 40) || 'Image ajoutée';
-    if (!images.includes(d)) images.unshift(d); galerie(); $('etatImage').textContent = 'Image ajoutée en tête de la liste : cliquez dessus pour la choisir.';
-  } catch (err) { $('etatImage').textContent = "Cette image n'a pas pu être lue."; }
+  try { await reduire(f); galerie(); $('etatImage').textContent = 'Image ajoutée en tête de la liste : cliquez dessus pour la choisir.'; }
+  catch (err) { $('etatImage').textContent = "Cette image n'a pas pu être lue."; }
   ev.target.value = '';
 });
 
