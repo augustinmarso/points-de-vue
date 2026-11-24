@@ -47,7 +47,7 @@ article .q{flex:1 1 340px;min-width:0}
 .aff .vz{width:min(220px,calc(300px*var(--r)))}.aff .zones{margin-left:26px}.aff .z{cursor:inherit}
 .aff figure.zoom{position:fixed;inset:0;z-index:5;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;cursor:zoom-out}
 .aff figure.zoom img{max-height:90vh;max-width:88vw}.aff figure.zoom .vz{width:min(88vw,calc(90vh*var(--r)))}
-.camembert{display:flex;gap:22px;align-items:center;flex-wrap:wrap;margin-top:6px}.camembert svg{width:170px;height:170px;flex:none}
+.camembert{display:flex;gap:22px;align-items:center;flex-wrap:wrap;margin-top:6px}.camembert svg{width:190px;height:190px;flex:none;isolation:isolate}
 .camembert ul,.avis{list-style:none;margin:0;padding:0}.camembert ul{flex:1 1 220px;min-width:0}
 .camembert li{display:flex;align-items:center;gap:10px;font-size:16px;padding:4px 0}.camembert li i{width:14px;height:14px;border-radius:50%;flex:none}.camembert li span{flex:1;min-width:0;overflow-wrap:anywhere}.camembert li b{white-space:nowrap}.camembert li.zero{color:var(--gris)}
 .histo{display:flex;gap:10px;align-items:flex-end;height:170px;margin-top:6px;max-width:420px}.histo div{flex:1;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:4px;font-weight:800}
@@ -72,7 +72,16 @@ article .n{color:var(--gris);font-size:15px;margin:4px 0 12px}
 .bornes{display:flex;justify-content:space-between;color:var(--gris);font-size:14px;margin-top:6px}
 @media (max-width:520px){.chiffres{gap:10px}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
-@media print{.outils,.choix,.reglages,header a{display:none!important}main{padding:0}section{margin-top:30px}}
+.imprime{display:none}
+#rapport h1{font-size:44px;margin:14px 0 0}#rapport .quoi{font-size:17px;font-weight:700;margin:8px 0 0}#rapport h2{margin-top:26px;font-size:26px}
+#rapport ul{margin:10px 0 0;padding-left:1.1em;font-size:16px;line-height:1.35}#rapport li{margin-top:6px}
+.pied{margin-top:30px;color:var(--gris);font-size:13px}
+@page{margin:14mm}
+@media print{.outils,.choix,.reglages,header a,main>h1,.maj{display:none!important}.imprime{display:block}main{padding:0;max-width:none}section{margin-top:26px}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .chiffres{margin-top:18px}.chiffres b{font-size:52px}h2{font-size:26px;break-after:avoid}h2+p{break-after:avoid}.grille{gap:12px;margin-top:14px}
+  article{padding:14px 16px;border-width:2.5px;gap:14px 20px}article h3{font-size:17px}.aff img{max-height:210px;max-width:160px}.aff .vz{width:min(160px,calc(210px*var(--r)))}
+  .camembert svg{width:140px;height:140px}.camembert li,.barre,.avis li{font-size:13px}.histo{height:120px}.moy{font-size:28px}}
 </style>
 </head>
 <body>
@@ -82,6 +91,7 @@ article .n{color:var(--gris);font-size:15px;margin:4px 0 12px}
 <p class="maj" id="maj">Chargement…</p>
 <div class="outils">
   <a class="btn" href="https://docs.google.com/spreadsheets/d/14uvOfNQwjgMOH83hJhnWea9Df3Cidhhs4rUefRrQ2wk" target="_blank" rel="noopener">Ouvrir le Google Sheet</a>
+  <button class="btn" id="pdf" title="Ouvre la fenêtre d'impression : choisissez « Enregistrer au format PDF ». Le document reprend la séance choisie ci-dessous.">Restitution en PDF</button>
 </div>
 <div class="choix" id="choix" role="group" aria-label="Choisir une séance"></div>
 <div class="reglages">
@@ -89,7 +99,9 @@ article .n{color:var(--gris);font-size:15px;margin:4px 0 12px}
   <label>Chercher une question<input type="search" id="chercher" placeholder="Un mot de la question"></label>
   <label>Ranger les questions<select id="tri"><option value="">Dans l'ordre de la séance</option><option value="fort">Les plus unanimes d'abord</option><option value="faible">Les plus partagées d'abord</option></select></label>
 </div>
+<div id="rapport" class="imprime"></div>
 <div id="vue"></div>
+<p class="imprime pied">Points de vue · habitants testeurs · Granville Terre et Mer. Résultats anonymes : aucun prénom, aucune réponse individuelle.</p>
 </main>
 <script src="seance.js"></script>
 <script>
@@ -99,9 +111,10 @@ article .n{color:var(--gris);font-size:15px;margin:4px 0 12px}
 const SOURCE = 'https://script.google.com/macros/s/AKfycbzPof8sEj8tZLlA-MtVDYyODv32y8lXxc9hLVmaW5zCvHLilyRIxpk4Ix6TPhzJczjn/exec?vue=resultats';
 const COUL = { 'Étape 1': '#F5A0C6', 'Étape 2': '#F7C33B', 'Étape 3': '#1F6FE0', 'Étape 4': '#7BD3A8', 'Étape 5': '#B79CF2', 'Étape 6': '#FF9A6B' };
 const h = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])).replace(/ ([?!:;»])/g, '&nbsp;$1').replace(/« /g, '«&nbsp;');
-const TEINTES = ['#1F6FE0', '#F7C33B', '#F5A0C6', '#7BD3A8', '#B79CF2', '#FF9A6B', '#141414', '#9A9A9A', '#5BC0DE', '#C2185B']; // les parts d'un camembert
+const TEINTES = ['#F5A0C6', '#F7C33B', '#1F6FE0', '#7BD3A8', '#B79CF2', '#FF9A6B', '#5BC0DE', '#C2185B', '#B0B0B0', '#C9B037']; // un cercle par réponse : d'abord les trois couleurs de l'identité
 const fr = (x, d = 1) => x.toFixed(d).replace('.', ','), pc = x => Math.round(x * 100) + ' %';
 const $ = id => document.getElementById(id), plat = x => x.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+let NOM_TEST = 'Séance Points de vue'; listeTests().then(l => { NOM_TEST = (l.find(x => x.id === TEST) || {}).nom || NOM_TEST; }).catch(() => { }); // le nom du test, pour le titre de la restitution
 let D = null, seance = new URLSearchParams(location.search).get('seance') || '';
 
 // les totaux d'une séance ('' = toutes) : par question, le nombre de répondants, le détail des réponses, la moyenne des notes
@@ -129,10 +142,11 @@ function dessiner() {
   const affiche = (e, c) => { if (!e) return ''; const max = Math.max(1, ...Object.values(c));
     const im = (e.jeu ? [e.img] : e.imgs || []).filter(Boolean); if (!im.length) return '';
     return `<div class="aff">${im.map((src, k) => `<figure title="Cliquer pour agrandir">${e.zones ? carteZones(e, src).replace(/class="z" data-o="(\d+)" style="/g, (m, i) => `class="z" data-o="${i}" tabindex="-1" style="--f:${(c[e.o[i]] || 0) / max};`) : cadree(e) ? afficheCadree(e, src) : `<img src="${h(src)}" alt="L'affiche testée" loading="lazy">`}${e.t === 'ab' ? `<figcaption>${'ABCD'[k]}</figcaption>` : ''}</figure>`).join('')}</div>`; };
-  // une seule réponse possible : un camembert, avec sa légende
-  const camembert = (liste, c, n, bon) => { let a = 0; const pt = t => (50 + 50 * Math.sin(2 * Math.PI * t)).toFixed(2) + ' ' + (50 - 50 * Math.cos(2 * Math.PI * t)).toFixed(2);
-    const parts = liste.map((o, i) => { const p = n ? (c[o] || 0) / n : 0, d = a; a += p; return !p ? '' : p > .9999 ? `<circle cx="50" cy="50" r="50" fill="${TEINTES[i % 10]}"/>` : `<path d="M50 50L${pt(d)}A50 50 0 ${p > .5 ? 1 : 0} 1 ${pt(d + p)}Z" fill="${TEINTES[i % 10]}"/>`; }).join('');
-    return `<div class="camembert"><svg viewBox="0 0 100 100" role="img" aria-label="Répartition des réponses">${parts}</svg><ul>${liste.map((o, i) => `<li class="${c[o] ? '' : 'zero'}"><i style="background:${TEINTES[i % 10]}"></i><span>${h(o)}${i === bon ? ' (bonne réponse)' : ''}</span><b>${c[o] || 0} · ${pc(n ? (c[o] || 0) / n : 0)}</b></li>`).join('')}</ul></div>`; };
+  // une seule réponse possible : les cercles superposés de l'identité, un par réponse, la surface suit la part des réponses ; puis la légende
+  const camembert = (liste, c, n, bon) => { const pris = liste.map((o, i) => [i, n ? (c[o] || 0) / n : 0]).filter(x => x[1]), max = Math.max(...pris.map(x => x[1]), .0001);
+    const ronds = pris.map(([i, p], k) => { const r = 7 + 27 * Math.sqrt(p / max), ang = (-90 + 360 * k / pris.length) * Math.PI / 180, d = pris.length > 1 ? 15 : 0, x = 50 + d * Math.cos(ang), y = 50 + d * Math.sin(ang);
+      return [`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${r.toFixed(1)}" fill="${TEINTES[i % 10]}" style="mix-blend-mode:multiply"/>`, r > 11 ? `<text x="${(50 + (d + r * .35) * Math.cos(ang)).toFixed(1)}" y="${(50 + (d + r * .35) * Math.sin(ang) + 2.2).toFixed(1)}" text-anchor="middle" font-size="6.5" font-weight="800" fill="${i % 10 === 2 || i % 10 === 7 ? '#fff' : '#141414'}">${pc(p)}</text>` : '']; });
+    return `<div class="camembert"><svg viewBox="0 0 100 100" role="img" aria-label="Répartition des réponses">${ronds.map(x => x[0]).join('')}${ronds.map(x => x[1]).join('')}</svg><ul>${liste.map((o, i) => `<li class="${c[o] ? '' : 'zero'}"><i style="background:${TEINTES[i % 10]}"></i><span>${h(o)}${i === bon ? ' (bonne réponse)' : ''}</span><b>${c[o] || 0} · ${pc(n ? (c[o] || 0) / n : 0)}</b></li>`).join('')}</ul></div>`; };
   // une note de 1 à 5 : cinq colonnes
   const colonnes = (liste, c, n) => `<div class="histo">${liste.map((o, i) => `<div><b>${c[o] || 0}</b><i style="height:${n ? (c[o] || 0) / n * 100 : 0}%"></i><span>${i + 1}</span></div>`).join('')}</div>`;
   const carte = (g, q, opts, bon, bornes, e) => { // une question : son graphique (ou ses barres), dans l'ordre du questionnaire, et son affiche en face
@@ -159,6 +173,20 @@ function dessiner() {
 
   Q.filter(e => e.t === 'ab').map(e => { const c = T.compte[e.q] || {}, x = c.A || 0, y = c.B || 0; return [Math.abs(x - y) / T.rep[e.q], x > y ? 'A' : 'B', Math.max(x, y) / T.rep[e.q], e]; })
 
+  // la restitution : ce qu'une équipe de communication lit d'abord
+  const net = Q.filter(e => (e.t === 'choix' || e.t === 'ab') && e.bon == null && T.rep[e.q] > 1).map(e => { const c = T.compte[e.q] || {}, o = Object.keys(c).sort((a, b) => c[b] - c[a])[0]; return [c[o] / T.rep[e.q], e.q, o]; }).sort((a, b) => b[0] - a[0]);
+  const notes = Q.filter(e => e.t === 'echelle' && T.notes[e.q]).map(e => [T.notes[e.q][0] / T.notes[e.q][1], e.q]).sort((a, b) => a[0] - b[0]);
+  const jeu = Q.filter(e => e.bon != null).map(e => [((T.compte[e.q] || {})[e.o[e.bon]] || 0) / T.rep[e.q], e.q]).sort((a, b) => a[0] - b[0]);
+  const points = [
+    ...net.slice(0, 3).map(x => `<b>${pc(x[0])}</b> répondent « ${h(x[2])} » à la question « ${h(x[1])} ».`),
+    ...(net.length > 4 ? net.slice(-1).map(x => `Avis partagés sur « ${h(x[1])} » : la réponse la plus donnée, « ${h(x[2])} », ne réunit que <b>${pc(x[0])}</b>.`) : []),
+    ...(notes.length ? [`Note la plus basse : <b>${fr(notes[0][0])} sur 5</b> pour « ${h(notes[0][1])} ».`] : []),
+    ...(notes.length > 1 ? [`Note la plus haute : <b>${fr(notes[notes.length - 1][0])} sur 5</b> pour « ${h(notes[notes.length - 1][1])} ».`] : []),
+    ...(jeu.length ? [`Après 5 secondes, l'information la moins bien retrouvée : « ${h(jeu[0][1])} » (<b>${pc(jeu[0][0])}</b> de bonnes réponses).`] : [])];
+  const jour = new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+  $('rapport').innerHTML = `<h1>Restitution du test</h1><p class="quoi">${h(NOM_TEST)} · ${seance ? 'séance ' + h(seance) : codes.length + ' séance' + (codes.length > 1 ? 's' : '')} · document du ${jour}</p>
+    <p>Des habitants ont regardé les affiches et répondu aux questions ci-dessous, sur leur téléphone ou sur papier. Chaque question est présentée avec ses réponses et l'affiche montrée à ce moment-là.</p>${points.length ? `<h2>À retenir</h2><ul>${points.map(p => `<li>${p}</li>`).join('')}</ul>` : ''}`;
+  document.title = 'Restitution - ' + NOM_TEST + (seance ? ' - séance ' + seance : '') + ' - ' + jour; // le nom proposé pour le fichier PDF
   const titres = { "Jeu de l'œil": ["Le jeu de l'œil", 'Une affiche vue 5 secondes, puis des questions précises.'], ...Object.fromEntries(Object.keys(PHASES).sort().map(p => ['Étape ' + p, [PHASES[p].nom, PHASES[p].quoi]])), Atelier: ["L'atelier", 'Les affiches fabriquées en binômes, notées par la salle.'], 'Autres questions': ['Autres questions', 'Des questions qui ne sont plus dans la séance actuelle.'] };
   $('vue').innerHTML =
     `<div class="chiffres"><div><b>${gens}</b>participant${gens > 1 ? 's' : ''}</div><div><b>${seance ? 1 : codes.length}</b>séance${!seance && codes.length > 1 ? 's' : ''}</div><div><b>${total}</b>réponse${total > 1 ? 's' : ''}</div></div>`
@@ -173,12 +201,16 @@ function charger() {
     lignes: (d.lignes || []).map(l => [texte(l[0]), texte(l[1]), texte(l[2]), texte(l[3]), nb(l[4])]),
     notes: (d.notes || []).map(l => [texte(l[0]), texte(l[1]), texte(l[2]), nb(l[3]), nb(l[4])]),
     repondants: (d.repondants || []).map(l => [texte(l[0]), texte(l[1]), texte(l[2]), nb(l[3])]) });
-  fetch(SOURCE + '&jeton=' + JETON()).then(x => x.json()).then(d => { if (d.refus) return deconnexion(); D = propre(d); $('maj').textContent = 'Mis à jour à ' + new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) + '. Résultats anonymes, actualisés toutes les 20 secondes.'; if (document.activeElement !== $('chercher')) dessiner(); })
+  fetch(SOURCE + '&jeton=' + JETON()).then(x => x.json()).then(d => { if (d.refus) return deconnexion(); D = propre(d); $('maj').textContent = 'Mis à jour à ' + new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) + '. Résultats anonymes, actualisés toutes les 20 secondes.'; if (document.activeElement !== $('chercher')) dessiner(); if (pdfVoulu && Object.keys(D.seances).length) { pdfVoulu = false; setTimeout(print, 1200); } })
     .catch(() => { $('maj').textContent = 'Les résultats ne se chargent pas. Vérifiez la connexion internet.'; });
 }
 $('choix').addEventListener('click', ev => { const b = ev.target.closest('[data-s]'); if (b) { seance = b.dataset.s; history.replaceState(null, '', (seance ? '?seance=' + seance : '?') + TQ); dessiner(); } });
 ['comparer', 'tri'].forEach(id => $(id).addEventListener('change', dessiner));
 $('chercher').addEventListener('input', dessiner);
+// la restitution en PDF : la fenêtre d'impression du navigateur, où l'on choisit « Enregistrer au format PDF ». « ?pdf » dans l'adresse l'ouvre dès que les réponses sont là.
+// shortcut: pas de fabrication de fichier PDF dans la page (il faudrait une bibliothèque) ; à revoir si l'équipe veut un bouton qui télécharge directement.
+let pdfVoulu = new URLSearchParams(location.search).has('pdf');
+$('pdf').addEventListener('click', () => { if (D) { dessiner(); print(); } });
 $('vue').addEventListener('click', ev => { const g = ev.target.closest('.aff figure'); if (g) g.classList.toggle('zoom'); }); // l'affiche en grand, puis de nouveau en petit
 connexion('Étudier les données').then(() => lireFichier()).then(lireSeance).catch(() => { }).then(() => { dessiner(); charger(); setInterval(charger, 20000); });
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => { }); // garde le site en mémoire pour les visites suivantes
