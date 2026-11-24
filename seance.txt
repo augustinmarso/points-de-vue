@@ -1,7 +1,7 @@
 # LA SÉANCE « POINTS DE VUE », ÉCRAN PAR ÉCRAN
 # ------------------------------------------------------------------
-# Ce fichier se modifie directement sur GitHub : bouton crayon en haut à droite,
-# puis bouton vert « Commit changes ». Le site est à jour une à deux minutes après.
+# Le plus simple pour le modifier : la page « Modifier le test » du site (enregistré dans le Google Sheet, onglet « Tests »).
+# Ce fichier peut aussi se modifier sur GitHub : il reprend alors la main sur la dernière version enregistrée depuis le site.
 #
 # Chaque écran commence par un mot entre crochets. L'ordre du fichier est l'ordre de la séance.
 # Pour retirer un écran : supprimez ses lignes. Pour en déplacer un : coupez-collez ses lignes.
@@ -12,11 +12,13 @@
 #   [5 secondes] image     une affiche montrée 5 secondes   (ajoutez « | étape 1 » pour la rattacher à une étape)
 #   [jeu] question         question avec une bonne réponse : « + » devant la bonne, « - » devant les autres
 #   [scores]               les réussites de chacun au jeu
-#   [étape 1]              l'écran de titre d'une étape (1, 2 ou 3)
+#   [étape 1]              l'écran de titre d'une étape (de 1 à 6)
 #   [question] question    question à choix : « - » devant chaque réponse
 #                          ligne « réponses : une » ou « réponses : plusieurs »
 #   [note] question        note de 1 à 5, avec les lignes « de : » et « à : »
-#   [a ou b] question      comparaison de deux affiches, avec « affiche a : » et « affiche b : »
+#   [a ou b] question      comparaison de 2 à 4 affiches, avec « affiche a : », « affiche b : » (puis c et d)
+#   [zones] question       une affiche découpée en zones : on touche une zone. Une ligne par zone : « - nom @ gauche haut largeur hauteur » (en % de l'affiche) ; « cache : nom @ … » recouvre une partie
+#   [avis] question        avis libre : chacun écrit sa réponse (quelques mots)
 #   [mission] [photos] [tests] [palmarès] [fin]   l'atelier en binômes et la fin
 #
 # Lignes possibles sous une question :
@@ -24,13 +26,15 @@
 #   affiche : affiches/nom.jpg     (l'affiche montrée à côté de la question)
 #   précision : une phrase sous la question
 #   noir et blanc : oui            (l'affiche passe en noir et blanc)
+#   masqué : oui                   (l'écran reste dans le fichier mais ne passe pas pendant la séance)
+#   cache : nom @ 10 20 80 30      (une partie de l'affiche recouverte : gauche, haut, largeur, hauteur, en %)
+#   zoom : 10 20 80 30 707         (seule cette partie de l'affiche est montrée, en très gros ; le dernier nombre vient de l'éditeur)
 #
 # Les images sont dans le dossier « affiches » du dépôt.
 # ------------------------------------------------------------------
 
 # Les trois étapes : nom | phrase d'explication
-
-étape 1 = Étude du message | Ce qu'une affiche fait comprendre en quelques secondes.
+étape 1 = Étude du message | Ce qu'une affiche fait comprendre.
 étape 2 = Analyse du visuel | La lisibilité des lettres, des couleurs et de l'image.
 étape 3 = Enquête sur le format | Affiche ou flyer, et les lieux de diffusion.
 
@@ -58,14 +62,16 @@ test = Vous en souviendrez-vous demain ? | Sûrement pas | Sûrement
 
 [texte] Pour commencer | Le jeu de l'œil | Une affiche apparaît 5 secondes. Ensuite, quelques questions très précises. Si peu de monde trouve, c'est l'affiche qui manque de clarté, pas vous.
 
-[5 secondes] affiches/lumeen.jpg
+[5 secondes] affiches/lumeen.jpg | 8 s
 
-[jeu] De quoi s'agit-il ?
+[jeu] De quoi parle cette affiche ?
 affiche : affiches/lumeen.jpg
 - Un cours de peinture
 + Un atelier de réalité virtuelle
 - Une sortie en forêt
 - Une séance de cinéma
+
+[avis] Si vous deviez retenir une chose de l'affiche ce serait quoi ?
 
 [jeu] À quelle heure cela commence-t-il ?
 affiche : affiches/lumeen.jpg
@@ -99,87 +105,60 @@ affiche : affiches/memoire.jpg
 - Granville
 - Coutances
 
-[jeu] Combien cela coûte-t-il ?
+[jeu] Quelle est la date de la conférence ?
 affiche : affiches/memoire.jpg
-+ C'est gratuit
-- 5 euros
-- Sur adhésion
-- Ce n'est pas écrit
++ 21 mai
+- 31 mai
+- 21 mars
+- 31 mars
 
 [scores]
 
-
-# ---------- Étape 1 : Étude du message ----------
 [étape 1]
 
-[5 secondes] affiches/reference.jpg | étape 1
-
-[question] Après 5 secondes, que vous reste-t-il en tête ?
+[question] Que propose cette affiche ?
 étape : 1
 réponses : plusieurs
-- Le titre
-- Une image
-- Une couleur
-- La date
-- Le lieu
-- Un logo
-- Le sujet de santé
-- Une impression générale
-- Presque rien
-
-[question] À quoi cette affiche vous invite-t-elle ?
-étape : 1
-réponses : plusieurs
+affiche : affiches/origine.jpg
 - Participer à un atelier
 - Donner mon avis
-- Assister à une réunion d'information
+- Des conseils pour mieux vivre
 - Faire un dépistage ou un bilan
-- Rencontrer des professionnels
 - M'inscrire quelque part
 - Je ne vois pas
 
 [question] À votre avis, à qui s'adresse-t-elle ?
 étape : 1
 réponses : plusieurs
-affiche : affiches/reference.jpg
-- À moi
+affiche : affiches/origine.jpg
 - Aux personnes âgées
 - Aux familles
 - Aux jeunes
 - Aux professionnels
 - Difficile à dire
 
-[note] Après l'avoir vue, savez-vous quoi faire ?
+[question] Qui organise l'evenement ?
 étape : 1
-affiche : affiches/reference.jpg
-de : Pas du tout
-à : Parfaitement
+réponses : une
+affiche : affiches/origine.jpg
+- Granville terre et mer
+- Réponse 3
+masqué : oui
 
-[question] Qu'est-ce qui pourrait vous retenir d'y aller ?
+[question] Quels sont les mots que vous ne comprenez pas ?
 étape : 1
-réponses : plusieurs
-affiche : affiches/reference.jpg
-- L'horaire
-- Le trajet
-- Y aller seul
-- Ne pas me sentir concerné
-- Ne pas savoir ce qui va se passer
-- La crainte de mal répondre
-- Devoir m'inscrire
-- Rien
-
-
-# ---------- Étape 2 : Analyse du visuel ----------
-[avis] Avec vos mots, que dit cette affiche ?
-étape : 1
-affiche : affiches/reference.jpg
+réponses : une
+affiche : affiches/origine.jpg
+- Réponse 1
+- Réponse 2
+- Réponse 3
 
 [étape 2]
 
 [question] Où votre regard s'est-il posé en premier ?
 étape : 2
 réponses : une
-affiche : affiches/reference.jpg
+affiche : affiches/origine.jpg
 - Le titre
 - L'image
 - Les couleurs
@@ -190,7 +169,7 @@ affiche : affiches/reference.jpg
 [question] Qu'est-ce qui gêne la lecture ?
 étape : 2
 réponses : plusieurs
-affiche : affiches/reference.jpg
+affiche : affiches/origine.jpg
 - Des mots trop techniques
 - Des phrases trop longues
 - Des sigles
@@ -200,58 +179,29 @@ affiche : affiches/reference.jpg
 - Un manque de contraste
 - Rien, tout est clair
 
-[a ou b] Laquelle comprenez-vous le plus vite ?
-étape : 2
-précision : L'affiche d'origine, puis une version refaite.
-affiche a : affiches/origine.jpg
-affiche b : affiches/reference.jpg
-
-[a ou b] Sur laquelle trouvez-vous la date le plus vite ?
-étape : 2
-précision : Deux façons de ranger les mêmes informations.
-affiche a : affiches/reference.jpg
-affiche b : affiches/date.jpg
-
-[a ou b] Laquelle se lit le plus facilement ?
-étape : 2
-précision : Deux polices de caractères.
-affiche a : affiches/typo-script.jpg
-affiche b : affiches/reference.jpg
-
 [a ou b] Sur laquelle le titre se détache-t-il le mieux ?
 étape : 2
 précision : Deux tailles de titre.
-affiche a : affiches/reference.jpg
-affiche b : affiches/titre-petit.jpg
+affiche a : affiches/origine.jpg
+affiche b : affiches/origine.jpg
+masqué : oui
 
 [a ou b] Laquelle liriez-vous de loin ?
 étape : 2
 précision : Deux contrastes.
-affiche a : affiches/reference.jpg
-affiche b : affiches/contraste-faible.jpg
+affiche a : affiches/origine.jpg
+affiche b : affiches/couleurs-multi.jpg
 
 [a ou b] Laquelle est la plus claire ?
 étape : 2
 précision : Une version chargée, puis une version allégée.
-affiche a : affiches/dense.jpg
-affiche b : affiches/leger.jpg
+affiche a : affiches/couleurs-multi.jpg
+affiche b : affiches/origine.jpg
 
-[a ou b] Laquelle remarqueriez-vous dans la rue ?
-étape : 2
-précision : Fond blanc, puis fond de couleur.
-affiche a : affiches/image-couleur.jpg
-affiche b : affiches/fond-couleur.jpg
-
-[a ou b] Quelle image vous parle le plus ?
-étape : 2
-précision : Une photo, puis un dessin.
-affiche a : affiches/reference.jpg
-affiche b : affiches/image-dessin.jpg
-
-[question] Que vous évoque l'image de cette autre affiche ?
+[question] Que vous évoque l'image de cette affiche ?
 étape : 2
 réponses : plusieurs
-affiche : affiches/reinette.jpg
+affiche : affiches/origine.jpg
 - La convivialité
 - Le travail en groupe
 - Le sérieux
@@ -261,26 +211,52 @@ affiche : affiches/reinette.jpg
 - Autre chose que le sujet
 - Rien de précis
 
-[note] L'image et les couleurs vont-elles avec le sujet ?
+[question] Que ressentez-vous en regardant cette affiche ?
 étape : 2
-affiche : affiches/reference.jpg
+réponses : plusieurs
+affiche : affiches/origine.jpg
+- De la curiosité
+- De la confiance
+- De l'envie d'y aller
+- De la surprise
+- De l'inquiétude
+- De l'indifférence
+- De la confusion
+
+[question] Après l'avoir vue, comment vous sentez-vous ?
+étape : 2
+réponses : une
+affiche : affiches/origine.jpg
+- Rassuré
+- Motivé
+- Ni l'un ni l'autre
+- Inquiet
+- Perdu
+
+[note] Les couleurs vont-elles avec le sujet ?
+étape : 2
+affiche : affiches/origine.jpg
 de : Pas du tout
 à : Tout à fait
 
-
-# ---------- Étape 3 : Enquête sur le format ----------
-[avis] Qu'est-ce qui vous plaît le plus sur cette affiche ?
-étape : 2
-affiche : affiches/reference.jpg
-
 [avis] Que changeriez-vous sur cette affiche ?
 étape : 2
-affiche : affiches/reference.jpg
+affiche : affiches/origine.jpg
+
+[zones] Quelle zone avez-vous regardée en premier ?
+étape : 2
+réponses : une
+affiche : affiches/origine.jpg
+- Le titre @ 16 3 67 17
+- L'image @ 4 20 92 44
+- Le texte @ 2 64 95 23
+- Les logos @ 10 86 81 11
 
 [étape 3]
 
 [question] Où auriez-vous une chance de croiser cette information ?
 étape : 3
+affiche : affiches/origine.jpg
 réponses : plusieurs
 - Salle d'attente
 - Pharmacie
@@ -318,13 +294,18 @@ de : Pas du tout
 
 [avis] Près de chez vous, où faudrait-il l'afficher ?
 étape : 3
+affiche : affiches/origine.jpg
 
 [mission]
+masqué : oui
 
 [photos]
+masqué : oui
 
 [tests]
+masqué : oui
 
 [palmarès]
+masqué : oui
 
 [fin]
