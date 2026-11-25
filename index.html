@@ -92,8 +92,11 @@ body.fondtel,body.fondtel #fond{background:var(--t)}body.fondtel .opt:not(.on),b
 .age input:active::-webkit-slider-thumb{transform:scale(1.2)}.age input:active::-moz-range-thumb{transform:scale(1.2)}.age input:focus-visible{outline:3px solid var(--c3);outline-offset:3px;border-radius:12px}
 textarea.champ{min-height:150px;resize:none}
 .echelle{display:flex;align-items:center;justify-content:space-between}
-.echelle button{border-radius:50%;background:var(--t);font-weight:800;font-size:22px;transition:background .25s}
-.echelle button.on{background:var(--c)}
+.echelle button{width:1em;height:1em;position:relative;border-radius:50%;background:#fff;box-shadow:inset 0 0 0 3px var(--n);transition:background .25s} /* une note : cinq ronds à yeux gris, grands aux deux bouts, petit au milieu */
+.echelle button:nth-child(3){box-shadow:inset 0 0 0 3px #8a8a8a}
+.echelle .yeux{pointer-events:none;gap:.1em}.echelle .yeux i{width:.11em;height:.11em;background:#8a8a8a}
+.echelle button.on{background:var(--n);box-shadow:none}.echelle button.on .yeux i{background:#fff}
+.echelle+.bouts{font-weight:700}
 .bouts{display:flex;justify-content:space-between;font-size:17px}
 .note{font-size:.85em}
 .fait{display:flex;flex-direction:column;gap:18px;align-items:flex-start;margin-top:8vh}
@@ -508,7 +511,7 @@ function telephone() {
       if (q.zones) x += carteZones(q, q.imgs[0]) + `<p class="note">Touchez ${t === 'multi' ? 'les zones, puis Valider' : 'une zone de l\'affiche'}. ${legendeZones(q)}</p>` + (t === 'multi' ? `<button class="btn" data-a="multi">Valider</button>` : '');
       else if (t === 'choix' || t === 'multi') x += `<div class="opts">${q.o.map((o, i) => `<button class="opt" data-o="${i}">${h(o)}${tete(e.p || 1)}</button>`).join('')}</div>`;
       if (t === 'multi' && !q.zones) x += `<p class="note">Plusieurs réponses possibles.</p><button class="btn" data-a="multi">Valider</button>`;
-      if (t === 'echelle') x += `<div class="echelle">${q.o.map((o, i) => `<button data-o="${i}" style="width:${36 + i * 11}px;height:${36 + i * 11}px">${o}</button>`).join('')}</div><div class="bouts"><span>${h(q.a)}</span><span>${h(q.b)}</span></div>`;
+      if (t === 'echelle') x += `<div class="echelle">${q.o.map((o, i) => `<button data-o="${i}" aria-label="${i + 1} sur 5" style="font-size:${[64, 52, 42, 52, 64][i]}px"><span class="yeux"><i></i><i></i></span></button>`).join('')}</div><div class="bouts"><span>${h(q.a)}</span><span>${h(q.b)}</span></div>`;
       if (!q.zones && !q.vote && !e.jeu && !e.telSans) x += VUE(e, (e.imgs || []).filter(Boolean)); // la même affiche que sur le grand écran (pas pour le jeu : l'affiche y est cachée)
       if (t === 'ab' && e.abc) x += `<div class="opts">${e.o.map((o, i) => `<button class="opt" data-o="${i}">${h(o)}${tete(e.p)}</button>`).join('')}</div>`;
       else if (t === 'ab') x += `<div class="opts"><button class="opt" data-o="${e.o.length - 1}">${h(e.o[e.o.length - 1])}${tete(e.p)}</button></div>`; // on touche une affiche : la réponse part tout de suite, comme « Aucune différence »
@@ -611,7 +614,7 @@ function enLigne() {
       if (e.zones) x += carteZones(e, e.imgs[0]) + `<p class="note">Touchez ${e.t === 'multi' ? 'les zones, puis Valider' : 'une zone de l\'affiche'}. ${legendeZones(e)}</p>` + (e.t === 'multi' ? `<button class="btn" data-a="multi">Valider</button>` : '');
       else if (e.t === 'choix' || e.t === 'multi') x += `<div class="opts">${e.o.map((o, i) => `<button class="opt" data-o="${i}">${h(o)}${tete(e.p || 1)}</button>`).join('')}</div>`;
       if (e.t === 'multi' && !e.zones) x += `<p class="note">Plusieurs réponses possibles.</p><button class="btn" data-a="multi">Valider</button>`;
-      if (e.t === 'echelle') x += `<div class="echelle">${e.o.map((o, i) => `<button data-o="${i}" style="width:${36 + i * 11}px;height:${36 + i * 11}px">${o}</button>`).join('')}</div><div class="bouts"><span>${h(e.a)}</span><span>${h(e.b)}</span></div>`;
+      if (e.t === 'echelle') x += `<div class="echelle">${e.o.map((o, i) => `<button data-o="${i}" aria-label="${i + 1} sur 5" style="font-size:${[64, 52, 42, 52, 64][i]}px"><span class="yeux"><i></i><i></i></span></button>`).join('')}</div><div class="bouts"><span>${h(e.a)}</span><span>${h(e.b)}</span></div>`;
       if (e.t === 'ab' && e.abc) x += `<div class="opts">${e.o.map((o, i) => `<button class="opt" data-o="${i}">${h(o)}${tete(e.p || 1)}</button>`).join('')}</div>`;
       else if (e.t === 'ab') x += `<div class="opts"><button class="opt" data-o="${e.o.length - 1}">${h(e.o[e.o.length - 1])}${tete(e.p || 1)}</button></div>`;
       if (e.t !== 'multi' && e.t !== 'texte') x += `<button class="btn" data-a="un">Valider</button>`; // dans le formulaire, une réponse se choisit puis se valide : on peut changer d'avis avant d'envoyer
