@@ -315,7 +315,8 @@ const fermes = new Set(); let selVu = -1, filtre = '';
 const simple = x => String(x).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
 const NOM_PARTIE = { jeu: "Jeu de l'œil", atelier: 'Atelier', 1: 'Étape 1', 2: 'Étape 2', 3: 'Étape 3', 4: 'Étape 4', 5: 'Étape 5', 6: 'Étape 6' };
 function parties() {
-  const P = M.ecrans.map(e => e.p || (e.jeu || e.t === 'scores' ? 'jeu' : ['mission', 'photo', 'vote', 'palmares'].includes(e.t) ? 'atelier' : 0));
+  const P = M.ecrans.map(e => e.p || (e.jeu ? 'jeu' : ['mission', 'photo', 'vote', 'palmares'].includes(e.t) ? 'atelier' : 0));
+  M.ecrans.forEach((e, i) => { if (e.t === 'scores') P[i] = (i && P[i - 1]) || 'jeu'; }); // les scores restent dans la partie des questions du jeu qui les précèdent
   for (let i = P.length - 2; i >= 0; i--) if (!P[i]) P[i] = P[i + 1];
   for (let i = 1; i < P.length; i++) if (!P[i]) P[i] = P[i - 1];
   return P.map(String);
