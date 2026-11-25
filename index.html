@@ -223,6 +223,10 @@ body.plein.p3 #app{color:#fff}
 <script>
 // ---------- outils ----------
 const P = new URLSearchParams(location.search);
+// quitter la page en cours de route demande une confirmation (c'est le navigateur qui affiche son message « Quitter le site ? »).
+// EN_COURS dit s'il y a quelque chose à perdre de vue : chaque mode (grand écran, téléphone, formulaire) le règle. QUITTE = un rechargement voulu par l'appli elle-même, sans question.
+let EN_COURS = () => false, QUITTE = false;
+addEventListener('beforeunload', ev => { if (!QUITTE && EN_COURS()) { ev.preventDefault(); ev.returnValue = ''; } });
 // le label « Groupe testeur » de l'écran de fin. Le niveau monte d'un cran à chaque séance ou test terminé sur cet appareil (la liste des séances faites reste dans le téléphone, rien n'est envoyé).
 const NIVEAUX = ['Testeur débutant', 'Testeur confirmé', 'Testeur expert', 'Grand testeur'];
 const niveau = cle => { let l = []; try { l = JSON.parse(localStorage.getItem('pdvFaites') || '[]'); if (cle && !l.includes(cle)) { l.push(cle); localStorage.setItem('pdvFaites', JSON.stringify(l.slice(-60))); } } catch (e) { } return Math.max(1, l.length); };
@@ -398,6 +402,7 @@ function accueilSite() {
 
 // ================= TÉLÉPHONE =================
 function telephone() {
+  EN_COURS = () => !APERCU && mes.inscrit && ETAPES[courant] && ETAPES[courant].t !== 'fin';
   let mes = lire('pdvMoi', null) || { pid: Math.random().toString(36).slice(2, 10), nom: '', sid: '', rep: {} };
   let peer, lien = null, minuteur, cle = '', photo = null, connu = false, vu = Date.now();
   const garder = () => ecrire('pdvMoi', mes);
@@ -415,10 +420,10 @@ function telephone() {
       c.on('data', d => {
         if (d.k === 'seance' && SALLE[0] === '0' && typeof d.x === 'string' && d.x) { // seulement dans un aperçu (code en 0…) : une vraie séance ne change jamais de test sur un message // aperçu de l'éditeur : le grand écran donne sa version du test, le téléphone se recharge dessus
           try { if (APERCU && localStorage.getItem('pdvApercu') === d.x) return; localStorage.setItem('pdvApercu', d.x); } catch (e) { return; }
-          return location.replace('?salle=' + SALLE + '&apercu');
+          return (QUITTE = true, location.replace('?salle=' + SALLE + '&apercu'));
         }
         if (d.k === 'etat') {
-          const dt = String(d.t || '').toLowerCase().replace(/[^a-z0-9-]/g, '').slice(0, 40); if (dt !== TEST && !APERCU) return location.replace('?salle=' + SALLE + (dt ? '&test=' + dt : '')); // le grand écran passe un autre test que celui chargé ici
+          const dt = String(d.t || '').toLowerCase().replace(/[^a-z0-9-]/g, '').slice(0, 40); if (dt !== TEST && !APERCU) return (QUITTE = true, location.replace('?salle=' + SALLE + (dt ? '&test=' + dt : ''))); // le grand écran passe un autre test que celui chargé ici
           connu = true; vu = Date.now();
           if (d.sid !== mes.sid) { mes.sid = d.sid; mes.rep = {}; mes.inscrit = false; garder(); }
           else if (premier) for (const id in mes.rep) c.send({ k: 'rep', id, v: mes.rep[id] }); // réponses données hors connexion
@@ -540,6 +545,7 @@ function enLigne() {
   const ESSAI = P.has('essai'), SAUTE = ['accueil', 'mission', 'photo', 'vote', 'palmares'];
   const neuf = () => ({ pid: Math.random().toString(36).slice(2, 8), nom: '', parti: false, i: 0, v: VERSION, rep: {}, file: [] });
   let M = lire('pdvEnLigne', null) || neuf(), pris = false;
+  EN_COURS = () => !ESSAI && !APERCU && M.parti && ETAPES[M.i] && ETAPES[M.i].t !== 'fin';
   if (APERCU && P.get('e')) M.i = Math.max(0, Math.min(ETAPES.length - 1, +P.get('e') || 0)); // « Prévisualiser » de l'éditeur ouvre directement l'écran qu'on était en train de modifier
   // shortcut: si le test change entre deux visites, la personne reprend au début (ses réponses déjà parties restent dans le Sheet), à revoir si on modifie le test pendant l'envoi des mails
   if (M.v !== VERSION) { M.i = 0; M.v = VERSION; }
@@ -634,6 +640,7 @@ function enLigne() {
 function ecran() {
   const neuve = () => ({ sid: Math.random().toString(36).slice(2, 8), i: 0, k: 0, rev: false, gens: {}, rep: {}, mission: 0, photos: [] });
   let S = lire('pdvSeance', null) || neuve();
+  EN_COURS = () => !APERCU && (S.i > 0 || Object.keys(S.gens).length > 0) && ETAPES[S.i] && ETAPES[S.i].t !== 'fin';
   if (APERCU && P.get('e')) S.i = Math.max(0, Math.min(ETAPES.length - 1, +P.get('e') || 0)); // « Prévisualiser » de l'éditeur ouvre directement l'écran qu'on était en train de modifier
   S.photos = lire('pdvPhotos', []); sous = S.k = S.k || 0; mission = S.mission = MISSIONS[S.mission] ? S.mission : 0; if (!ETAPES[S.i]) S.i = 0;
   let affiches = lire('pdvAffiches', {}), conns = new Set(), cle = '', flash = false, souci = '', masque = false, tm, tAuto = 0;
@@ -880,7 +887,7 @@ function ecran() {
       if (!APERCU) journal('Nouvelle séance', 'après la séance ' + SALLE);
       const c = P.get('salle') ? SALLE : nouveauCode();
       try { ['pdvSeance', 'pdvPhotos'].forEach(k => localStorage.removeItem(SALLE + k)); localStorage.setItem(c + 'pdvAffiches', JSON.stringify(affiches)); if (c !== SALLE) { localStorage.removeItem(SALLE + 'pdvAffiches'); localStorage.setItem('pdvCode' + TEST, c); } } catch (e) { }
-      location.reload();
+      QUITTE = true; location.reload();
     }
   });
   addEventListener('keydown', ev => {
