@@ -187,6 +187,10 @@ textarea{resize:vertical;min-height:110px}
 .affiche{display:flex;align-items:center;gap:14px}
 .affiche img{width:74px;height:104px;object-fit:cover;border-radius:10px;background:var(--fond);flex:none}
 .verrou{background:var(--fond);border-radius:14px;padding:14px 16px;color:var(--gris);font-size:15px}
+#tuto{position:fixed;inset:0;z-index:50}#tuto[hidden]{display:none}
+#tuto .trou{position:fixed;border-radius:14px;box-shadow:0 0 0 9999px rgba(20,20,20,.62);outline:3px solid #fff;pointer-events:none}
+#tuto .bulle{position:fixed;width:min(360px,calc(100vw - 16px));background:#fff;border-radius:22px;padding:18px 20px;box-shadow:0 10px 60px rgba(20,20,20,.35)}
+#tuto .bulle small{font-weight:700;color:var(--gris)}#tuto .bulle h3{margin:2px 0 6px}#tuto .bulle p{margin:0 0 14px;font-size:16px;line-height:1.35}
 dialog{border:0;border-radius:22px;padding:22px;max-width:min(880px,92vw);max-height:92vh;overflow:auto;box-shadow:0 10px 60px rgba(20,20,20,.35)}
 dialog::backdrop{background:rgba(20,20,20,.45)}
 dialog h3{margin:0 0 6px;font-size:24px;font-weight:800;letter-spacing:-.03em}
@@ -217,6 +221,7 @@ dialog h3{margin:0 0 6px;font-size:24px;font-weight:800;letter-spacing:-.03em}
   <button class="btn clair" id="btnLogos" title="Un ou deux logos montrés sur le premier et le dernier écran de la séance">Logos</button>
   <a class="btn clair" id="resultats" href="resultats.html" title="Les réponses déjà reçues pour ce test">Résultats</a>
   <a class="btn clair" id="mailPlus" href="#" title="Un message tout prêt avec le lien du formulaire en ligne : à envoyer par Gmail, par votre messagerie, ou à copier.">Partager par mail</a>
+  <button class="btn clair" id="btnTuto" title="Une visite guidée de l'éditeur : chaque endroit de la page est montré et expliqué, l'un après l'autre.">Tutoriel</button>
   <button class="btn clair" id="btnAide" aria-label="Aide et raccourcis" title="Aide et raccourcis">Aide et raccourcis</button>
   <button class="btn clair" id="supprTest" hidden title="Supprime ce test et son lien. Les réponses déjà données restent dans le Google Sheet.">Supprimer ce test</button>
   </div></details>
@@ -251,7 +256,8 @@ dialog h3{margin:0 0 6px;font-size:24px;font-weight:800;letter-spacing:-.03em}
   <b>Changer un écran de dossier</b> : glissez sa miniature sur un autre dossier (même fermé) ou sur un de ses écrans : il prend l'étape et la couleur de ce dossier.<br>
   <b>Essayer cette version</b> ouvre un essai sans rien enregistrer. <b>Démarrer la séance</b> ouvre la vraie séance.</p>
   <p class="aide"><b>Au clavier.</b> ↑ ↓ : écran d'avant ou d'après · Suppr : supprimer l'écran (avec confirmation) · Ctrl+Z : annuler la dernière modification · Échap : sortir d'un texte.</p>
-  <div class="ligne"><button class="btn clair" data-a="fermer">Fermer</button></div></dialog>
+  <div class="ligne"><button class="btn" data-a="tuto">Voir le tutoriel</button><button class="btn clair" data-a="fermer">Fermer</button></div></dialog>
+<div id="tuto" hidden role="dialog" aria-modal="true" aria-label="Tutoriel de l'éditeur"><div class="trou"></div><div class="bulle"></div></div>
 <dialog id="nouveau"><h3>Ajouter un écran (une question, une affiche, un texte)</h3><p class="aide">Il se place juste après l'écran choisi. Vous pourrez ensuite le déplacer.</p><div class="types" id="types"></div>
   <div class="ligne"><button class="btn clair" data-a="fermer">Fermer</button></div></dialog>
 <dialog id="creer"><h3>Nouveau test</h3><p class="aide">Un test à part, avec son propre lien et ses propres écrans. Le test principal ne change pas. Choisissez un nom, puis une structure de départ (un modèle, ou la copie d'un test déjà créé) : tout reste modifiable ensuite.</p>
@@ -853,7 +859,41 @@ addEventListener('click', ev => { if (!ev.target.closest('#plus')) $('plus').ope
 $('btnAide').addEventListener('click', () => $('aide').showModal());
 $('partage').addEventListener('click', ev => { if (ev.target.closest('[data-a=fermer]')) $('partage').close(); });
 $('pCopie').addEventListener('click', () => navigator.clipboard.writeText(SUJET_MAIL + '\n\n' + texteMail()).then(() => { $('pEtat').textContent = 'Message copié : collez-le dans un nouveau mail.'; }, () => { $('pTexte').select(); $('pEtat').textContent = 'Sélectionné : faites Ctrl+C pour copier.'; }));
-$('aide').addEventListener('click', ev => { if (ev.target.closest('[data-a=fermer]')) $('aide').close(); });
+$('aide').addEventListener('click', ev => { if (ev.target.closest('[data-a=fermer]')) $('aide').close(); if (ev.target.closest('[data-a=tuto]')) { $('aide').close(); tuto(0, true); } });
+// le tutoriel : une visite guidée de l'éditeur, lancée seulement à la demande (menu « Plus » ou fenêtre d'aide). Chaque étape entoure un endroit de la page et l'explique.
+const TUTO = [
+  ['#liste', 'Les écrans de la séance', "À gauche, tous les écrans (les diapositives) de la séance, dans l'ordre où ils passeront. Ils sont rangés par dossiers de couleur : un dossier par étape. Cliquez sur une miniature pour ouvrir l'écran."],
+  ['#liste .ajout .btn', 'Ajouter un écran', "Une question, une comparaison d'affiches, une note, un texte… Le nouvel écran se place juste après celui qui est ouvert."],
+  ['#liste li[data-i].sel', 'Déplacer ou masquer un écran', "Glissez une miniature pour changer l'ordre (ou utilisez ses flèches ↑ ↓). Posée sur un autre dossier, elle prend sa couleur. L'œil masque l'écran : il reste dans la liste mais ne passe pas pendant la séance."],
+  ['#travail .vues', 'Trois façons de faire passer le test', "Diaporama et téléphones, formulaire à remplir chez soi, ou diaporama et fiches papier. « Essayer cette version » ouvre un essai dans un autre onglet, sans rien enregistrer."],
+  ['#travail .apercu', "L'écran tel qu'il sera projeté", "Cliquez sur un texte pour le réécrire, sur l'affiche pour en choisir une autre, ou glissez une image depuis votre ordinateur. Les réponses se changent de la même façon."],
+  ['#travail .cote', 'Le téléphone du participant', "Ce que chacun voit et touche sur son téléphone pour répondre à cet écran."],
+  ['#enregistrer', 'Enregistrer', "Tant que vous n'avez pas enregistré, rien ne change pour les participants. Une fois enregistré, le site est à jour tout de suite. « ← Annuler » revient sur la dernière modification."],
+  ['#lancer', 'Démarrer la séance', "Ouvre la vraie séance dans un autre onglet : le grand écran à projeter, le code pour les téléphones, et les réponses enregistrées."],
+  ['#plus', 'Plus', "Créer un autre test, choisir les logos, voir les résultats, partager le test par mail, relire l'aide. Ce tutoriel se relance d'ici."]
+];
+let tutoPas = [], tutoI = -1;
+function tuto(i, debut) {
+  const T = $('tuto'), [trou, bulle] = T.children;
+  if (debut) { $('plus').open = false; tutoPas = TUTO.filter(([q]) => { const el = document.querySelector(q); return el && el.getClientRects().length; }); } // seulement les endroits visibles (sur un petit écran, la liste et les réglages ne sont pas montrés ensemble)
+  if (i < 0 || i >= tutoPas.length) { T.hidden = true; tutoI = -1; return; }
+  const [q, titre, texte] = tutoPas[tutoI = i], el = document.querySelector(q); if (!el) return tuto(-1);
+  el.scrollIntoView({ block: 'nearest' });
+  const r = el.getBoundingClientRect(), haut = Math.max(6, r.top - 6), bas = Math.min(innerHeight - 6, r.bottom + 6), g = Math.max(6, r.left - 6), d = Math.min(innerWidth - 6, r.right + 6);
+  Object.assign(trou.style, { left: g + 'px', top: haut + 'px', width: d - g + 'px', height: bas - haut + 'px' });
+  bulle.innerHTML = `<small>Tutoriel · ${i + 1} sur ${tutoPas.length}</small><h3>${h(titre)}</h3><p>${h(texte)}</p><div class="ligne"><button type="button" class="btn clair" data-t="-1" ${i ? '' : 'hidden'}>← Précédent</button><button type="button" class="btn" data-t="1">${i === tutoPas.length - 1 ? 'Terminer' : 'Suivant →'}</button><button type="button" class="btn clair" data-t="0" ${i === tutoPas.length - 1 ? 'hidden' : ''} style="margin-left:auto">Quitter</button></div>`;
+  T.hidden = false;
+  const bw = bulle.offsetWidth, bh = bulle.offsetHeight; // la bulle : sous l'endroit montré, sinon au-dessus, sinon à côté ; jamais hors de la fenêtre
+  let x = Math.max(8, Math.min(innerWidth - bw - 8, g)), y = bas + 14;
+  if (y + bh > innerHeight - 8) y = haut - bh - 14;
+  if (y < 8) { y = Math.max(8, Math.min(innerHeight - bh - 8, haut + 20)); x = d + bw + 22 < innerWidth ? d + 14 : g - bw - 14 > 0 ? g - bw - 14 : innerWidth - d > g ? innerWidth - bw - 8 : 8; } // pas de place autour : contre le bord le plus libre, pour cacher le moins possible
+  Object.assign(bulle.style, { left: x + 'px', top: y + 'px' });
+  bulle.querySelector('[data-t="1"]').focus();
+}
+$('btnTuto').addEventListener('click', () => tuto(0, true));
+$('tuto').addEventListener('click', ev => { const b = ev.target.closest('[data-t]'); if (b) tuto(+b.dataset.t ? tutoI + +b.dataset.t : -1); });
+addEventListener('keydown', ev => { if (tutoI < 0) return; const k = ev.key; if (k === 'Tab' || k === 'Enter' || k === ' ') return; ev.preventDefault(); ev.stopPropagation(); if (k === 'Escape') tuto(-1); if (k === 'ArrowRight') tuto(tutoI + 1); if (k === 'ArrowLeft' && tutoI) tuto(tutoI - 1); }, true); // pendant le tutoriel, le clavier ne touche pas aux écrans
+addEventListener('resize', () => { if (tutoI >= 0) tuto(tutoI); });
 $('supprTest').hidden = !TEST; // le test principal ne se supprime pas
 $('supprTest').addEventListener('click', async () => {
   if (!confirm('Supprimer le test « ' + NOM + ' » ? Son lien ne marchera plus. Les réponses déjà données restent dans le Google Sheet.')) return;
