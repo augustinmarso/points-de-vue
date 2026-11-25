@@ -90,8 +90,10 @@ affiche : affiches/lumeen.jpg
 + À Saint-Martin-le-Bouillant
 
 [texte] Le jeu de l'œil | Deuxième affiche | Même principe : 5 secondes, puis des questions précises.
+masqué : oui
 
 [5 secondes] affiches/memoire.jpg
+masqué : oui
 
 [jeu] Quel est le sujet de la conférence ?
 affiche : affiches/memoire.jpg
@@ -99,6 +101,7 @@ affiche : affiches/memoire.jpg
 - L'alimentation
 + La mémoire
 - Le sommeil
+masqué : oui
 
 [jeu] Dans quelle commune a-t-elle lieu ?
 affiche : affiches/memoire.jpg
@@ -106,6 +109,7 @@ affiche : affiches/memoire.jpg
 + Cérences
 - Granville
 - Coutances
+masqué : oui
 
 [jeu] Quelle est la date de la conférence ?
 affiche : affiches/memoire.jpg
@@ -113,6 +117,7 @@ affiche : affiches/memoire.jpg
 - 31 mai
 - 21 mars
 - 31 mars
+masqué : oui
 
 [scores]
 

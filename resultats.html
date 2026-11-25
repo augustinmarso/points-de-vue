@@ -127,11 +127,12 @@ const TEINTES = ['#F5A0C6', '#F7C33B', '#1F6FE0', '#7BD3A8', '#B79CF2', '#FF9A6B
 const fr = (x, d = 1) => x.toFixed(d).replace('.', ','), pc = x => Math.round(x * 100) + ' %';
 const $ = id => document.getElementById(id), plat = x => x.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
 let NOM_TEST = 'Séance Points de vue'; listeTests().then(l => { NOM_TEST = (l.find(x => x.id === TEST) || {}).nom || NOM_TEST; }).catch(() => { }); // le nom du test, pour le titre de la restitution
-let D = null, seance = new URLSearchParams(location.search).get('seance') || '';
+let D = null, seance = new URLSearchParams(location.search).get('seance') || '', age = ''; // age : la tranche d'âge montrée ('' = tout le monde)
+const TRANCHES = ['Moins de 30 ans', '30 à 44 ans', '45 à 59 ans', '60 à 69 ans', '70 à 79 ans', '80 ans et plus'];
 
 // les totaux d'une séance ('' = toutes) : par question, le nombre de répondants, le détail des réponses, la moyenne des notes
 function totaux(code) {
-  const garde = l => !code || l[0] === code, T = { compte: {}, rep: {}, notes: {}, groupe: {}, ordre: [] };
+  const garde = l => (!code || l[0] === code) && (!age || l[l.length - 1] === age), T = { compte: {}, rep: {}, notes: {}, groupe: {}, ordre: [] };
   D.lignes.filter(garde).forEach(([, g, q, r, n]) => { (T.compte[q] = T.compte[q] || {})[r] = ((T.compte[q] || {})[r] || 0) + n; if (!(q in T.groupe)) { T.groupe[q] = g; T.ordre.push(q); } });
   D.repondants.filter(garde).forEach(([, , q, n]) => T.rep[q] = (T.rep[q] || 0) + n);
   D.notes.filter(garde).forEach(([, , q, s, n]) => { const x = T.notes[q] = T.notes[q] || [0, 0]; x[0] += s; x[1] += n; });
@@ -143,11 +144,12 @@ function dessiner() {
   if (!D) return;
   const codes = Object.keys(D.seances).sort();
   if (seance && !D.seances[seance]) seance = '';
-  if (document.activeElement.id !== 'seanceSel') $('choix').innerHTML = `<label>Séance montrée<select id="seanceSel">${[['', 'Toutes les séances'], ...codes.map(c => [c, 'Séance ' + c])].map(([c, nom]) => `<option value="${h(c)}" ${c === seance ? 'selected' : ''}>${h(nom)}</option>`).join('')}</select></label>`; // pas reconstruite pendant qu'on choisit dedans
+  const tr = TRANCHES.filter(t => codes.some(c => (!seance || c === seance) && (D.ages[c] || {})[t])); if (age && !tr.includes(age)) age = ''; // les tranches d'âge où quelqu'un a répondu
+  if (!['seanceSel', 'ageSel'].includes(document.activeElement.id)) $('choix').innerHTML = (tr.length ? `<label>Âge des participants<select id="ageSel"><option value="">Tous les âges</option>${tr.map(t => `<option ${t === age ? 'selected' : ''}>${h(t)}</option>`).join('')}</select></label>` : '') + `<label>Séance montrée<select id="seanceSel">${[['', 'Toutes les séances'], ...codes.map(c => [c, 'Séance ' + c])].map(([c, nom]) => `<option value="${h(c)}" ${c === seance ? 'selected' : ''}>${h(nom)}</option>`).join('')}</select></label>`; // pas reconstruite pendant qu'on choisit dedans
   const autre = $('comparer').value;
   $('comparer').innerHTML = '<option value="">Aucune comparaison</option>' + codes.filter(c => c !== seance).map(c => `<option value="${h(c)}" ${c === autre ? 'selected' : ''}>Séance ${h(c)}</option>`).join('');
   const T = totaux(seance), U = $('comparer').value ? totaux($('comparer').value) : null, mot = plat($('chercher').value.trim()), tri = $('tri').value;
-  const gens = codes.filter(c => !seance || c === seance).reduce((a, c) => a + D.seances[c], 0), total = Object.values(T.rep).reduce((a, n) => a + n, 0);
+  const gens = codes.filter(c => !seance || c === seance).reduce((a, c) => a + (age ? (D.ages[c] || {})[age] || 0 : D.seances[c]), 0), total = Object.values(T.rep).reduce((a, n) => a + n, 0);
   if (!total) { $('vue').innerHTML = `<p class="vide">Pas encore de réponses. Cette page se met à jour toute seule pendant la séance.</p>`; return; }
 
   // l'affiche de la question, telle que les participants l'ont vue (zones, parties masquées, élément en gros) ; les zones se colorent selon les réponses
@@ -211,13 +213,14 @@ function charger() {
   // tout ce qui doit être un nombre le devient avant d'entrer dans la page
   const nb = x => Number(x) || 0, texte = x => String(x ?? '');
   const propre = d => ({ seances: Object.fromEntries(Object.entries(d.seances || {}).map(([c, n]) => [texte(c), nb(n)])),
-    lignes: (d.lignes || []).map(l => [texte(l[0]), texte(l[1]), texte(l[2]), texte(l[3]), nb(l[4])]),
-    notes: (d.notes || []).map(l => [texte(l[0]), texte(l[1]), texte(l[2]), nb(l[3]), nb(l[4])]),
-    repondants: (d.repondants || []).map(l => [texte(l[0]), texte(l[1]), texte(l[2]), nb(l[3])]) });
+    ages: Object.fromEntries(Object.entries(d.ages || {}).map(([c, a]) => [texte(c), Object.fromEntries(Object.entries(a || {}).map(([t, n]) => [texte(t), nb(n)]))])),
+    lignes: (d.lignes || []).map(l => [texte(l[0]), texte(l[1]), texte(l[2]), texte(l[3]), nb(l[4]), texte(l[5])]),
+    notes: (d.notes || []).map(l => [texte(l[0]), texte(l[1]), texte(l[2]), nb(l[3]), nb(l[4]), texte(l[5])]),
+    repondants: (d.repondants || []).map(l => [texte(l[0]), texte(l[1]), texte(l[2]), nb(l[3]), texte(l[4])]) });
   fetch(SOURCE + '&jeton=' + JETON()).then(x => x.json()).then(d => { if (d.refus) return deconnexion(); D = propre(d); $('maj').textContent = 'Mis à jour à ' + new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) + '. Résultats anonymes, actualisés toutes les 20 secondes.'; if (document.activeElement !== $('chercher')) dessiner(); if (pdfVoulu && Object.keys(D.seances).length) { pdfVoulu = false; setTimeout(print, 1200); } })
     .catch(() => { $('maj').textContent = 'Les résultats ne se chargent pas. Vérifiez la connexion internet.'; });
 }
-$('choix').addEventListener('change', ev => { const b = ev.target.closest('#seanceSel'); if (b) { seance = b.value; history.replaceState(null, '', (seance ? '?seance=' + seance : '?') + TQ); dessiner(); } });
+$('choix').addEventListener('change', ev => { const a = ev.target.closest('#ageSel'); if (a) { age = a.value; return dessiner(); } const b = ev.target.closest('#seanceSel'); if (b) { seance = b.value; history.replaceState(null, '', (seance ? '?seance=' + seance : '?') + TQ); dessiner(); } });
 ['comparer', 'tri'].forEach(id => $(id).addEventListener('change', dessiner));
 $('chercher').addEventListener('input', dessiner);
 // la restitution en PDF : la fenêtre d'impression du navigateur, où l'on choisit « Enregistrer au format PDF ». « ?pdf » dans l'adresse l'ouvre dès que les réponses sont là.

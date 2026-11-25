@@ -98,7 +98,7 @@ header h1 small{display:block;font-size:13px;font-weight:400;letter-spacing:0;co
 .apercu .vide{width:19cqw;aspect-ratio:1000/1414;border-radius:1.5cqw;background:var(--fond);font-weight:700;font-size:1.7cqw;padding:1cqw}
 /* les trois versions du même écran */
 .vues{margin:0 0 14px;gap:8px}.outils .btn{min-height:38px;padding:6px 16px;font-size:14px}.outils .danger{color:#B3261E;order:9;margin-left:auto}.outils .case{font-size:14px;gap:8px}.outils [aria-pressed=true]{background:var(--n);color:#fff}
-.apercu.petit h2{font-size:calc(3.3cqw*var(--fit,1));line-height:1}.outils .taille{gap:2px;align-items:baseline;padding:6px 14px}
+.apercu.petit h2{font-size:calc(3.3cqw*var(--fit,1));line-height:1}.apercu .taille{align-self:flex-start;gap:2px;align-items:baseline;padding:4px 12px;min-height:0;margin-top:-.6cqw}.apercu.cache .taille{display:none}
 .cote .vu{display:flex;gap:5px;flex:none;align-items:flex-start}.cote .vu:empty{display:none}.cote .vu figure{margin:0;flex:1;min-width:0;font-weight:800;font-size:12px}.cote .vu img{width:100%;height:auto;border-radius:6px;display:block}
 .aide.fort{color:var(--n);font-weight:700}.apercu.depot{outline:4px dashed var(--c3);outline-offset:4px}.aide.expl{margin:-6px 0 14px}
 .apercu [contenteditable],.cote [contenteditable]{text-decoration:underline dotted rgba(20,20,20,.3);text-underline-offset:.18em;text-decoration-thickness:1px}
@@ -213,6 +213,7 @@ dialog h3{margin:0 0 6px;font-size:24px;font-weight:800;letter-spacing:-.03em}
 </head>
 <body>
 <header>
+  <a href="./" aria-label="Accueil" title="Accueil"><svg viewBox="0 0 24 24" width="1.6em" height="1.6em" fill="currentColor" aria-hidden="true"><path d="M12 3 2.5 11.2h2.7V21h5.3v-6h3v6h5.3v-9.8h2.7z"/></svg></a>
   <h1>Modifier le test<small>Ici, vous composez la séance que verront les participants.</small></h1>
   <select class="btn clair" id="test" aria-label="Le test modifié"><option>Séance Points de vue (principale)</option></select>
   <a class="btn clair" id="lancer" href="./?passer" target="_blank" rel="noopener" title="Ouvre la vraie séance dans un autre onglet : grand écran, téléphones, réponses enregistrées. Pour un simple essai, utilisez « Essayer cette version ».">Démarrer la séance</a>
@@ -349,6 +350,7 @@ function deplacer(de, vers, p = (M.ecrans[vers] || {}).p) { // jamais avant la s
 }
 
 // un texte de l'écran, modifiable sur place : k = le champ (ou le numéro de la réponse)
+const AA = e => `<button type="button" class="btn clair taille" data-a="petit" aria-pressed="${!!e.petit}" aria-label="Titre plus petit" title="${e.petit ? 'Le titre est en petit : cliquer pour le remettre en grand' : 'Écrire ce titre en plus petit'}"><span style="font-size:18px">A</span><span style="font-size:12px">A</span></button>`; // la taille du titre se règle sur le titre lui-même
 const ed = (tag, k, v, vide, cls) => `<${tag} ${cls ? `class="${cls}" ` : ''}contenteditable="plaintext-only" spellcheck="false" role="textbox" aria-label="${h(vide)}" data-vide="${h(vide)}" ${typeof k === 'number' ? `data-o="${k}"` : `data-k="${k}"`}>${h(v)}</${tag}>`;
 const imgCadree = e => cadree(e) && (e.imgs || [])[0] ? `<span class="im" data-a="cadrer" role="button" tabindex="0" style="cursor:pointer" title="Cliquer pour changer le cadrage de l'affiche">${afficheCadree(e, e.imgs[0])}</span>` : img('imgs.0', (e.imgs || [])[0], 1);
 const img = (k, v, retirable) => v ? `<span class="im"><button type="button" data-a="affiche" data-k="${k}" title="Changer l'affiche"><img src="${h(v)}" alt="Affiche ${h(nomImage(v))} : cliquer pour la changer"></button><button type="button" class="chg" data-a="affiche" data-k="${k}">Changer l'affiche</button>${retirable ? `<button type="button" class="x" data-a="sansAffiche" data-k="${k}" aria-label="Retirer l'affiche" title="Retirer l'affiche">×</button>` : ''}</span>`
@@ -357,7 +359,7 @@ function apercu(e) {
   const t = e.p ? `--t:var(--t${e.p});--c:var(--c${e.p})` : '--t:var(--fond);--c:#141414';
   let g = '', cls = '', im = '';
   if (e.t === 'phase') { cls = ' plein p' + e.p; g = `<div class="sur">Étape ${e.p} sur ${Math.max(3, M.ecrans.filter(x => x.t === 'phase' && !x.masque).length)}</div>${ed('h2', 'ph.nom', M.phases[e.p].nom, "Nom de l'étape")}${ed('b', 'ph.quoi', M.phases[e.p].quoi, "Phrase d'explication")}`; }
-  else if (e.t === 'info') { g = ed('div', 's', e.s, 'Petit titre', 'sur') + ed('h2', 'h', e.h, 'Grand titre') + ed('b', 'x', e.x, 'Phrase'); im = imgCadree(e); }
+  else if (e.t === 'info') { g = ed('div', 's', e.s, 'Petit titre', 'sur') + ed('h2', 'h', e.h, 'Grand titre') + AA(e) + ed('b', 'x', e.x, 'Phrase'); im = imgCadree(e); }
   else if (e.t === 'flash') { g = `<div class="sur">Affiche montrée ${e.s || 5} secondes</div><h2>Le test des ${e.s || 5} secondes</h2>`; im = img('img', e.img); }
   else if (e.t === 'mission') g = `<div class="sur">${h(TYPE(e))}</div><h2>Fabriquez l'affiche qui fait le mieux passer cette information</h2>${ed('b', 'missions', M.missions.join('\n'), 'Les informations à faire passer')}<small>Une information par ligne. La première est celle de la séance.</small>`;
   else if (e.t === 'vote') g = `<div class="sur">${h(TYPE(e))} · chaque affiche de binôme reçoit ces notes de 1 à 5</div>` + M.tests.map((x, i) => `<div class="test"><small>Test ${i + 1}${x.cinq ? ' (affiche cachée au bout de 5 secondes)' : ''}</small>${ed('b', `tests.${i}.q`, x.q, 'Question du test ' + (i + 1))}<div class="opts"><span>1 · ${ed('span', `tests.${i}.a`, x.a, 'Sens de la note 1')}</span><span>5 · ${ed('span', `tests.${i}.b`, x.b, 'Sens de la note 5')}</span></div></div>`).join('');
@@ -367,7 +369,7 @@ function apercu(e) {
       : e.t === 'ab' ? e.o.map(x => `<span>${h(x)}</span>`).join('')
       : e.o.map((x, i) => `<span class="${e.jeu && i === e.bon ? 'bon' : ''}">${e.jeu ? `<button type="button" class="ok" data-a="bon" data-i="${i}" aria-pressed="${i === e.bon}" aria-label="Bonne réponse" title="C'est la bonne réponse">✓</button>` : ''}${ed('span', i, x, 'Réponse ' + (i + 1))}<button type="button" class="x" data-a="moins" data-i="${i}" aria-label="Retirer cette réponse" title="Retirer cette réponse" ${e.o.length < 3 ? 'disabled' : ''}>×</button></span>`).join('')
         + `<button type="button" class="plus" data-a="plus" ${e.o.length > 8 ? 'disabled' : ''}>+ Réponse</button>`;
-    g = `<div class="sur">${e.p ? 'Étape ' + e.p + ' · ' + h(M.phases[e.p].nom) : e.jeu ? "Le jeu de l'œil" : ''}</div>${ed('h2', 'q', e.q, 'La question')}${e.jeu ? '' : ed('div', 'note', e.note || '', 'Précision sous la question (facultatif)')}${vue === 'tel' ? '' : `<div class="opts${e.t === 'echelle' || e.t === 'texte' ? '' : ' lettres'}${e.t === 'ab' ? ' ab' : ''}">${o}</div>`}`;
+    g = `<div class="sur">${e.p ? 'Étape ' + e.p + ' · ' + h(M.phases[e.p].nom) : e.jeu ? "Le jeu de l'œil" : ''}</div>${ed('h2', 'q', e.q, 'La question')}${AA(e)}${e.jeu ? '' : ed('div', 'note', e.note || '', 'Précision sous la question (facultatif)')}${vue === 'tel' ? '' : `<div class="opts${e.t === 'echelle' || e.t === 'texte' ? '' : ' lettres'}${e.t === 'ab' ? ' ab' : ''}">${o}</div>`}`;
     im = e.zones ? ((e.imgs || [])[0] ? `<span class="zones" data-a="decoupe" role="button" tabindex="0" style="cursor:pointer" title="Cliquer pour modifier le découpage">${cadres(e, false)}</span>` : img('imgs.0', '')) : e.t === 'ab' ? e.imgs.map((v, i) => `<span class="col">${img('imgs.' + i, v, e.imgs.length > 2)}<b>${'ABCD'[i]}</b></span>`).join('') + (e.imgs.length < 4 ? `<button type="button" class="vide plusAff" data-a="affiche" data-k="imgs.${e.imgs.length}" aria-label="Ajouter une affiche ${'ABCD'[e.imgs.length]}" title="Ajouter une affiche ${'ABCD'[e.imgs.length]} à comparer">+</button>` : '') : e.jeu ? img('img', e.img) : imgCadree(e);
   }
   else g = `<div class="sur">${h(TYPE(e))}</div><h2>${h({ accueil: 'Bienvenue !', scores: 'Les réussites', photo: 'Vos affiches', palmares: 'Le palmarès', fin: 'Merci !' }[e.t])}</h2>`;
@@ -400,7 +402,7 @@ function cote(e) {
       e.t === 'texte' ? `<small>Écrivez votre réponse sur les lignes.</small><div class="lignes"></div>`
       : (e.t === 'echelle' ? `<small>1 = ${ed('span', 'a', e.a, 'Sens de la note 1')} · 5 = ${ed('span', 'b', e.b, 'Sens de la note 5')}</small>` : e.t === 'ab' ? `<small>= si vous ne voyez pas de différence.</small>` : '')
         + `<div class="ronds">${(e.t === 'echelle' ? ['1', '2', '3', '4', '5'] : e.t === 'ab' ? [...o.slice(0, -1), '='] : o.map((_, i) => 'ABCDEFGHIJ'[i])).map(l => `<i>${l}</i>`).join('')}</div>`);
-  return `<aside class="cote ${vue}" style="${t}" aria-label="${vue === 'tel' ? 'Le téléphone du participant' : 'La fiche à imprimer'}"><div class="ecr">${x}</div>${vue === 'tel' ? 'Sur le téléphone du participant' : 'Sur la fiche à imprimer'}${vue === 'tel' ? bascule(e) : ''}</aside>`;
+  return `<aside class="cote ${vue}" style="${t}" aria-label="${vue === 'tel' ? 'Le téléphone du participant' : 'La fiche à imprimer'}">${vue === 'tel' ? bascule(e) : ''}<div class="ecr">${x}</div>${vue === 'tel' ? 'Sur le téléphone du participant' : 'Sur la fiche à imprimer'}</aside>`;
 }
 // les trois versions d'une même séance : on passe de l'une à l'autre d'un clic, et « Prévisualiser » ouvre celle qui est choisie
 const VUES = [['tel', 'Diaporama + téléphone', '?ecran&apercu&salle=apercu'], ['form', 'Formulaire', '?enligne&essai&apercu&salle=apercu'], ['papier', 'Diaporama + papier', '?ecran&papier&apercu&salle=apercu']];
@@ -426,7 +428,7 @@ function zone() {
   const libre = ['info', 'flash', 'choix', 'multi', 'echelle', 'ab', 'texte'].includes(e.t); // les écrans qu'on peut créer, copier, supprimer
   let outils = '';
   if (libre && e.t !== 'flash' && !e.jeu) outils += `<label class="etape">Étape<select data-k="p" class="btn clair"><option value="">Sans étape</option>${Object.keys(M.phases).map(Number).map(p => `<option value="${p}" ${e.p === p ? 'selected' : ''}>Étape ${p} · ${h(M.phases[p].nom)}</option>`).join('')}</select></label>`;
-  if (e.q != null || e.t === 'info') outils += `<button type="button" class="btn clair taille" data-a="petit" aria-pressed="${!!e.petit}" aria-label="Titre plus petit" title="${e.petit ? 'Le titre est en petit : cliquer pour le remettre en grand' : 'Écrire le titre de cet écran en plus petit'}"><span style="font-size:18px">A</span><span style="font-size:12px">A</span></button>`;
+  if (e.q != null) outils += `<label class="etape" title="Un rond se remplit pendant ce temps sur la question. Il ne fait rien passer : il montre seulement le temps qui s'écoule.">Chrono<select data-k="chrono" class="btn clair">${[[0, 'Sans'], [15, '15 s'], [30, '30 s'], [45, '45 s'], [60, '1 min'], [90, '1 min 30'], [120, '2 min']].map(([s, n]) => `<option value="${s}" ${(e.chrono || 0) === s ? 'selected' : ''}>${n}</option>`).join('')}</select></label>`;
   if (libre) outils += `<button type="button" class="btn clair" data-a="dupliquer">Dupliquer</button>`;
   if (!e.zones && !e.jeu && ['info', 'choix', 'multi', 'echelle', 'texte'].includes(e.t) && (e.imgs || [])[0]) outils += `<button type="button" class="btn clair" data-a="cadrer" title="Masquer une partie de l'affiche, ou ne montrer qu'un élément en très gros : utile quand la question porte sur un élément précis.">${cadree(e) ? 'Changer le cadrage' : 'Masquer ou zoomer l’affiche'}</button>${cadree(e) ? `<button type="button" class="btn clair" data-a="affiche" data-k="imgs.0">Changer l'affiche</button>` : ''}`;
   const atelier = ['mission', 'photo', 'vote', 'palmares', 'phase'].includes(e.t);
@@ -448,7 +450,11 @@ $('zone').addEventListener('input', ev => {
   else if (k === 'missions') M.missions = t.value.split('\n').map(x => x.trim()).filter(Boolean);
   else if (k === 'multi') e.t = t.checked ? 'multi' : 'choix';
   else if (k === 's') e.s = +t.value;
-  else if (k === 'p') { if (t.value) e.p = +t.value; else delete e.p; }
+  else if (k === 'p') { if (t.value) e.p = +t.value; else delete e.p; 
+    // l'écran va à la fin du dossier de sa nouvelle étape : sinon un deuxième dossier de la même couleur s'ouvrait à l'endroit où il était
+    const P = parties(); let fin = -1; M.ecrans.forEach((x, i) => { if (i !== sel && x.p === e.p) fin = i; });
+    if (e.p && fin >= 0 && P[sel - 1] !== String(e.p) && P[sel + 1] !== String(e.p)) { M.ecrans.splice(sel, 1); if (fin > sel) fin--; M.ecrans.splice(fin + 1, 0, e); sel = fin + 1; } }
+  else if (k === 'chrono') { if (+t.value) e.chrono = +t.value; else delete e.chrono; }
   else if (k === 'nb' || k === 'masque') e[k] = t.checked;
   else if (k && k.startsWith('ph.')) M.phases[e.p][k.slice(3)] = t.value;
   else if (k && k.startsWith('tests.')) { const [, i, c] = k.split('.'); M.tests[+i][c] = t.value; }

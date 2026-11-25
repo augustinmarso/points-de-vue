@@ -80,6 +80,7 @@ function lireSeance(texte) {
     else if (k === 'masque') e.masque = /oui/.test(sans(v));
     else if (k === 'vote') e.abc = /lettre/.test(sans(v)); // « vote : lettres » : sur le téléphone, une comparaison se répond avec les boutons A, B, C plutôt qu'en touchant les affiches
     else if (k === 'telephone') e.telSans = /sans/.test(sans(v)); // « téléphone : sans affiche » : la question passe sur le téléphone sans ses affiches
+    else if (k === 'chrono') e.chrono = Math.max(0, Math.min(600, parseInt(v, 10) || 0)); // « chrono : 30 s » : un rond se remplit pendant ce temps sur la question, sans rien faire passer
     else if (k === 'titre') e.petit = /petit/.test(sans(v)); // « titre : petit » : le titre de cet écran est écrit moins gros
     else if (k === 'zoom') { const z = /^(\d+) (\d+) (\d+) (\d+) (\d+)$/.exec(v); if (z && +z[3] && +z[4] && +z[5]) { e.zoom = z.slice(1, 5).map(n => Math.min(100, +n)); e.r = +z[5]; } } // « zoom : gauche haut largeur hauteur proportions » : l'écran ne montre que cette partie de l'affiche, agrandie
     else if (k === 'cache') { const z = /^(.*?)\s*@\s*(\d+) (\d+) (\d+) (\d+)$/.exec(v); if (z) (e.caches = e.caches || []).push({ n: z[1], z: z.slice(2).map(n => Math.min(100, +n)) }); }
@@ -125,6 +126,7 @@ function ecrireSeance(m) { // m = { phases, missions, tests, ecrans }
     if (e.zoom) L.push('zoom : ' + e.zoom.map(Math.round).join(' ') + ' ' + Math.round(e.r));
     (e.caches || []).forEach(c => L.push('cache : ' + net(c.n) + ' @ ' + c.z.map(Math.round).join(' '))); // une partie de l'affiche recouverte
     if (e.petit) L.push('titre : petit');
+    if (e.chrono) L.push('chrono : ' + e.chrono + ' s');
     if (e.telSans) L.push('téléphone : sans affiche');
     if (e.t === 'ab' && e.abc) L.push('vote : lettres');
     if (e.masque) L.push('masqué : oui');
