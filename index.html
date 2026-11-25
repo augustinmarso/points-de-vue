@@ -776,7 +776,6 @@ function ecran() {
         <span>Écran ${S.i + 1} sur ${ETAPES.length}</span>
         <button data-a="suite">${e.t === 'flash' && !flash ? 'Montrer ' + (e.s || 5) + ' secondes' : prete ? 'Révéler les réponses' : 'Suite →'}</button><button data-a="avant">← Retour</button>
         ${PAPIER ? `<a href="papier.html?vue=lire&seance=${h(SALLE)}${TQ}" target="_blank" rel="noopener">Photographier les fiches</a>` : `<a href="resultats.html?seance=${h(SALLE)}${TQ}" target="_blank" rel="noopener">Résultats</a>`}
-        <span>Affiches <button data-a="a-" aria-label="Affiches plus petites">−</button><button data-a="a+" aria-label="Affiches plus grandes">+</button></span>
         <button data-a="auto" title="Quand tout le monde a répondu : révéler les réponses puis passer à la suite sans appuyer">Avance automatique : ${S.auto === true ? 'oui' : 'non'}</button>${PAPIER ? '' : '<button data-a="qr" title="Montre le QR code de la séance en grand, pour quelqu\'un qui arrive en cours de route">QR code</button>'}<button data-a="plein">Plein écran</button><button data-a="neuve">Nouvelle séance</button>
         <a href="./" aria-label="Accueil" title="Accueil"><svg viewBox="0 0 24 24" width="1.35em" height="1.35em" fill="currentColor" aria-hidden="true" style="vertical-align:-.3em"><path d="M12 3 2.5 11.2h2.7V21h5.3v-6h3v6h5.3v-9.8h2.7z"/></svg></a>
       </div></div><span class="auto"></span>`;
@@ -860,9 +859,6 @@ function ecran() {
   if (!PAPIER && !APERCU) { annoncer(); setInterval(annoncer, 30000); } // une séance sur papier n'attend aucun téléphone
   if (!APERCU) { declarerVersion(); noterVisite(`Grand écran · séance ${SALLE} · ${PAPIER ? 'papier' : 'téléphone'}`); }
 
-  // la taille des titres et des affiches du grand écran se règle dans le Menu (de 50 % à 150 %), et reste d'une séance à l'autre sur cet ordinateur
-  const TAILLE = { t: 1, a: 1 }; try { Object.assign(TAILLE, JSON.parse(localStorage.getItem('pdvTailles') || '{}')); } catch (e) { }
-  const tailles = () => { document.documentElement.style.setProperty('--ka', +TAILLE.a || 1); }; tailles();
   if (LOGOS.length) { document.body.insertAdjacentHTML('beforeend', '<div class="logosG">' + LOGOS.map(s => '<img src="' + h(s) + '" alt="">').join('') + '</div>');
     const lg = document.querySelector('.logosG'), mes = () => document.documentElement.style.setProperty('--lw', lg.offsetWidth + 18 + 'px'); lg.querySelectorAll('img').forEach(i => i.addEventListener('load', mes)); mes(); addEventListener('resize', mes); } // les logos choisis dans l'éditeur
   document.addEventListener('click', ev => {
@@ -878,7 +874,6 @@ function ecran() {
     if (act === 'suite') suivant();
     if (act === 'avant') aller(S.i - 1, -1);
     if (act === 'mission') { mission = S.mission = (S.mission + 1) % MISSIONS.length; garder(); diffuser(); dessiner(true); }
-    if (/^[ta][-+]$/.test(act)) { TAILLE[act[0]] = Math.round(Math.max(.5, Math.min(1.5, TAILLE[act[0]] + (act[1] === '+' ? .1 : -.1))) * 10) / 10; tailles(); try { localStorage.setItem('pdvTailles', JSON.stringify(TAILLE)); } catch (e) { } }
     if (act === 'auto') { S.auto = S.auto !== true; clearTimeout(tAuto); tAuto = 0; garder(); dessiner(true); }
     if (act === 'qr') { const q = qrcode(0, 'M'); q.addData(location.origin + location.pathname + '?salle=' + SALLE + TQ); q.make(); a.closest('.cmd').classList.remove('ouvert');
       document.body.insertAdjacentHTML('beforeend', `<div id="qrGrand" role="dialog" aria-label="QR code de la séance">${q.createSvgTag({ scalable: true, margin: 0 })}<p>Photographiez ce code. Ou ouvrez ${h(location.host + location.pathname)} et tapez le code <b>${h(SALLE)}</b></p><small>Cliquez n'importe où pour revenir à la séance.</small></div>`); return; }
