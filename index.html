@@ -110,8 +110,7 @@ textarea.champ{min-height:150px;resize:none}
 #zoomV{position:fixed;inset:0;z-index:30;background:#fff;color:var(--n)}
 #zoomV .piste{display:flex;height:100%;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scrollbar-width:none;overscroll-behavior:contain}#zoomV .piste::-webkit-scrollbar{display:none}
 #zoomV .vz1{flex:0 0 100%;scroll-snap-align:center;scroll-snap-stop:always;overflow:auto;display:flex;flex-direction:column;padding:64px 12px 56px;font-weight:800;font-size:26px;gap:6px}
-#zoomV .vz1>img{margin:auto;max-width:100%;max-height:100%;min-height:0;object-fit:contain;border-radius:14px;cursor:zoom-in;display:block}#zoomV .vz1>.zones{margin:auto}
-#zoomV .vz1.gros>img{max-width:none;max-height:none;width:230%;cursor:zoom-out}
+#zoomV .vz1{align-items:center;text-align:center}#zoomV .vz1>img{margin:auto;max-width:100%;max-height:100%;min-height:0;object-fit:contain;border-radius:14px;display:block}#zoomV .vz1>.zones{margin:auto}
 #zoomV button{position:absolute;width:48px;height:48px;border-radius:50%;background:var(--n);color:#fff;font-size:28px;line-height:1;display:grid;place-items:center}#zoomV button:disabled{opacity:.25}
 #zoomV .fermer{right:12px;top:10px}#zoomV .fl{top:50%;margin-top:-24px}#zoomV .fl[data-d="-1"]{left:8px}#zoomV .fl[data-d="1"]{right:8px}
 #zoomV .pts{position:absolute;left:0;right:0;bottom:20px;display:flex;justify-content:center;gap:8px}#zoomV .pts i{width:10px;height:10px;border-radius:50%;background:#C9C9C9;transition:background .2s,transform .2s}#zoomV .pts i.on{background:var(--n);transform:scale(1.3)}
@@ -234,7 +233,7 @@ const couleurDe = s => COUL[[...String(s)].reduce((a, x) => a + x.charCodeAt(0),
 
 // les affiches d'une question, montrées sur le téléphone (en séance comme en ligne) : côte à côte avec leur lettre pour une comparaison, un toucher les agrandit
 const VUE = (e, srcs) => srcs.length ? `<div class="vue${e.nb ? ' nb' : ''}${e.t === 'ab' ? ' pile' : ''}">${srcs.map((s, k) => `<figure${e.t === 'ab' && !e.abc ? ` data-p="${k}"` : ''}>${e.t === 'ab' ? 'ABCD'[k] : ''}${cadree(e) ? afficheCadree(e, s) : `<img src="${h(s)}" alt="${e.t === 'ab' ? 'Affiche ' + 'ABCD'[k] : 'L\'affiche'}">`}<button type="button" class="loupe" data-z="${k}" aria-label="Agrandir l'affiche${e.t === 'ab' ? ' ' + 'ABCD'[k] : ''}" title="Agrandir"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="10.500" cy="10.500" r="6.500"/><path d="M15.500 15.500 21 21M10.500 8v5M8 10.500h5"/></svg></button></figure>`).join('')}</div><p class="note">${e.t === 'ab' && !e.abc ? 'Touchez l’affiche choisie. La loupe l’agrandit.' : 'Touchez une affiche pour l’agrandir.'}</p>` : '';
-// l'affiche agrandie : elle prend tout l'écran ; s'il y en a plusieurs, on passe de l'une à l'autre en glissant le doigt (ou avec les flèches) ; toucher l'affiche la grossit encore pour lire les petits textes
+// l'affiche agrandie : elle prend tout l'écran ; s'il y en a plusieurs, on passe de l'une à l'autre en glissant le doigt (ou avec les flèches). Une seule taille : l'affiche entière, au centre
 function agrandir(fig) {
   const figs = [...fig.closest('.vue').querySelectorAll('figure')], n = figs.length, z = document.createElement('div');
   z.id = 'zoomV'; z.setAttribute('role', 'dialog'); z.setAttribute('aria-modal', 'true'); z.setAttribute('aria-label', 'Affiche agrandie');
@@ -245,7 +244,7 @@ function agrandir(fig) {
   const aller = k => piste.scrollTo({ left: k * piste.clientWidth, behavior: 'smooth' }), fermer = () => { z.remove(); removeEventListener('keydown', touche, true); };
   const touche = ev => { if (ev.key === 'Escape') fermer(); else if (ev.key === 'ArrowRight') aller(ou() + 1); else if (ev.key === 'ArrowLeft') aller(ou() - 1); else return; ev.stopPropagation(); ev.preventDefault(); };
   piste.scrollLeft = figs.indexOf(fig) * piste.clientWidth; marquer(); piste.addEventListener('scroll', marquer, { passive: true }); addEventListener('keydown', touche, true);
-  z.addEventListener('click', ev => { const b = ev.target.closest('.fl'), v = ev.target.closest('.vz1'); if (ev.target.closest('.fermer')) fermer(); else if (b) aller(ou() + +b.dataset.d); else if (v && ev.target.closest('img')) v.classList.toggle('gros'); else if (!v || ev.target === v) fermer(); });
+  z.addEventListener('click', ev => { const b = ev.target.closest('.fl'), v = ev.target.closest('.vz1'); if (ev.target.closest('.fermer')) fermer(); else if (b) aller(ou() + +b.dataset.d); else if (!v || ev.target === v) fermer(); });
   z.querySelector('.fermer').focus();
 }
 addEventListener('click', ev => { const l = ev.target.closest('.vue .loupe'); if (l) { ev.stopPropagation(); ev.preventDefault(); agrandir(l.closest('figure')); } }, true); // avant le reste : la loupe d'une comparaison ne doit pas valoir un vote
