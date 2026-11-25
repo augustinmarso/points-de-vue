@@ -69,13 +69,13 @@ test = Vous en souviendrez-vous demain ? | Sûrement pas | Sûrement
 [texte] Pour commencer | Le jeu de l'œil | Une affiche apparaît 5 secondes. Ensuite, quelques questions très précises. Si peu de monde trouve, c'est l'affiche qui manque de clarté, pas vous.
 étape : 1
 
-[5 secondes] affiches/lumeen.jpg | étape 1 | 8 s
+[5 secondes] affiches/origine.jpg | étape 1 | 8 s
 
 [jeu] De quoi parle cette affiche ?
 étape : 1
-affiche : affiches/lumeen.jpg
-- Un cours de peinture
-+ Un atelier de réalité virtuelle
+affiche : affiches/origine.jpg
+- Un cours de cuisine
++ Des ateliers pour bien vivre chez soi
 - Une sortie en forêt
 - Une séance de cinéma
 
@@ -84,19 +84,19 @@ affiche : affiches/lumeen.jpg
 
 [jeu] À quelle heure cela commence-t-il ?
 étape : 1
-affiche : affiches/lumeen.jpg
+affiche : affiches/origine.jpg
 - 10 h
-- 14 h
-+ 14 h 30
++ 14 h
+- 14 h 30
 - 16 h 30
 
 [jeu] Où cela se passe-t-il ?
 étape : 1
-affiche : affiches/lumeen.jpg
-- À Granville
-- À Villedieu-les-Poêles
-- À Saint-Pois
-+ À Saint-Martin-le-Bouillant
+affiche : affiches/origine.jpg
+- À Bréhal et à Cérences
++ À Granville et à Villedieu-les-Poêles
+- À Saint-Pois et à Percy
+- À Avranches et à Coutances
 
 [scores]
 
