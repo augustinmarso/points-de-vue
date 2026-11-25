@@ -46,10 +46,15 @@ p{margin:0}
 .trois a:hover,.trois a:focus-visible{transform:translateY(-4px);outline:3px solid var(--n);outline-offset:3px}
 .trois .tete{font-size:64px;margin-bottom:auto}
 .trois .yeux{font-size:1em;gap:.08em}.trois .yeux i{width:.13em;height:.13em}
+.trois a{background:#fff;box-shadow:inset 0 0 0 2px var(--n)}.trois a:hover,.trois a:focus-visible{background:var(--n);color:#fff}
+.trois a::before{display:block!important;width:64px!important;height:64px!important;margin:0 0 auto!important}
+body.nb .blob:nth-child(n+2){display:none}body.nb .blob{--c:var(--n)!important;mix-blend-mode:normal;left:0;top:0;margin:0;font-size:min(16vh,150px);animation:balade 18s ease-in-out infinite alternate}
+@keyframes balade{from{transform:translate(6vw,2vh)}50%{transform:translate(50vw,5vh)}to{transform:translate(calc(100vw - 1em - 64px),2vh)}} /* le rond noir se promène au-dessus du titre, sans toucher le rond profil */
+@media (prefers-reduced-motion:reduce){body.nb .blob{animation:none;transform:translate(50vw,4vh)!important}}body.nb .blob .yeux i{background:#fff}body.nb #lesTests select{background:#fff!important;box-shadow:inset 0 0 0 2px var(--n)}body.nb a[aria-label="Mon profil"] i{background:#fff!important}
 .trois b{font-size:32px;line-height:1;font-weight:800;letter-spacing:-.04em}
 .trois span{font-size:18px}
 .tel a,.site a{color:inherit}
-@media (max-width:760px){.site{padding-top:24vh}.trois{grid-template-columns:1fr}.trois a{min-height:0;flex-direction:row;flex-wrap:wrap;align-items:center}.trois .tete{font-size:48px;margin:0}.trois b{flex:1}.trois span{flex-basis:100%}}
+@media (max-width:760px){.site{padding-top:24vh}.trois{grid-template-columns:1fr}.trois a{min-height:0;flex-direction:row;flex-wrap:wrap;align-items:center}.trois .tete{font-size:48px;margin:0}.trois a::before{width:48px!important;height:48px!important;margin:0!important}.trois b{flex:1}.trois span{flex-basis:100%}}
 
 /* téléphone */
 .tel{min-height:100vh;min-height:100dvh;padding:104px 22px 70px;display:flex;flex-direction:column;gap:20px;max-width:560px;margin:0 auto}
@@ -313,7 +318,7 @@ function placer() {
   const B = [...document.querySelectorAll('.blob')];
   const set = (k, x, y, s) => B[k].style.transform = `translate(${x}px,${y}px) scale(${s})`;
   B.forEach(b => delete b.dataset.fixe);
-  document.body.className = (e.p ? 'p' + e.p : '') + (e.t === 'phase' ? ' plein' : '');
+  document.body.className = (e.p ? 'p' + e.p : '') + (e.t === 'phase' ? ' plein' : '') + (document.body.classList.contains('nb') ? ' nb' : ''); // nb : les écrans de choix restent en noir et blanc au redimensionnement
   if (e.t === 'accueil' || e.t === 'fin') { // les trois cercles forment le logo
     const s = ECRAN ? 1.5 : .8, r = D * s / 2, x = ECRAN ? W * .2 : W * .06, y = ECRAN ? -H * .06 : -H * .36;
     set(0, x, y, s); set(1, x + 1.05 * r, y - .2 * r, s * .7); set(2, x + .75 * r, y + .8 * r, s * .55); return;
@@ -379,13 +384,14 @@ addEventListener('pointermove', e => { souris = [e.clientX, e.clientY]; clearTim
 addEventListener('resize', placer);
 
 // ================= ACCUEIL DU SITE =================
-const carte = (lien, c, titre, texte) => `<a href="${lien}" style="--c:var(--c${c});--t:var(--t${c})">${tete(c)}<b>${titre}</b><span>${texte}</span></a>`;
+// une carte de choix, en noir et blanc : ico = nom d'une icône du jeu partagé (seance.js)
+const carte = (lien, ico, titre, texte) => `<a href="${lien}" data-ico="${ico}"><b>${titre}</b><span>${texte}</span></a>`;
 function choixPasser() { // passer le test : au téléphone ou sur papier, et la photo des fiches remplies
   placer();
-  app.innerHTML = `<div class="site"><p class="sur"><a href="./" aria-label="Accueil" title="Accueil"><svg viewBox="0 0 24 24" width="1.35em" height="1.35em" fill="currentColor" aria-hidden="true" style="vertical-align:-.3em"><path d="M12 3 2.5 11.2h2.7V21h5.3v-6h3v6h5.3v-9.8h2.7z"/></svg></a>${rondProfil()} · Passer le test</p><h1>Téléphone ou papier ?</h1><nav class="trois">
-    ${carte('?passer=tel' + TQ, 1, 'Au téléphone', "Chacun répond sur son téléphone. Les réponses s'enregistrent toutes seules.")}
-    ${carte('?ecran&papier' + TQ, 2, 'Sur papier', "Chacun répond sur une fiche A3. Le grand écran montre les affiches et les questions, sans téléphone.")}
-    ${carte('papier.html?vue=lire' + TQ, 3, 'Photographier les fiches', "Après une séance sur papier : une photo par fiche remplie, et les réponses rejoignent les données à étudier.")}
+  app.innerHTML = `<div class="site"><p class="sur"><a href="./" aria-label="Accueil" title="Accueil"><svg viewBox="0 0 24 24" width="1.35em" height="1.35em" fill="currentColor" aria-hidden="true" style="vertical-align:-.3em"><path d="M12 3 2.5 11.2h2.7V21h5.3v-6h3v6h5.3v-9.8h2.7z"/></svg></a>${rondProfil('background:#141414')} · Passer le test</p><h1>Téléphone ou papier ?</h1><nav class="trois">
+    ${carte('?passer=tel' + TQ, 'tel', 'Au téléphone', "Chacun répond sur son téléphone. Les réponses s'enregistrent toutes seules.")}
+    ${carte('?ecran&papier' + TQ, 'feuille', 'Sur papier', "Chacun répond sur une fiche A3. Le grand écran montre les affiches et les questions, sans téléphone.")}
+    ${carte('papier.html?vue=lire' + TQ, 'appareil', 'Photographier les fiches', "Après une séance sur papier : une photo par fiche remplie, et les réponses rejoignent les données à étudier.")}
   </nav><p class="note">À distance, chacun chez soi : envoyez par mail le lien <a href="?enligne${TQ}">${h(location.origin + location.pathname)}?enligne${h(TQ)}</a> (pour l'essayer sans rien enregistrer : <a href="?enligne&essai${TQ}">?enligne&amp;essai</a>).</p>
     <label class="note" id="lesTests" hidden>Test passé : <select style="font:inherit;font-weight:700;border:0;border-radius:99px;padding:6px 12px;background:var(--t1)"></select></label></div>`;
   listeTests().then(l => { // le choix du test, s'il y en a plusieurs : la page se recharge sur celui choisi
@@ -393,15 +399,17 @@ function choixPasser() { // passer le test : au téléphone ou sur papier, et la
     s.innerHTML = l.map(x => `<option value="${h(x.id)}" ${x.id === TEST ? 'selected' : ''}>${h(x.nom)}</option>`).join(''); z.hidden = false;
     s.onchange = () => location.search = '?passer' + (s.value ? '&test=' + s.value : '');
   });
+  document.body.classList.add('nb');
   regards();
 }
 function accueilSite() {
   placer();
-  app.innerHTML = `<div class="site"><p class="sur">Points de vue · faites tester vos affiches par des habitants</p>${rondProfil('position:fixed;top:16px;right:18px;font-size:20px;margin:0')}<h1>Que voulez-vous faire ?</h1><nav class="trois">
-    ${carte('?passer', 1, 'Passer le test', "Au téléphone ou sur papier : rejoindre une séance, l'animer sur le grand écran, photographier les fiches remplies.")}
-    ${carte('modifier.html', 2, 'Modifier le test', "Ajouter vos affiches, choisir les questions posées sur chacune, régler l'ordre des écrans.")}
-    ${carte('resultats.html', 3, 'Étudier les données', 'Les réponses question par question, la comparaison des séances, le Google Sheet.')}
+  app.innerHTML = `<div class="site"><p class="sur">Points de vue · faites tester vos affiches par des habitants</p>${rondProfil('position:fixed;top:16px;right:18px;font-size:20px;margin:0;background:#141414')}<h1>Que voulez-vous faire ?</h1><nav class="trois">
+    ${carte('?passer', 'fiche', 'Passer le test', "Au téléphone ou sur papier : rejoindre une séance, l'animer sur le grand écran, photographier les fiches remplies.")}
+    ${carte('modifier.html', 'crayon', 'Modifier le test', "Ajouter vos affiches, choisir les questions posées sur chacune, régler l'ordre des écrans.")}
+    ${carte('resultats.html', 'barres', 'Étudier les données', 'Les réponses question par question, la comparaison des séances, le Google Sheet.')}
   </nav></div>`;
+  document.body.classList.add('nb');
   regards();
 }
 

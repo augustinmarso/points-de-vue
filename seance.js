@@ -210,3 +210,51 @@ function connexion(page, annulable) { // rend une promesse tenue une fois la per
 // Sur l'accueil du site, qui n'a pas de maison, il est seul en haut à droite. Il n'est pas sur les écrans de séance (téléphone, grand écran).
 const rondProfil = (seul = '') => `<a href="profil.html" aria-label="Mon profil" title="Mon profil" style="display:inline-flex;align-items:center;justify-content:center;gap:.14em;width:1.35em;height:1.35em;border-radius:50%;background:#F5A0C6;vertical-align:-.3em;margin-left:.5em;flex:none;${seul}"><i style="width:.2em;height:.2em;border-radius:50%;background:#141414"></i><i style="width:.2em;height:.2em;border-radius:50%;background:#141414"></i></a>`;
 if (typeof document !== 'undefined') document.addEventListener('DOMContentLoaded', () => document.querySelectorAll('a[aria-label="Accueil"]').forEach(a => a.insertAdjacentHTML('afterend', rondProfil(a.querySelector('[width="1.6em"]') ? 'font-size:1.19em;vertical-align:.1em' : ''))));
+
+// ---------- les icônes : un seul jeu pour toutes les pages, pleines et épaisses comme la Scoutie en gras ----------
+// Posées en CSS (masque teinté par la couleur du texte) sur tout élément portant data-ico="nom".
+const ICONES = {
+  maison: '<path d="M12 3 2.5 11.2h2.7V21h5.3v-6h3v6h5.3v-9.8h2.7z"/>',
+  fiche: '<path d="M19 3h-4.18C14.4 1.84 13.3 1 12 1s-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm-2 14l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/>',
+  crayon: '<path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>',
+  barres: '<rect x="3" y="10" width="5" height="11" rx="1"/><rect x="9.5" y="3" width="5" height="18" rx="1"/><rect x="16" y="14" width="5" height="7" rx="1"/>',
+  tel: '<path d="M8.5 1.5h7A2.5 2.5 0 0 1 18 4v16a2.5 2.5 0 0 1-2.5 2.5h-7A2.5 2.5 0 0 1 6 20V4a2.5 2.5 0 0 1 2.5-2.5zM8.5 4.5v12h7v-12z"/>',
+  feuille: '<path d="M5 2h9l5 5v15H5zM8 11v2.2h8V11zM8 15.5v2.2h8v-2.2z"/>',
+  appareil: '<path d="M8 6l1.5-3h5L16 6h3.5A2.5 2.5 0 0 1 22 8.500v9a2.5 2.5 0 0 1-2.5 2.5h-15A2.500 2.500 0 0 1 2 17.500v-9A2.500 2.500 0 0 1 4.500 6zM12 9a4 4 0 1 0 0 8a4 4 0 0 0 0-8z"/>',
+  imprimante: '<rect x="6" y="2" width="12" height="4.5"/><path d="M4 8h16a2 2 0 0 1 2 2v7h-4v-4H6v4H2v-7a2 2 0 0 1 2-2z"/><rect x="7.500" y="14.500" width="9" height="7.500"/>',
+  corbeille: '<rect x="9" y="2" width="6" height="3"/><rect x="4" y="4.500" width="16" height="2.600" rx="1"/><path d="M6 8.600h12l-1 12.400H7z"/>',
+  disquette: '<path d="M3 3h14l4 4v14H3zM7 5v4h8V5zM12 12.500a3 3 0 1 0 0 6a3 3 0 0 0 0-6z"/>',
+  copie: '<path d="M5 2h10v2.600H6.600V17H4V3a1 1 0 0 1 1-1z"/><rect x="8.500" y="6.500" width="11.500" height="15.500" rx="2"/>',
+  enveloppe: '<path d="M2.500 5h19L12 12.500z"/><path d="M2 7.600V19h20V7.600l-10 7.800z"/>',
+  plus: '<path d="M10 3h4v7h7v4h-7v7h-4v-7H3v-4h7z"/>',
+  lecture: '<path d="M7 3.500v17L21 12z"/>',
+  coche: '<path d="M9.500 20.500 2.500 13.500l3-3 4 4 9-9.500 3 3z"/>',
+  croix: '<path d="M5.600 3.500 12 9.900l6.400-6.400 2.100 2.100L14.100 12l6.400 6.400-2.100 2.100L12 14.100l-6.400 6.400-2.100-2.100L9.900 12 3.500 5.600z"/>',
+  question: '<path d="M8 8.500a4 4 0 1 1 6 3.500c-1.400.8-2 1.600-2 3" fill="none" stroke="#000" stroke-width="3.400" stroke-linecap="round"/><circle cx="12" cy="20" r="2"/>',
+  image: '<path d="M4.500 3h15A2.500 2.500 0 0 1 22 5.500v13a2.500 2.500 0 0 1-2.500 2.500h-15A2.500 2.500 0 0 1 2 18.500v-13A2.500 2.500 0 0 1 4.500 3zM4.500 5.500v13h15v-13zM4.500 18.500l5-6.500 3.500 4 2.500-2.500 4 5zM15.500 7.700a1.800 1.800 0 1 0 0 3.600a1.800 1.800 0 0 0 0-3.600z"/>',
+  sortie: '<path d="M3 3h9v3.500H6.500v11H12V21H3z"/><path d="M14 6.500 20.500 12 14 17.500v-3.800H9v-3.400h5z"/>',
+  ecran: '<rect x="2" y="3" width="20" height="13" rx="2"/><path d="M10 16h4v3h3v2.500H7V19h3z"/>',
+  oeil: '<path d="M1.500 12s4-7 10.500-7 10.500 7 10.500 7-4 7-10.500 7S1.500 12 1.500 12zM12 8.500a3.500 3.500 0 1 0 0 7a3.500 3.500 0 0 0 0-7z"/>',
+  fleche: '<path d="M3 10h10V5l8.500 7-8.500 7v-5H3z"/>',
+  menu: '<rect x="3" y="4" width="18" height="3.400" rx="1"/><rect x="3" y="10.300" width="18" height="3.400" rx="1"/><rect x="3" y="16.600" width="18" height="3.400" rx="1"/>',
+  tableau: '<path d="M3 3h18v18H3zM5.500 9.500v4h5v-4zM13 9.500v4h5.500v-4zM5.500 16v2.500h5V16zM13 16v2.500h5.500V16z"/>'
+};
+// shortcut: l'icône d'un bouton se devine à son texte (premier mot-clé trouvé), pour ne pas étiqueter 80 boutons à la main ;
+// un bouton mal deviné se corrige en lui donnant data-ico="nom" (ou data-ico="" pour aucune) dans sa page.
+const ICONE_DU_TEXTE = [[/photo/, 'appareil'], [/imprim/, 'imprimante'], [/supprim/, 'corbeille'], [/sheet/, 'tableau'], [/enregistr/, 'disquette'], [/copier|dupliquer/, 'copie'],
+  [/mail|messagerie/, 'enveloppe'], [/déconnect/, 'sortie'], [/données|résultats/, 'barres'], [/modifier/, 'crayon'], [/tutoriel|aide/, 'question'], [/fermer|quitter/, 'croix'],
+  [/valider|inscris|terminer/, 'coche'], [/démarrer|lancer|entrer dans|essayer/, 'lecture'], [/continuer|passer cette/, 'fleche'], [/voir/, 'oeil'], [/fiche/, 'feuille'],
+  [/présentation/, 'ecran'], [/affiche|logo|image/, 'image'], [/ajouter/, 'plus'], [/^menu$/, 'menu']];
+const iconeDe = texte => { const t = texte.trim().toLowerCase(); if (/^[+←]|▾/.test(t)) return ''; const r = ICONE_DU_TEXTE.find(x => x[0].test(t)); return r ? r[1] : ''; };
+if (typeof document !== 'undefined') {
+  document.head.insertAdjacentHTML('beforeend', `<style>[data-ico]:not([data-ico=""])::before{content:"";display:inline-block;flex:none;width:1.05em;height:1.05em;margin-right:.4em;vertical-align:-.18em;background:currentColor;-webkit-mask:var(--ico) center/contain no-repeat;mask:var(--ico) center/contain no-repeat}
+${Object.keys(ICONES).map(k => `[data-ico="${k}"]{--ico:url("data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill-rule="evenodd">${ICONES[k]}</svg>`)}")}`).join('\n')}</style>`);
+  const BOUTONS = '.btn,button.lien,button.chg,button.vide,button.home';
+  const poser = b => { if (b.dataset.ico === undefined || b.dataset.icoAuto) { if (b.querySelector('svg,img')) return; b.dataset.ico = iconeDe(b.textContent); b.dataset.icoAuto = 1; } };
+  const tout = racine => { if (racine.nodeType !== 1) return; if (racine.matches(BOUTONS)) poser(racine); racine.querySelectorAll(BOUTONS).forEach(poser); };
+  document.addEventListener('DOMContentLoaded', () => { // les pages réécrivent leurs boutons en cours de route : on repasse à chaque changement
+    tout(document.body);
+    new MutationObserver(l => l.forEach(m => { const b = m.target.nodeType === 1 && m.target.closest(BOUTONS); if (b) poser(b); m.addedNodes.forEach(tout); })).observe(document.body, { childList: true, subtree: true });
+  });
+  console.assert(iconeDe('Prendre une photo') === 'appareil' && iconeDe('+ Nouveau test') === '' && iconeDe('Fermer') === 'croix', 'icônes : devinette cassée');
+}

@@ -52,6 +52,14 @@ h1{margin:0;font-size:34px;line-height:.95;font-weight:800;letter-spacing:-.045e
 .scan .etat{font-weight:700}
 .scan .regl{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.scan .regl b{margin-right:6px}
 .scan .textes{display:flex;flex-direction:column;gap:14px}.scan .textes img{width:100%;border-radius:10px;border:1px solid #ddd}.scan .textes span{font-weight:400}
+.scan canvas{touch-action:pan-y}
+.rep{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
+.rep div{background:var(--fond);border-radius:14px;padding:10px 12px;display:flex;flex-wrap:wrap;gap:4px 8px;align-items:baseline}
+.rep div.vide{outline:2px dashed var(--gris);outline-offset:-2px}
+.rep span{flex:1;min-width:0;font-size:14px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.rep p{margin:4px 0 0;flex-basis:100%;display:flex;flex-wrap:wrap;gap:6px}
+.rep button{width:40px;height:40px;border-radius:50%;border:0;background:#fff;box-shadow:inset 0 0 0 2px var(--n);font-weight:800;cursor:pointer}
+.rep button[aria-pressed=true]{background:var(--n);color:#fff}
 .scan ol{margin:0;padding-left:1.3em;color:var(--gris);font-size:15px}
 @media print{body{background:#fff}nav,.trop{display:none!important}#vue{padding:0;gap:0;display:block}.page{box-shadow:none;break-after:page;width:auto;min-height:0}.page.fiche{height:420mm;width:297mm}.page.diapo{width:297mm;height:210mm}}
 </style>
@@ -67,7 +75,7 @@ h1{margin:0;font-size:34px;line-height:.95;font-weight:800;letter-spacing:-.045e
 <script src="seance.js"></script>
 <script>
 // Version papier de la séance, toujours fabriquée à partir de seance.txt (donc à jour après chaque modification) :
-//  - la fiche A3 : une seule feuille par personne, avec les questions, un rond par réponse et quatre repères noirs dans les coins.
+//  - la fiche A3 : une seule feuille par personne, avec les questions, un rond par réponse et quatre repères dans les coins (des ronds noirs à deux yeux blancs).
 //    Aucune image dessus : les affiches sont montrées par le grand écran en mode papier (ou par la présentation imprimée) ;
 //  - la présentation : les écrans du grand écran, un par page, sans les résultats ;
 //  - photographier les fiches : la photo d'une fiche remplie est lue ici, dans le navigateur (rien n'est envoyé à un service d'analyse),
@@ -95,11 +103,11 @@ function fiche(Q) {
   const G = geometrie(Q);
   return (G.trop ? `<p class="trop">Il y a trop de questions pour une seule fiche A3 : masquez-en quelques-unes dans « Modifier le test ».</p>` : '') + `<div class="page fiche">
   <svg viewBox="0 0 297 420" xmlns="http://www.w3.org/2000/svg" font-family="'Scoutie Sans',Helvetica,Arial,sans-serif">
-    ${REPERES.map(([x, y]) => `<rect x="${x - COTE / 2}" y="${y - COTE / 2}" width="${COTE}" height="${COTE}" fill="#000"/>`).join('')}
+    ${REPERES.map(([x, y]) => `<circle cx="${x}" cy="${y}" r="${COTE / 2}" fill="#000"/><circle cx="${x - 1.3}" cy="${y}" r=".8" fill="#fff"/><circle cx="${x + 1.3}" cy="${y}" r=".8" fill="#fff"/>`).join('')}
     <text x="24" y="18" font-size="8" font-weight="800" letter-spacing="-.3">Points de vue · votre fiche</text>
     <text x="24" y="26" font-size="4.2">Les réponses sont sur le grand écran. Noircissez le rond de la lettre choisie. Avec un astérisque (*), plusieurs ronds sont possibles.</text>
     <text x="24" y="37" font-size="4.6" font-weight="700" xml:space="preserve">Séance : ........................      Participant n° : ............      Test ${h(VERSION)}</text>
-    <text x="24" y="45" font-size="3.2" fill="#6B6B6B">Les quatre carrés noirs servent à la lecture de la photo : ne rien écrire dessus.</text>
+    <text x="24" y="45" font-size="3.2" fill="#6B6B6B">Les quatre ronds noirs servent à la lecture de la photo : ne rien écrire dessus.</text>
     ${G.map(g => `<rect x="${g.x + .6}" y="${g.y + 7.4}" width="6.6" height="1.7" rx=".85" style="fill:${g.e.p ? `var(--c${g.e.p})` : '#141414'}"/><text x="${g.x + 7}" y="${g.y + 5.6}" font-size="5.6" font-weight="800" text-anchor="end">${g.e.n}${g.e.t === 'multi' ? '*' : ''}</text>`
       + (g.e.t === 'texte' ? [4, 13].map(d => `<line x1="${g.x + 9}" x2="${g.x + LCOL - 8}" y1="${g.y + g.h - d}" y2="${g.y + g.h - d}" stroke="#141414" stroke-width=".2" stroke-dasharray=".4 1"/>`).join('') : '')
       + g.ronds.map(([x, y], j) => `<circle cx="${x}" cy="${y}" r="${RAYON}" fill="#fff" stroke="#141414" stroke-width=".35"/><text x="${x}" y="${y + 2}" font-size="5.6" font-weight="800" text-anchor="middle" fill="#A8A8A8">${etiq(g.e, j)}</text>`
@@ -142,7 +150,7 @@ function homographie(src, dst) { // passe des millimètres de la fiche aux pixel
   const A = [], b = []; src.forEach(([x, y], i) => { const [u, v] = dst[i]; A.push([x, y, 1, 0, 0, 0, -u * x, -u * y]); b.push(u); A.push([0, 0, 0, x, y, 1, -v * x, -v * y]); b.push(v); });
   const k = resoudre(A, b); return (x, y) => { const w = k[6] * x + k[7] * y + 1; return [(k[0] * x + k[1] * y + k[2]) / w, (k[3] * x + k[4] * y + k[5]) / w]; };
 }
-function trouverReperes(gris, W, H) { // dans chaque coin de la photo, la tache sombre, pleine et à peu près carrée la plus proche du coin
+function trouverReperes(gris, W, H) { // dans chaque coin de la photo, la tache sombre et pleine, ronde (ou carrée sur les anciennes fiches), la plus proche du coin
   const pas = Math.max(1, Math.round(W / 420)), w = Math.floor(W / pas), hh = Math.floor(H / pas), s = new Uint8Array(w * hh); let somme = 0;
   for (let y = 0; y < hh; y++) for (let x = 0; x < w; x++) { const v = gris[y * pas * W + x * pas]; s[y * w + x] = v; somme += v; }
   const seuil = somme / (w * hh) * .55, vu = new Uint8Array(w * hh), taches = [];
@@ -154,27 +162,39 @@ function trouverReperes(gris, W, H) { // dans chaque coin de la photo, la tache 
     taches.push([sx / n * pas, sy / n * pas]); }
   return [[0, 0], [W, 0], [0, H], [W, H]].map(([cx, cy]) => { const c = taches.filter(([x, y]) => (x < W / 2) === (cx === 0) && (y < H / 2) === (cy === 0)).sort((a, b) => Math.hypot(a[0] - cx, a[1] - cy) - Math.hypot(b[0] - cx, b[1] - cy))[0]; if (!c) throw new Error('repère'); return c; });
 }
+function orienter(gris, W, H, P) { // la fiche peut être photographiée couchée ou tête en bas : on garde le sens où elle est debout, le titre en haut
+  const tour = [P[0], P[1], P[3], P[2]], d = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1]);
+  const essais = [0, 1, 2, 3].map(k => { const t = i => tour[(i + k) % 4], coins = [t(0), t(1), t(3), t(2)], Hm = homographie(REPERES, coins); let n = 0;
+    for (let i = 0; i < 60; i++) for (let j = 0; j < 6; j++) { const [u, v] = Hm(24 + i * 1.8, 12 + j * 1.2).map(Math.round); if (u >= 0 && v >= 0 && u < W && v < H) n += 255 - gris[v * W + u]; } // l'encre du titre
+    return { coins, n, debout: d(coins[0], coins[1]) < d(coins[0], coins[2]) }; });
+  const bons = essais.filter(x => x.debout); return (bons.length ? bons : essais).sort((a, b) => b.n - a.n)[0].coins;
+}
 function lireImage(source, Q) { // source : image ou canevas ; renvoie les ronds cochés
   const k = Math.min(1, 2200 / Math.max(source.width, source.height)), c = document.createElement('canvas'); c.width = Math.round(source.width * k); c.height = Math.round(source.height * k);
   const x = c.getContext('2d', { willReadFrequently: true }); x.drawImage(source, 0, 0, c.width, c.height);
   const px = x.getImageData(0, 0, c.width, c.height).data, W = c.width, H = c.height, gris = new Uint8Array(W * H);
   for (let i = 0; i < W * H; i++) gris[i] = (px[i * 4] * 3 + px[i * 4 + 1] * 6 + px[i * 4 + 2]) / 10;
-  const Hm = homographie(REPERES, trouverReperes(gris, W, H)), G = geometrie(Q);
-  const L = { image: c, G, dx: 0, dy: 0, txt: {} }; L.H = (mx, my) => Hm(mx + L.dx, my + L.dy);
+  const G = geometrie(Q), L = { image: c, G, dx: 0, dy: 0, txt: {}, trouve: true }; let Hm;
+  try { L.coins = orienter(gris, W, H, trouverReperes(gris, W, H)); } // les quatre repères dans la photo, dans l'ordre de REPERES
+  catch (e) { L.trouve = false; L.coins = [[.1, .08], [.9, .08], [.1, .92], [.9, .92]].map(([a, b]) => [a * W, b * H]); } // introuvables : quatre poignées à poser à la main
+  L.caler = () => { Hm = homographie(REPERES, L.coins); L.relire(); }; // après avoir déplacé un repère
+  L.H = (mx, my) => Hm(mx + L.dx, my + L.dy);
   const noir = ([mx, my]) => { const [u, v] = L.H(mx, my), [u2, v2] = L.H(mx + RAYON, my), r = Math.max(2, Math.hypot(u2 - u, v2 - v) * .62); let s = 0, n = 0; // noirceur moyenne au cœur du rond
     for (let y = Math.round(v - r); y <= v + r; y++) for (let xx = Math.round(u - r); xx <= u + r; xx++) { if (xx < 0 || y < 0 || xx >= W || y >= H || (xx - u) ** 2 + (y - v) ** 2 > r * r) continue; s += 255 - gris[y * W + xx]; n++; } return n ? s / n : 0; };
   L.relire = () => { // relit tous les ronds là où la grille se trouve maintenant
     const scores = G.map(g => g.ronds.map(noir)), tous = scores.flat().sort((a, b) => a - b), base = tous[Math.floor(tous.length / 2)] || 0, seuil = Math.max(base * 1.7, base + 28); // un rond vide sert de référence
     L.coche = scores.map((l, i) => { const m = l.map(v => v > seuil); if (G[i].e.t !== 'multi' && m.filter(Boolean).length > 1) { const top = l.indexOf(Math.max(...l)); return l.map((_, j) => j === top); } return m; });
   };
-  L.relire(); return L;
+  L.caler(); return L;
 }
 function tracer() { // la photo, avec un cercle sur chaque rond : plein = lu comme coché
   const c = $('photo'), x = c.getContext('2d'); c.width = lu.image.width; c.height = lu.image.height; x.drawImage(lu.image, 0, 0);
   lu.G.forEach((g, i) => g.ronds.forEach((p, j) => { const [u, v] = lu.H(p[0], p[1]), [u2, v2] = lu.H(p[0] + RAYON, p[1]), r = Math.hypot(u2 - u, v2 - v) * 1.25;
     x.beginPath(); x.arc(u, v, r, 0, 7); x.lineWidth = lu.coche[i][j] ? Math.max(3, r * .35) : 1; x.strokeStyle = lu.coche[i][j] ? '#1F6FE0' : 'rgba(20,20,20,.25)'; x.stroke(); }));
+  lu.coins.forEach(([u, v]) => { x.beginPath(); x.arc(u, v, c.width * .022, 0, 7); x.lineWidth = Math.max(3, c.width * .004); x.strokeStyle = '#FF5A36'; x.stroke(); }); // les poignées : une sur chaque repère
+  $('rep').innerHTML = lu.G.map((g, i) => g.ronds.length ? `<div class="${lu.coche[i].some(Boolean) ? '' : 'vide'}"><b>${g.e.n}${g.e.t === 'multi' ? '*' : ''}</b><span>${h(g.e.q)}</span><p>${g.ronds.map((_, j) => `<button type="button" data-r="${i},${j}" aria-pressed="${lu.coche[i][j]}" title="${h(g.e.t === 'echelle' ? j + 1 + ' sur 5' : g.e.o[j])}">${etiq(g.e, j)}</button>`).join('')}</p></div>` : '').join('');
   const n = lu.coche.filter((l, i) => l.some(Boolean) || (lu.txt[i] || '').trim()).length;
-  $('etat').textContent = `${n} question${n > 1 ? 's' : ''} lue${n > 1 ? 's' : ''} sur ${lu.G.length}. Les ronds lus comme cochés sont entourés en bleu. Cliquez sur un rond vide pour l'ajouter, sur un rond bleu pour le retirer. Si les cercles ne tombent pas sur les ronds, décalez-les avec les flèches.`;
+  $('etat').textContent = (lu.trouve ? '' : 'Je ne trouve pas les quatre ronds noirs des coins : faites glisser les quatre poignées orange dessus. ') + `${n} question${n > 1 ? 's' : ''} lue${n > 1 ? 's' : ''} sur ${lu.G.length}. Les ronds lus comme cochés sont entourés en bleu : corrigez-les en cliquant sur la photo ou dans la liste dessous.`;
   $('envoyer').disabled = !n;
 }
 // les avis libres : la machine ne lit pas l'écriture à la main. On montre le morceau de photo, et on recopie à côté.
@@ -197,14 +217,15 @@ function lignes() { // les réponses lues, au même format que celles des télé
 }
 function vueLire() {
   return `<div class="scan"><h1>Photographier les fiches</h1>
-    <ol><li>Posez la fiche A3 remplie bien à plat, sous une bonne lumière.</li><li>Photographiez-la de face, en entier : les quatre carrés noirs doivent être visibles.</li><li>Vérifiez les ronds entourés en bleu : un clic ajoute ou retire un rond, les flèches décalent tous les cercles s'ils sont à côté.</li><li>Recopiez les réponses écrites à la main, affichées sous la photo, puis enregistrez : les réponses rejoignent « Étudier les données ».</li></ol>
+    <ol><li>Posez la fiche A3 remplie bien à plat, sous une bonne lumière.</li><li>Photographiez-la en entier : les quatre ronds noirs des coins doivent être visibles. Elle peut être de travers ou tournée.</li><li>Si les cercles ne tombent pas sur les ronds, faites glisser les poignées orange sur les quatre ronds noirs des coins (ou décalez tout avec les flèches).</li><li>Vérifiez les réponses lues : un clic sur la photo ou dans la liste sous la photo ajoute ou retire une réponse.</li><li>Recopiez les réponses écrites à la main, affichées sous la photo, puis enregistrez : les réponses rejoignent « Étudier les données ».</li></ol>
     <div class="deux"><label>Séance<input type="text" id="seance" value="${h(new URLSearchParams(location.search).get('seance') || 'papier')}" maxlength="12"></label><label>Participant n°<input type="number" id="numero" value="1" min="1"></label></div>
     <label class="btn noir" style="align-self:flex-start">Photographier ou choisir une photo<input type="file" accept="image/*" capture="environment" hidden id="fichier"></label>
     <p class="etat" id="etat">Aucune photo pour l'instant. La lecture se fait dans ce navigateur, la photo n'est envoyée nulle part.</p>
     <canvas id="photo" width="10" height="10" hidden></canvas>
     <div class="regl" id="regl" hidden><b>Décaler les cercles</b><button class="btn" data-d="-1,0" aria-label="Vers la gauche">←</button><button class="btn" data-d="0,-1" aria-label="Vers le haut">↑</button><button class="btn" data-d="0,1" aria-label="Vers le bas">↓</button><button class="btn" data-d="1,0" aria-label="Vers la droite">→</button><button class="btn" data-d="0">Remettre en place</button><button class="btn" id="vider">Tout décocher</button></div>
+    <div class="rep" id="rep" hidden></div>
     <div class="textes" id="textes" hidden></div>
-    <button class="btn noir" id="envoyer" disabled style="align-self:flex-start">Enregistrer dans le Google Sheet</button></div>`;
+    <div class="regl"><button class="btn noir" id="envoyer" disabled>Enregistrer dans le Google Sheet</button>${QUI() ? '<a class="btn" href="https://docs.google.com/spreadsheets/d/14uvOfNQwjgMOH83hJhnWea9Df3Cidhhs4rUefRrQ2wk" target="_blank" rel="noopener">Ouvrir le Google Sheet</a>' : ''}</div></div>`;
 }
 
 // ---------- affichage ----------
@@ -222,25 +243,38 @@ $('imprimer').addEventListener('click', () => print());
 $('vue').addEventListener('change', ev => {
   if (ev.target.id !== 'fichier' || !ev.target.files[0]) return;
   const img = new Image(); $('etat').textContent = 'Lecture de la photo…';
-  img.onload = () => { try { lu = lireImage(img, QUESTIONS()); $('photo').hidden = false; $('regl').hidden = false; tracer(); zonesTexte(); } catch (err) { lu = null; $('photo').hidden = true; $('regl').hidden = true; $('textes').hidden = true; $('envoyer').disabled = true; $('etat').textContent = "Je ne trouve pas les quatre carrés noirs. Reprenez la photo de face, avec toute la fiche dans l'image et sans ombre forte."; } };
+  img.onload = () => { try { lu = lireImage(img, QUESTIONS()); ['photo', 'regl', 'rep'].forEach(i => $(i).hidden = false); tracer(); zonesTexte(); } catch (err) { lu = null; ['photo', 'regl', 'rep', 'textes'].forEach(i => $(i).hidden = true); $('envoyer').disabled = true; $('etat').textContent = "Cette photo ne se lit pas. Reprenez-la, avec toute la fiche dans l'image."; } };
+  img.onerror = () => { $('etat').textContent = "Ce fichier n'est pas une photo lisible (essayez en JPEG ou PNG)."; };
   img.src = URL.createObjectURL(ev.target.files[0]); ev.target.value = '';
 });
 $('vue').addEventListener('input', ev => { const i = ev.target.dataset.txt; if (i != null && lu) { lu.txt[i] = ev.target.value; tracer(); } }); // ce qu'on recopie d'une réponse écrite
+// corriger une réponse : sur la photo ou dans la liste, un clic inverse le rond (un seul rond par question, sauf les questions à astérisque)
+const basculer = (i, j) => { const coche = !lu.coche[i][j]; if (coche && lu.G[i].e.t !== 'multi') lu.coche[i] = lu.coche[i].map(() => false); lu.coche[i][j] = coche; tracer(); };
+// recaler la photo : chaque poignée orange se fait glisser sur son rond noir, et tous les ronds sont relus
+let prise = -1, glisse = false;
+const surPhoto = ev => { const c = $('photo'), b = c.getBoundingClientRect(); return [(ev.clientX - b.left) * c.width / b.width, (ev.clientY - b.top) * c.height / b.height]; };
+const poignee = (cible, ev) => { if (!lu || cible.id !== 'photo') return -1; const [u, v] = surPhoto(ev), r = lu.image.width * .04; return lu.coins.findIndex(p => Math.hypot(p[0] - u, p[1] - v) < r); };
+$('vue').addEventListener('pointerdown', ev => { prise = poignee(ev.target, ev); glisse = false; if (prise >= 0) ev.target.setPointerCapture(ev.pointerId); });
+$('vue').addEventListener('pointermove', ev => { if (prise < 0 || !lu) return; glisse = true; lu.coins[prise] = surPhoto(ev); lu.dx = lu.dy = 0; lu.trouve = true; lu.caler(); tracer(); });
+['pointerup', 'pointercancel'].forEach(t => $('vue').addEventListener(t, () => { if (prise >= 0 && glisse && lu) zonesTexte(); prise = -1; }));
+$('vue').addEventListener('touchstart', ev => { if (poignee(ev.target, ev.touches[0]) >= 0) ev.preventDefault(); }, { passive: false }); // le doigt sur une poignée ne fait pas défiler la page
 $('vue').addEventListener('click', ev => {
-  if (ev.target.id === 'photo' && lu) { // un clic sur un rond inverse sa lecture
-    const c = ev.target, b = c.getBoundingClientRect(), u = (ev.clientX - b.left) * c.width / b.width, v = (ev.clientY - b.top) * c.height / b.height; let mieux = null, dm = 1e9;
+  const r = ev.target.closest('[data-r]'); if (r && lu) { const [i, j] = r.dataset.r.split(',').map(Number); basculer(i, j); const b = document.querySelector(`[data-r="${i},${j}"]`); if (b) b.focus(); }
+  if (ev.target.id === 'photo' && lu && !glisse) { // un clic sur un rond inverse sa lecture
+    const [u, v] = surPhoto(ev); let mieux = null, dm = 1e9;
     lu.G.forEach((g, i) => g.ronds.forEach((p, j) => { const [x, y] = lu.H(p[0], p[1]), d = Math.hypot(x - u, y - v); if (d < dm) { dm = d; mieux = [i, j]; } }));
     const [x1, y1] = lu.H(lu.G[0].ronds[0][0], lu.G[0].ronds[0][1]), [x2, y2] = lu.H(lu.G[0].ronds[0][0] + RAYON * 2, lu.G[0].ronds[0][1]);
-    if (mieux && dm < Math.hypot(x2 - x1, y2 - y1)) { const [i, j] = mieux, coche = !lu.coche[i][j]; if (coche && lu.G[i].e.t !== 'multi') lu.coche[i] = lu.coche[i].map(() => false); lu.coche[i][j] = coche; tracer(); }
+    if (mieux && dm < Math.hypot(x2 - x1, y2 - y1)) basculer(...mieux);
   }
   const dec = ev.target.closest('[data-d]'); if (dec && lu) { // décaler toute la grille d'un millimètre, puis relire les ronds à leur nouvelle place
     const [x, y] = dec.dataset.d.split(',').map(Number); if (y == null) { lu.dx = lu.dy = 0; } else { lu.dx += x; lu.dy += y; } lu.relire(); tracer(); zonesTexte(); }
   if (ev.target.id === 'vider' && lu) { lu.coche = lu.coche.map(l => l.map(() => false)); tracer(); }
   if (ev.target.id === 'envoyer' && lu) {
     const L = lignes(); ev.target.disabled = true; $('etat').textContent = 'Enregistrement…'; declarerVersion();
-    fetch(SCRIPT_GOOGLE, { method: 'POST', mode: 'no-cors', body: JSON.stringify(L) })
-      .then(() => { journal('Fiche photographiée', `séance ${$('seance').value} · participant ${$('numero').value} · ${L.length} réponses`); $('etat').textContent = `${L.length} réponses enregistrées pour le participant ${$('numero').value}. Passez à la fiche suivante.`; $('numero').value = +$('numero').value + 1; lu = null; $('photo').hidden = true; $('regl').hidden = true; $('textes').hidden = true; })
-      .catch(() => { ev.target.disabled = false; $('etat').textContent = "Pas enregistré : vérifiez la connexion internet, puis réessayez."; });
+    fetch(SCRIPT_GOOGLE, { method: 'POST', body: JSON.stringify(L) }).then(x => x.text())
+      .then(t => { const ok = /^ok (\d+)/.exec(t); if (!ok) throw new Error(t); // le Sheet répond « ok 12 » quand les 12 lignes sont écrites
+        journal('Fiche photographiée', `séance ${$('seance').value} · participant ${$('numero').value} · ${ok[1]} réponses`); $('etat').textContent = `${ok[1]} réponses enregistrées dans le Google Sheet pour le participant ${$('numero').value}. Passez à la fiche suivante.`; $('numero').value = +$('numero').value + 1; lu = null; ['photo', 'regl', 'rep', 'textes'].forEach(i => $(i).hidden = true); })
+      .catch(err => { ev.target.disabled = false; $('etat').textContent = navigator.onLine === false ? "Pas enregistré : pas de connexion internet. Vos corrections sont gardées, réessayez." : "Pas enregistré : le Google Sheet n'a pas confirmé. Vos corrections sont gardées, réessayez dans un instant."; });
   }
 });
 lireFichier().then(t => { if (!lireSeance(t)) throw 0; dessiner(); noterVisite('Version papier'); }).catch(() => { $('vue').innerHTML = '<p>Le fichier de la séance ne se charge pas.</p>'; });
