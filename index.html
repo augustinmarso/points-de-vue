@@ -204,7 +204,9 @@ textarea.champ{min-height:150px;resize:none}
 .cmd .home:hover,.cmd.ouvert .home{opacity:1}
 .cmd .liste{display:none;position:absolute;left:0;bottom:100%;flex-direction:column;align-items:flex-start;gap:12px;white-space:nowrap;background:#fff;color:var(--n);border-radius:18px;padding:16px 20px;box-shadow:0 4px 24px rgba(20,20,20,.2)}
 .cmd.ouvert .liste{display:flex}
-.cmd .liste button,.cmd .liste label,.cmd .liste a{cursor:pointer;text-decoration:underline;color:inherit}
+.cmd .liste{flex-direction:row;flex-wrap:wrap;align-items:center;gap:8px;width:232px;white-space:normal}.cmd .liste>span{flex-basis:100%}
+.cmd .liste button,.cmd .liste a{cursor:pointer;color:inherit;width:44px;height:44px;border-radius:50%;background:#F3F3F3;display:grid;place-items:center;flex:none}
+.cmd .liste button:hover,.cmd .liste a:hover{background:#E2E2E2}.cmd .liste .fort,.cmd .liste [aria-pressed=true]{background:#141414;color:#fff}
 .cmd .autres{white-space:normal;max-width:36em;font-weight:400}
 .auto{position:fixed;right:1.5vw;bottom:1.4vh;z-index:7;font-size:13px;font-weight:700;opacity:.5}
 body.plein.p3 #app{color:#fff}
@@ -223,6 +225,9 @@ body.plein.p3 #app{color:#fff}
 <script>
 // ---------- outils ----------
 const P = new URLSearchParams(location.search);
+// les icônes du Menu du grand écran : le nom du bouton est dans l'info-bulle (title) et pour les lecteurs d'écran (aria-label)
+const SVG = d => `<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.200" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
+const IC = (a, nom, d, cls = '') => `<button data-a="${a}" class="${cls}" aria-label="${nom}" title="${nom}">${SVG(d)}</button>`;
 // quitter la page en cours de route demande une confirmation (c'est le navigateur qui affiche son message « Quitter le site ? »).
 // EN_COURS dit s'il y a quelque chose à perdre de vue : chaque mode (grand écran, téléphone, formulaire) le règle. QUITTE = un rechargement voulu par l'appli elle-même, sans question.
 let EN_COURS = () => false, QUITTE = false;
@@ -774,10 +779,10 @@ function ecran() {
     app.innerHTML = `<div class="ecran"><div class="barre"><span class="sur">${h(souci || (APERCU ? 'Aperçu de vos modifications · flèches du clavier pour avancer · sans enregistrement' : ''))}</span><div class="gens"></div></div><div class="corps"><div class="gauche">${g}</div>${d}</div></div>
       <div class="cmd"><button class="home" data-a="menu">Menu</button><div class="liste">
         <span>Écran ${S.i + 1} sur ${ETAPES.length}</span>
-        <button data-a="suite">${e.t === 'flash' && !flash ? 'Montrer ' + (e.s || 5) + ' secondes' : prete ? 'Révéler les réponses' : 'Suite →'}</button><button data-a="avant">← Retour</button>
-        ${PAPIER ? `<a href="papier.html?vue=lire&seance=${h(SALLE)}${TQ}" target="_blank" rel="noopener">Photographier les fiches</a>` : `<a href="resultats.html?seance=${h(SALLE)}${TQ}" target="_blank" rel="noopener">Résultats</a>`}
-        <button data-a="auto" title="Quand tout le monde a répondu : révéler les réponses puis passer à la suite sans appuyer">Avance automatique : ${S.auto === true ? 'oui' : 'non'}</button>${PAPIER ? '' : '<button data-a="qr" title="Montre le QR code de la séance en grand, pour quelqu\'un qui arrive en cours de route">QR code</button>'}<button data-a="plein">Plein écran</button><button data-a="neuve">Nouvelle séance</button>
-        <a href="./" aria-label="Accueil" title="Accueil"><svg viewBox="0 0 24 24" width="1.35em" height="1.35em" fill="currentColor" aria-hidden="true" style="vertical-align:-.3em"><path d="M12 3 2.5 11.2h2.7V21h5.3v-6h3v6h5.3v-9.8h2.7z"/></svg></a>
+        ${IC('avant', 'Écran précédent', '<path d="M19 12H5M11 6l-6 6 6 6"/>')}${e.t === 'flash' && !flash ? IC('suite', 'Montrer l\'affiche ' + (e.s || 5) + ' secondes', '<circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.500 2.500M9 2h6"/>', 'fort') : prete ? IC('suite', 'Révéler les réponses', '<path d="M2 12s3.600-6.500 10-6.500S22 12 22 12s-3.600 6.500-10 6.500S2 12 2 12z"/><circle cx="12" cy="12" r="2.800"/>', 'fort') : IC('suite', 'Écran suivant', '<path d="M5 12h14M13 6l6 6-6 6"/>', 'fort')}
+        ${PAPIER ? `<a href="papier.html?vue=lire&seance=${h(SALLE)}${TQ}" target="_blank" rel="noopener" aria-label="Photographier les fiches" title="Photographier les fiches">${SVG('<path d="M3 8h4l1.500-2.500h7L17 8h4v11H3z"/><circle cx="12" cy="13" r="3.200"/>')}</a>` : `<a href="resultats.html?seance=${h(SALLE)}${TQ}" target="_blank" rel="noopener" aria-label="Résultats" title="Résultats de la séance">${SVG('<path d="M5 20V10M12 20V4M19 20v-7"/>')}</a>`}
+        <button data-a="auto" aria-pressed="${S.auto === true}" aria-label="Avance automatique : ${S.auto === true ? 'oui' : 'non'}" title="Avance automatique : ${S.auto === true ? 'oui' : 'non'}. Quand tout le monde a répondu : révéler les réponses puis passer à la suite sans appuyer">${SVG('<circle cx="12" cy="12" r="9"/><path d="M10 8.500v7l6-3.500z"/>')}</button>${PAPIER ? '' : IC('qr', 'QR code de la séance en grand, pour quelqu\'un qui arrive en cours de route', '<rect x="4" y="4" width="6" height="6"/><rect x="14" y="4" width="6" height="6"/><rect x="4" y="14" width="6" height="6"/><path d="M14 14h3v3M20 14v6h-6"/>')}${IC('plein', 'Plein écran', '<path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/>')}${IC('neuve', 'Nouvelle séance', '<path d="M20 11a8 8 0 1 0-2.300 5.700M20 5v6h-6"/>')}
+        <a href="./" aria-label="Accueil" title="Accueil du site">${SVG('<path d="M4 11.500 12 4l8 7.500M6 10v10h4.500v-6h3v6H18V10"/>')}</a>
       </div></div><span class="auto"></span>`;
     maj(); regards();
     const apres = ETAPES[S.i + 1]; if (apres) [...(apres.imgs || []), apres.img].filter(Boolean).forEach(u => { new Image().src = u; }); // l'affiche de l'écran suivant est déjà là quand on y arrive
