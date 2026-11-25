@@ -199,7 +199,6 @@ body.plein.p3 #app{color:#fff}
 <script>
 // ---------- outils ----------
 const P = new URLSearchParams(location.search);
-let tAuto = 0; // réponses multiples : l'envoi se fait tout seul, 3 secondes après le dernier choix (plus de bouton « Valider »)
 // les affiches d'une question, montrées sur le téléphone (en séance comme en ligne) : côte à côte avec leur lettre pour une comparaison, un toucher les agrandit
 const VUE = (e, srcs) => srcs.length ? `<div class="vue${e.nb ? ' nb' : ''}${e.t === 'ab' ? ' pile' : ''}">${srcs.map((s, k) => `<figure${e.t === 'ab' && !e.abc ? ` data-p="${k}"` : ''}>${e.t === 'ab' ? 'ABCD'[k] : ''}${cadree(e) ? afficheCadree(e, s) : `<img src="${h(s)}" alt="${e.t === 'ab' ? 'Affiche ' + 'ABCD'[k] : 'L\'affiche'}">`}</figure>`).join('')}</div><p class="note">${e.t === 'ab' && !e.abc ? 'Touchez l’affiche choisie.' : 'Touchez une affiche pour l’agrandir.'}</p>` : '';
 const ECRAN = P.has('ecran');
@@ -434,9 +433,9 @@ function telephone() {
     else {
       x = `<p class="sur">${sur(e)}</p><h2>${h(q.q)}</h2>${q.vote ? `<p class="note">Affiche ${q.k + 1}, sur le grand écran.</p>` : q.note ? `<p class="note">${h(q.note)}</p>` : ''}`;
       if (t === 'texte') x += `<textarea class="champ" id="txt" maxlength="200" placeholder="Votre réponse"></textarea><button class="btn" data-a="texte">Valider</button>`;
-      if (q.zones) x += carteZones(q, q.imgs[0]) + `<p class="note">Touchez ${t === 'multi' ? 'toutes les zones voulues' : 'une zone de l\'affiche'}. ${legendeZones(q)}</p>` + (t === 'multi' ? `<p class="note"><b>Votre réponse part toute seule, 3 secondes après votre dernier choix.</b></p>` : '');
+      if (q.zones) x += carteZones(q, q.imgs[0]) + `<p class="note">Touchez ${t === 'multi' ? 'les zones, puis Valider' : 'une zone de l\'affiche'}. ${legendeZones(q)}</p>` + (t === 'multi' ? `<button class="btn" data-a="multi">Valider</button>` : '');
       else if (t === 'choix' || t === 'multi') x += `<div class="opts">${q.o.map((o, i) => `<button class="opt" data-o="${i}">${h(o)}${tete(e.p || 1)}</button>`).join('')}</div>`;
-      if (t === 'multi' && !q.zones) x += `<p class="note">Plusieurs réponses possibles.</p><p class="note"><b>Votre réponse part toute seule, 3 secondes après votre dernier choix.</b></p>`;
+      if (t === 'multi' && !q.zones) x += `<p class="note">Plusieurs réponses possibles.</p><button class="btn" data-a="multi">Valider</button>`;
       if (t === 'echelle') x += `<div class="echelle">${q.o.map((o, i) => `<button data-o="${i}" style="width:${36 + i * 11}px;height:${36 + i * 11}px">${o}</button>`).join('')}</div><div class="bouts"><span>${h(q.a)}</span><span>${h(q.b)}</span></div>`;
       if (!q.zones && !q.vote && !e.jeu && !e.telSans) x += VUE(e, (e.imgs || []).filter(Boolean)); // la même affiche que sur le grand écran (pas pour le jeu : l'affiche y est cachée)
       if (t === 'ab' && e.abc) x += `<div class="opts">${e.o.map((o, i) => `<button class="opt" data-o="${i}">${h(o)}${tete(e.p)}</button>`).join('')}</div>`;
@@ -451,12 +450,13 @@ function telephone() {
   app.addEventListener('click', ev => {
     const sl = ev.target.closest('[data-s]'); if (sl) return location.search = '?salle=' + sl.dataset.s;
     const e = ETAPES[courant], id = ident(e), o = ev.target.closest('[data-o]'), a = ev.target.closest('[data-a]');
-    if (o && genre(e) === 'multi') { o.classList.toggle('on'); clearTimeout(tAuto); tAuto = setTimeout(() => { const v = [...app.querySelectorAll('[data-o].on')].map(b => +b.dataset.o); if (v.length && ETAPES[courant] === e) repondre(id, v); }, 3000); return; }
+    if (o && genre(e) === 'multi') return o.classList.toggle('on');
     if (o) { o.classList.add('on'); return setTimeout(() => repondre(id, +o.dataset.o), 350); }
     const choisie = ev.target.closest('[data-p]'); if (choisie) { choisie.classList.add('on'); return setTimeout(() => repondre(id, +choisie.dataset.p), 350); } // comparaison : toucher une affiche répond tout de suite
     const fig = ev.target.closest('.vue figure'); if (fig) return fig.classList.toggle('zoom');
     if (!a) return;
     const act = a.dataset.a;
+    if (act === 'multi') { const v = [...app.querySelectorAll('[data-o].on')].map(b => +b.dataset.o); if (v.length) repondre(id, v); }
     if (act === 'texte') { const v = document.getElementById('txt').value.trim(); if (v) repondre(id, v); }
     if (act === 'autre') { photo = null; dessiner(true); }
     if (act === 'inscrire') { mes.nom = document.getElementById('nom').value.trim(); mes.inscrit = true; garder(); if (lien) lien.send({ k: 'salut', pid: mes.pid, nom: mes.nom }); dessiner(); }
@@ -535,9 +535,9 @@ function enLigne() {
     else {
       x = `<p class="sur">${sur(e)} · question ${QS.indexOf(e) + 1} sur ${QS.length}</p><h2>${h(e.q)}</h2>${e.note ? `<p class="note">${h(e.note)}</p>` : ''}${vue(e, e.jeu || e.zones || e.telSans ? [] : (e.imgs || []).filter(Boolean))}`;
       if (e.t === 'texte') x += `<textarea class="champ" id="txt" maxlength="200" placeholder="Votre réponse"></textarea><button class="btn" data-a="texte">Valider</button><button class="lien" data-a="suite">Passer cette question</button>`;
-      if (e.zones) x += carteZones(e, e.imgs[0]) + `<p class="note">Touchez ${e.t === 'multi' ? 'toutes les zones voulues' : 'une zone de l\'affiche'}. ${legendeZones(e)}</p>` + (e.t === 'multi' ? `<p class="note"><b>Votre réponse part toute seule, 3 secondes après votre dernier choix.</b></p>` : '');
+      if (e.zones) x += carteZones(e, e.imgs[0]) + `<p class="note">Touchez ${e.t === 'multi' ? 'les zones, puis Valider' : 'une zone de l\'affiche'}. ${legendeZones(e)}</p>` + (e.t === 'multi' ? `<button class="btn" data-a="multi">Valider</button>` : '');
       else if (e.t === 'choix' || e.t === 'multi') x += `<div class="opts">${e.o.map((o, i) => `<button class="opt" data-o="${i}">${h(o)}${tete(e.p || 1)}</button>`).join('')}</div>`;
-      if (e.t === 'multi' && !e.zones) x += `<p class="note">Plusieurs réponses possibles.</p><p class="note"><b>Votre réponse part toute seule, 3 secondes après votre dernier choix.</b></p>`;
+      if (e.t === 'multi' && !e.zones) x += `<p class="note">Plusieurs réponses possibles.</p><button class="btn" data-a="multi">Valider</button>`;
       if (e.t === 'echelle') x += `<div class="echelle">${e.o.map((o, i) => `<button data-o="${i}" style="width:${36 + i * 11}px;height:${36 + i * 11}px">${o}</button>`).join('')}</div><div class="bouts"><span>${h(e.a)}</span><span>${h(e.b)}</span></div>`;
       if (e.t === 'ab' && e.abc) x += `<div class="opts">${e.o.map((o, i) => `<button class="opt" data-o="${i}">${h(o)}${tete(e.p || 1)}</button>`).join('')}</div>`;
       else if (e.t === 'ab') x += `<div class="opts"><button class="opt" data-o="${e.o.length - 1}">${h(e.o[e.o.length - 1])}${tete(e.p || 1)}</button></div>`;
@@ -558,13 +558,14 @@ function enLigne() {
     const choisie = ev.target.closest('[data-p]'); if (choisie) { if (pris) return; pris = true; choisie.classList.add('on'); return setTimeout(() => repondre(ETAPES[M.i], +choisie.dataset.p), 350); }
     const f = ev.target.closest('.vue figure'); if (f) return f.classList.toggle('zoom');
     const e = ETAPES[M.i], o = ev.target.closest('[data-o]'), a = ev.target.closest('[data-a]');
-    if (o && e.t === 'multi') { o.classList.toggle('on'); clearTimeout(tAuto); tAuto = setTimeout(() => { const v = [...app.querySelectorAll('[data-o].on')].map(b => +b.dataset.o); if (v.length && ETAPES[M.i] === e) repondre(e, v); }, 3000); return; }
+    if (o && e.t === 'multi') return o.classList.toggle('on');
     if (o) { if (pris) return; pris = true; o.classList.add('on'); return setTimeout(() => repondre(e, +o.dataset.o), 350); } // un double appui ne répond pas à la question suivante
     if (!a) return;
     const act = a.dataset.a;
     if (act === 'partir') { M.nom = document.getElementById('nom').value.trim().slice(0, 24); M.parti = true; aller(M.i); }
     if (act === 'suite') aller(M.i + 1);
     if (act === 'voir') { a.disabled = true; montrer(e); }
+    if (act === 'multi') { const v = [...app.querySelectorAll('[data-o].on')].map(b => +b.dataset.o); if (v.length) repondre(e, v); }
     if (act === 'texte') { const v = document.getElementById('txt').value.trim(); if (v) repondre(e, v); }
     if (act === 'autre') { const file = M.file; M = neuf(); M.file = file; garder(); dessiner(); }
   });
