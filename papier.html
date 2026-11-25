@@ -50,6 +50,8 @@ h1{margin:0;font-size:34px;line-height:.95;font-weight:800;letter-spacing:-.045e
 .scan .deux{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .scan canvas{width:100%;border-radius:14px;cursor:pointer;display:block;background:var(--fond)}
 .scan .etat{font-weight:700}
+.scan .regl{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.scan .regl b{margin-right:6px}
+.scan .textes{display:flex;flex-direction:column;gap:14px}.scan .textes img{width:100%;border-radius:10px;border:1px solid #ddd}.scan .textes span{font-weight:400}
 .scan ol{margin:0;padding-left:1.3em;color:var(--gris);font-size:15px}
 @media print{body{background:#fff}nav,.trop{display:none!important}#vue{padding:0;gap:0;display:block}.page{box-shadow:none;break-after:page;width:auto;min-height:0}.page.fiche{height:420mm;width:297mm}.page.diapo{width:297mm;height:210mm}}
 </style>
@@ -158,32 +160,50 @@ function lireImage(source, Q) { // source : image ou canevas ; renvoie les ronds
   const px = x.getImageData(0, 0, c.width, c.height).data, W = c.width, H = c.height, gris = new Uint8Array(W * H);
   for (let i = 0; i < W * H; i++) gris[i] = (px[i * 4] * 3 + px[i * 4 + 1] * 6 + px[i * 4 + 2]) / 10;
   const Hm = homographie(REPERES, trouverReperes(gris, W, H)), G = geometrie(Q);
-  const noir = ([mx, my]) => { const [u, v] = Hm(mx, my), [u2, v2] = Hm(mx + RAYON, my), r = Math.max(2, Math.hypot(u2 - u, v2 - v) * .62); let s = 0, n = 0; // noirceur moyenne au cœur du rond
+  const L = { image: c, G, dx: 0, dy: 0, txt: {} }; L.H = (mx, my) => Hm(mx + L.dx, my + L.dy);
+  const noir = ([mx, my]) => { const [u, v] = L.H(mx, my), [u2, v2] = L.H(mx + RAYON, my), r = Math.max(2, Math.hypot(u2 - u, v2 - v) * .62); let s = 0, n = 0; // noirceur moyenne au cœur du rond
     for (let y = Math.round(v - r); y <= v + r; y++) for (let xx = Math.round(u - r); xx <= u + r; xx++) { if (xx < 0 || y < 0 || xx >= W || y >= H || (xx - u) ** 2 + (y - v) ** 2 > r * r) continue; s += 255 - gris[y * W + xx]; n++; } return n ? s / n : 0; };
-  const scores = G.map(g => g.ronds.map(noir)), tous = scores.flat().sort((a, b) => a - b), base = tous[Math.floor(tous.length / 2)] || 0, seuil = Math.max(base * 1.7, base + 28); // un rond vide sert de référence
-  const coche = scores.map((l, i) => { const m = l.map(v => v > seuil); if (G[i].e.t !== 'multi' && m.filter(Boolean).length > 1) { const top = l.indexOf(Math.max(...l)); return l.map((_, j) => j === top); } return m; });
-  return { image: c, G, coche, H: Hm };
+  L.relire = () => { // relit tous les ronds là où la grille se trouve maintenant
+    const scores = G.map(g => g.ronds.map(noir)), tous = scores.flat().sort((a, b) => a - b), base = tous[Math.floor(tous.length / 2)] || 0, seuil = Math.max(base * 1.7, base + 28); // un rond vide sert de référence
+    L.coche = scores.map((l, i) => { const m = l.map(v => v > seuil); if (G[i].e.t !== 'multi' && m.filter(Boolean).length > 1) { const top = l.indexOf(Math.max(...l)); return l.map((_, j) => j === top); } return m; });
+  };
+  L.relire(); return L;
 }
 function tracer() { // la photo, avec un cercle sur chaque rond : plein = lu comme coché
   const c = $('photo'), x = c.getContext('2d'); c.width = lu.image.width; c.height = lu.image.height; x.drawImage(lu.image, 0, 0);
   lu.G.forEach((g, i) => g.ronds.forEach((p, j) => { const [u, v] = lu.H(p[0], p[1]), [u2, v2] = lu.H(p[0] + RAYON, p[1]), r = Math.hypot(u2 - u, v2 - v) * 1.25;
     x.beginPath(); x.arc(u, v, r, 0, 7); x.lineWidth = lu.coche[i][j] ? Math.max(3, r * .35) : 1; x.strokeStyle = lu.coche[i][j] ? '#1F6FE0' : 'rgba(20,20,20,.25)'; x.stroke(); }));
-  const n = lu.coche.filter(l => l.some(Boolean)).length;
-  $('etat').textContent = `${n} question${n > 1 ? 's' : ''} lue${n > 1 ? 's' : ''} sur ${lu.G.length}. Les ronds lus comme cochés sont entourés en bleu : cliquez sur un rond pour corriger.`;
+  const n = lu.coche.filter((l, i) => l.some(Boolean) || (lu.txt[i] || '').trim()).length;
+  $('etat').textContent = `${n} question${n > 1 ? 's' : ''} lue${n > 1 ? 's' : ''} sur ${lu.G.length}. Les ronds lus comme cochés sont entourés en bleu. Cliquez sur un rond vide pour l'ajouter, sur un rond bleu pour le retirer. Si les cercles ne tombent pas sur les ronds, décalez-les avec les flèches.`;
   $('envoyer').disabled = !n;
+}
+// les avis libres : la machine ne lit pas l'écriture à la main. On montre le morceau de photo, et on recopie à côté.
+// shortcut: pas de lecture automatique de l'écriture (il faudrait envoyer la photo à un service extérieur, alors que la page promet de ne l'envoyer nulle part) ; à revoir si l'équipe l'accepte.
+function zonesTexte() {
+  const z = $('textes'); if (!z) return;
+  z.innerHTML = lu.G.map((g, i) => { if (g.e.t !== 'texte') return '';
+    const coins = [[g.x + 8, g.y + g.h - 17], [g.x + LCOL - 7, g.y + g.h - 17], [g.x + 8, g.y + g.h - 1], [g.x + LCOL - 7, g.y + g.h - 1]].map(([x, y]) => lu.H(x, y));
+    const x0 = Math.max(0, Math.min(...coins.map(q => q[0]))), y0 = Math.max(0, Math.min(...coins.map(q => q[1]))), w = Math.max(...coins.map(q => q[0])) - x0, hh = Math.max(...coins.map(q => q[1])) - y0;
+    const c = document.createElement('canvas'); c.width = Math.max(1, Math.round(w)); c.height = Math.max(1, Math.round(hh)); c.getContext('2d').drawImage(lu.image, x0, y0, w, hh, 0, 0, c.width, c.height);
+    return `<label><span><b>${g.e.n}.</b> ${h(g.e.q)}</span><img src="${c.toDataURL('image/jpeg', .8)}" alt="Ce que la personne a écrit pour la question ${g.e.n}"><input type="text" data-txt="${i}" maxlength="200" placeholder="Recopiez ici ce qui est écrit (laissez vide si rien)" value="${h(lu.txt[i] || '')}"></label>`; }).join('');
+  z.hidden = !z.innerHTML;
 }
 function lignes() { // les réponses lues, au même format que celles des téléphones
   const qui = 'S' + ($('seance').value.trim().toLowerCase().replace(/[^a-z0-9]/g, '') || 'papier') + '-P' + (Math.max(1, Math.floor(+$('numero').value)) || 1);
-  return lu.G.map((g, i) => { const e = g.e, m = lu.coche[i].map((b, j) => b ? j : -1).filter(j => j >= 0); if (!m.length) return null;
+  return lu.G.map((g, i) => { const e = g.e, m = lu.coche[i].map((b, j) => b ? j : -1).filter(j => j >= 0), ecrit = (lu.txt[i] || '').replace(/\s+/g, ' ').trim().slice(0, 200);
+    if (e.t === 'texte') return ecrit ? [qui, '', groupe(e), e.q, ecrit, '', VERSION] : null;
+    if (!m.length) return null;
     return [qui, '', groupe(e), e.q, e.t === 'echelle' ? `${m[0] + 1} sur 5` : m.map(j => e.o[j]).join(' | '), e.t === 'echelle' ? m[0] + 1 : '', VERSION]; }).filter(Boolean);
 }
 function vueLire() {
   return `<div class="scan"><h1>Photographier les fiches</h1>
-    <ol><li>Posez la fiche A3 remplie bien à plat, sous une bonne lumière.</li><li>Photographiez-la de face, en entier : les quatre carrés noirs doivent être visibles.</li><li>Vérifiez les ronds entourés en bleu, corrigez d'un clic, puis enregistrez : les réponses rejoignent « Étudier les données ».</li></ol>
+    <ol><li>Posez la fiche A3 remplie bien à plat, sous une bonne lumière.</li><li>Photographiez-la de face, en entier : les quatre carrés noirs doivent être visibles.</li><li>Vérifiez les ronds entourés en bleu : un clic ajoute ou retire un rond, les flèches décalent tous les cercles s'ils sont à côté.</li><li>Recopiez les réponses écrites à la main, affichées sous la photo, puis enregistrez : les réponses rejoignent « Étudier les données ».</li></ol>
     <div class="deux"><label>Séance<input type="text" id="seance" value="${h(new URLSearchParams(location.search).get('seance') || 'papier')}" maxlength="12"></label><label>Participant n°<input type="number" id="numero" value="1" min="1"></label></div>
     <label class="btn noir" style="align-self:flex-start">Photographier ou choisir une photo<input type="file" accept="image/*" capture="environment" hidden id="fichier"></label>
     <p class="etat" id="etat">Aucune photo pour l'instant. La lecture se fait dans ce navigateur, la photo n'est envoyée nulle part.</p>
     <canvas id="photo" width="10" height="10" hidden></canvas>
+    <div class="regl" id="regl" hidden><b>Décaler les cercles</b><button class="btn" data-d="-1,0" aria-label="Vers la gauche">←</button><button class="btn" data-d="0,-1" aria-label="Vers le haut">↑</button><button class="btn" data-d="0,1" aria-label="Vers le bas">↓</button><button class="btn" data-d="1,0" aria-label="Vers la droite">→</button><button class="btn" data-d="0">Remettre en place</button><button class="btn" id="vider">Tout décocher</button></div>
+    <div class="textes" id="textes" hidden></div>
     <button class="btn noir" id="envoyer" disabled style="align-self:flex-start">Enregistrer dans le Google Sheet</button></div>`;
 }
 
@@ -202,9 +222,10 @@ $('imprimer').addEventListener('click', () => print());
 $('vue').addEventListener('change', ev => {
   if (ev.target.id !== 'fichier' || !ev.target.files[0]) return;
   const img = new Image(); $('etat').textContent = 'Lecture de la photo…';
-  img.onload = () => { try { lu = lireImage(img, QUESTIONS()); $('photo').hidden = false; tracer(); } catch (err) { lu = null; $('photo').hidden = true; $('envoyer').disabled = true; $('etat').textContent = "Je ne trouve pas les quatre carrés noirs. Reprenez la photo de face, avec toute la fiche dans l'image et sans ombre forte."; } };
+  img.onload = () => { try { lu = lireImage(img, QUESTIONS()); $('photo').hidden = false; $('regl').hidden = false; tracer(); zonesTexte(); } catch (err) { lu = null; $('photo').hidden = true; $('regl').hidden = true; $('textes').hidden = true; $('envoyer').disabled = true; $('etat').textContent = "Je ne trouve pas les quatre carrés noirs. Reprenez la photo de face, avec toute la fiche dans l'image et sans ombre forte."; } };
   img.src = URL.createObjectURL(ev.target.files[0]); ev.target.value = '';
 });
+$('vue').addEventListener('input', ev => { const i = ev.target.dataset.txt; if (i != null && lu) { lu.txt[i] = ev.target.value; tracer(); } }); // ce qu'on recopie d'une réponse écrite
 $('vue').addEventListener('click', ev => {
   if (ev.target.id === 'photo' && lu) { // un clic sur un rond inverse sa lecture
     const c = ev.target, b = c.getBoundingClientRect(), u = (ev.clientX - b.left) * c.width / b.width, v = (ev.clientY - b.top) * c.height / b.height; let mieux = null, dm = 1e9;
@@ -212,10 +233,13 @@ $('vue').addEventListener('click', ev => {
     const [x1, y1] = lu.H(lu.G[0].ronds[0][0], lu.G[0].ronds[0][1]), [x2, y2] = lu.H(lu.G[0].ronds[0][0] + RAYON * 2, lu.G[0].ronds[0][1]);
     if (mieux && dm < Math.hypot(x2 - x1, y2 - y1)) { const [i, j] = mieux, coche = !lu.coche[i][j]; if (coche && lu.G[i].e.t !== 'multi') lu.coche[i] = lu.coche[i].map(() => false); lu.coche[i][j] = coche; tracer(); }
   }
+  const dec = ev.target.closest('[data-d]'); if (dec && lu) { // décaler toute la grille d'un millimètre, puis relire les ronds à leur nouvelle place
+    const [x, y] = dec.dataset.d.split(',').map(Number); if (y == null) { lu.dx = lu.dy = 0; } else { lu.dx += x; lu.dy += y; } lu.relire(); tracer(); zonesTexte(); }
+  if (ev.target.id === 'vider' && lu) { lu.coche = lu.coche.map(l => l.map(() => false)); tracer(); }
   if (ev.target.id === 'envoyer' && lu) {
     const L = lignes(); ev.target.disabled = true; $('etat').textContent = 'Enregistrement…'; declarerVersion();
     fetch(SCRIPT_GOOGLE, { method: 'POST', mode: 'no-cors', body: JSON.stringify(L) })
-      .then(() => { journal('Fiche photographiée', `séance ${$('seance').value} · participant ${$('numero').value} · ${L.length} réponses`); $('etat').textContent = `${L.length} réponses enregistrées pour le participant ${$('numero').value}. Passez à la fiche suivante.`; $('numero').value = +$('numero').value + 1; lu = null; $('photo').hidden = true; })
+      .then(() => { journal('Fiche photographiée', `séance ${$('seance').value} · participant ${$('numero').value} · ${L.length} réponses`); $('etat').textContent = `${L.length} réponses enregistrées pour le participant ${$('numero').value}. Passez à la fiche suivante.`; $('numero').value = +$('numero').value + 1; lu = null; $('photo').hidden = true; $('regl').hidden = true; $('textes').hidden = true; })
       .catch(() => { ev.target.disabled = false; $('etat').textContent = "Pas enregistré : vérifiez la connexion internet, puis réessayez."; });
   }
 });
