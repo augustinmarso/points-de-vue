@@ -62,6 +62,8 @@ test = Vous en souviendrez-vous demain ? | Sûrement pas | Sûrement
 
 [accueil]
 
+[texte] Avant de commencer | Votre regard va servir | Aujourd'hui, vous testez des affiches de santé de Granville Terre et Mer. Grâce à vos réponses, elles seront plus claires : vous trouverez plus vite les ateliers, les dates et les aides près de chez vous. Il n'y a pas de bonne ou de mauvaise réponse : si quelque chose n'est pas clair, c'est l'affiche qui est en cause, pas vous.
+
 [texte] Pour commencer | Le jeu de l'œil | Une affiche apparaît 5 secondes. Ensuite, quelques questions très précises. Si peu de monde trouve, c'est l'affiche qui manque de clarté, pas vous.
 
 [5 secondes] affiches/lumeen.jpg | 8 s
@@ -92,7 +94,7 @@ affiche : affiches/lumeen.jpg
 [texte] Le jeu de l'œil | Deuxième affiche | Même principe : 5 secondes, puis des questions précises.
 masqué : oui
 
-[5 secondes] affiches/memoire.jpg
+[5 secondes] affiches/memoire.jpg | 8 s
 masqué : oui
 
 [jeu] Quel est le sujet de la conférence ?
@@ -133,6 +135,7 @@ affiche : affiches/origine.jpg
 - Faire un dépistage ou un bilan
 - M'inscrire quelque part
 - Je ne vois pas
+téléphone : sans affiche
 
 [question] À votre avis, à qui s'adresse-t-elle ?
 étape : 1
@@ -143,16 +146,9 @@ affiche : affiches/origine.jpg
 - Aux jeunes
 - Aux professionnels
 - Difficile à dire
+téléphone : sans affiche
 
-[question] Qui organise l'evenement ?
-étape : 1
-réponses : une
-affiche : affiches/origine.jpg
-- Granville terre et mer
-- Réponse 3
-masqué : oui
-
-[zones] Dans quelle partie y a-t-il des mots que vous ne comprenez pas ?
+[zones] Quelle partie est la plus difficile à lire ?
 étape : 1
 réponses : plusieurs
 affiche : affiches/origine.jpg
@@ -162,27 +158,15 @@ affiche : affiches/origine.jpg
 - Les dates et les lieux @ 2 70 95 15
 - Les logos @ 10 86 81 11
 
-[zones] Où votre regard s'est-il posé en premier ?
+[question] Après l'avoir vue, comment vous sentez-vous ?
 étape : 1
 réponses : une
 affiche : affiches/origine.jpg
-- Le titre @ 16 3 67 17
-- Les ateliers et le dessin @ 4 21 92 41
-- Gratuit, animé par @ 8 62 84 8
-- Les dates et les lieux @ 2 70 95 15
-- Les logos @ 10 86 81 11
-
-[question] Que ressentez-vous en regardant cette affiche ?
-étape : 1
-réponses : plusieurs
-affiche : affiches/origine.jpg
-- De la curiosité
-- De la confiance
-- De l'envie d'y aller
-- De la surprise
-- De l'inquiétude
-- De l'indifférence
-- De la confusion
+- Rassuré
+- Motivé
+- Ni l'un ni l'autre
+- Inquiet
+- Perdu
 
 [étape 2]
 
@@ -198,6 +182,17 @@ affiche : affiches/origine.jpg
 - Du texte posé sur l'image
 - Un manque de contraste
 - Rien, tout est clair
+téléphone : sans affiche
+
+[zones] Où votre regard s'est-il posé en premier ?
+étape : 2
+réponses : une
+affiche : affiches/origine.jpg
+- Le titre @ 16 3 67 17
+- Les ateliers et le dessin @ 4 21 92 41
+- Gratuit, animé par @ 8 62 84 8
+- Les dates et les lieux @ 2 70 95 15
+- Les logos @ 10 86 81 11
 
 [a ou b] Sur laquelle le titre se détache-t-il le mieux ?
 étape : 2
@@ -217,6 +212,20 @@ précision : Une version chargée, puis une version allégée.
 affiche a : affiches/origine-refaite.jpg
 affiche b : affiches/origine-allegee.jpg
 
+[question] Que vous évoque l'image de cette affiche ?
+étape : 2
+réponses : plusieurs
+affiche : affiches/origine.jpg
+- La convivialité
+- Le travail en groupe
+- Le sérieux
+- La santé
+- L'école
+- La fête
+- Autre chose que le sujet
+- Rien de précis
+téléphone : sans affiche
+
 [a ou b] Sur laquelle trouvez-vous la date le plus vite ?
 étape : 2
 précision : La date d'origine, la date en plus gros, puis la date tout en haut.
@@ -231,29 +240,6 @@ affiche a : affiches/origine-refaite.jpg
 affiche b : affiches/origine-une-couleur.jpg
 affiche c : affiches/origine-fond-fonce.jpg
 
-[question] Que vous évoque l'image de cette affiche ?
-étape : 2
-réponses : plusieurs
-affiche : affiches/origine.jpg
-- La convivialité
-- Le travail en groupe
-- Le sérieux
-- La santé
-- L'école
-- La fête
-- Autre chose que le sujet
-- Rien de précis
-
-[question] Après l'avoir vue, comment vous sentez-vous ?
-étape : 2
-réponses : une
-affiche : affiches/origine.jpg
-- Rassuré
-- Motivé
-- Ni l'un ni l'autre
-- Inquiet
-- Perdu
-
 [note] Les couleurs vont-elles avec le sujet ?
 étape : 2
 affiche : affiches/origine.jpg
@@ -264,32 +250,12 @@ de : Pas du tout
 étape : 2
 affiche : affiches/origine.jpg
 
-[zones] Quelle partie est la plus difficile à lire ?
-étape : 2
-réponses : plusieurs
-affiche : affiches/origine.jpg
-- Le titre @ 16 3 67 17
-- Les ateliers et le dessin @ 4 21 92 41
-- Gratuit, animé par @ 8 62 84 8
-- Les dates et les lieux @ 2 70 95 15
-- Les logos @ 10 86 81 11
-
-[zones] Quelle partie changeriez-vous en premier ?
-étape : 2
-réponses : une
-affiche : affiches/origine.jpg
-- Le titre @ 16 3 67 17
-- Les ateliers et le dessin @ 4 21 92 41
-- Gratuit, animé par @ 8 62 84 8
-- Les dates et les lieux @ 2 70 95 15
-- Les logos @ 10 86 81 11
-
 [étape 3]
 
 [question] Où auriez-vous une chance de croiser cette information ?
 étape : 3
-affiche : affiches/origine.jpg
 réponses : plusieurs
+affiche : affiches/origine.jpg
 - Salle d'attente
 - Pharmacie
 - Mairie
@@ -299,6 +265,7 @@ réponses : plusieurs
 - Boîte aux lettres
 - Journal local
 - Réseaux sociaux
+téléphone : sans affiche
 
 [question] Sous quelle forme vous serait-elle la plus utile ?
 étape : 3
@@ -309,6 +276,8 @@ affiche : affiches/origine.jpg
 - Flyer à emporter (A5)
 - Message sur le téléphone
 - De vive voix
+- Dans la presse
+téléphone : sans affiche
 
 [question] Ce flyer, l'emporteriez-vous avec vous ?
 étape : 3
