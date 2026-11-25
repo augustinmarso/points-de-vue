@@ -323,7 +323,7 @@ function parties() {
 const visibles = () => { const P = parties(); return M.ecrans.map((_, i) => i).filter(i => !fermes.has(P[i])); };
 function liste() {
   let n = 0, x = ''; const P = parties(), dossiers = [...new Set(P)].filter(p => NOM_PARTIE[p]).length > 1;
-  if (sel !== selVu) { fermes.delete(P[sel]); selVu = sel; } // le dossier de l'écran qu'on vient de choisir s'ouvre
+  const bouge = sel !== selVu; if (bouge) { fermes.delete(P[sel]); selVu = sel; } // le dossier de l'écran qu'on vient de choisir s'ouvre
   const mots = simple(filtre).trim(), foc = document.activeElement && document.activeElement.id === 'cherche';
   const carte = (e, i) => (e.masque || ++n, mots && !simple(TITRE(e) + ' ' + TYPE(e) + ' ' + (e.o || []).join(' ')).includes(mots)) ? '' : (`<li data-i="${i}" draggable="${!fixe(i)}" class="${i === sel ? 'sel' : ''}${e.masque ? ' masque' : ''}" style="--c:${COUL(e)}">
     <span class="num">${e.masque ? '–' : n}</span><span class="mini${e.t === 'phase' ? ' plein' : ''}" style="--t:${e.p ? `var(--t${e.p})` : 'var(--fond)'}"><span class="tx"><small>${ICONE(e)} ${h(TYPE(e))}${e.masque ? ' · masqué' : ''}</small><b>${h(TITRE(e))}</b></span><span class="ims">${[e.img, ...(e.imgs || [])].filter(Boolean).slice(0, 4).map(s => `<img src="${h(s)}" alt="" loading="lazy">`).join('')}</span></span>
@@ -338,6 +338,7 @@ function liste() {
   }
   $('liste').innerHTML = `<li class="ajout"><button type="button" class="btn" data-a="nouveau">+ Ajouter un écran</button><input type="search" id="cherche" placeholder="Chercher un écran…" aria-label="Chercher un écran" value="${h(filtre)}"></li>` + (x || '<li class="dossier"><span class="nom">Aucun écran ne contient ces mots.</span></li>');
   if (foc) { const c = $('cherche'); c.focus(); c.setSelectionRange(c.value.length, c.value.length); }
+  if (bouge && !mots) { const li = $('liste').querySelector(`[data-i="${sel}"]`); if (li) li.scrollIntoView({ block: 'center' }); } // l'écran choisi revient au milieu de la liste ; ensuite on fait défiler librement
 }
 const rangeable = e => ['info', 'choix', 'multi', 'echelle', 'ab', 'texte'].includes(e.t) && !e.jeu; // les écrans qui peuvent changer d'étape
 function deplacer(de, vers, p = (M.ecrans[vers] || {}).p) { // jamais avant la salle d'attente ni après la fin ; l'écran prend l'étape (le dossier) de celui sur lequel on le pose
@@ -346,7 +347,7 @@ function deplacer(de, vers, p = (M.ecrans[vers] || {}).p) { // jamais avant la s
   vers = Math.max(M.ecrans[0].t === 'accueil' ? 1 : 0, Math.min(M.ecrans.length - (M.ecrans[M.ecrans.length - 1].t === 'fin' ? 2 : 1), vers));
   if (vers === de) return;
   const [e] = M.ecrans.splice(de, 1); M.ecrans.splice(vers, 0, e); sel = vers; liste(); zone(); change();
-  const li = $('liste').querySelector(`[data-i="${sel}"]`); if (li) li.scrollIntoView({ block: 'nearest' });
+  const li = $('liste').querySelector(`[data-i="${sel}"]`); if (li) li.scrollIntoView({ block: 'center' });
 }
 
 // un texte de l'écran, modifiable sur place : k = le champ (ou le numéro de la réponse)
