@@ -149,7 +149,7 @@ function tracer() {
 tracer();
 cadre.addEventListener('load', () => { try { const t = new URL(cadre.contentWindow.location.href).searchParams.get('test') || '', k = PROSPECTUS.findIndex(p => p[0] === t); if (k >= 0 && k !== rang) { rang = k; tracer(); } } catch (e) { /* cadre parti ailleurs : le chemin reste où il est */ } });
 // la séance d'une heure (un seul test pour les trois affiches) : c'est le test lui-même qui dit quelle affiche est en cours
-addEventListener('message', ev => { if (ev.origin !== location.origin || ev.source !== cadre.contentWindow || !(ev.data && ev.data.pdvAffiche >= 1)) return; const k = Math.min(PROSPECTUS.length, ev.data.pdvAffiche) - 1; if (k !== rang) { rang = k; tracer(); } });
+addEventListener('message', ev => { if (ev.origin !== location.origin || ev.source !== cadre.contentWindow || !(ev.data && ev.data.pdvAffiche >= 1)) return; const k = Math.min(PROSPECTUS.length, Math.ceil(ev.data.pdvAffiche / 3)) - 1; /* shortcut: trois parties par affiche, comme dans la fusion (tests-affiches.js) */ if (k !== rang) { rang = k; tracer(); } });
 // regarder un prospectus en grand, puis revenir : le test n'est pas rechargé
 chemin.addEventListener('click', ev => { const b = ev.target.closest('[data-k]'); if (!b) return; const [, image, nom] = PROSPECTUS[+b.dataset.k];
   grand.querySelector('img').src = image; grand.querySelector('img').alt = 'Le prospectus : ' + nom; grand.querySelector('b').textContent = `Prospectus ${+b.dataset.k + 1} sur 3 · ${nom}`; grand.hidden = false; document.getElementById('revenir').focus(); });

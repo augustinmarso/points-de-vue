@@ -121,7 +121,7 @@ article .n{color:var(--gris);font-size:15px;margin:4px 0 12px}
 // et les présente dans l'ordre de la séance (seance.txt). Outils : choix d'une séance, comparaison de deux séances,
 // points à retenir calculés, recherche, tri par accord. Mise à jour toutes les 20 secondes.
 const SOURCE = 'https://script.google.com/macros/s/AKfycbzPof8sEj8tZLlA-MtVDYyODv32y8lXxc9hLVmaW5zCvHLilyRIxpk4Ix6TPhzJczjn/exec?vue=resultats';
-const COUL = { 'Étape 1': '#F5A0C6', 'Étape 2': '#F7C33B', 'Étape 3': '#1F6FE0', 'Étape 4': '#7BD3A8', 'Étape 5': '#B79CF2', 'Étape 6': '#FF9A6B' };
+const COUL = { 'Étape 1': '#F5A0C6', 'Étape 2': '#F7C33B', 'Étape 3': '#1F6FE0', 'Étape 4': '#F5A0C6', 'Étape 5': '#F7C33B', 'Étape 6': '#1F6FE0', 'Étape 7': '#F5A0C6', 'Étape 8': '#F7C33B', 'Étape 9': '#1F6FE0' };
 const h = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])).replace(/ ([?!:;»])/g, '&nbsp;$1').replace(/« /g, '«&nbsp;');
 const TEINTES = ['#F5A0C6', '#F7C33B', '#1F6FE0', '#7BD3A8', '#B79CF2', '#FF9A6B', '#5BC0DE', '#C2185B', '#B5AAA1', '#C9B037']; // un cercle par réponse : d'abord les trois couleurs de l'identité
 const fr = (x, d = 1) => x.toFixed(d).replace('.', ','), pc = x => Math.round(x * 100) + ' %';

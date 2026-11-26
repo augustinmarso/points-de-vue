@@ -12,7 +12,7 @@
 #   [5 secondes] image     une affiche montrée 5 secondes   (ajoutez « | étape 1 » pour la rattacher à une étape)
 #   [jeu] question         question avec une bonne réponse : « + » devant la bonne, « - » devant les autres
 #   [scores]               les réussites de chacun au jeu
-#   [étape 1]              l'écran de titre d'une étape (de 1 à 6)
+#   [étape 1]              l'écran de titre d'une étape (de 1 à 9)
 #   [question] question    question à choix : « - » devant chaque réponse
 #                          ligne « réponses : une » ou « réponses : plusieurs »
 #   [note] question        note de 1 à 5, avec les lignes « de : » et « à : »

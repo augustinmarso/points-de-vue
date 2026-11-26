@@ -338,7 +338,7 @@ const OEIL = ferme => `<svg viewBox="0 0 24 24" width="18" height="18" fill="non
 // les dossiers : dans la liste, chaque partie de la séance (le jeu, chaque étape, l'atelier) est un dossier qui s'ouvre et se referme. Un écran sans partie suit celle de l'écran d'après.
 const fermes = new Set(); let selVu = -1, filtre = '';
 const simple = x => String(x).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
-const NOM_PARTIE = { jeu: "Jeu de l'œil", atelier: 'Atelier', 1: 'Étape 1', 2: 'Étape 2', 3: 'Étape 3', 4: 'Étape 4', 5: 'Étape 5', 6: 'Étape 6' };
+const NOM_PARTIE = { jeu: "Jeu de l'œil", atelier: 'Atelier', 1: 'Étape 1', 2: 'Étape 2', 3: 'Étape 3', 4: 'Étape 4', 5: 'Étape 5', 6: 'Étape 6', 7: 'Étape 7', 8: 'Étape 8', 9: 'Étape 9' };
 function parties() {
   const P = M.ecrans.map(e => e.p || (e.jeu ? 'jeu' : ['mission', 'photo', 'vote', 'palmares'].includes(e.t) ? 'atelier' : 0));
   M.ecrans.forEach((e, i) => { if (e.t === 'scores') P[i] = (i && P[i - 1]) || 'jeu'; }); // les scores restent dans la partie des questions du jeu qui les précèdent
@@ -356,14 +356,14 @@ function liste() {
   const bouge = sel !== selVu; if (bouge) { fermes.delete(P[sel]); selVu = sel; } // le dossier de l'écran qu'on vient de choisir s'ouvre
   const mots = simple(filtre).trim(), foc = document.activeElement && document.activeElement.id === 'cherche';
   const carte = (e, i) => (e.masque || ++n, mots && !simple(TITRE(e) + ' ' + TYPE(e) + ' ' + (e.o || []).join(' ')).includes(mots)) ? '' : (`<li data-i="${i}" draggable="${!fixe(i)}" class="${i === sel ? 'sel' : ''}${e.masque ? ' masque' : ''}" style="--c:${COUL(e)}">
-    <span class="num">${e.masque ? '–' : n}</span><span class="mini${e.t === 'phase' ? ' plein' : ''}" style="--t:${e.p ? `var(--t${e.p})` : 'var(--fond)'}"><span class="tx"><small>${ICONE(e)} ${h(TYPE(e))}${e.masque ? ' · masqué' : ''}</small><b>${h(TITRE(e))}</b></span><span class="ims">${[e.img, ...(e.imgs || [])].filter(Boolean).slice(0, 4).map(s => `<img src="${h(s)}" alt="" loading="lazy">`).join('')}</span></span>
+    <span class="num">${e.masque ? '–' : n}</span><span class="mini${e.t === 'phase' ? ' plein' : ''}" style="--t:${e.p ? `var(--t${(e.p - 1) % 3 + 1})` : 'var(--fond)'}"><span class="tx"><small>${ICONE(e)} ${h(TYPE(e))}${e.masque ? ' · masqué' : ''}</small><b>${h(TITRE(e))}</b></span><span class="ims">${[e.img, ...(e.imgs || [])].filter(Boolean).slice(0, 4).map(s => `<img src="${h(s)}" alt="" loading="lazy">`).join('')}</span></span>
     ${fixe(i) ? '' : `<button type="button" class="oeil" data-oeil aria-pressed="${!!e.masque}" aria-label="${e.masque ? 'Montrer cet écran pendant la séance' : 'Masquer cet écran pendant la séance'}" title="${e.masque ? 'Écran masqué : cliquer pour le montrer' : 'Masquer cet écran pendant la séance'}">${OEIL(e.masque)}</button>`}${e.masque ? '<span class="etq">Masqué</span>' : ''}<span class="mv"><button data-m="-1" aria-label="Monter" title="Monter cet écran" ${fixe(i) || fixe(i - 1) || i === 0 ? 'disabled' : ''}>↑</button><button data-m="1" aria-label="Descendre" title="Descendre cet écran" ${fixe(i) || fixe(i + 1) || i === M.ecrans.length - 1 ? 'disabled' : ''}>↓</button></span></li>`);
   for (let i = 0, j; i < M.ecrans.length; i = j) { // une partie = une suite d'écrans, rangée dans son dossier
     const p = P[i]; for (j = i; j < M.ecrans.length && P[j] === p; j++);
     const cartes = () => M.ecrans.slice(i, j).map((e, k) => carte(e, i + k)).join(''), ferme = !mots && fermes.has(p);
     if (!dossiers || !NOM_PARTIE[p]) { x += cartes(); continue; }
     if (ferme) M.ecrans.slice(i, j).forEach(e => e.masque || ++n); // les numéros continuent après un dossier fermé
-    x += `<li class="dossier${ferme ? ' ferme' : ''}" data-fin="${j - 1}" data-p="${p > 0 ? p : ''}" style="--c:${p > 0 ? `var(--c${p})` : '#2B1B12'};--f:${p > 0 && p != 3 ? '#2B1B12' : '#fff'}"><span class="nom">${p > 0 ? `<small>${NOM_PARTIE[p]} · </small><span contenteditable="plaintext-only" spellcheck="false" role="textbox" aria-label="Nom de l'étape ${p}" title="Cliquer pour changer le nom de l'étape" data-ph="${p}">${h(M.phases[p].nom)}</span>` : NOM_PARTIE[p]}</span>
+    x += `<li class="dossier${ferme ? ' ferme' : ''}" data-fin="${j - 1}" data-p="${p > 0 ? p : ''}" style="--c:${p > 0 ? `var(--c${(p - 1) % 3 + 1})` : '#2B1B12'};--f:${p > 0 && p != 3 ? '#2B1B12' : '#fff'}"><span class="nom">${p > 0 ? `<small>${NOM_PARTIE[p]} · </small><span contenteditable="plaintext-only" spellcheck="false" role="textbox" aria-label="Nom de l'étape ${p}" title="Cliquer pour changer le nom de l'étape" data-ph="${p}">${h(M.phases[p].nom)}</span>` : NOM_PARTIE[p]}</span>
       <div class="chemise"><button type="button" data-og="${p}" aria-expanded="${!ferme}" aria-label="${ferme ? 'Ouvrir' : 'Refermer'} le dossier ${NOM_PARTIE[p]}, ${j - i} écrans" title="${ferme ? 'Ouvrir ce dossier' : 'Refermer ce dossier'}">${j - i} écran${j - i > 1 ? 's' : ''} ${ferme ? '▸' : '▾'}</button>${ferme ? '' : `<ol class="dedans">${cartes()}</ol>`}</div></li>`;
   }
   const rang = CARNETS.indexOf(TEST), serie = rang >= 0 && CARNETS.every(id => TESTS_CONNUS.some(t => t.id === id)); // la séance à trois carnets : les trois apparaissent dans la colonne, dans l'ordre
@@ -842,7 +842,7 @@ $('nouveau').addEventListener('click', ev => {
   const m = MODELES[+b.dataset.n][2]; $('nouveau').close();
   if (m === 'affiche') { cible = 'parcours'; return galerie(); } // d'abord choisir (ou ajouter) l'affiche
   if (m === 'etape') {
-    const p = [1, 2, 3, 4, 5, 6].find(n => !M.ecrans.some(e => e.t === 'phase' && e.p === n)); if (!p) return alert('Une séance compte 6 étapes au plus.');
+    const p = [1, 2, 3, 4, 5, 6, 7, 8, 9].find(n => !M.ecrans.some(e => e.t === 'phase' && e.p === n)); if (!p) return alert('Une séance compte 9 étapes au plus.');
     if (!M.phases[p]) M.phases[p] = { nom: 'Nouvelle étape', quoi: "La phrase d'explication de l'étape." };
     let ou = M.ecrans.length; while (ou > 1 && ['mission', 'photo', 'vote', 'palmares', 'fin'].includes(M.ecrans[ou - 1].t)) ou--;
     M.ecrans.splice(ou, 0, { t: 'phase', p }); sel = ou; liste(); zone(); change(); document.body.classList.add('detail');
