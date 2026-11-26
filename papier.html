@@ -140,7 +140,6 @@ function fiche(Q, carnet = 1, affiche = '') {
   <svg viewBox="0 0 420 297" xmlns="http://www.w3.org/2000/svg" font-family="'Scoutie Sans',Helvetica,Arial,sans-serif" fill="#151515">
     ${FOND}
     ${T(117, 263.9, 'Votre affiche est en cours de Fabrication', 'font-size="3.3"')}${T(117, 267.8, 'Nous avons besoin de votre aide !', 'font-size="3.3"')}${T(379.6 + RECUL, 278.4, 'Débattons !', 'font-size="4.04" font-weight="700"')}
-    ${T(111.6, 238, 'Carnet ' + carnet + ' sur 3 · Séance : ' + (EXEMPLE ? 'essai' : '..............') + ' · N° : ' + (EXEMPLE ? '1' : '........'), 'font-size="3.3" font-weight="700"')}
     ${[[1, 315], [2, 210]].map(([k, cx]) => `<g transform="rotate(180 ${cx} 148.5)"><g transform="translate(${RECUL} 0)"><path d="${LIVRET_BULLE}" fill="${COULEURS[k]}"/>${parleur(COULEURS[k])}</g>${T(379.6 + RECUL, 278.4, 'Débattons !', 'font-size="4.04" font-weight="700"' + (k === 2 ? ' fill="#fff"' : ''))}</g>`).join('')}
     ${temps}${questions}
     ${REPERES.map(([x, y]) => `<circle cx="${x}" cy="${y}" r="3.5" fill="#000"/><circle cx="${x - 1}" cy="${y}" r=".65" fill="#fff"/><circle cx="${x + 1}" cy="${y}" r=".65" fill="#fff"/>`).join('')}
