@@ -75,6 +75,7 @@ function lireSeance(texte) {
     else if (k === 'etape') e.p = +v || undefined;
     else if (k === 'reponses' && e.o) e.t = /plusieurs/.test(sans(v)) ? 'multi' : 'choix';
     else if (k === 'precision') e.note = v;
+    else if (k === 'image' && part[1] && imageSure(part[1])) (e.oi = e.oi || {})[part[0]] = part[1]; // « image : Pharmacie | affiches/lieu-pharmacie.jpg » : la réponse « Pharmacie » se montre avec cette image
     else if (k === 'de') e.a = v; else if (k === 'a') e.b = v;
     else if (k === 'noir et blanc') e.nb = /oui/.test(sans(v));
     else if (k === 'masque') e.masque = /oui/.test(sans(v));
@@ -123,6 +124,7 @@ function ecrireSeance(m) { // m = { phases, missions, tests, ecrans }
       if (e.t === 'echelle') L.push('de : ' + net(e.a), 'à : ' + net(e.b));
       else if (e.t !== 'ab') (e.o || []).forEach((o, i) => { if (net(o)) L.push((e.jeu && i === e.bon ? '+ ' : '- ') + net(o) + (e.zones ? ' @ ' + e.zones[i].map(Math.round).join(' ') : '')); });
     }
+    Object.keys(e.oi || {}).forEach(n => { if ((e.o || []).includes(n)) L.push('image : ' + net(n) + ' | ' + net(e.oi[n])); }); // l'image d'une réponse suit son nom ; une réponse renommée ou supprimée perd la sienne
     if (e.zoom) L.push('zoom : ' + e.zoom.map(Math.round).join(' ') + ' ' + Math.round(e.r));
     (e.caches || []).forEach(c => L.push('cache : ' + net(c.n) + ' @ ' + c.z.map(Math.round).join(' '))); // une partie de l'affiche recouverte
     if (e.petit) L.push('titre : petit');

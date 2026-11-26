@@ -208,15 +208,18 @@ affiche : affiches/origine.jpg
 étape : 3
 réponses : plusieurs
 affiche : affiches/origine.jpg
-- Salle d'attente
+- Abribus
+- Panneau de ville
 - Pharmacie
-- Mairie
-- Association
-- Commerce
-- Marché
-- Boîte aux lettres
-- Journal local
+- Salle d'attente
+- Panneau de la mairie
 - Réseaux sociaux
+image : Abribus | affiches/lieu-abribus.jpg
+image : Panneau de ville | affiches/lieu-panneau-ville.jpg
+image : Pharmacie | affiches/lieu-pharmacie.jpg
+image : Salle d'attente | affiches/lieu-salle-attente.jpg
+image : Panneau de la mairie | affiches/lieu-mairie.jpg
+image : Réseaux sociaux | affiches/lieu-reseaux-sociaux.jpg
 téléphone : sans affiche
 
 [question] Sous quelle forme vous serait-elle la plus utile ?
@@ -234,7 +237,7 @@ téléphone : sans affiche
 [question] Ce flyer, l'emporteriez-vous avec vous ?
 étape : 3
 réponses : une
-affiche : affiches/origine.jpg
+affiche : affiches/lieu-prospectus.jpg
 - Oui
 - Je la prendrais en photo
 - Non

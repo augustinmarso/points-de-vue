@@ -75,6 +75,8 @@ body.fondtel,body.fondtel #fond{background:var(--t)}body.fondtel .opt:not(.on),b
 .tel .bloc{display:flex;flex-direction:column;gap:12px}
 .tel small{font-weight:400;font-size:.75em}
 .opts{display:flex;flex-direction:column;gap:12px}
+.opts.img{display:grid;grid-template-columns:1fr 1fr;gap:10px}.opts.img .opt{flex-direction:column;align-items:stretch;justify-content:flex-start;padding:8px 8px 12px;text-align:center;font-size:17px;line-height:1.1;position:relative;min-height:0} /* des réponses en images (les lieux) */
+.opts.img img{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:20px;display:block}.opts.img .tete{position:absolute;top:16px;right:16px}
 .opt{background:var(--t);border-radius:28px;padding:18px 22px;font-size:22px;font-weight:700;text-align:left;display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:68px;transition:background .25s,transform .15s}
 .opt:active{transform:scale(.97)}
 .opt.on{background:var(--c)} body.p3 .opt.on{color:#fff}
@@ -85,17 +87,17 @@ body.fondtel,body.fondtel #fond{background:var(--t)}body.fondtel .opt:not(.on),b
 .chrono{display:inline-block;flex:none;width:1em;height:1em;border-radius:50%;background:conic-gradient(var(--n) var(--ch),transparent 0);box-shadow:inset 0 0 0 .12em var(--n);animation:chrono linear forwards;vertical-align:middle}
 .age{display:flex;flex-direction:column;gap:2px}.age output{font-weight:800;font-size:40px;line-height:1;letter-spacing:-.04em}.age output.vide{font-size:20px;font-weight:400;letter-spacing:0;line-height:2}
 .age input{-webkit-appearance:none;appearance:none;width:100%;height:52px;margin:0;background:none;cursor:pointer;touch-action:pan-y}
-.age input::-webkit-slider-runnable-track{height:14px;border-radius:7px;background:linear-gradient(to right,var(--n) calc(var(--v,.5)*100%),#fff 0);box-shadow:inset 0 0 0 2px var(--n)}
-.age input::-moz-range-track{height:14px;border-radius:7px;background:#fff;box-shadow:inset 0 0 0 2px var(--n)}.age input::-moz-range-progress{height:14px;border-radius:7px;background:var(--n)}
-.age input::-webkit-slider-thumb{-webkit-appearance:none;width:40px;height:40px;margin-top:-13px;border-radius:50%;background:var(--c);border:4px solid var(--n);transition:transform .15s}
-.age input::-moz-range-thumb{width:32px;height:32px;border-radius:50%;background:var(--c);border:4px solid var(--n);transition:transform .15s}
+.age input::-webkit-slider-runnable-track{height:6px;border-radius:3px;background:linear-gradient(to right,var(--n) calc(var(--v,.5)*100%),rgba(20,20,20,.14) 0)} /* curseur léger : trait fin, bouton sans contour */
+.age input::-moz-range-track{height:6px;border-radius:3px;background:rgba(20,20,20,.14)}.age input::-moz-range-progress{height:6px;border-radius:3px;background:var(--n)}
+.age input::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;margin-top:-11px;border-radius:50%;background:var(--c);border:0;transition:transform .15s}
+.age input::-moz-range-thumb{width:28px;height:28px;border-radius:50%;background:var(--c);border:0;transition:transform .15s}
 .age input:active::-webkit-slider-thumb{transform:scale(1.2)}.age input:active::-moz-range-thumb{transform:scale(1.2)}.age input:focus-visible{outline:3px solid var(--c3);outline-offset:3px;border-radius:12px}
 textarea.champ{min-height:150px;resize:none}
 .echelle{display:flex;align-items:center;justify-content:space-between}
-.echelle button{width:1em;height:1em;position:relative;border-radius:50%;background:#fff;box-shadow:inset 0 0 0 3px var(--n);transition:background .25s} /* une note : cinq ronds à yeux gris, grands aux deux bouts, petit au milieu */
-.echelle button:nth-child(3){box-shadow:inset 0 0 0 3px #8a8a8a}
+.echelle>*{width:1em;height:1em;position:relative;border-radius:50%;background:var(--t);transition:background .25s} /* une note : cinq ronds pleins à yeux gris, sans contour, grands aux deux bouts, petit au milieu */
 .echelle .yeux{pointer-events:none;gap:.1em}.echelle .yeux i{width:.11em;height:.11em;background:#8a8a8a}
-.echelle button.on{background:var(--n);box-shadow:none}.echelle button.on .yeux i{background:#fff}
+.echelle>.on{background:var(--c)}.echelle>.on .yeux i{background:var(--n)}
+.ecran .echelle{max-width:24em;margin-bottom:.5em}.ecran .bouts{max-width:24em;font-size:1em;font-weight:800}
 .echelle+.bouts{font-weight:700}
 .bouts{display:flex;justify-content:space-between;font-size:17px}
 .note{font-size:.85em}
@@ -140,6 +142,9 @@ textarea.champ{min-height:150px;resize:none}
 .gens .tete{font-size:2vw;opacity:.35;animation:pop .5s;transition:opacity .3s,transform .3s}
 .gens .tete.ok{opacity:1;transform:translateY(-.5vw)}
 .corps{flex:1;display:flex;gap:3vw;min-height:0;margin-top:3vh}
+.lieux{flex:1 1 0;min-height:0;display:flex;gap:1.2vw}.lieux:not(.petit)+.res{flex:none}.lieux.petit{flex:none;height:19vh;opacity:.9} /* les réponses en images : toute la largeur, six côte à côte */
+.lieux figure{margin:0;flex:1;min-width:0;display:flex;flex-direction:column;gap:.7vh;font-weight:800;font-size:1.25vw;line-height:1.05}.lieux img{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:1.2vw;display:block}.lieux.petit figure{flex:none;height:100%}.lieux.petit img{height:100%;width:auto}
+.lieux figcaption{display:flex;align-items:center;gap:.5em}.lieux figcaption b{flex:none;width:1.7em;height:1.7em;border-radius:50%;background:var(--n);color:#fff;display:grid;place-items:center}.lieux.petit figcaption{display:none}
 .gauche{flex:1;min-width:0;display:flex;flex-direction:column;gap:2.2vh}
 .gauche>h1{max-width:60vw}.gauche>p{max-width:26em}
 .droite{flex:none;display:flex;gap:1.5vw;align-items:center}
@@ -393,7 +398,7 @@ function choixPasser() { // passer le test : au téléphone ou sur papier, et la
   placer();
   app.innerHTML = `<div class="site"><p class="sur"><a href="./" aria-label="Accueil" title="Accueil"><svg viewBox="0 0 24 24" width="1.35em" height="1.35em" fill="currentColor" aria-hidden="true" style="vertical-align:-.3em"><path d="M12 3 2.5 11.2h2.7V21h5.3v-6h3v6h5.3v-9.8h2.7z"/></svg></a>${rondProfil('background:#141414')} · Passer le test</p><h1>Téléphone ou papier ?</h1><nav class="trois">
     ${carte('?passer=tel' + TQ, 'tel', 'Au téléphone', "Chacun répond sur son téléphone. Les réponses s'enregistrent toutes seules.")}
-    ${carte('?ecran&papier' + TQ, 'feuille', 'Sur papier', "Chacun répond sur une fiche A3. Le grand écran montre les affiches et les questions, sans téléphone.")}
+    ${carte('?ecran&papier' + TQ, 'feuille', 'Sur papier', "Chacun répond sur un livret à plier. Le grand écran montre les affiches et les questions, sans téléphone.")}
     ${carte('papier.html?vue=lire' + TQ, 'appareil', 'Photographier les fiches', "Après une séance sur papier : une photo par fiche remplie, et les réponses rejoignent les données à étudier.")}
   </nav><p class="note">À distance, chacun chez soi : envoyez par mail le lien <a href="?enligne${TQ}">${h(location.origin + location.pathname)}?enligne${h(TQ)}</a> (pour l'essayer sans rien enregistrer : <a href="?enligne&essai${TQ}">?enligne&amp;essai</a>).</p>
     <label class="note" id="lesTests" hidden>Test passé : <select style="font:inherit;font-weight:700;border:0;border-radius:99px;padding:6px 12px;background:var(--t1)"></select></label></div>`;
@@ -509,9 +514,9 @@ function telephone() {
       x = `<p class="sur">${sur(e)}</p><h2>${h(q.q)}</h2>${q.vote ? `<p class="note">Affiche ${q.k + 1}, sur le grand écran.</p>` : q.note ? `<p class="note">${h(q.note)}</p>` : ''}`;
       if (t === 'texte') x += `<textarea class="champ" id="txt" maxlength="200" placeholder="Votre réponse"></textarea><button class="btn" data-a="texte">Valider</button>`;
       if (q.zones) x += carteZones(q, q.imgs[0]) + `<p class="note">Touchez ${t === 'multi' ? 'les zones, puis Valider' : 'une zone de l\'affiche'}. ${legendeZones(q)}</p>` + (t === 'multi' ? `<button class="btn" data-a="multi">Valider</button>` : '');
-      else if (t === 'choix' || t === 'multi') x += `<div class="opts">${q.o.map((o, i) => `<button class="opt" data-o="${i}">${h(o)}${tete(e.p || 1)}</button>`).join('')}</div>`;
+      else if (t === 'choix' || t === 'multi') x += `<div class="opts${q.oi ? ' img' : ''}">${q.o.map((o, i) => `<button class="opt" data-o="${i}">${q.oi && q.oi[o] ? `<img src="${h(q.oi[o])}" alt="">` : ''}${h(o)}${tete(e.p || 1)}</button>`).join('')}</div>`;
       if (t === 'multi' && !q.zones) x += `<p class="note">Plusieurs réponses possibles.</p><button class="btn" data-a="multi">Valider</button>`;
-      if (t === 'echelle') x += `<div class="echelle">${q.o.map((o, i) => `<button data-o="${i}" aria-label="${i + 1} sur 5" style="font-size:${[64, 52, 42, 52, 64][i]}px"><span class="yeux"><i></i><i></i></span></button>`).join('')}</div><div class="bouts"><span>${h(q.a)}</span><span>${h(q.b)}</span></div>`;
+      if (t === 'echelle') x += `<div class="echelle">${q.o.map((o, i) => `<button data-o="${i}" aria-label="${i + 1} sur 5" style="font-size:${[3.2, 2.6, 2.1, 2.6, 3.2][i]}em"><span class="yeux"><i></i><i></i></span></button>`).join('')}</div><div class="bouts"><span>${h(q.a)}</span><span>${h(q.b)}</span></div>`;
       if (!q.zones && !q.vote && !e.jeu && !e.telSans) x += VUE(e, (e.imgs || []).filter(Boolean)); // la même affiche que sur le grand écran (pas pour le jeu : l'affiche y est cachée)
       if (t === 'ab' && e.abc) x += `<div class="opts">${e.o.map((o, i) => `<button class="opt" data-o="${i}">${h(o)}${tete(e.p)}</button>`).join('')}</div>`;
       else if (t === 'ab') x += `<div class="opts"><button class="opt" data-o="${e.o.length - 1}">${h(e.o[e.o.length - 1])}${tete(e.p)}</button></div>`; // on touche une affiche : la réponse part tout de suite, comme « Aucune différence »
@@ -612,9 +617,9 @@ function enLigne() {
       x = `<p class="sur">${sur(e)} · question ${QS.indexOf(e) + 1} sur ${QS.length}${CHRONO(e, 'font-size:34px;margin-left:10px')}</p><h2>${h(e.q)}</h2>${e.note ? `<p class="note">${h(e.note)}</p>` : ''}${vue(e, e.jeu || e.zones || e.telSans ? [] : (e.imgs || []).filter(Boolean))}`;
       if (e.t === 'texte') x += `<textarea class="champ" id="txt" maxlength="200" placeholder="Votre réponse"></textarea><button class="btn" data-a="texte">Valider</button><button class="lien" data-a="suite">Passer cette question</button>`;
       if (e.zones) x += carteZones(e, e.imgs[0]) + `<p class="note">Touchez ${e.t === 'multi' ? 'les zones, puis Valider' : 'une zone de l\'affiche'}. ${legendeZones(e)}</p>` + (e.t === 'multi' ? `<button class="btn" data-a="multi">Valider</button>` : '');
-      else if (e.t === 'choix' || e.t === 'multi') x += `<div class="opts">${e.o.map((o, i) => `<button class="opt" data-o="${i}">${h(o)}${tete(e.p || 1)}</button>`).join('')}</div>`;
+      else if (e.t === 'choix' || e.t === 'multi') x += `<div class="opts${e.oi ? ' img' : ''}">${e.o.map((o, i) => `<button class="opt" data-o="${i}">${e.oi && e.oi[o] ? `<img src="${h(e.oi[o])}" alt="">` : ''}${h(o)}${tete(e.p || 1)}</button>`).join('')}</div>`;
       if (e.t === 'multi' && !e.zones) x += `<p class="note">Plusieurs réponses possibles.</p><button class="btn" data-a="multi">Valider</button>`;
-      if (e.t === 'echelle') x += `<div class="echelle">${e.o.map((o, i) => `<button data-o="${i}" aria-label="${i + 1} sur 5" style="font-size:${[64, 52, 42, 52, 64][i]}px"><span class="yeux"><i></i><i></i></span></button>`).join('')}</div><div class="bouts"><span>${h(e.a)}</span><span>${h(e.b)}</span></div>`;
+      if (e.t === 'echelle') x += `<div class="echelle">${e.o.map((o, i) => `<button data-o="${i}" aria-label="${i + 1} sur 5" style="font-size:${[3.2, 2.6, 2.1, 2.6, 3.2][i]}em"><span class="yeux"><i></i><i></i></span></button>`).join('')}</div><div class="bouts"><span>${h(e.a)}</span><span>${h(e.b)}</span></div>`;
       if (e.t === 'ab' && e.abc) x += `<div class="opts">${e.o.map((o, i) => `<button class="opt" data-o="${i}">${h(o)}${tete(e.p || 1)}</button>`).join('')}</div>`;
       else if (e.t === 'ab') x += `<div class="opts"><button class="opt" data-o="${e.o.length - 1}">${h(e.o[e.o.length - 1])}${tete(e.p || 1)}</button></div>`;
       if (e.t !== 'multi' && e.t !== 'texte') x += `<button class="btn" data-a="un">Valider</button>`; // dans le formulaire, une réponse se choisit puis se valide : on peut changer d'avis avant d'envoyer
@@ -778,14 +783,14 @@ function ecran() {
     else if (e.t === 'palmares') g = `<p class="sur">Atelier</p><h1>Le palmarès</h1><p><b>L'affiche qui transmet le mieux l'information, d'après vos notes.</b></p><div class="mur palm"></div>`;
     else {
       const cache = q.cinq && masque && !S.rev;
-      g = `<p class="sur">${sur(e)}${PAPIER && NUM[q.id] ? ' · question ' + NUM[q.id] : ''}${q.vote ? ` · affiche ${q.k + 1} sur ${S.photos.length} · test ${S.k % 10 + 1} sur ${TESTS.length}` : ''}</p>${S.rev ? '' : CHRONO(e, 'font-size:5vw')}<h1>${h(q.q)}</h1>${cache ? "<p>L'affiche revient avec les réponses.</p>" : q.note ? `<p>${h(q.note)}</p>` : ''}<div class="accord">${S.rev && q.t !== 'texte' ? `<div class="trio">${tete(1)}${tete(2)}${tete(3)}</div>` : ''}<p class="cpt"></p></div><div class="res">${PAPIER ? (q.t === 'texte' ? '<p><b>Écrivez votre réponse sur la fiche.</b></p>' : `<div class="lettres${q.t === 'ab' ? ' ab' : ''}" style="--k:${q.t === 'echelle' ? 5 : q.o.length === 2 || q.o.length === 4 ? 2 : 3}">${q.o.map((o, i) => `<span><b>${q.t === 'echelle' ? i + 1 : q.t === 'ab' && i === q.o.length - 1 ? '=' : 'ABCDEFGHIJ'[i]}</b>${q.t === 'echelle' ? h(i === 0 ? q.a : i === 4 ? q.b : '') : q.t === 'ab' && i < q.o.length - 1 ? '' : h(o)}</span>`).join('')}</div>`)
+      g = `<p class="sur">${sur(e)}${PAPIER && NUM[q.id] ? ' · question ' + NUM[q.id] : ''}${q.vote ? ` · affiche ${q.k + 1} sur ${S.photos.length} · test ${S.k % 10 + 1} sur ${TESTS.length}` : ''}</p>${S.rev ? '' : CHRONO(e, 'font-size:5vw')}<h1>${h(q.q)}</h1>${cache ? "<p>L'affiche revient avec les réponses.</p>" : q.note ? `<p>${h(q.note)}</p>` : ''}<div class="accord">${S.rev && q.t !== 'texte' ? `<div class="trio">${tete(1)}${tete(2)}${tete(3)}</div>` : ''}<p class="cpt"></p></div>${q.oi ? `<div class="lieux${S.rev ? ' petit' : ''}">${q.o.map((o, i) => `<figure>${q.oi[o] ? `<img src="${h(q.oi[o])}" alt="">` : ''}<figcaption>${PAPIER ? `<b>${'ABCDEFGHIJ'[i]}</b>` : ''}${h(o)}</figcaption></figure>`).join('')}</div>` : ''}<div class="res">${PAPIER ? (q.t === 'texte' || q.oi ? (q.oi ? '' : '<p><b>Écrivez votre réponse sur la fiche.</b></p>') : q.t === 'texte' ? '<p><b>Écrivez votre réponse sur la fiche.</b></p>' : q.t === 'echelle' ? `<div class="echelle">${[3.2, 2.6, 2.1, 2.6, 3.2].map(k => `<span style="font-size:${k}em"><span class="yeux"><i></i><i></i></span></span>`).join('')}</div><div class="bouts"><span>${h(q.a)}</span><span>${h(q.b)}</span></div>` : `<div class="lettres${q.t === 'ab' ? ' ab' : ''}" style="--k:${q.t === 'echelle' ? 5 : q.o.length === 2 || q.o.length === 4 ? 2 : 3}">${q.o.map((o, i) => `<span><b>${q.t === 'echelle' ? i + 1 : q.t === 'ab' && i === q.o.length - 1 ? '=' : 'ABCDEFGHIJ'[i]}</b>${q.t === 'echelle' ? h(i === 0 ? q.a : i === 4 ? q.b : '') : q.t === 'ab' && i < q.o.length - 1 ? '' : h(o)}</span>`).join('')}</div>`)
         : !S.rev ? '' : q.t === 'texte' ? '<div class="mots"></div>'
         : `<div class="cols${q.o.length > 5 ? ' liste' : ''}">${q.o.map((o, i) => `<div class="col"><div class="rond">${tete(1 + i % 3)}</div><b>0</b><span>${h(o)}${q.t === 'echelle' && (i === 0 || i === 4) ? '<br>' + h(i ? q.b : q.a) : ''}</span></div>`).join('')}</div>`}</div>`;
       if (q.vote && S.photos[q.k] && !cache) d = `<div class="droite"><figure><img src="${S.photos[q.k].img}" alt="Affiche d'un binôme">${h(S.photos[q.k].mot)}</figure></div>`;
       if (q.cinq && !S.rev && !masque) { clearTimeout(tm); tm = setTimeout(() => { masque = true; dessiner(true); }, 5000); } // vue 5 secondes, puis cachée
       if (e.img && S.rev) d = `<div class="droite"><figure><img src="${e.img}" alt="Affiche du jeu"></figure></div>`;
     }
-    if (vues.length) d = `<div class="droite${vues.length > 1 ? ' deux n' + vues.length : ''}${e.nb ? ' nb' : ''}">${vues.map(v => `<figure>${v.l}${e.zones ? carteZones(e, v.src) : cadree(e) ? afficheCadree(e, v.src) : `<img src="${v.src}" alt="Affiche ${v.l}">`}</figure>`).join('')}</div>`; // aussi pour une page de texte qui a une image
+    if (vues.length && !e.oi) d = `<div class="droite${vues.length > 1 ? ' deux n' + vues.length : ''}${e.nb ? ' nb' : ''}">${vues.map(v => `<figure>${v.l}${e.zones ? carteZones(e, v.src) : cadree(e) ? afficheCadree(e, v.src) : `<img src="${v.src}" alt="Affiche ${v.l}">`}</figure>`).join('')}</div>`; // aussi pour une page de texte qui a une image
     const prete = q.id && !S.rev && Object.keys(S.rep[q.id] || {}).length;
     app.innerHTML = `<div class="ecran"><div class="barre"><span class="sur">${h(souci || (APERCU ? 'Aperçu de vos modifications · flèches du clavier pour avancer · sans enregistrement' : ''))}</span><div class="gens"></div></div><div class="corps"><div class="gauche">${g}</div>${d}</div></div>
       <div class="cmd"><button class="home" data-a="menu">Menu</button><div class="liste">
