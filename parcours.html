@@ -8,7 +8,7 @@
 <link rel="preload" href="polices/scoutie.woff2" as="font" type="font/woff2" crossorigin>
 <style>
 @font-face{font-family:'Scoutie Sans';font-weight:200 800;font-display:swap;src:url(polices/scoutie.woff2) format('woff2')}
-:root{--n:#141414;--fond:#F3F3F3;--c1:#F5A0C6;--c2:#F7C33B;--c3:#1F6FE0}
+:root{--n:#2B1B12;--fond:#F3F3F3;--c1:#F5A0C6;--c2:#F7C33B;--c3:#1F6FE0}
 *{box-sizing:border-box}
 body{margin:0;background:var(--fond);color:var(--n);font-family:'Scoutie Sans',Helvetica,Arial,sans-serif;font-size:20px;line-height:1.3}
 main{max-width:560px;margin:0 auto;padding:24px 20px 80px}
@@ -33,18 +33,6 @@ html,body{overflow-x:clip} /* les rabats ouverts dépassent sur les côtés : pa
 .interieur{position:absolute;inset:0;background-color:#fff;border-radius:3px;overflow:hidden;box-shadow:inset 0 0 0 1px rgba(20,20,20,.06),inset 14px 0 14px -14px rgba(20,20,20,.22),inset -14px 0 14px -14px rgba(20,20,20,.22)} /* l'ombre des plis, à gauche et à droite */
 .imprime{position:absolute;inset:0;display:block}.imprime svg{display:block;width:100%;height:100%} /* l'imprimé de l'intérieur, découpé volet par volet */
 [hidden]{display:none!important} /* les onglets et le flyer ont un « display » : sans cela ils resteraient visibles */
-/* les objets glissés dans la poche du bas : ils dépassent de la bande de papier */
-.objets{position:absolute;left:0;right:0;bottom:0;height:36%}
-.objet{position:absolute;bottom:-34%;display:block;border-radius:2px;box-shadow:0 2px 5px rgba(20,20,20,.28);transition:transform .25s cubic-bezier(.45,0,.2,1);text-decoration:none;overflow:hidden;background-color:#fff}
-.objet:hover,.objet:focus-visible{transform:translateY(-10%) rotate(var(--r,0deg))}
-.objet{transform:rotate(var(--r,0deg))}
-.objet.carnet{--r:-7deg;left:7%;width:30%;aspect-ratio:105/148;padding:8% 0 0 3.5%;font-size:calc(var(--l)*.047);font-weight:800;line-height:.9;letter-spacing:-.05em}
-.objet.flyer{--r:5deg;left:33%;width:33%;aspect-ratio:822/1150}.objet.flyer img{width:100%;height:100%;object-fit:cover;display:block}
-.objet.passeport{--r:-3deg;right:6%;width:27%;aspect-ratio:105/148;display:grid;place-items:start center;padding-top:5%}.objet.passeport svg{width:78%}
-.bande{position:absolute;left:0;right:0;bottom:0;height:30%;background-color:#fff;border-radius:50% 50% 0 0 / 34% 34% 0 0;box-shadow:0 -3px 8px rgba(20,20,20,.16)} /* la poche : une bande de papier arrondie, comme le dos du rond bleu */
-.logo{position:absolute;left:50%;bottom:3%;width:17%;aspect-ratio:1;margin-left:-8.5%;animation:tourne 14s linear infinite}
-.logo::after{content:'';position:absolute;left:46%;top:46%;width:8%;height:8%;border-radius:50%;background:radial-gradient(circle at 35% 30%,#F3DFA0,#B08A2E)} /* l'attache parisienne */
-@keyframes tourne{to{transform:rotate(360deg)}}
 /* Les rabats, aux mesures de la pochette papier (volet central 582 × 816) :
    - le jaune (462 de large) s'articule à gauche, le rose (409) à droite et passe par-dessus ; le rond bleu (269 de haut) ferme le bas ;
    - leurs bords libres sont des arcs de grands cercles (rayons 680 et 500), d'où les deux formes qui se croisent ;
@@ -69,30 +57,25 @@ html,body{overflow-x:clip} /* les rabats ouverts dépassent sur les côtés : pa
 .rabat.g i{left:50.9%;top:25.5%}.rabat.d i{left:35.1%;top:72.5%}.rabat.b i{left:43.8%;top:29.4%}
 .rabat.d{transition-delay:0s}.rabat.g{transition-delay:.2s}.rabat.b{transition-delay:.45s} /* pour refermer : le jaune, le rose par-dessus, puis le rond bleu */
 .ouverte .rabat.b{transform:rotateX(-180deg);transition-delay:0s}.ouverte .rabat.g{transform:rotateY(180deg);transition-delay:.3s}.ouverte .rabat.d{transform:rotateY(-180deg);transition-delay:.55s}
-.invite{text-align:center;font-weight:800;margin-top:22px}
-.suite{display:none}.ouvert .suite{display:block}.ouvert .invite{display:none}
-.objetsNoms{font-size:16px;color:#6B6B6B;text-align:center;margin-top:14px}
-@media (prefers-reduced-motion:reduce){.rabat,.pochette,.objet{transition:none}.logo{animation:none}}
-/* dans la pochette : le carnet (le test) et le flyer prennent tout l'écran, les onglets du bas restent toujours là */
-.dedans{position:fixed;inset:0 0 64px 0;background:#fff;z-index:5}
+.invite{text-align:center;font-weight:800;margin-top:22px}.ouvert .invite{visibility:hidden}
+@media (prefers-reduced-motion:reduce){.rabat,.pochette{transition:none}}
+/* le test : il prend tout l'écran, au-dessus du chemin du bas */
+.dedans{position:fixed;inset:0 0 86px 0;background:#fff;z-index:5;animation:arrive .5s cubic-bezier(.45,0,.2,1)}
 .dedans iframe{width:100%;height:100%;border:0;display:block}
-.flyerVue{height:100%;overflow:auto;display:grid;place-items:center;background:var(--fond);padding:16px}.flyerVue img{max-width:100%;max-height:100%;border-radius:6px;box-shadow:0 6px 18px rgba(20,20,20,.22)}
-.onglets{position:fixed;left:0;right:0;bottom:0;height:64px;z-index:6;display:grid;grid-template-columns:repeat(4,1fr);background:#fff;box-shadow:0 -3px 10px rgba(20,20,20,.14);border-radius:22px 22px 0 0}
-.onglets button{border:0;background:none;font:inherit;font-size:13px;font-weight:800;color:#6B6B6B;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;border-radius:22px}
-.onglets button::before{content:'';width:20px;height:20px;border-radius:50%;background:var(--c);opacity:.3;transition:opacity .2s,transform .2s}
-.onglets button[aria-pressed=true]{color:var(--n)}.onglets button[aria-pressed=true]::before{opacity:1;transform:scale(1.15)}
-.avecOnglets{padding-bottom:120px}
-/* le parcours : six étapes l'une sous l'autre, reliées par un trait */
-.etapes{list-style:none;margin:18px 0 0;padding:0;position:relative}
-.etapes::before{content:'';position:absolute;left:47px;top:48px;bottom:48px;border-left:2px dashed #C9C9C9}
-.etapes button{position:relative;display:flex;align-items:center;gap:16px;width:100%;margin:0 0 10px;padding:0;border:0;background:none;font:inherit;color:inherit;text-align:left;cursor:pointer;border-radius:48px}
-.etapes svg{width:96px;height:96px;flex:none;overflow:visible;transition:filter .25s,opacity .25s}
-.etapes button[aria-pressed=false] svg{filter:grayscale(1);opacity:.4}
-.etapes small{display:block;font-size:16px;color:#6B6B6B}
-.etapes b{display:block;font-size:24px;line-height:1.05;font-weight:800;letter-spacing:-.03em}
-.etapes i{font-style:normal;font-size:16px;font-weight:700}
-.etapes button[aria-pressed=true] i::after{content:' · fait'}
-.mot{margin-top:34px;font-weight:700;font-size:22px;line-height:1.2}
+@keyframes arrive{from{opacity:0;transform:translateY(12px)}}
+/* un prospectus regardé en grand, par-dessus le test (qui continue dessous) */
+.grand{position:fixed;inset:0 0 86px 0;z-index:7;background:var(--fond);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:16px}
+.grand img{min-height:0;flex:0 1 auto;max-width:100%;border-radius:6px;box-shadow:0 6px 18px rgba(20,20,20,.22)}
+.grand b{font-size:18px;text-align:center}
+.grand button{font:inherit;font-weight:800;border:0;border-radius:99px;background:var(--n);color:#fff;padding:.7em 1.4em;min-height:44px;cursor:pointer}
+/* le chemin : les trois prospectus de la séance, reliés ; celui qu'on teste est cerclé, ceux qui sont faits sont cochés */
+.chemin{position:fixed;left:0;right:0;bottom:0;height:86px;z-index:8;display:flex;align-items:center;justify-content:center;padding:0 22px;background:#fff;box-shadow:0 -3px 10px rgba(20,20,20,.14);border-radius:22px 22px 0 0}
+.chemin button{position:relative;flex:none;width:44px;height:62px;padding:0;border:0;border-radius:8px;background:#fff center/cover no-repeat;cursor:pointer;box-shadow:0 1px 4px rgba(20,20,20,.3);transition:transform .25s,filter .25s,opacity .25s}
+.chemin button.avenir{filter:grayscale(1);opacity:.45}
+.chemin button.ici{transform:scale(1.14);box-shadow:0 0 0 3px #fff,0 0 0 6px var(--n)}
+.chemin button.fait::after{content:'';position:absolute;right:-7px;top:-7px;width:20px;height:20px;border-radius:50%;background:var(--n) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M9.500 17 5 12.500l1.800-1.800 2.700 2.700 7-7.200 1.800 1.800z' fill='%23fff'/%3E%3C/svg%3E") center/16px no-repeat;box-shadow:0 0 0 2px #fff}
+.chemin i{flex:1;max-width:90px;margin:0 12px;border-top:3px dotted #BDBDBD}.chemin i.fait{border-top:3px solid var(--n)}
+[hidden]{display:none!important}
 </style>
 </head>
 <body>
@@ -104,55 +87,23 @@ html,body{overflow-x:clip} /* les rabats ouverts dépassent sur les côtés : pa
   <div class="pochette" id="pochette" role="button" tabindex="0" aria-expanded="false" aria-label="Ouvrir la pochette Points de vue">
     <div class="interieur papier">
       <span class="imprime" data-vue="503 19 582 816"></span>
-      <div class="objets">
-        <a class="objet carnet papier" href="./?passer=tel" aria-label="Le carnet de test : répondre sur ce téléphone">Points<br>de vue</a>
-        <a class="objet flyer" href="affiches/origine.jpg" aria-label="Le flyer, à regarder"><img src="affiches/origine.jpg" alt=""></a>
-        <a class="objet passeport papier" href="#parcours" aria-label="Le passeport : un badge par étape" id="passeport"></a>
-        <div class="bande papier"></div>
-        <svg class="logo" viewBox="0 0 100 100" aria-hidden="true"><g style="isolation:isolate"><circle cx="40" cy="52" r="33" fill="#F5A0C6" style="mix-blend-mode:multiply"/><circle cx="68" cy="34" r="23" fill="#F7C33B" style="mix-blend-mode:multiply"/><circle cx="64" cy="72" r="18" fill="#1F6FE0" style="mix-blend-mode:multiply"/></g><circle cx="30" cy="46" r="3" fill="#141414"/><circle cx="40" cy="44" r="3" fill="#141414"/><circle cx="70" cy="28" r="2.3" fill="#141414"/><circle cx="77" cy="30" r="2.3" fill="#141414"/><circle cx="60" cy="76" r="2" fill="#141414"/><circle cx="67" cy="76" r="2" fill="#141414"/></svg>
-      </div>
     </div>
     <span class="rabat d" aria-hidden="true"><b class="face papier"><i></i></b><b class="dos papier"><span class="imprime" data-vue="41 19 462 816"></span></b></span>
     <span class="rabat g" aria-hidden="true"><b class="face papier"><i></i></b><b class="dos papier"><span class="imprime" data-vue="1085 19 409 816"></span></b></span>
     <span class="rabat b" aria-hidden="true"><b class="face papier"><i></i></b><b class="dos papier"></b></span>
   </div>
   </div></div>
-  <p class="invite">Touchez la pochette pour l'ouvrir</p>
-
-  <section class="suite">
-    <p class="objetsNoms">Glissez vers la gauche ou la droite pour voir l'intérieur des rabats. Dans la poche : le carnet de test, le flyer, le passeport et le petit logo animé. Touchez-les.</p>
-    <h2 id="parcours">Votre parcours en 6 étapes</h2>
-    <p>Une séance tous les deux mois, un jeudi soir.</p>
-    <p class="petit">Touchez une étape quand vous l'avez faite : c'est votre passeport.</p>
-    <ol class="etapes" id="etapes"></ol>
-    <p class="mot">Il n'y a pas de bonne ou de mauvaise réponse. Si quelque chose n'est pas clair, c'est l'affiche qui est en cause, pas vous.</p>
-    <p style="margin-top:26px"><button class="retour" id="refermer">Refermer la pochette</button></p>
-  </section>
+  <p class="invite">Touchez la pochette pour la déplier</p>
 </main>
-<div class="dedans" id="dedans" hidden><iframe id="carnet" title="Le carnet de test" hidden></iframe><div class="flyerVue" id="flyer" hidden><figure style="margin:0;height:100%;display:flex;flex-direction:column;gap:10px;align-items:center;justify-content:center"><img alt="Le flyer : l'affiche testée" style="min-height:0;flex:0 1 auto"><figcaption style="font-weight:800;font-size:16px">Le flyer : l'affiche que vous testez</figcaption></figure></div></div>
-<nav class="onglets" id="onglets" hidden aria-label="Dans la pochette">
-  <button type="button" data-v="carnet" style="--c:var(--c1)">Le carnet</button><button type="button" data-v="flyer" style="--c:var(--c2)">Le flyer</button><button type="button" data-v="passeport" style="--c:var(--c3)">Le passeport</button><button type="button" data-v="pochette" style="--c:var(--n)">La pochette</button>
-</nav>
+<div class="dedans" id="dedans" hidden><iframe id="cadre" title="Le test"></iframe></div>
+<div class="grand" id="grand" hidden><img alt=""><b></b><button type="button" id="revenir">Revenir au test</button></div>
+<nav class="chemin" id="chemin" hidden aria-label="Les trois prospectus de la séance"></nav>
 <script>
-// La pochette papier (A3 pliée), sur téléphone : fermée à l'arrivée, ses trois rabats s'ouvrent au toucher sur le même contenu.
-// Mêmes textes, mêmes dates et mêmes badges que l'intérieur de la pochette. Le passeport se coche du doigt ; rien n'est envoyé.
-const ETAPES = [['Jeu. 14 janv.', 'Débutant'], ['Jeu. 11 mars', 'Confirmé'], ['Jeu. 13 mai', 'Expert'], ['Jeu. 8 juil.', 'Grand testeur'], ['Jeu. 9 sept.', 'Grand testeur'], ['Jeu. 4 nov.', 'Grand testeur']];
-const TAILLE = [.1, .16, .24, .34, .46, .8]; // les trois ronds grandissent d'étape en étape, jusqu'à se recouvrir
-const RONDS = [[40, 58, 46, '#F5A0C6'], [62, 36, 31, '#F7C33B'], [66, 66, 22, '#1F6FE0']]; // centre x, y, rayon à pleine taille, couleur
-function badge(k) { // l'anneau noir « co-testé par des habitants » et ses trois ronds à deux yeux
-  const t = TAILLE[k], r2 = n => +n.toFixed(2);
-  return `<svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="48" fill="#141414"/><circle cx="50" cy="50" r="32" fill="#fff"/>
-    <path id="tour${k}" d="M50 90.500a40.500 40.500 0 1 1 .01 0" fill="none"/><text font-size="6" font-weight="700" fill="#fff"><textPath href="#tour${k}" textLength="250" lengthAdjust="spacing">CO-TESTÉ PAR DES HABITANTS · GRANVILLE TERRE ET MER · </textPath></text>
-    <g style="isolation:isolate">${RONDS.map(([x, y, r, c]) => `<circle cx="${x}" cy="${y}" r="${r2(r * t)}" fill="${c}" style="mix-blend-mode:multiply"/>`).join('')}</g>
-    ${RONDS.map(([x, y, r]) => { const R = r * t, e = Math.max(.45, R * .09); return `<circle cx="${r2(x - R * .2)}" cy="${r2(y - R * .12)}" r="${r2(e)}" fill="#141414"/><circle cx="${r2(x + R * .12)}" cy="${r2(y - R * .12)}" r="${r2(e)}" fill="#141414"/>`; }).join('')}</svg>`;
-}
-let faites = []; try { faites = JSON.parse(localStorage.getItem('pdvParcours')) || []; } catch (e) { }
-const liste = document.getElementById('etapes'), pochette = document.getElementById('pochette'), page = document.getElementById('page');
-const dessiner = () => liste.innerHTML = ETAPES.map(([date, niveau], k) => `<li><button type="button" data-k="${k}" aria-pressed="${faites.includes(k)}">${badge(k)}<span><small>${date}</small><b>Étape ${k + 1}</b><i>${niveau}</i></span></button></li>`).join('');
-liste.addEventListener('click', ev => { const b = ev.target.closest('[data-k]'); if (!b) return; const k = +b.dataset.k;
-  faites = faites.includes(k) ? faites.filter(x => x !== k) : [...faites, k]; try { localStorage.setItem('pdvParcours', JSON.stringify(faites)); } catch (e) { /* stockage refusé : la coche tient jusqu'à la fermeture de la page */ }
-  dessiner(); liste.querySelector(`[data-k="${k}"]`).focus(); });
-dessiner(); document.querySelector('.interieur').inert = true;
+// Sur téléphone : la pochette papier se déplie (ses trois rabats s'ouvrent sur le même imprimé que le papier), puis le test commence.
+// En bas, un chemin des trois prospectus de la séance montre où l'on en est.
+const ETAPES = [['Jeu. 14 janv.', 'Débutant'], ['Jeu. 11 mars', 'Confirmé'], ['Jeu. 13 mai', 'Expert'], ['Jeu. 8 juil.', 'Grand testeur'], ['Jeu. 9 sept.', 'Grand testeur'], ['Jeu. 4 nov.', 'Grand testeur']]; // les six étapes imprimées dans la pochette
+const pochette = document.getElementById('pochette'), page = document.getElementById('page');
+document.querySelector('.interieur').inert = true;
 // L'imprimé de l'intérieur, aux positions du fichier papier (en pixels de la planche A3 : volet central de x = 503 à 1085, y = 19 à 835).
 // Chaque volet en montre sa part : le rabat jaune (à gauche), le volet central, le rabat rose (à droite).
 const T = (x, y, t, taille, gras = 800, plus = '') => `<text x="${x}" y="${y}" font-size="${taille}" font-weight="${gras}" ${plus}>${t}</text>`;
@@ -176,31 +127,32 @@ document.querySelectorAll('.imprime').forEach(el => el.innerHTML = `<svg viewBox
 // la bande reste centrée sur le volet central tant qu'on ne l'a pas fait glisser
 const scene = document.getElementById('scene'), centrer = (doux) => scene.scrollTo({ left: pochette.offsetLeft - scene.offsetLeft - (scene.clientWidth - pochette.offsetWidth) / 2, behavior: doux ? 'smooth' : 'auto' });
 centrer(); addEventListener('resize', () => centrer()); if (document.fonts) document.fonts.ready.then(() => centrer());
-document.getElementById('passeport').innerHTML = badge(Math.min(5, faites.length)); // sur la carte du passeport : le badge de la prochaine étape
-// ouvrir et refermer : le rond bleu d'abord, puis le jaune, puis le rose (l'ordre inverse du pliage)
-const ouvrir = oui => { document.querySelector('.interieur').inert = !oui; pochette.classList.toggle('ouverte', oui); page.classList.toggle('ouvert', oui); pochette.setAttribute('aria-expanded', oui); centrer(true); pochette.setAttribute('aria-label', oui ? 'La pochette Points de vue, ouverte' : 'Ouvrir la pochette Points de vue');
-  const o = document.getElementById('onglets'); o.hidden = !oui; page.classList.toggle('avecOnglets', oui); if (oui && !o.querySelector('[aria-pressed=true]')) o.querySelector('[data-v=pochette]').setAttribute('aria-pressed', true);
-  if (!oui) { document.getElementById('dedans').hidden = true; } };
-pochette.addEventListener('click', ev => { if (!pochette.classList.contains('ouverte')) { ev.preventDefault(); ouvrir(true); } }); // fermée : le toucher l'ouvre, sans suivre un lien caché dessous
-pochette.addEventListener('keydown', ev => { if ((ev.key === 'Enter' || ev.key === ' ') && ev.target === pochette) { ev.preventDefault(); ouvrir(true); } });
-// Le test se passe dans la pochette : le carnet s'ouvre par-dessus, dans un cadre, et les onglets du bas mènent aux autres objets à tout moment.
-// Le cadre n'est jamais rechargé en changeant d'onglet : les réponses en cours et la liaison avec le grand écran restent en place.
+// Déplier : le rond bleu d'abord, puis le rose, puis le jaune (l'ordre inverse du pliage). Le test arrive quand tout est à plat.
 const P = new URLSearchParams(location.search), ARRIVEE = ['salle', 'enligne', 'test'].some(k => P.has(k)); // arrivé par le QR code d'une séance ou par le lien du test en ligne
-const FLYERS = { '': 'affiches/origine.jpg', 'affiche-2': 'affiches/lumeen.jpg', 'affiche-3': 'affiches/memoire.jpg' }; // shortcut: l'affiche de chaque test est écrite ici, à compléter si un nouveau test arrive
-const cadre = document.getElementById('carnet'), dedans = document.getElementById('dedans'), onglets = document.getElementById('onglets'), flyer = document.getElementById('flyer');
-function montrer(v) {
-  if (!pochette.classList.contains('ouverte')) ouvrir(true);
-  onglets.hidden = false; page.classList.add('avecOnglets');
-  if (v === 'carnet' && !cadre.getAttribute('src')) cadre.src = './' + (ARRIVEE ? location.search : '?passer=tel'); // sans séance : la liste des séances en cours
-  if (v === 'flyer') { let t = P.get('test') || ''; try { t = new URL(cadre.contentWindow.location.href).searchParams.get('test') || t; } catch (e) { /* cadre pas encore ouvert */ } flyer.querySelector('img').src = FLYERS[t] || FLYERS['']; } // le grand écran peut avoir changé de test
-  dedans.hidden = v !== 'carnet' && v !== 'flyer'; cadre.hidden = v !== 'carnet'; flyer.hidden = v !== 'flyer';
-  onglets.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', b.dataset.v === v));
-  if (v === 'passeport') document.getElementById('parcours').scrollIntoView({ block: 'start' }); if (v === 'pochette') scrollTo(0, 0);
+const cadre = document.getElementById('cadre'), dedans = document.getElementById('dedans'), chemin = document.getElementById('chemin'), grand = document.getElementById('grand');
+function deplier() {
+  if (pochette.classList.contains('ouverte')) return;
+  document.querySelector('.interieur').inert = false; pochette.classList.add('ouverte'); page.classList.add('ouvert'); pochette.setAttribute('aria-expanded', true); pochette.setAttribute('aria-label', 'La pochette Points de vue, dépliée'); centrer(true);
+  setTimeout(() => { cadre.src = './' + (ARRIVEE ? location.search : '?passer=tel'); dedans.hidden = false; chemin.hidden = false; }, matchMedia('(prefers-reduced-motion:reduce)').matches ? 300 : 2400); // sans séance : la liste des séances en cours
 }
-onglets.addEventListener('click', ev => { const b = ev.target.closest('[data-v]'); if (b) montrer(b.dataset.v); });
-document.querySelector('.objets').addEventListener('click', ev => { const o = ev.target.closest('.objet'); if (!o || !pochette.classList.contains('ouverte')) return; ev.preventDefault(); montrer(o.classList.contains('carnet') ? 'carnet' : o.classList.contains('flyer') ? 'flyer' : 'passeport'); });
-if (ARRIVEE) { ouvrir(true); setTimeout(() => montrer('carnet'), 1700); } // la pochette s'ouvre et le carnet sort tout seul
-document.getElementById('refermer').addEventListener('click', () => { onglets.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', b.dataset.v === 'pochette')); ouvrir(false); pochette.scrollIntoView({ behavior: 'smooth', block: 'center' }); pochette.focus(); });
+pochette.addEventListener('click', deplier);
+pochette.addEventListener('keydown', ev => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); deplier(); } });
+if (ARRIVEE) setTimeout(deplier, 700); // on laisse voir la pochette fermée un instant
+// Le chemin : les trois prospectus de la séance, dans l'ordre des carnets. Le test en cours est lu dans l'adresse du cadre :
+// quand le grand écran passe à l'affiche suivante, le cadre se recharge et le chemin avance tout seul.
+const PROSPECTUS = [['', 'affiches/origine.jpg', 'Bien vivre chez soi'], ['affiche-2', 'affiches/lumeen.jpg', "L'art de rester actif"], ['affiche-3', 'affiches/memoire.jpg', 'Mémoire tonique']]; // shortcut: les trois affiches de la séance sont écrites ici, à changer avec les tests
+let rang = Math.max(0, PROSPECTUS.findIndex(p => p[0] === (P.get('test') || '')));
+function tracer() {
+  chemin.innerHTML = PROSPECTUS.map(([, image, nom], k) => (k ? `<i class="${k <= rang ? 'fait' : ''}"></i>` : '')
+    + `<button type="button" data-k="${k}" class="${k < rang ? 'fait' : k === rang ? 'ici' : 'avenir'}" style="background-image:url('${image}')" ${k === rang ? 'aria-current="step"' : ''} aria-label="Prospectus ${k + 1} sur 3, ${nom} : ${k < rang ? 'fait' : k === rang ? 'en cours' : 'à venir'}. Le regarder en grand."></button>`).join('');
+}
+tracer();
+cadre.addEventListener('load', () => { try { const t = new URL(cadre.contentWindow.location.href).searchParams.get('test') || '', k = PROSPECTUS.findIndex(p => p[0] === t); if (k >= 0 && k !== rang) { rang = k; tracer(); } } catch (e) { /* cadre parti ailleurs : le chemin reste où il est */ } });
+// regarder un prospectus en grand, puis revenir : le test n'est pas rechargé
+chemin.addEventListener('click', ev => { const b = ev.target.closest('[data-k]'); if (!b) return; const [, image, nom] = PROSPECTUS[+b.dataset.k];
+  grand.querySelector('img').src = image; grand.querySelector('img').alt = 'Le prospectus : ' + nom; grand.querySelector('b').textContent = `Prospectus ${+b.dataset.k + 1} sur 3 · ${nom}`; grand.hidden = false; document.getElementById('revenir').focus(); });
+document.getElementById('revenir').addEventListener('click', () => { grand.hidden = true; });
+addEventListener('keydown', ev => { if (ev.key === 'Escape') grand.hidden = true; });
 </script>
 </body>
 </html>

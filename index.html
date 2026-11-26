@@ -11,7 +11,7 @@
 <link rel="preload" href="polices/scoutie.woff2" as="font" type="font/woff2" crossorigin>
 <style>@font-face{font-family:'Scoutie Sans';font-weight:200 800;font-display:swap;src:url(polices/scoutie.woff2) format('woff2')}</style>
 <style>
-:root{--n:#141414;--c1:#F5A0C6;--c2:#F7C33B;--c3:#1F6FE0;--c4:#7BD3A8;--c5:#B79CF2;--c6:#FF9A6B;--t1:#FDE7F1;--t2:#FDF0CC;--t3:#DCE9FB;--t4:#DDF4E8;--t5:#EBE3FB;--t6:#FFE4D6;--c:var(--c1);--t:var(--t1)}
+:root{--n:#2B1B12;--c1:#F5A0C6;--c2:#F7C33B;--c3:#1F6FE0;--c4:#7BD3A8;--c5:#B79CF2;--c6:#FF9A6B;--t1:#FDE7F1;--t2:#FDF0CC;--t3:#DCE9FB;--t4:#DDF4E8;--t5:#EBE3FB;--t6:#FFE4D6;--c:var(--c1);--t:var(--t1)}
 *{box-sizing:border-box}
 html,body{margin:0;min-height:100%}
 body{background:#fff;color:var(--n);font-family:'Scoutie Sans',Helvetica,Arial,sans-serif;font-size:20px;line-height:1.25;-webkit-tap-highlight-color:transparent}
@@ -125,7 +125,7 @@ textarea.champ{min-height:150px;resize:none}
 #zoomV .fermer{right:12px;top:10px}#zoomV .fl{top:50%;margin-top:-24px}#zoomV .fl[data-d="-1"]{left:8px}#zoomV .fl[data-d="1"]{right:8px}
 #zoomV .pts{position:absolute;left:0;right:0;bottom:20px;display:flex;justify-content:center;gap:8px}#zoomV .pts i{width:10px;height:10px;border-radius:50%;background:#C9C9C9;transition:background .2s,transform .2s}#zoomV .pts i.on{background:var(--n);transform:scale(1.3)}
 .vue.pile{flex-direction:column}.vue.pile figure{flex:none;width:60%}
-.vue figure[data-p]{cursor:pointer}.vue figure[data-p] img{outline:4px solid transparent;outline-offset:3px;transition:outline-color .2s}.vue figure.on img{outline-color:#141414}
+.vue figure[data-p]{cursor:pointer}.vue figure[data-p] img{outline:4px solid transparent;outline-offset:3px;transition:outline-color .2s}.vue figure.on img{outline-color:#2B1B12}
 .vue figure{margin:0;flex:1;min-width:0;display:flex;flex-direction:column;gap:6px;font-weight:800;font-size:26px;cursor:zoom-in}
 .vue img{width:100%;max-height:58vh;object-fit:contain;object-position:left top;border-radius:20px;display:block}
 .vue figure.zoom{position:fixed;inset:0;z-index:6;background:#fff;align-items:center;justify-content:center;padding:16px;cursor:zoom-out}
@@ -192,7 +192,7 @@ textarea.champ{min-height:150px;resize:none}
 .lettres{display:grid;grid-template-columns:repeat(var(--k),1fr);gap:.45em;font-size:1.05em;font-weight:800;line-height:1.05}
 .lettres span{background:var(--t);border-radius:1.2em;padding:.5em .7em;display:flex;gap:.6em;align-items:center;min-height:2.9em}
 .lettres.ab span:first-child{background:var(--c1)}.lettres.ab span:nth-child(2){background:var(--c3);color:#fff}
-.lettres b{color:#141414;flex:none;width:1.75em;height:1.75em;border-radius:50%;background:#fff;display:grid;place-items:center;font-size:1.15em;font-weight:800}
+.lettres b{color:#2B1B12;flex:none;width:1.75em;height:1.75em;border-radius:50%;background:#fff;display:grid;place-items:center;font-size:1.15em;font-weight:800}
 .anneau{position:relative;width:1em;height:1em;margin:0 0 .22em;flex:none}.anneau svg{display:block;width:100%;height:100%}.anneau .tete{position:absolute;left:50%;top:50%;font-size:.5em;transform:translate(-50%,-50%)}
 .anneau figcaption{position:absolute;left:50%;top:100%;transform:translateX(-50%);font-size:.14em;font-weight:800;white-space:nowrap;max-width:7.5em;overflow:hidden;text-overflow:ellipsis;margin-top:.25em}
 .anneaux{display:flex;flex-wrap:wrap;gap:.3em .14em;margin:.1em 0 .3em}
@@ -219,7 +219,7 @@ textarea.champ{min-height:150px;resize:none}
 .cmd.ouvert .liste{display:flex}
 .cmd .liste{flex-direction:row;flex-wrap:wrap;align-items:center;gap:8px;width:232px;white-space:normal}.cmd .liste>span{flex-basis:100%}
 .cmd .liste button,.cmd .liste a{cursor:pointer;color:inherit;width:44px;height:44px;border-radius:50%;background:#F3F3F3;display:grid;place-items:center;flex:none}
-.cmd .liste button:hover,.cmd .liste a:hover{background:#E2E2E2}.cmd .liste .fort,.cmd .liste [aria-pressed=true]{background:#141414;color:#fff}
+.cmd .liste button:hover,.cmd .liste a:hover{background:#E2E2E2}.cmd .liste .fort,.cmd .liste [aria-pressed=true]{background:#2B1B12;color:#fff}
 .cmd .autres{white-space:normal;max-width:36em;font-weight:400}
 .auto{position:fixed;right:1.5vw;bottom:1.4vh;z-index:7;font-size:13px;font-weight:700;opacity:.5}
 body.plein.p3 #app{color:#fff}
@@ -249,7 +249,7 @@ addEventListener('beforeunload', ev => { if (!QUITTE && EN_COURS()) { ev.prevent
 const NIVEAUX = ['Testeur débutant', 'Testeur confirmé', 'Testeur expert', 'Grand testeur'];
 const niveau = cle => { let l = []; try { l = JSON.parse(localStorage.getItem('pdvFaites') || '[]'); if (cle && !l.includes(cle)) { l.push(cle); localStorage.setItem('pdvFaites', JSON.stringify(l.slice(-60))); } } catch (e) { } return Math.max(1, l.length); };
 // l'anneau du label, repris de la charte graphique (page « Éléments graphiques ») : texte blanc qui tourne sur un anneau noir, ici autour du rond d'une personne
-const ANNEAU = (c, nom) => `<figure class="anneau"><svg viewBox="0 0 200 200" role="img" aria-label="Label : co-testé par des habitants, Granville Terre et Mer"><circle cx="100" cy="100" r="81" fill="#fff" stroke="#141414" stroke-width="38"/><path id="tourLabel" d="M19,100 a81,81 0 1,1 162,0 a81,81 0 1,1 -162,0" fill="none"/><text font-size="15.5" font-weight="800" fill="#fff" dy=".36em"><textPath href="#tourLabel" textLength="496" lengthAdjust="spacing">· CO-TESTÉ PAR DES HABITANTS · GRANVILLE TERRE ET MER </textPath></text></svg>${tete(c)}${nom ? `<figcaption>${h(nom)}</figcaption>` : ''}</figure>`;
+const ANNEAU = (c, nom) => `<figure class="anneau"><svg viewBox="0 0 200 200" role="img" aria-label="Label : co-testé par des habitants, Granville Terre et Mer"><circle cx="100" cy="100" r="81" fill="#fff" stroke="#2B1B12" stroke-width="38"/><path id="tourLabel" d="M19,100 a81,81 0 1,1 162,0 a81,81 0 1,1 -162,0" fill="none"/><text font-size="15.5" font-weight="800" fill="#fff" dy=".36em"><textPath href="#tourLabel" textLength="496" lengthAdjust="spacing">· CO-TESTÉ PAR DES HABITANTS · GRANVILLE TERRE ET MER </textPath></text></svg>${tete(c)}${nom ? `<figcaption>${h(nom)}</figcaption>` : ''}</figure>`;
 const LABEL = (n, nom, c) => `<div class="label">${ANNEAU(c, nom)}<div><span>Groupe testeur · Points de vue</span><b>Niveau ${n} · ${NIVEAUX[Math.min(n, NIVEAUX.length) - 1]}</b><small>${n > 1 ? n + ' tests à votre actif.' : 'Votre premier test.'}${n < NIVEAUX.length ? ' Encore un test pour passer au niveau ' + (n + 1) + '.' : ''}</small></div></div>`;
 const couleurDe = s => COUL[[...String(s)].reduce((a, x) => a + x.charCodeAt(0), 0) % COUL.length]; // une couleur stable pour un téléphone
 
@@ -396,7 +396,7 @@ addEventListener('resize', placer);
 const carte = (lien, ico, titre, texte) => `<a href="${lien}" data-ico="${ico}"><b>${titre}</b><span>${texte}</span></a>`;
 function choixPasser() { // passer le test : au téléphone ou sur papier, et la photo des fiches remplies
   placer();
-  app.innerHTML = `<div class="site"><p class="sur"><a href="./" aria-label="Accueil" title="Accueil"><svg viewBox="0 0 24 24" width="1.35em" height="1.35em" fill="currentColor" aria-hidden="true" style="vertical-align:-.3em"><path d="M12 3 2.5 11.2h2.7V21h5.3v-6h3v6h5.3v-9.8h2.7z"/></svg></a>${rondProfil('background:#141414')} · Passer le test</p><h1>Téléphone ou papier ?</h1><nav class="trois">
+  app.innerHTML = `<div class="site"><p class="sur"><a href="./" aria-label="Accueil" title="Accueil"><svg viewBox="0 0 24 24" width="1.35em" height="1.35em" fill="currentColor" aria-hidden="true" style="vertical-align:-.3em"><path d="M12 3 2.5 11.2h2.7V21h5.3v-6h3v6h5.3v-9.8h2.7z"/></svg></a>${rondProfil('background:#2B1B12')} · Passer le test</p><h1>Téléphone ou papier ?</h1><nav class="trois">
     ${carte('?passer=tel' + TQ, 'tel', 'Au téléphone', "Chacun répond sur son téléphone. Les réponses s'enregistrent toutes seules.")}
     ${carte('?ecran&papier' + TQ, 'feuille', 'Sur papier', "Chacun répond sur un livret à plier. Le grand écran montre les affiches et les questions, sans téléphone.")}
     ${carte('papier.html?vue=lire' + TQ, 'appareil', 'Photographier les fiches', "Après une séance sur papier : une photo par fiche remplie, et les réponses rejoignent les données à étudier.")}
@@ -412,7 +412,7 @@ function choixPasser() { // passer le test : au téléphone ou sur papier, et la
 }
 function accueilSite() {
   placer();
-  app.innerHTML = `<div class="site"><p class="sur">Points de vue · faites tester vos affiches par des habitants</p>${rondProfil('position:fixed;top:16px;right:18px;font-size:20px;margin:0;background:#141414')}<h1>Que voulez-vous faire ?</h1><nav class="trois">
+  app.innerHTML = `<div class="site"><p class="sur">Points de vue · faites tester vos affiches par des habitants</p>${rondProfil('position:fixed;top:16px;right:18px;font-size:20px;margin:0;background:#2B1B12')}<h1>Que voulez-vous faire ?</h1><nav class="trois">
     ${carte('?passer', 'fiche', 'Passer le test', "Au téléphone ou sur papier : rejoindre une séance, l'animer sur le grand écran, photographier les fiches remplies.")}
     ${carte('modifier.html', 'crayon', 'Modifier le test', "Ajouter vos affiches, choisir les questions posées sur chacune, régler l'ordre des écrans.")}
     ${carte('resultats.html', 'barres', 'Étudier les données', 'Les réponses question par question, la comparaison des séances, le Google Sheet.')}

@@ -16,6 +16,11 @@ button,input,textarea,select{font:inherit;color:inherit}
 button{border:0;background:none;cursor:pointer;padding:0}
 :focus-visible{outline:3px solid var(--c3);outline-offset:2px}
 header{display:flex;align-items:center;gap:10px 12px;padding:12px 20px;flex:none;flex-wrap:wrap}
+/* les questions toutes prêtes, dans la fenêtre d'ajout : repliées par défaut, une liste par temps */
+.pretes{margin-top:14px}.pretes summary{font-weight:800;cursor:pointer;padding:8px 0}.pretes h4{margin:12px 0 4px;font-size:13px;font-weight:800;color:var(--gris)}
+#pretes{max-height:38vh;overflow:auto;display:grid;gap:6px;padding-right:4px}
+#pretes button{display:flex;justify-content:space-between;align-items:center;gap:12px;width:100%;text-align:left;font:inherit;font-weight:700;border:0;border-radius:12px;background:var(--fond);padding:10px 12px;cursor:pointer}#pretes button:hover{background:#E6E6E6}
+#pretes small{flex:none;font-weight:400;font-size:12px;color:var(--gris)}
 /* les tests : une bande de miniatures qui défile, l'affiche de chaque test et son nom */
 .tests{flex:none;display:flex;gap:8px;overflow-x:auto;padding:2px 20px 10px;scrollbar-width:thin}
 .tests a,.tests button{flex:none;display:flex;align-items:center;gap:10px;width:190px;padding:6px 12px 6px 6px;border:0;border-radius:16px;background:var(--fond);color:inherit;font:inherit;font-size:13px;font-weight:800;line-height:1.15;text-align:left;text-decoration:none;cursor:pointer}
@@ -36,6 +41,12 @@ header h1 small{display:block;font-size:13px;font-weight:400;letter-spacing:0;co
 .corps{flex:1;min-height:0;display:grid;grid-template-columns:330px minmax(0,1fr)}
 /* la colonne des écrans, comme les diapositives d'un diaporama */
 #liste{margin:0;padding:8px 10px 40px 14px;list-style:none;overflow:auto;background:var(--fond)}
+/* les carnets de la séance, dans la colonne : celui qui est ouvert en noir, les autres en clair, à ouvrir d'un clic */
+#liste li.carnet{border:0;padding:0;margin:14px 0 8px;background:#fff;cursor:default}#liste li.carnet:first-of-type{margin-top:4px}
+#liste li.carnet>*{display:flex;align-items:center;gap:10px;width:100%;padding:8px 12px 8px 8px;border-radius:14px;color:inherit;text-decoration:none}
+#liste li.carnet.ici{background:var(--n);color:#fff}#liste li.carnet a{cursor:pointer;box-shadow:inset 0 0 0 2px #C9C9C9}#liste li.carnet a:hover{box-shadow:inset 0 0 0 2px var(--n)}
+#liste li.carnet i{flex:none;width:34px;height:48px;border-radius:6px;background:#fff center/cover no-repeat;box-shadow:inset 0 0 0 1px rgba(20,20,20,.15)}
+#liste li.carnet b{display:block;font-size:17px;font-weight:800;letter-spacing:-.03em}#liste li.carnet small{display:block;font-size:12px;line-height:1.15}
 #liste li{display:flex;align-items:center;gap:10px;padding:8px;border-radius:14px;cursor:pointer;margin-bottom:4px;background:#fff;border:3px solid color-mix(in srgb,var(--c,#141414) 72%,#141414)}
 #liste li.sel{box-shadow:0 0 0 3px #fff,0 0 0 7px var(--n);z-index:1;transform:scale(1.02)}#liste li.sel>.num{background:var(--n);color:#fff;border-radius:99px;width:auto;min-width:1.9em;padding:3px 7px;text-align:center}
 #liste li{position:relative}#liste li.masque .mini,#liste li.masque .num{opacity:.4}
@@ -273,6 +284,7 @@ dialog h3{margin:0 0 6px;font-size:24px;font-weight:800;letter-spacing:-.03em}
   <div class="ligne"><button class="btn" data-a="tuto">Voir le tutoriel</button><button class="btn clair" data-a="fermer">Fermer</button></div></dialog>
 <div id="tuto" hidden role="dialog" aria-modal="true" aria-label="Tutoriel de l'éditeur"><div class="trou"></div><div class="bulle"></div></div>
 <dialog id="nouveau"><h3>Ajouter un écran (une question, une affiche, un texte)</h3><p class="aide">Il se place juste après l'écran choisi. Vous pourrez ensuite le déplacer.</p><div class="types" id="types"></div>
+  <details class="pretes"><summary>Ou une question toute prête</summary><p class="aide">Des questions déjà rédigées, avec leurs réponses. Un clic la pose après l'écran choisi, sur la même affiche. Tout reste modifiable.</p><div id="pretes"></div></details>
   <div class="ligne"><button class="btn clair" data-a="fermer">Fermer</button></div></dialog>
 <dialog id="creer"><h3>Nouveau test</h3><p class="aide">Un test à part, avec son propre lien et ses propres écrans. Le test principal ne change pas. Choisissez un nom, puis une structure de départ (un modèle, ou la copie d'un test déjà créé) : tout reste modifiable ensuite.</p>
   <label class="c">Nom du test<input type="text" id="nomTest" maxlength="60" placeholder="Par exemple : Affiches vaccination, décembre"></label>
@@ -335,6 +347,10 @@ function parties() {
   return P.map(String);
 }
 const visibles = () => { const P = parties(); return M.ecrans.map((_, i) => i).filter(i => !fermes.has(P[i])); };
+let TESTS_CONNUS = [], MINIS = {}; // les tests du site et l'affiche de chacun, connus après le chargement de la page
+// un carnet dans la colonne : celui qui est ouvert (ses écrans suivent), ou un autre carnet de la séance, à ouvrir d'un clic
+const carnetLi = (id, i) => { const nom = ((TESTS_CONNUS.find(x => x.id === id) || {}).nom || '').replace(/^Carnet \d+ · /, ''), ici = id === TEST;
+  return `<li class="carnet${ici ? ' ici' : ''}">${ici ? '<span' : `<a href="modifier.html${id ? '?test=' + id : ''}" title="Ouvrir ce carnet"`}><i style="${MINIS[id] ? `background-image:url('${MINIS[id]}')` : ''}"></i><span><b>Carnet ${i + 1}${ici ? '' : ' ›'}</b><small>${h(nom)}</small></span>${ici ? '</span>' : '</a>'}</li>`; };
 function liste() {
   let n = 0, x = ''; const P = parties(), dossiers = [...new Set(P)].filter(p => NOM_PARTIE[p]).length > 1;
   const bouge = sel !== selVu; if (bouge) { fermes.delete(P[sel]); selVu = sel; } // le dossier de l'écran qu'on vient de choisir s'ouvre
@@ -350,7 +366,9 @@ function liste() {
     x += `<li class="dossier${ferme ? ' ferme' : ''}" data-fin="${j - 1}" data-p="${p > 0 ? p : ''}" style="--c:${p > 0 ? `var(--c${p})` : '#141414'};--f:${p > 0 && p != 3 ? '#141414' : '#fff'}"><span class="nom">${p > 0 ? `<small>${NOM_PARTIE[p]} · </small><span contenteditable="plaintext-only" spellcheck="false" role="textbox" aria-label="Nom de l'étape ${p}" title="Cliquer pour changer le nom de l'étape" data-ph="${p}">${h(M.phases[p].nom)}</span>` : NOM_PARTIE[p]}</span>
       <div class="chemise"><button type="button" data-og="${p}" aria-expanded="${!ferme}" aria-label="${ferme ? 'Ouvrir' : 'Refermer'} le dossier ${NOM_PARTIE[p]}, ${j - i} écrans" title="${ferme ? 'Ouvrir ce dossier' : 'Refermer ce dossier'}">${j - i} écran${j - i > 1 ? 's' : ''} ${ferme ? '▸' : '▾'}</button>${ferme ? '' : `<ol class="dedans">${cartes()}</ol>`}</div></li>`;
   }
-  $('liste').innerHTML = `<li class="ajout"><button type="button" class="btn" data-a="nouveau">+ Ajouter un écran</button><input type="search" id="cherche" placeholder="Chercher un écran…" aria-label="Chercher un écran" value="${h(filtre)}"></li>` + (x || '<li class="dossier"><span class="nom">Aucun écran ne contient ces mots.</span></li>');
+  const rang = CARNETS.indexOf(TEST), serie = rang >= 0 && CARNETS.every(id => TESTS_CONNUS.some(t => t.id === id)); // la séance à trois carnets : les trois apparaissent dans la colonne, dans l'ordre
+  const avant = serie ? CARNETS.slice(0, rang + 1).map(carnetLi).join('') : '', apres = serie ? CARNETS.slice(rang + 1).map((id, k) => carnetLi(id, rang + 1 + k)).join('') : '';
+  $('liste').innerHTML = `<li class="ajout"><button type="button" class="btn" data-a="nouveau">+ Ajouter un écran</button><input type="search" id="cherche" placeholder="Chercher un écran…" aria-label="Chercher un écran" value="${h(filtre)}"></li>` + avant + (x || '<li class="dossier"><span class="nom">Aucun écran ne contient ces mots.</span></li>') + apres;
   if (foc) { const c = $('cherche'); c.focus(); c.setSelectionRange(c.value.length, c.value.length); }
   if (bouge && !mots) { const li = $('liste').querySelector(`[data-i="${sel}"]`); if (li) li.scrollIntoView({ block: 'center' }); } // l'écran choisi revient au milieu de la liste ; ensuite on fait défiler librement
 }
@@ -791,8 +809,35 @@ const MODELES = [
   ['Question du jeu', 'Une question avec une bonne réponse, qui compte dans les scores.', () => ({ t: 'choix', jeu: 1, q: 'Votre question ?', o: ['La bonne réponse', 'Une autre réponse', 'Une autre réponse'], bon: 0, img: images[0] }), { jeu: 1 }]
 ];
 $('types').innerHTML = MODELES.map((m, i) => `<button type="button" data-n="${i}"><i>${typeof m[3] === 'string' ? svgI(m[3]) : ICONE(m[3])}</i><b>${h(m[0])}</b><span>${h(m[1])}</span></button>`).join('');
+// Les questions toutes prêtes : déjà rédigées, avec leurs réponses, rangées par temps de la séance (ce sont celles du test principal, qui ont servi en séance).
+// Elles sont proposées là où on ajoute un écran : un clic pose la question après l'écran choisi, sur l'affiche de cet écran. Tout reste modifiable.
+const PRETES = [
+  ['Temps 1 · Le message', [
+    { t: 'multi', q: 'Que propose cette affiche ?', o: ['Participer à un atelier', 'Donner mon avis', 'Des conseils pour mieux vivre', 'Faire un dépistage ou un bilan', "M'inscrire quelque part", 'Je ne vois pas'] },
+    { t: 'multi', q: "À votre avis, à qui s'adresse-t-elle ?", o: ['Aux personnes âgées', 'Aux familles', 'Aux jeunes', 'Aux professionnels', 'Difficile à dire'] },
+    { t: 'choix', q: "Après l'avoir vue, comment vous sentez-vous ?", o: ['Rassuré', 'Motivé', "Ni l'un ni l'autre", 'Inquiet', 'Perdu'] },
+    { t: 'echelle', q: "Après l'avoir vue, savez-vous quoi faire ?", a: 'Pas du tout', b: 'Parfaitement' },
+    { t: 'texte', q: "Si vous deviez retenir une chose de l'affiche, ce serait quoi ?" }]],
+  ['Temps 2 · Le visuel', [
+    { t: 'multi', q: "Qu'est-ce qui gêne la lecture ?", o: ['Des mots trop techniques', 'Des phrases trop longues', 'Des sigles', 'Des lettres trop petites', 'Trop de texte', "Du texte posé sur l'image", 'Un manque de contraste', 'Rien, tout est clair'] },
+    { t: 'multi', q: "Que vous évoque l'image de cette affiche ?", o: ['La convivialité', 'Le travail en groupe', 'Le sérieux', 'La santé', "L'école", 'La fête', 'Autre chose que le sujet', 'Rien de précis'] },
+    { t: 'echelle', q: "L'image et les couleurs vont-elles avec le sujet ?", a: 'Pas du tout', b: 'Tout à fait' },
+    { t: 'texte', q: 'Que changeriez-vous sur cette affiche ?' }]],
+  ['Temps 3 · Le format', [
+    { t: 'choix', q: 'Sous quelle forme vous serait-elle la plus utile ?', o: ['Grande affiche (A3)', 'Affiche (A4)', 'Flyer à emporter (A5)', 'Message sur le téléphone', 'De vive voix', 'Dans la presse'] },
+    { t: 'choix', q: "Ce flyer, l'emporteriez-vous avec vous ?", o: ['Oui', 'Je la prendrais en photo', 'Non'] },
+    { t: 'echelle', q: 'Cette information vous serait-elle utile, à vous ou à un proche ?', a: 'Pas du tout', b: 'Tout à fait' },
+    { t: 'choix', q: 'À quel point faites-vous confiance à cette affiche ?', o: ['Totalement', 'Plutôt', 'Pas vraiment', 'Pas du tout'] },
+    { t: 'texte', q: "Près de chez vous, où faudrait-il l'afficher ?" },
+    { t: 'choix', q: 'Souhaitez-vous participer ?', o: ['Oui', 'Peut-être', 'Non'] }]]
+];
+const GENRE = { choix: 'une réponse', multi: 'plusieurs réponses', echelle: 'note', texte: 'avis libre' };
+$('pretes').innerHTML = PRETES.map(([titre, l], g) => `<h4>${h(titre)}</h4>` + l.map((m, k) => `<button type="button" data-q="${g},${k}"><span>${h(m.q)}</span><small>${GENRE[m.t]}</small></button>`).join('')).join('');
+// l'affiche de la question ajoutée : celle de l'écran choisi, sinon la première affiche du test
+const afficheIci = () => { const de = e => e && (e.img || (e.imgs || [])[0]); return de(M.ecrans[sel]) || de(M.ecrans.find(de)) || images[0]; };
 $('nouveau').addEventListener('click', ev => {
   if (ev.target.closest('[data-a=fermer]')) return $('nouveau').close();
+  const pr = ev.target.closest('[data-q]'); if (pr) { const [g, k] = pr.dataset.q.split(',').map(Number), m = PRETES[g][1][k]; $('nouveau').close(); return inserer(p => ({ ...m, ...(m.o ? { o: [...m.o] } : {}), imgs: [afficheIci()], ...p })); } // une copie : modifier la question posée ne touche pas le modèle
   const b = ev.target.closest('[data-n]'); if (!b) return;
   const m = MODELES[+b.dataset.n][2]; $('nouveau').close();
   if (m === 'affiche') { cible = 'parcours'; return galerie(); } // d'abord choisir (ou ajouter) l'affiche
@@ -875,11 +920,11 @@ $('creer').addEventListener('click', ev => { if (ev.target.closest('[data-a=ferm
 // le choix du test modifié, et les liens qui suivent ce test
 listeTests().then(l => {
   if (TEST && !l.some(x => x.id === TEST)) l.push({ id: TEST, nom: TEST });
-  NOM = (l.find(x => x.id === TEST) || {}).nom || NOM;
+  NOM = (l.find(x => x.id === TEST) || {}).nom || NOM; TESTS_CONNUS = l; if (M) liste();
   $('carnets').innerHTML = l.map(x => `<a href="modifier.html${x.id ? '?test=' + h(x.id) : ''}" ${x.id === TEST ? 'aria-current="page"' : ''} title="${h(x.nom)}"><i data-mini="${h(x.id)}"></i><span>${h(x.nom)}</span></a>`).join('') + '<button type="button" id="miniNouveau">+ Nouveau test</button>';
   $('miniNouveau').onclick = () => nouveauTest();
   const ouvert = $('carnets').querySelector('[aria-current]'); if (ouvert) ouvert.scrollIntoView({ block: 'nearest', inline: 'center' });
-  l.forEach(x => lireFichier(x.id).then(t => { const m = /affiches\/[\w.-]+\.(?:jpe?g|png|webp|gif)/i.exec(t.split('\n').filter(x => x[0] !== '#').join('\n')), v = $('carnets').querySelector(`[data-mini="${x.id}"]`); if (m && v) v.style.backgroundImage = `url("${m[0]}")`; }).catch(() => { })); // la première affiche du test sert de miniature
+  l.forEach(x => lireFichier(x.id).then(t => { const m = /affiches\/[\w.-]+\.(?:jpe?g|png|webp|gif)/i.exec(t.split('\n').filter(x => x[0] !== '#').join('\n')), v = $('carnets').querySelector(`[data-mini="${x.id}"]`); if (m && v) v.style.backgroundImage = `url("${m[0]}")`; if (m) { MINIS[x.id] = m[0]; if (M) liste(); } }).catch(() => { })); // la première affiche du test sert de miniature
   $('test').innerHTML = l.map(x => `<option value="${h(x.id)}" ${x.id === TEST ? 'selected' : ''}>${h(x.nom)}${x.quand ? ' · créé le ' + new Date(x.quand).toLocaleDateString('fr-FR') : ''}</option>`).join('') + '<option value="+">+ Nouveau test…</option>';
   // chaque test déjà créé est proposé comme modèle (le principal l'est déjà : « Notre structure »)
   $('gabarits').insertAdjacentHTML('beforeend', l.filter(x => x.id).map(x => `<button type="button" data-t="${h(x.id)}"><b>Copie de « ${h(x.nom)} »</b><span>${x.id === TEST ? 'Le test ouvert ici, avec vos modifications en cours : mêmes écrans, mêmes affiches, à changer ensuite.' : 'Un test déjà créé : mêmes écrans, mêmes affiches, à changer ensuite.'}</span></button>`).join(''));
