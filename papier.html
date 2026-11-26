@@ -105,14 +105,10 @@ const RAYON = 3.35, PAS = 10.08, RANG = 22, COULEURS = ['#F4A1C6', '#F8C237', '#
 const REPERES = [[13.5, 13.5], [406.5, 13.5], [13.5, 283.5], [406.5, 283.5]]; // quatre ronds noirs : absents du modèle, ajoutés pour lire la photo. Un par coin de la feuille, à 13,5 mm des bords.
 // Ce qui se trouvait dans ces coins recule : la bulle « Débattons ! » du modèle, son petit rond et ses yeux (et les deux bulles redessinées en haut, qui suivent).
 const RECUL = -12, PARLEUR = ['M407.08 283.86', 'M406.74 285.88', 'M407.87 285.24']; // le petit rond qui parle sous la bulle, et ses deux yeux
-// Le dos du livret : le logo aux trois ronds en grand, le nom « Points de vue » recopié de la couverture, puis (dans fiche) les logos habituels et le numéro de séance.
-const TRACES = LIVRET_FOND.match(/<\w+ [^>]*>/g), NOM = [], compte = { nom: 0, logo: 0, bulle: 0 };
-const FOND = TRACES.map(p => { const m = /d="M([\d.]+) ([\d.]+)/.exec(p); if (!m) return p; /* quatre yeux du modèle sont des cercles : ils restent en place */ const x = +m[1], y = +m[2], dans =(x0, y0, x1, y1) => x >= x0 && x <= x1 && y >= y0 && y <= y1;
-  if (['M403.36 272.72', ...PARLEUR].some(t => p.includes('d="' + t))) { compte.bulle++; return p.replace('<path ', `<path transform="translate(${RECUL} 0)" `); }
-  if (dans(111, 155, 186, 197)) { compte.nom++; NOM.push(p); } // « Points de vue », sur la couverture : il y reste
-  if (dans(26, 200, 80, 247)) { compte.logo++; return p.replace('<path ', '<path transform="translate(52.5 188) scale(1.2) translate(-52.5 -223.5)" '); } // le logo, agrandi et remonté
-  return p; }).join('') + `<g transform="translate(52.5 236) scale(.8) translate(-148 -175.5)">${NOM.join('')}</g>`;
-if (TRACES.join('').length !== LIVRET_FOND.length || compte.nom !== 11 || compte.logo !== 15 || compte.bulle !== 4) throw new Error('livret-fond.js a changé, le dos ne se retrouve plus : ' + JSON.stringify(compte));
+// Le reste du modèle (dos et couverture compris) est gardé tel quel.
+const TRACES = LIVRET_FOND.match(/<\w+ [^>]*>/g), compte = { bulle: 0 };
+const FOND = TRACES.map(p => { if (['M403.36 272.72', ...PARLEUR].some(t => p.includes('d="' + t))) { compte.bulle++; return p.replace('<path ', `<path transform="translate(${RECUL} 0)" `); } return p; }).join('');
+if (TRACES.join('').length !== LIVRET_FOND.length || compte.bulle !== 4) throw new Error('livret-fond.js a changé, la bulle ne se retrouve plus : ' + JSON.stringify(compte));
 const parleur = c => PARLEUR.map((t, i) => { const p = TRACES.find(x => x.includes('d="' + t)); return i ? p : p.replace(/fill="[^"]*"/, `fill="${c}"`); }).join(''); // le même petit rond, dans la couleur de l'étape
 // les six volets de questions, dans l'ordre de lecture : x du numéro, x du texte, x du 1er rond, y de la 1re ligne, sens (1 à l'endroit, -1 tête en bas), bord du cadre côté ronds, puis x et y de « Temps N »
 const VOLETS = [[220.2, 226.8, 230.3, 184.8, 1, 308.9, 220.2, 164.8], [324.1, 330.6, 334.1, 184.8, 1, 413.9, 324.1, 164.8], [408, 401.5, 397.9, 113.1, -1, 321.2, 397, 133], [304.1, 297.6, 294.1, 113.1, -1, 216.2, 304.1, 133], [197.9, 191.4, 187.9, 113.3, -1, 111.2, 186, 133], [94.1, 87.6, 84, 113.3, -1, 6.2, 94.1, 133]];
@@ -144,7 +140,6 @@ function fiche(Q, carnet = 1, affiche = '') {
   <svg viewBox="0 0 420 297" xmlns="http://www.w3.org/2000/svg" font-family="'Scoutie Sans',Helvetica,Arial,sans-serif" fill="#151515">
     ${FOND}
     ${T(117, 263.9, 'Votre affiche est en cours de Fabrication', 'font-size="3.3"')}${T(117, 267.8, 'Nous avons besoin de votre aide !', 'font-size="3.3"')}${T(379.6 + RECUL, 278.4, 'Débattons !', 'font-size="4.04" font-weight="700"')}
-    ${LOGOS.slice(0, 2).map((l, i, t) => `<image href="${h(l)}" x="${52.5 + (i - (t.length - 1) / 2) * 46 - 21}" y="257" width="42" height="14" preserveAspectRatio="xMidYMid meet"/>`).join('')}${T(52.5, 287, 'Séance : ' + (EXEMPLE ? 'essai' : '....................'), 'font-size="3.6" font-weight="700" text-anchor="middle"')}
     ${T(111.6, 238, 'Carnet ' + carnet + ' sur 3 · Séance : ' + (EXEMPLE ? 'essai' : '..............') + ' · N° : ' + (EXEMPLE ? '1' : '........'), 'font-size="3.3" font-weight="700"')}
     ${[[1, 315], [2, 210]].map(([k, cx]) => `<g transform="rotate(180 ${cx} 148.5)"><g transform="translate(${RECUL} 0)"><path d="${LIVRET_BULLE}" fill="${COULEURS[k]}"/>${parleur(COULEURS[k])}</g>${T(379.6 + RECUL, 278.4, 'Débattons !', 'font-size="4.04" font-weight="700"' + (k === 2 ? ' fill="#fff"' : ''))}</g>`).join('')}
     ${temps}${questions}
