@@ -2,10 +2,10 @@
 # Un test très court qui montre les outils les plus parlants de l'appli :
 #   1. les mises en situation (l'affiche dans un abribus, une pharmacie…),
 #   2. toucher la partie de l'affiche qui a attiré l'œil,
-#   3. le chrono, un rond qui se remplit pendant le temps de réponse.
+#   3. une question de rapidité avec le chrono (un rond qui se remplit), puis les scores.
 # Même format que seance.txt (mode d'emploi en tête de ce fichier-là).
 
-étape 1 = Pour finir | Trois questions sur l'affiche « Bien vivre chez soi ».
+étape 1 = Pour finir | Trois questions sur l'affiche de la conférence « Mémoire tonique ».
 
 logo = logos/granville-terre-et-mer.svg
 
@@ -17,7 +17,7 @@ logo = logos/granville-terre-et-mer.svg
 [question] Où auriez-vous une chance de croiser cette affiche ?
 étape : 1
 réponses : plusieurs
-affiche : affiches/origine.jpg
+affiche : affiches/memoire.jpg
 précision : Touchez tous les endroits qui vous parlent.
 - Abribus
 - Panneau de ville
@@ -25,34 +25,36 @@ précision : Touchez tous les endroits qui vous parlent.
 - Salle d'attente
 - Panneau de la mairie
 - Réseaux sociaux
-image : Abribus | affiches/lieu-abribus.jpg
-image : Panneau de ville | affiches/lieu-panneau-ville.jpg
-image : Pharmacie | affiches/lieu-pharmacie.jpg
-image : Salle d'attente | affiches/lieu-salle-attente.jpg
-image : Panneau de la mairie | affiches/lieu-mairie.jpg
-image : Réseaux sociaux | affiches/lieu-reseaux-sociaux.jpg
+image : Abribus | affiches/lieu-abribus-3.jpg
+image : Panneau de ville | affiches/lieu-panneau-ville-3.jpg
+image : Pharmacie | affiches/lieu-pharmacie-3.jpg
+image : Salle d'attente | affiches/lieu-salle-attente-3.jpg
+image : Panneau de la mairie | affiches/lieu-mairie-3.jpg
+image : Réseaux sociaux | affiches/lieu-reseaux-sociaux-3.jpg
 téléphone : sans affiche
 
 [zones] Où votre regard s'est-il posé en premier ?
 étape : 1
 réponses : une
-affiche : affiches/origine.jpg
+affiche : affiches/memoire.jpg
 précision : Touchez la partie de l'affiche.
-- Le titre @ 16 3 67 17
-- Les ateliers et le dessin @ 4 21 92 41
-- Gratuit, animé par @ 8 62 84 8
-- Les dates et les lieux @ 2 70 95 15
-- Les logos @ 10 86 81 11
+- Les logos du haut @ 2 0 96 8
+- La photo @ 34 4 64 27
+- Le titre de la conférence @ 0 31 100 12
+- La date et le lieu @ 12 44 52 17
+- Le texte @ 7 63 54 21
+- Les quatre mots à droite @ 62 55 33 24
+- Les logos du bas @ 5 88 90 12
 
-[jeu] Vite ! À qui s'adressent ces ateliers ?
+[jeu] Vite ! À partir de quel âge peut-on venir à la conférence ?
 étape : 1
-affiche : affiches/origine.jpg
+affiche : affiches/memoire.jpg
 précision : Question de rapidité : 10 secondes pour trouver.
 chrono : 10 s
-- Aux enfants
-+ Aux plus de 60 ans
-- Aux sportifs
-- Aux étudiants
+- 50 ans
++ 55 ans
+- 60 ans
+- 65 ans
 
 [scores]
 
