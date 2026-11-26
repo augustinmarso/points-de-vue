@@ -3,3 +3,4 @@
 affiche-1 | Carnet 1 · Bien vivre chez soi
 affiche-2 | Carnet 2 · L'art de rester actif
 affiche-3 | Carnet 3 · Mémoire tonique
+fin | Pour finir · 3 questions

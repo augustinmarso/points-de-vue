@@ -1,0 +1,58 @@
+# POUR FINIR : TROIS QUESTIONS
+# Un test très court qui montre les outils les plus parlants de l'appli :
+#   1. les mises en situation (l'affiche dans un abribus, une pharmacie…),
+#   2. toucher la partie de l'affiche qui a attiré l'œil,
+#   3. le chrono, un rond qui se remplit pendant le temps de réponse.
+# Même format que seance.txt (mode d'emploi en tête de ce fichier-là).
+
+étape 1 = Pour finir | Trois questions sur l'affiche « Bien vivre chez soi ».
+
+logo = logos/granville-terre-et-mer.svg
+
+[accueil]
+
+[texte] Pour finir | Trois questions | Une affiche, trois questions rapides. Répondez au premier coup d'œil : il n'y a pas de mauvaise réponse.
+étape : 1
+
+[question] Où auriez-vous une chance de croiser cette affiche ?
+étape : 1
+réponses : plusieurs
+affiche : affiches/origine.jpg
+précision : Touchez tous les endroits qui vous parlent.
+- Abribus
+- Panneau de ville
+- Pharmacie
+- Salle d'attente
+- Panneau de la mairie
+- Réseaux sociaux
+image : Abribus | affiches/lieu-abribus.jpg
+image : Panneau de ville | affiches/lieu-panneau-ville.jpg
+image : Pharmacie | affiches/lieu-pharmacie.jpg
+image : Salle d'attente | affiches/lieu-salle-attente.jpg
+image : Panneau de la mairie | affiches/lieu-mairie.jpg
+image : Réseaux sociaux | affiches/lieu-reseaux-sociaux.jpg
+téléphone : sans affiche
+
+[zones] Où votre regard s'est-il posé en premier ?
+étape : 1
+réponses : une
+affiche : affiches/origine.jpg
+précision : Touchez la partie de l'affiche.
+- Le titre @ 16 3 67 17
+- Les ateliers et le dessin @ 4 21 92 41
+- Gratuit, animé par @ 8 62 84 8
+- Les dates et les lieux @ 2 70 95 15
+- Les logos @ 10 86 81 11
+
+[question] Après l'avoir vue, que feriez-vous ?
+étape : 1
+réponses : une
+affiche : affiches/origine.jpg
+précision : Vous avez 30 secondes.
+chrono : 30 s
+- J'appelle pour m'inscrire
+- J'en parle à un proche
+- Je la prends en photo
+- Je passe mon chemin
+
+[fin]
