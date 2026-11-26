@@ -7,10 +7,15 @@
 <title>Points de vue · séance</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'><rect width='120' height='120' fill='%23fff'/><g style='mix-blend-mode:multiply'><circle cx='44' cy='50' r='40' fill='%23F5A0C6'/></g><g style='mix-blend-mode:multiply'><circle cx='86' cy='42' r='28' fill='%23F7C33B'/></g><g style='mix-blend-mode:multiply'><circle cx='74' cy='82' r='22' fill='%231F6FE0'/></g><circle cx='22' cy='40' r='3.6' fill='%23141414'/><circle cx='34' cy='38' r='3.6' fill='%23141414'/><circle cx='93' cy='28' r='2.9' fill='%23141414'/><circle cx='103' cy='30' r='2.9' fill='%23141414'/><circle cx='73' cy='95' r='2.4' fill='%23141414'/><circle cx='81' cy='95' r='2.4' fill='%23141414'/></svg>">
 <link rel="apple-touch-icon" href="icone.png">
+<link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#ffffff">
 <link rel="preload" href="polices/scoutie.woff2" as="font" type="font/woff2" crossorigin>
 <style>@font-face{font-family:'Scoutie Sans';font-weight:200 800;font-display:swap;src:url(polices/scoutie.woff2) format('woff2')}</style>
 <style>
+/* le bloc « L'appli Points de vue » de l'accueil : le logo, deux boutons */
+.appli{display:flex;gap:16px;align-items:flex-start;margin-top:22px;padding:18px;border-radius:22px;background:#F4EFEA;text-align:left}.appli[hidden]{display:none}.appli img{flex:none;border-radius:16px;background:#fff}
+.appli b{display:block;font-size:20px;font-weight:800}.appli span{display:block;margin-top:2px;font-size:15px}.appli p{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 0}
+.appli button,.appli a{font:inherit;font-weight:700;font-size:15px;border:0;border-radius:99px;padding:10px 18px;cursor:pointer;text-decoration:none;background:#2B1B12;color:#fff}.appli a{background:#fff;color:#2B1B12}.appli button[hidden],.appli a[hidden]{display:none}
 :root{--n:#2B1B12;--c1:#F5A0C6;--c2:#F7C33B;--c3:#1F6FE0;--c4:#7BD3A8;--c5:#B79CF2;--c6:#FF9A6B;--t1:#FDE7F1;--t2:#FDF0CC;--t3:#DCE9FB;--t4:#DDF4E8;--t5:#EBE3FB;--t6:#FFE4D6;--c:var(--c1);--t:var(--t1)}
 *{box-sizing:border-box}
 html,body{margin:0;min-height:100%}
@@ -410,13 +415,26 @@ function choixPasser() { // passer le test : au téléphone ou sur papier, et la
   document.body.classList.add('nb');
   regards();
 }
+// Installer le site comme une appli (icône, fenêtre à elle) : le navigateur prévient quand c'est possible, le bouton n'apparaît qu'à ce moment-là.
+// shortcut: Safari (iPhone, Mac) ne prévient jamais, le bouton n'y apparaît pas ; là-bas on passe par Partager > Sur l'écran d'accueil.
+let invite = null;
+addEventListener('beforeinstallprompt', ev => { ev.preventDefault(); invite = ev; montrerInstaller(); });
+function montrerInstaller() { // le bloc n'apparaît que s'il a quelque chose à proposer
+  const b = document.getElementById('installer'), z = document.getElementById('appli'); if (!b) return;
+  if (invite) { b.hidden = false; b.onclick = () => { invite.prompt(); invite = null; b.hidden = true; z.hidden = document.getElementById('pourPC').hidden; }; }
+  z.hidden = b.hidden && document.getElementById('pourPC').hidden;
+}
 function accueilSite() {
   placer();
   app.innerHTML = `<div class="site"><p class="sur">Points de vue · faites tester vos affiches par des habitants</p>${rondProfil('position:fixed;top:16px;right:18px;font-size:20px;margin:0;background:#2B1B12')}<h1>Que voulez-vous faire ?</h1><nav class="trois">
     ${carte('?passer', 'fiche', 'Passer le test', "Au téléphone ou sur papier : rejoindre une séance, l'animer sur le grand écran, photographier les fiches remplies.")}
     ${carte('modifier.html', 'crayon', 'Modifier le test', "Ajouter vos affiches, choisir les questions posées sur chacune, régler l'ordre des écrans.")}
     ${carte('resultats.html', 'barres', 'Étudier les données', 'Les réponses question par question, la comparaison des séances, le Google Sheet.')}
-  </nav><p class="note"><a href="parcours.html">La pochette du testeur, à ouvrir sur téléphone</a></p></div>`;
+  </nav><p class="note"><a href="parcours.html">La pochette du testeur, à ouvrir sur téléphone</a></p>
+  <section class="appli" id="appli" hidden><img src="icone.png" alt="" width="64" height="64"><div><b>L'appli Points de vue</b><span>Avec son icône, dans sa propre fenêtre. La version PC marche sans internet et range les réponses dans un fichier Excel.</span>
+    <p><button type="button" id="installer" hidden>Installer sur cet appareil</button><a id="pourPC" hidden href="https://github.com/augustinmarso/points-de-vue/releases/latest/download/Points-de-vue-PC.zip">Télécharger pour Windows · 55 Mo</a></p></div></section></div>`;
+  document.getElementById('pourPC').hidden = location.protocol !== 'https:'; // la version PC (servie en http sur l'ordinateur) ne se propose pas elle-même
+  montrerInstaller();
   document.body.classList.add('nb');
   regards();
 }
