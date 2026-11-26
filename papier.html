@@ -131,8 +131,8 @@ function fiche(Q, carnet = 1, affiche = '') {
   return (G.trop && carnet === 1 ? `<p class="trop">Il y a trop de questions pour ce livret (huit par temps, trois temps) : masquez-en quelques-unes dans « Modifier le test ».</p>` : '') + `<div class="page fiche">
   <svg viewBox="0 0 420 297" xmlns="http://www.w3.org/2000/svg" font-family="'Scoutie Sans',Helvetica,Arial,sans-serif" fill="#151515">
     ${LIVRET_FOND}
-    ${T(117, 263.9, 'Votre affiche est en cours de Fabrication', 'font-size="3.3"')}${T(117, 267.8, 'Nous avons besoin de votre aide !', 'font-size="3.3"')}${T(117, 271.8, '...', 'font-size="3.3"')}${T(379.6, 278.4, 'Débattons !', 'font-size="4.04" font-weight="700"')}
-    ${T(111.6, 238, 'Carnet ' + carnet + ' sur 3 · Séance : ' + (EXEMPLE ? 'essai' : '..............') + ' · N° : ' + (EXEMPLE ? '1' : '........'), 'font-size="3.3" font-weight="700"')}${T(111.6, 243, 'Test ' + h(VERSION), 'font-size="2.4" fill="#6B6B6B"')}
+    ${T(117, 263.9, 'Votre affiche est en cours de Fabrication', 'font-size="3.3"')}${T(117, 267.8, 'Nous avons besoin de votre aide !', 'font-size="3.3"')}${T(379.6, 278.4, 'Débattons !', 'font-size="4.04" font-weight="700"')}
+    ${T(111.6, 238, 'Carnet ' + carnet + ' sur 3 · Séance : ' + (EXEMPLE ? 'essai' : '..............') + ' · N° : ' + (EXEMPLE ? '1' : '........'), 'font-size="3.3" font-weight="700"')}
     ${temps}${questions}
     ${REPERES.map(([x, y]) => `<circle cx="${x}" cy="${y}" r="3.5" fill="#000"/><circle cx="${x - 1}" cy="${y}" r=".65" fill="#fff"/><circle cx="${x + 1}" cy="${y}" r=".65" fill="#fff"/>`).join('')}
   </svg>
@@ -145,7 +145,7 @@ const affichesDispo = () => [...new Set(ETAPES.flatMap(e => [e.img, ...(e.imgs |
 const affichesCarnets = () => { const l = affichesDispo(); let c = []; try { c = JSON.parse(localStorage.getItem('pdvCarnets' + TEST)) || []; } catch (e) { } return [0, 1, 2].map(i => l.includes(c[i]) ? c[i] : l[i] || l[0] || ''); };
 let seul = 0; // 0 : les trois carnets ; 1, 2 ou 3 : ce carnet seulement (une feuille recto verso)
 const livrets = Q => { const A = affichesCarnets(), l = affichesDispo();
-  return `<div class="trop reglage"><b>Trois carnets par personne, un par affiche.</b> L'affiche imprimée au dos de chaque feuille : ${A.map((a, i) => `<label>Carnet ${i + 1} <select data-carnet="${i}">${l.map(x => `<option value="${h(x)}" ${x === a ? 'selected' : ''}>${h(x.replace(/^.*\//, '').replace(/\.\w+$/, ''))}</option>`).join('')}</select></label>`).join(' ')}<br><label>À imprimer <select data-seul><option value="0">les trois carnets (six pages)</option>${[1, 2, 3].map(i => `<option value="${i}" ${i === seul ? 'selected' : ''}>le carnet ${i} seul (une feuille recto verso)</option>`).join('')}</select></label> A3 paysage, recto verso, en retournant sur le petit côté : le carnet d'un côté, son affiche de l'autre.</div>` + A.map((a, i) => seul && seul !== i + 1 ? '' : fiche(Q, i + 1, a)).join(''); };
+  return `<div class="trop reglage"><b>Affiche au dos</b> ${A.map((a, i) => `<label>Carnet ${i + 1} <select data-carnet="${i}">${l.map(x => `<option value="${h(x)}" ${x === a ? 'selected' : ''}>${h(x.replace(/^.*\//, '').replace(/\.\w+$/, ''))}</option>`).join('')}</select></label>`).join(' ')}<br><label>À imprimer <select data-seul><option value="0">les trois carnets (six pages)</option>${[1, 2, 3].map(i => `<option value="${i}" ${i === seul ? 'selected' : ''}>le carnet ${i} seul (une feuille recto verso)</option>`).join('')}</select></label> A3 paysage, recto verso (petit côté).</div>` + A.map((a, i) => seul && seul !== i + 1 ? '' : fiche(Q, i + 1, a)).join(''); };
 // un texte trop long pour sa case rétrécit jusqu'à tenir
 const ajuster = () => document.querySelectorAll('.ft').forEach(d => { let t = parseFloat(d.style.fontSize) || 4.04; while (d.scrollHeight > d.clientHeight + 1 && t > 2.6) d.style.fontSize = (t -= .15) + 'mm'; });
 
@@ -264,7 +264,7 @@ function lignes() { // les réponses lues, au même format que celles des télé
 }
 function vueLire() {
   return `<div class="scan"><h1>Photographier les fiches</h1>
-    <ol><li>Dépliez le livret rempli et posez la feuille bien à plat, sous une bonne lumière.</li><li>Photographiez-la en entier : les quatre ronds noirs des coins doivent être visibles. Elle peut être de travers ou tournée.</li><li>Si les cercles ne tombent pas sur les ronds, faites glisser les poignées orange sur les quatre ronds noirs des coins (ou décalez tout avec les flèches).</li><li>Vérifiez les réponses lues : un clic sur la photo ou dans la liste sous la photo ajoute ou retire une réponse.</li><li>Recopiez les réponses écrites à la main, affichées sous la photo, puis enregistrez : les réponses rejoignent « Étudier les données ».</li></ol>
+    <ol><li>Dépliez le livret et photographiez la feuille entière, à plat.</li><li>Vérifiez les réponses lues, corrigez d'un clic.</li><li>Recopiez les réponses écrites, puis enregistrez.</li></ol>
     <div class="deux"><label>Séance<input type="text" id="seance" value="${h(new URLSearchParams(location.search).get('seance') || 'papier')}" maxlength="12"></label><label>Participant n°<input type="number" id="numero" value="1" min="1"></label><label>Carnet (affiche)<select id="carnet"><option>1</option><option>2</option><option>3</option></select></label></div>
     <label class="btn noir" style="align-self:flex-start">Photographier ou choisir une photo<input type="file" accept="image/*" capture="environment" hidden id="fichier"></label>
     <p class="etat" id="etat">Aucune photo pour l'instant. La lecture se fait dans ce navigateur, la photo n'est envoyée nulle part.</p>
@@ -281,7 +281,7 @@ function apercu(Q) {
   const feuille = fiche(Q).replace(/^[\s\S]*?<div class="page fiche">/, '').replace(/<\/div>\s*$/, ''), V = PAGES; // couverture, six pages, dos
   const page = ([px, bas]) => `<div class="volet"><div style="transform:${bas ? `translate(${-px}mm,${-VH}mm)` : `translate(${px + VW}mm,${VH}mm) rotate(180deg)`}">${feuille}</div></div>`;
   const noms = ['La couverture', 'Pages 1 et 2', 'Pages 3 et 4', 'Pages 5 et 6', 'Le dos'];
-  return `<p class="trop">Le livret une fois plié, page après page. Pour l'imprimer : onglet « Le livret à plier », en A3 paysage, recto verso : l'affiche du carnet est au dos et apparaît quand on déplie la feuille.</p>`
+  return ``
     + [[0], [1, 2], [3, 4], [5, 6], [7]].map((l, i) => `<figure class="double"><div>${l.map(k => page(V[k])).join('')}</div><figcaption>${noms[i]}</figcaption></figure>`).join('');
 }
 // ---------- le reste à imprimer : les affiches du test, une par page A4 ----------
