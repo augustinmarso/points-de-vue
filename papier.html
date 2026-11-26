@@ -78,6 +78,7 @@ h1{margin:0;font-size:34px;line-height:.95;font-weight:800;letter-spacing:-.045e
   <button class="btn noir" id="imprimer">Imprimer</button>
 </nav>
 <div id="vue"><p>Chargement…</p></div>
+<script>/* le livret est fait pour une affiche : sans test choisi, c'est le carnet 1 (le test principal, lui, enchaîne les trois affiches) */ if (!/[?&]test=/.test(location.search)) location.replace(location.pathname + (location.search ? location.search + '&' : '?') + 'test=affiche-1' + location.hash);</script>
 <script src="seance.js"></script>
 <script src="livret-fond.js"></script>
 <script>

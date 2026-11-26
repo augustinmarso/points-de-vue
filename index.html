@@ -5,7 +5,7 @@
 <link rel="preconnect" href="https://script.google.com">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Points de vue · séance</title>
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'><rect width='120' height='120' fill='%23fff'/><g style='mix-blend-mode:multiply'><circle cx='44' cy='50' r='40' fill='%23F5A0C6'/></g><g style='mix-blend-mode:multiply'><circle cx='86' cy='42' r='28' fill='%23F7C33B'/></g><g style='mix-blend-mode:multiply'><circle cx='74' cy='82' r='22' fill='%231F6FE0'/></g><circle cx='22' cy='40' r='3.6' fill='%23141414'/><circle cx='34' cy='38' r='3.6' fill='%23141414'/><circle cx='93' cy='28' r='2.9' fill='%23141414'/><circle cx='103' cy='30' r='2.9' fill='%23141414'/><circle cx='73' cy='95' r='2.4' fill='%23141414'/><circle cx='81' cy='95' r='2.4' fill='%23141414'/></svg>">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'><rect width='120' height='120' fill='%23fff'/><g style='mix-blend-mode:multiply'><circle cx='44' cy='50' r='40' fill='%23F5A0C6'/></g><g style='mix-blend-mode:multiply'><circle cx='86' cy='42' r='28' fill='%23F7C33B'/></g><g style='mix-blend-mode:multiply'><circle cx='74' cy='82' r='22' fill='%231F6FE0'/></g><circle cx='22' cy='40' r='3.6' fill='%232B1B12'/><circle cx='34' cy='38' r='3.6' fill='%232B1B12'/><circle cx='93' cy='28' r='2.9' fill='%232B1B12'/><circle cx='103' cy='30' r='2.9' fill='%232B1B12'/><circle cx='73' cy='95' r='2.4' fill='%232B1B12'/><circle cx='81' cy='95' r='2.4' fill='%232B1B12'/></svg>">
 <link rel="apple-touch-icon" href="icone.png">
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#ffffff">
@@ -92,15 +92,15 @@ body.fondtel,body.fondtel #fond{background:var(--t)}body.fondtel .opt:not(.on),b
 .chrono{display:inline-block;flex:none;width:1em;height:1em;border-radius:50%;background:conic-gradient(var(--n) var(--ch),transparent 0);box-shadow:inset 0 0 0 .12em var(--n);animation:chrono linear forwards;vertical-align:middle}
 .age{display:flex;flex-direction:column;gap:2px}.age output{font-weight:800;font-size:40px;line-height:1;letter-spacing:-.04em}.age output.vide{font-size:20px;font-weight:400;letter-spacing:0;line-height:2}
 .age input{-webkit-appearance:none;appearance:none;width:100%;height:52px;margin:0;background:none;cursor:pointer;touch-action:pan-y}
-.age input::-webkit-slider-runnable-track{height:6px;border-radius:3px;background:linear-gradient(to right,var(--n) calc(var(--v,.5)*100%),rgba(20,20,20,.14) 0)} /* curseur léger : trait fin, bouton sans contour */
-.age input::-moz-range-track{height:6px;border-radius:3px;background:rgba(20,20,20,.14)}.age input::-moz-range-progress{height:6px;border-radius:3px;background:var(--n)}
+.age input::-webkit-slider-runnable-track{height:6px;border-radius:3px;background:linear-gradient(to right,var(--n) calc(var(--v,.5)*100%),rgba(43,27,18,.14) 0)} /* curseur léger : trait fin, bouton sans contour */
+.age input::-moz-range-track{height:6px;border-radius:3px;background:rgba(43,27,18,.14)}.age input::-moz-range-progress{height:6px;border-radius:3px;background:var(--n)}
 .age input::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;margin-top:-11px;border-radius:50%;background:var(--c);border:0;transition:transform .15s}
 .age input::-moz-range-thumb{width:28px;height:28px;border-radius:50%;background:var(--c);border:0;transition:transform .15s}
 .age input:active::-webkit-slider-thumb{transform:scale(1.2)}.age input:active::-moz-range-thumb{transform:scale(1.2)}.age input:focus-visible{outline:3px solid var(--c3);outline-offset:3px;border-radius:12px}
 textarea.champ{min-height:150px;resize:none}
 .echelle{display:flex;align-items:center;justify-content:space-between}
 .echelle>*{width:1em;height:1em;position:relative;border-radius:50%;background:var(--t);transition:background .25s} /* une note : cinq ronds pleins à yeux gris, sans contour, grands aux deux bouts, petit au milieu */
-.echelle .yeux{pointer-events:none;gap:.1em}.echelle .yeux i{width:.11em;height:.11em;background:#8a8a8a}
+.echelle .yeux{pointer-events:none;gap:.1em}.echelle .yeux i{width:.11em;height:.11em;background:#8C8078}
 .echelle>.on{background:var(--c)}.echelle>.on .yeux i{background:var(--n)}
 .ecran .echelle{max-width:24em;margin-bottom:.5em}.ecran .bouts{max-width:24em;font-size:1em;font-weight:800}
 .echelle+.bouts{font-weight:700}
@@ -121,14 +121,14 @@ textarea.champ{min-height:150px;resize:none}
 .droite .zones img{max-height:calc(74vh*var(--ka,1))}.droite .z{border-width:.25vw;border-radius:.8vw;cursor:inherit}.droite .z b{border-radius:.8vw 0 0 .8vw;font-size:1.3vw;top:-.25vw;white-space:nowrap}
 .vue .zones{display:block}.vue .zones img{max-height:none}.droite .vz{width:min(calc(36vw*var(--ka,1)),calc(72vh*var(--ka,1)*var(--r)))}
 .vue{display:flex;gap:12px}.vue figure{position:relative}
-.vue .loupe{position:absolute;right:8px;bottom:8px;width:44px;height:44px;border-radius:50%;background:#fff;color:var(--n);display:grid;place-items:center;box-shadow:0 2px 10px rgba(20,20,20,.3)}
+.vue .loupe{position:absolute;right:8px;bottom:8px;width:44px;height:44px;border-radius:50%;background:#fff;color:var(--n);display:grid;place-items:center;box-shadow:0 2px 10px rgba(43,27,18,.3)}
 #zoomV{position:fixed;inset:0;z-index:30;background:#fff;color:var(--n)}
 #zoomV .piste{display:flex;height:100%;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scrollbar-width:none;overscroll-behavior:contain}#zoomV .piste::-webkit-scrollbar{display:none}
 #zoomV .vz1{flex:0 0 100%;scroll-snap-align:center;scroll-snap-stop:always;overflow:auto;display:flex;flex-direction:column;padding:64px 12px 56px;font-weight:800;font-size:26px;gap:6px}
 #zoomV .vz1{align-items:center;text-align:center}#zoomV .vz1>img{margin:auto;max-width:100%;max-height:100%;min-height:0;object-fit:contain;border-radius:14px;display:block}#zoomV .vz1>.zones{margin:auto}
 #zoomV button{position:absolute;width:48px;height:48px;border-radius:50%;background:var(--n);color:#fff;font-size:28px;line-height:1;display:grid;place-items:center}#zoomV button:disabled{opacity:.25}
 #zoomV .fermer{right:12px;top:10px}#zoomV .fl{top:50%;margin-top:-24px}#zoomV .fl[data-d="-1"]{left:8px}#zoomV .fl[data-d="1"]{right:8px}
-#zoomV .pts{position:absolute;left:0;right:0;bottom:20px;display:flex;justify-content:center;gap:8px}#zoomV .pts i{width:10px;height:10px;border-radius:50%;background:#C9C9C9;transition:background .2s,transform .2s}#zoomV .pts i.on{background:var(--n);transform:scale(1.3)}
+#zoomV .pts{position:absolute;left:0;right:0;bottom:20px;display:flex;justify-content:center;gap:8px}#zoomV .pts i{width:10px;height:10px;border-radius:50%;background:#CEC5BD;transition:background .2s,transform .2s}#zoomV .pts i.on{background:var(--n);transform:scale(1.3)}
 .vue.pile{flex-direction:column}.vue.pile figure{flex:none;width:60%}
 .vue figure[data-p]{cursor:pointer}.vue figure[data-p] img{outline:4px solid transparent;outline-offset:3px;transition:outline-color .2s}.vue figure.on img{outline-color:#2B1B12}
 .vue figure{margin:0;flex:1;min-width:0;display:flex;flex-direction:column;gap:6px;font-weight:800;font-size:26px;cursor:zoom-in}
@@ -204,7 +204,7 @@ textarea.champ{min-height:150px;resize:none}
 .label{display:flex;align-items:center;gap:1em;margin:.8em 0 1.4em}.label .anneau{font-size:8.5em}.label div{display:flex;flex-direction:column;gap:.3em}.label span{font-weight:700;font-size:.8em}.label b{font-size:1.4em;font-weight:800;letter-spacing:-.03em;line-height:1}.label small{font-size:.8em}
 .qr{display:flex;align-items:center;gap:1.6vw;margin-top:auto;font-weight:700}
 #qrGrand{position:fixed;inset:0;z-index:8;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3vh;cursor:pointer;text-align:center;font-weight:700;font-size:clamp(18px,2vw,36px)}
-#qrGrand svg{width:min(66vh,60vw);height:min(66vh,60vw);display:block}#qrGrand p{margin:0}#qrGrand b{font-size:2.4em;font-weight:800;letter-spacing:.04em;vertical-align:middle}#qrGrand small{font-weight:400;font-size:.6em;color:#6B6B6B}
+#qrGrand svg{width:min(66vh,60vw);height:min(66vh,60vw);display:block}#qrGrand p{margin:0}#qrGrand b{font-size:2.4em;font-weight:800;letter-spacing:.04em;vertical-align:middle}#qrGrand small{font-weight:400;font-size:.6em;color:#6E625A}
 .qr svg{width:min(26vw,44vh);height:min(26vw,44vh);display:block;background:#fff;flex:none}
 .qr span{max-width:26vw}.qr .code{font-size:3.4em;font-weight:800;letter-spacing:.04em;vertical-align:middle}
 .flash{position:fixed;inset:0;z-index:5;background:#fff;display:flex;align-items:center;justify-content:center;gap:4vw;padding:3vh 4vh}
@@ -220,11 +220,11 @@ textarea.champ{min-height:150px;resize:none}
 .cmd{position:fixed;left:1vw;bottom:1vh;z-index:7;font-size:13px;font-weight:700}
 .cmd .home{opacity:.22;padding:6px 10px;transition:opacity .2s}
 .cmd .home:hover,.cmd.ouvert .home{opacity:1}
-.cmd .liste{display:none;position:absolute;left:0;bottom:100%;flex-direction:column;align-items:flex-start;gap:12px;white-space:nowrap;background:#fff;color:var(--n);border-radius:18px;padding:16px 20px;box-shadow:0 4px 24px rgba(20,20,20,.2)}
+.cmd .liste{display:none;position:absolute;left:0;bottom:100%;flex-direction:column;align-items:flex-start;gap:12px;white-space:nowrap;background:#fff;color:var(--n);border-radius:18px;padding:16px 20px;box-shadow:0 4px 24px rgba(43,27,18,.2)}
 .cmd.ouvert .liste{display:flex}
 .cmd .liste{flex-direction:row;flex-wrap:wrap;align-items:center;gap:8px;width:232px;white-space:normal}.cmd .liste>span{flex-basis:100%}
-.cmd .liste button,.cmd .liste a{cursor:pointer;color:inherit;width:44px;height:44px;border-radius:50%;background:#F3F3F3;display:grid;place-items:center;flex:none}
-.cmd .liste button:hover,.cmd .liste a:hover{background:#E2E2E2}.cmd .liste .fort,.cmd .liste [aria-pressed=true]{background:#2B1B12;color:#fff}
+.cmd .liste button,.cmd .liste a{cursor:pointer;color:inherit;width:44px;height:44px;border-radius:50%;background:#F4EFEA;display:grid;place-items:center;flex:none}
+.cmd .liste button:hover,.cmd .liste a:hover{background:#E6DFD8}.cmd .liste .fort,.cmd .liste [aria-pressed=true]{background:#2B1B12;color:#fff}
 .cmd .autres{white-space:normal;max-width:36em;font-weight:400}
 .auto{position:fixed;right:1.5vw;bottom:1.4vh;z-index:7;font-size:13px;font-weight:700;opacity:.5}
 body.plein.p3 #app{color:#fff}
@@ -403,7 +403,7 @@ function choixPasser() { // passer le test : au téléphone ou sur papier, et la
   placer();
   app.innerHTML = `<div class="site"><p class="sur"><a href="./" aria-label="Accueil" title="Accueil"><svg viewBox="0 0 24 24" width="1.35em" height="1.35em" fill="currentColor" aria-hidden="true" style="vertical-align:-.3em"><path d="M12 3 2.5 11.2h2.7V21h5.3v-6h3v6h5.3v-9.8h2.7z"/></svg></a>${rondProfil('background:#2B1B12')} · Passer le test</p><h1>Téléphone ou papier ?</h1><nav class="trois">
     ${carte('?passer=tel' + TQ, 'tel', 'Au téléphone', "Chacun répond sur son téléphone. Les réponses s'enregistrent toutes seules.")}
-    ${carte('?ecran&papier' + TQ, 'feuille', 'Sur papier', "Chacun répond sur un livret à plier. Le grand écran montre les affiches et les questions, sans téléphone.")}
+    ${carte('?ecran&papier' + (TQ || '&test=affiche-1'), 'feuille', 'Sur papier', "Chacun répond sur un livret à plier. Le grand écran montre les affiches et les questions, sans téléphone.")}
     ${carte('papier.html?vue=lire' + TQ, 'appareil', 'Photographier les fiches', "Après une séance sur papier : une photo par fiche remplie, et les réponses rejoignent les données à étudier.")}
   </nav><p class="note">À distance, chacun chez soi : envoyez par mail le lien <a href="?enligne${TQ}">${h(location.origin + location.pathname)}?enligne${h(TQ)}</a> (pour l'essayer sans rien enregistrer : <a href="?enligne&essai${TQ}">?enligne&amp;essai</a>).</p>
     <label class="note" id="lesTests" hidden>Test passé : <select style="font:inherit;font-weight:700;border:0;border-radius:99px;padding:6px 12px;background:var(--t1)"></select></label></div>`;
@@ -493,6 +493,7 @@ function telephone() {
 
   function dessiner(force) {
     const e = ETAPES[courant], q = Q(e), t = q.t, id = q.id, v = id ? mes.rep[id] : null;
+    if (!TEST && parent !== window && e && e.p) parent.postMessage({ pdvAffiche: e.p }, location.origin); // séance d'une heure dans la pochette : le chemin des prospectus suit l'affiche en cours (une étape par affiche)
     const k = courant + '|' + sous + '|' + JSON.stringify(v ?? null) + '|' + !!mes.inscrit;
     if (k === cle && !force) return;
     cle = k; placer(); scrollTo(0, 0);
@@ -613,6 +614,7 @@ function enLigne() {
   function dessiner() {
     const e = !M.parti ? { t: 'accueil' } : ETAPES[M.i] || { t: 'fin' }, ou = t => Math.max(0, ETAPES.findIndex(y => y.t === t));
     courant = e.t === 'accueil' || e.t === 'fin' ? ou(e.t) : M.i; pris = false; placer(); scrollTo(0, 0);
+    if (!TEST && parent !== window && e && e.p) parent.postMessage({ pdvAffiche: e.p }, location.origin); // séance d'une heure dans la pochette : le chemin des prospectus suit l'affiche en cours (une étape par affiche)
     let x = '';
     if (e.t === 'accueil') x = `<div class="haut"></div><h1>Bonjour !</h1>
       <p><b>Le groupe Points de vue fait tester des affiches de santé de Granville Terre et Mer par des habitants. Votre regard nous aide à les rendre plus claires.</b></p>

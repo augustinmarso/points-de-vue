@@ -8,7 +8,7 @@
 <link rel="preload" href="polices/scoutie.woff2" as="font" type="font/woff2" crossorigin>
 <style>@font-face{font-family:'Scoutie Sans';font-weight:200 800;font-display:swap;src:url(polices/scoutie.woff2) format('woff2')}</style>
 <style>
-:root{--n:#141414;--gris:#6B6B6B;--fond:#F3F3F3;--c1:#F5A0C6;--c2:#F7C33B;--c3:#1F6FE0;--c4:#7BD3A8;--c5:#B79CF2;--c6:#FF9A6B;--t1:#FDE7F1;--t2:#FDF0CC;--t3:#DCE9FB;--t4:#DDF4E8;--t5:#EBE3FB;--t6:#FFE4D6}
+:root{--n:#2B1B12;--gris:#6E625A;--fond:#F4EFEA;--c1:#F5A0C6;--c2:#F7C33B;--c3:#1F6FE0;--c4:#7BD3A8;--c5:#B79CF2;--c6:#FF9A6B;--t1:#FDE7F1;--t2:#FDF0CC;--t3:#DCE9FB;--t4:#DDF4E8;--t5:#EBE3FB;--t6:#FFE4D6}
 *{box-sizing:border-box}
 html,body{height:100%}
 body{margin:0;background:#fff;color:var(--n);font-family:'Scoutie Sans',Helvetica,Arial,sans-serif;font-size:16px;line-height:1.3;display:flex;flex-direction:column}
@@ -19,13 +19,13 @@ header{display:flex;align-items:center;gap:10px 12px;padding:12px 20px;flex:none
 /* les questions toutes prêtes, dans la fenêtre d'ajout : repliées par défaut, une liste par temps */
 .pretes{margin-top:14px}.pretes summary{font-weight:800;cursor:pointer;padding:8px 0}.pretes h4{margin:12px 0 4px;font-size:13px;font-weight:800;color:var(--gris)}
 #pretes{max-height:38vh;overflow:auto;display:grid;gap:6px;padding-right:4px}
-#pretes button{display:flex;justify-content:space-between;align-items:center;gap:12px;width:100%;text-align:left;font:inherit;font-weight:700;border:0;border-radius:12px;background:var(--fond);padding:10px 12px;cursor:pointer}#pretes button:hover{background:#E6E6E6}
+#pretes button{display:flex;justify-content:space-between;align-items:center;gap:12px;width:100%;text-align:left;font:inherit;font-weight:700;border:0;border-radius:12px;background:var(--fond);padding:10px 12px;cursor:pointer}#pretes button:hover{background:#E9E2DB}
 #pretes small{flex:none;font-weight:400;font-size:12px;color:var(--gris)}
 /* les tests : une bande de miniatures qui défile, l'affiche de chaque test et son nom */
 .tests{flex:none;display:flex;gap:8px;overflow-x:auto;padding:2px 20px 10px;scrollbar-width:thin}
 .tests a,.tests button{flex:none;display:flex;align-items:center;gap:10px;width:190px;padding:6px 12px 6px 6px;border:0;border-radius:16px;background:var(--fond);color:inherit;font:inherit;font-size:13px;font-weight:800;line-height:1.15;text-align:left;text-decoration:none;cursor:pointer}
 .tests a[aria-current]{background:var(--n);color:#fff}
-.tests i{flex:none;width:40px;height:56px;border-radius:8px;background:#fff center/cover no-repeat;box-shadow:inset 0 0 0 1px rgba(20,20,20,.12)}
+.tests i{flex:none;width:40px;height:56px;border-radius:8px;background:#fff center/cover no-repeat;box-shadow:inset 0 0 0 1px rgba(43,27,18,.12)}
 .tests span{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .tests button{width:auto;padding:6px 16px;min-height:68px}
 header a{color:inherit;font-weight:700}
@@ -33,7 +33,7 @@ header select{width:auto;max-width:440px}
 header h1{margin:0;font-size:24px;font-weight:800;letter-spacing:-.04em;flex:1 1 230px}
 #etat{font-size:14px;color:var(--gris);font-weight:700}#etat.non{color:var(--n);background:var(--c2);padding:7px 14px;border-radius:99px}
 .plus{position:relative}.plus summary{list-style:none;cursor:pointer}.plus summary::-webkit-details-marker{display:none}
-.plus>div{position:absolute;right:0;top:calc(100% + 6px);z-index:5;background:#fff;border-radius:18px;box-shadow:0 8px 40px rgba(20,20,20,.25);padding:10px;display:flex;flex-direction:column;gap:6px;min-width:240px}.plus>div .btn{justify-content:flex-start}
+.plus>div{position:absolute;right:0;top:calc(100% + 6px);z-index:5;background:#fff;border-radius:18px;box-shadow:0 8px 40px rgba(43,27,18,.25);padding:10px;display:flex;flex-direction:column;gap:6px;min-width:240px}.plus>div .btn{justify-content:flex-start}
 header h1 small{display:block;font-size:13px;font-weight:400;letter-spacing:0;color:var(--gris);margin-top:2px}
 .btn{background:var(--n);color:#fff;font-weight:800;border-radius:99px;padding:10px 20px;min-height:44px;display:inline-flex;align-items:center;text-decoration:none}
 .btn.clair{background:var(--fond);color:var(--n)}
@@ -44,43 +44,43 @@ header h1 small{display:block;font-size:13px;font-weight:400;letter-spacing:0;co
 /* les carnets de la séance, dans la colonne : celui qui est ouvert en noir, les autres en clair, à ouvrir d'un clic */
 #liste li.carnet{border:0;padding:0;margin:14px 0 8px;background:#fff;cursor:default}#liste li.carnet:first-of-type{margin-top:4px}
 #liste li.carnet>*{display:flex;align-items:center;gap:10px;width:100%;padding:8px 12px 8px 8px;border-radius:14px;color:inherit;text-decoration:none}
-#liste li.carnet.ici{background:var(--n);color:#fff}#liste li.carnet a{cursor:pointer;box-shadow:inset 0 0 0 2px #C9C9C9}#liste li.carnet a:hover{box-shadow:inset 0 0 0 2px var(--n)}
-#liste li.carnet i{flex:none;width:34px;height:48px;border-radius:6px;background:#fff center/cover no-repeat;box-shadow:inset 0 0 0 1px rgba(20,20,20,.15)}
+#liste li.carnet.ici{background:var(--n);color:#fff}#liste li.carnet a{cursor:pointer;box-shadow:inset 0 0 0 2px #CEC5BD}#liste li.carnet a:hover{box-shadow:inset 0 0 0 2px var(--n)}
+#liste li.carnet i{flex:none;width:34px;height:48px;border-radius:6px;background:#fff center/cover no-repeat;box-shadow:inset 0 0 0 1px rgba(43,27,18,.15)}
 #liste li.carnet b{display:block;font-size:17px;font-weight:800;letter-spacing:-.03em}#liste li.carnet small{display:block;font-size:12px;line-height:1.15}
-#liste li{display:flex;align-items:center;gap:10px;padding:8px;border-radius:14px;cursor:pointer;margin-bottom:4px;background:#fff;border:3px solid color-mix(in srgb,var(--c,#141414) 72%,#141414)}
+#liste li{display:flex;align-items:center;gap:10px;padding:8px;border-radius:14px;cursor:pointer;margin-bottom:4px;background:#fff;border:3px solid color-mix(in srgb,var(--c,#2B1B12) 72%,#2B1B12)}
 #liste li.sel{box-shadow:0 0 0 3px #fff,0 0 0 7px var(--n);z-index:1;transform:scale(1.02)}#liste li.sel>.num{background:var(--n);color:#fff;border-radius:99px;width:auto;min-width:1.9em;padding:3px 7px;text-align:center}
 #liste li{position:relative}#liste li.masque .mini,#liste li.masque .num{opacity:.4}
 #liste .etq{position:absolute;left:44px;bottom:14px;background:var(--n);color:#fff;font-size:11px;font-weight:800;padding:3px 9px;border-radius:99px;pointer-events:none}
 #liste li[data-i]:hover>.mv{visibility:visible}
 #cherche{width:100%;margin-top:8px;padding:10px 14px;border-radius:99px;border:0;background:#fff;font:inherit;font-size:14px}
 #liste li.dessus{box-shadow:0 -4px 0 0 var(--c3)}
-#liste .num{width:1.7em;flex:none;text-align:right;font-weight:800;color:#3d3d3d;font-size:15px}
+#liste .num{width:1.7em;flex:none;text-align:right;font-weight:800;color:#44342A;font-size:15px}
 #liste .txt{flex:1;min-width:0}
 #liste small{display:block;font-size:12px;font-weight:700;color:var(--gris)}
 #liste b{display:block;font-size:14px;line-height:1.15;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #liste .mini{flex:1;min-width:0;aspect-ratio:16/9;background:var(--t);border-radius:8px;padding:8px;display:flex;gap:5px;align-items:center;overflow:hidden}
 #liste .mini.plein{background:var(--c)}
 #liste .mini .tx{flex:1 1 50%;min-width:50%;align-self:stretch;overflow:hidden}
-#liste .mini small{font-size:10.5px;color:#3d3d3d;line-height:1.2;margin-bottom:3px;display:flex;align-items:center;gap:4px}#liste .mini small svg{flex:none}
+#liste .mini small{font-size:10.5px;color:#44342A;line-height:1.2;margin-bottom:3px;display:flex;align-items:center;gap:4px}#liste .mini small svg{flex:none}
 #liste .mini b{font-size:13px;line-height:1.02;letter-spacing:-.03em;white-space:normal;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical}
 #liste .mini .ims{flex:0 1 auto;max-width:50%;height:100%;display:flex;gap:3px;align-items:center;justify-content:flex-end}#liste .mini .ims:empty{display:none}
 #liste .mini img{flex:0 1 auto;min-width:0;max-height:100%;max-width:100%;object-fit:contain;border-radius:3px}
 #liste .oeil{flex:none;width:32px;height:32px;border-radius:50%;display:grid;place-items:center;color:var(--gris)}#liste .oeil:hover{background:var(--fond);color:var(--n)}
 #liste li.dossier{background:none;border:0;padding:0;margin:14px 0 6px;cursor:default;flex-direction:column;align-items:stretch;gap:4px}
 #liste li.dossier .nom{font-size:15px;font-weight:800;line-height:1.15;padding:0 2px}#liste li.dossier .nom small{display:inline;font-size:12px}
-#liste li.dossier [contenteditable]{cursor:text;border-radius:4px;outline-offset:2px}#liste li.dossier [contenteditable]:hover{box-shadow:0 0 0 2px rgba(20,20,20,.18)}
+#liste li.dossier [contenteditable]{cursor:text;border-radius:4px;outline-offset:2px}#liste li.dossier [contenteditable]:hover{box-shadow:0 0 0 2px rgba(43,27,18,.18)}
 #liste li.dossier .chemise{min-width:0;position:relative;margin-top:12px;background:var(--c);border-radius:0 14px 14px 14px;padding:0 6px 6px}
 #liste li.dossier .chemise::before{content:'';position:absolute;left:0;top:-12px;width:38%;height:24px;background:var(--c);border-radius:10px 14px 0 0}
 #liste li.dossier button[data-og]{position:relative;display:block;width:100%;text-align:left;color:var(--f);font-size:14px;font-weight:800;line-height:1.2;padding:12px 8px 10px}
 #liste li.dossier.ferme button[data-og]{padding:22px 8px 16px}
-#liste li.dossier.dessus>.chemise{outline:3px solid #141414;outline-offset:2px}
+#liste li.dossier.dessus>.chemise{outline:3px solid #2B1B12;outline-offset:2px}
 #liste .dedans{list-style:none;margin:0;padding:0}#liste .dedans li:last-child{margin-bottom:0}
 #liste .mv{display:flex;flex-direction:column;gap:2px;flex:none}
 #liste .mv button{width:30px;height:22px;border-radius:8px;background:var(--fond);font-weight:800;line-height:1}
 #liste .mv button[disabled]{opacity:.25}
 /* la zone de travail : l'aperçu de l'écran, puis ce qu'on peut y changer */
 #zone{overflow:auto;padding:14px 26px 60px}
-.apercu{aspect-ratio:16/9;max-width:1180px;container-type:inline-size;background:#fff;border-radius:18px;box-shadow:0 4px 24px rgba(20,20,20,.16);overflow:hidden;position:relative}
+.apercu{aspect-ratio:16/9;max-width:1180px;container-type:inline-size;background:#fff;border-radius:18px;box-shadow:0 4px 24px rgba(43,27,18,.16);overflow:hidden;position:relative}
 .apercu .in{position:absolute;inset:0;padding:5cqw;font-size:calc(2.1cqw*var(--fit,1));display:flex;gap:3cqw}
 .apercu .lg{position:absolute;right:4cqw;bottom:2.2cqw;display:flex;gap:2cqw;align-items:center;pointer-events:none}.apercu .lg img{height:4.5cqw;max-width:18cqw;object-fit:contain}.apercu.form .lg{display:none}
 #choixLogos button[aria-pressed=true]{box-shadow:0 0 0 4px var(--n)}#choixLogos img{object-fit:contain;background:#fff}
@@ -100,7 +100,7 @@ header h1 small{display:block;font-size:13px;font-weight:400;letter-spacing:0;co
 .apercu .in{overflow:auto}
 /* on modifie sur l'écran lui-même : chaque texte se clique et se tape, chaque affiche se clique et se change */
 .apercu [contenteditable]{display:block;cursor:text;border-radius:.3em;min-width:2em;outline-offset:2px;white-space:pre-wrap}
-.apercu [contenteditable]:hover{box-shadow:0 0 0 2px rgba(20,20,20,.18)}
+.apercu [contenteditable]:hover{box-shadow:0 0 0 2px rgba(43,27,18,.18)}
 .apercu.p3 [contenteditable]:hover,.apercu .bon [contenteditable]:hover{box-shadow:0 0 0 2px rgba(255,255,255,.6)}
 .apercu [contenteditable]:empty::before{content:attr(data-vide);opacity:.4}
 .apercu .opts span{display:flex;align-items:center;gap:.6cqw}
@@ -119,7 +119,7 @@ header h1 small{display:block;font-size:13px;font-weight:400;letter-spacing:0;co
 .apercu.petit h2{font-size:calc(3.3cqw*var(--fit,1));line-height:1}.apercu .taille{align-self:flex-start;gap:2px;align-items:baseline;padding:4px 12px;min-height:0;margin-top:-.6cqw}.apercu.cache .taille{display:none}
 .cote .vu{display:flex;gap:5px;flex:none;align-items:flex-start}.cote .vu:empty{display:none}.cote .vu figure{margin:0;flex:1;min-width:0;font-weight:800;font-size:12px}.cote .vu img{width:100%;height:auto;border-radius:6px;display:block}
 .aide.fort{color:var(--n);font-weight:700}.apercu.depot{outline:4px dashed var(--c3);outline-offset:4px}.aide.expl{margin:-6px 0 14px}
-.apercu [contenteditable],.cote [contenteditable]{text-decoration:underline dotted rgba(20,20,20,.3);text-underline-offset:.18em;text-decoration-thickness:1px}
+.apercu [contenteditable],.cote [contenteditable]{text-decoration:underline dotted rgba(43,27,18,.3);text-underline-offset:.18em;text-decoration-thickness:1px}
 .apercu [contenteditable]:hover:not(:focus)::after{content:' ✎';font-size:.55em;opacity:.55;font-weight:400}
 .apercu .d .im{display:flex;flex-direction:column;align-items:center}.apercu .im .chg{margin-top:.8cqw;background:var(--fond);color:var(--n);font-weight:800;font-size:max(11px,1.15cqw);padding:.4em .9em;border-radius:99px;white-space:nowrap}.outils .etape{display:inline-flex;align-items:center;gap:8px;font-weight:800;font-size:14px}.outils select{max-width:260px}.vues .ouvrir{margin-left:auto}
 #liste li[data-i]:not(.sel)>.mv{visibility:hidden}/* les flèches seulement sur l'écran choisi : la liste reste lisible */
@@ -128,7 +128,7 @@ header h1 small{display:block;font-size:13px;font-weight:400;letter-spacing:0;co
 #vue .apercu{flex:1 1 380px;min-width:0}
 .cote .bascule{display:flex;gap:2px;padding:3px;border-radius:999px;background:var(--fond)}.cote .bascule button{display:flex;align-items:center;gap:5px;padding:6px 11px;border-radius:999px;font-size:12px;font-weight:800;color:var(--gris)}.cote .bascule [aria-pressed=true]{background:var(--n);color:#fff}
 .cote{flex:none;width:290px;display:flex;flex-direction:column;gap:8px;align-items:center;font-size:12px;color:var(--gris);font-weight:700}
-.cote .ecr{width:100%;color:var(--n);background:#fff;box-shadow:0 4px 24px rgba(20,20,20,.16);display:flex;flex-direction:column;gap:8px;font-weight:400;overflow:hidden}
+.cote .ecr{width:100%;color:var(--n);background:#fff;box-shadow:0 4px 24px rgba(43,27,18,.16);display:flex;flex-direction:column;gap:8px;font-weight:400;overflow:hidden}
 .cote.tel .ecr{aspect-ratio:9/18;border-radius:26px;border:6px solid var(--n);padding:24px 12px 14px}
 .cote.papier .ecr{border-radius:4px;padding:16px 14px;min-height:150px}
 .cote small{font-size:12px;font-weight:700}
@@ -145,22 +145,22 @@ header h1 small{display:block;font-size:13px;font-weight:400;letter-spacing:0;co
 .cote i{font-style:normal;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;flex:none}
 .cote .ronds i{width:26px;height:26px;font-size:11px}
 .cote.tel .ronds{justify-content:space-between}.cote.tel .ronds i{background:var(--t)}
-.cote.papier .ronds i{box-shadow:inset 0 0 0 1px var(--n);color:#A8A8A8}
+.cote.papier .ronds i{box-shadow:inset 0 0 0 1px var(--n);color:#ADA299}
 /* une note : cinq ronds à yeux gris, grands aux deux bouts et petit au milieu, sans chiffre (comme sur le téléphone et la fiche) */
-.cote .ronds.prog i{font-size:0;width:26px;height:26px;background-image:radial-gradient(circle at 38% 50%,#8a8a8a 0 1.6px,transparent 2.1px),radial-gradient(circle at 62% 50%,#8a8a8a 0 1.6px,transparent 2.1px)}
+.cote .ronds.prog i{font-size:0;width:26px;height:26px;background-image:radial-gradient(circle at 38% 50%,#8C8078 0 1.6px,transparent 2.1px),radial-gradient(circle at 62% 50%,#8C8078 0 1.6px,transparent 2.1px)}
 .cote .ronds.prog i:first-child,.cote .ronds.prog i:last-child{width:32px;height:32px}.cote .ronds.prog i:nth-child(3){width:21px;height:21px}
 .cote .bouts{display:flex;justify-content:space-between;gap:8px;font-size:9px}
 .cote .vu.pile{flex-direction:column}.cote .vu.pile figure{flex:none;width:60%}
 [hidden]{display:none!important}
 /* l'affiche découpée en zones : dans l'éditeur, les zones se déplacent et se redimensionnent */
 .zones.ed{touch-action:none;user-select:none;cursor:crosshair}
-.zones.ed .cache,.apercu .zones .cache{background:repeating-linear-gradient(45deg,#E2E2E2 0 8px,#CFCFCF 8px 16px)}
+.zones.ed .cache,.apercu .zones .cache{background:repeating-linear-gradient(45deg,#E6DFD8 0 8px,#D3CAC2 8px 16px)}
 .zones.ed .z{cursor:move;background:rgba(255,255,255,.28)}.zones.ed .z:hover{background:rgba(31,111,224,.3)}
-.zones.ed .coin{position:absolute;width:14px;height:14px;background:#fff;border:2px solid #141414;border-radius:3px;z-index:1}
+.zones.ed .coin{position:absolute;width:14px;height:14px;background:#fff;border:2px solid #2B1B12;border-radius:3px;z-index:1}
 .zones.ed .nw{left:-8px;top:-8px;cursor:nwse-resize}.zones.ed .se{right:-8px;bottom:-8px;cursor:nwse-resize}.zones.ed .ne{right:-8px;top:-8px;cursor:nesw-resize}.zones.ed .sw{left:-8px;bottom:-8px;cursor:nesw-resize}
 .cote .zones{display:block;margin-left:16px}.cote .zones img{width:100%;border-radius:8px}.cote .zones .z{border-width:1.5px;border-radius:5px;cursor:default}.cote .zones .z b{font-size:9px;border-radius:5px 0 0 5px}
 #cadrage{width:min(1100px,94vw)}#cadAffiche{flex:none;padding-left:34px}#cadAffiche .zones img{max-height:68vh;max-width:min(560px,52vw);border-radius:10px}#cadListe{flex:1;min-width:220px}
-#cadrage .zones.ed .z{background:repeating-linear-gradient(45deg,rgba(226,226,226,.9) 0 8px,rgba(207,207,207,.9) 8px 16px)}#cadrage .zones.ed .z.gros{background:rgba(31,111,224,.22);border-color:#1F6FE0}
+#cadrage .zones.ed .z{background:repeating-linear-gradient(45deg,rgba(230,223,216,.9) 0 8px,rgba(211,202,194,.9) 8px 16px)}#cadrage .zones.ed .z.gros{background:rgba(31,111,224,.22);border-color:#1F6FE0}
 .apercu .d .vz{width:min(32cqw,calc(46cqw*var(--r)))}
 #decoupe{width:min(1100px,94vw)}.dec{display:flex;gap:24px;align-items:flex-start;margin:14px 0}#decAffiche{flex:none;padding-left:34px}#decAffiche .zones img{max-height:68vh;max-width:min(560px,52vw);border-radius:10px}#decListe{flex:1;min-width:200px}
 @media (max-width:700px){.dec{flex-direction:column}#decAffiche .zones img{max-width:100%}}
@@ -170,7 +170,7 @@ header h1 small{display:block;font-size:13px;font-weight:400;letter-spacing:0;co
 .cote .val{background:var(--n);color:#fff;border-radius:99px;text-align:center;padding:8px;font-weight:800;font-size:11px}
 .cote [contenteditable]{cursor:text;border-radius:4px;outline-offset:2px;min-width:1.5em;display:inline-block}
 .cote .o[contenteditable],.cote b.q[contenteditable]{display:block}
-.cote [contenteditable]:hover{box-shadow:0 0 0 2px rgba(20,20,20,.18)}
+.cote [contenteditable]:hover{box-shadow:0 0 0 2px rgba(43,27,18,.18)}
 .cote [contenteditable]:empty::before{content:attr(data-vide);opacity:.4}
 .cote .att{margin:auto 0;text-align:center;font-weight:700;font-size:16px}
 .apercu.form{max-width:420px;aspect-ratio:auto}
@@ -210,11 +210,11 @@ textarea{resize:vertical;min-height:110px}
 .affiche img{width:74px;height:104px;object-fit:cover;border-radius:10px;background:var(--fond);flex:none}
 .verrou{background:var(--fond);border-radius:14px;padding:14px 16px;color:var(--gris);font-size:15px}
 #tuto{position:fixed;inset:0;z-index:50}#tuto[hidden]{display:none}
-#tuto .trou{position:fixed;border-radius:14px;box-shadow:0 0 0 9999px rgba(20,20,20,.62);outline:3px solid #fff;pointer-events:none}
-#tuto .bulle{position:fixed;width:min(360px,calc(100vw - 16px));background:#fff;border-radius:22px;padding:18px 20px;box-shadow:0 10px 60px rgba(20,20,20,.35)}
+#tuto .trou{position:fixed;border-radius:14px;box-shadow:0 0 0 9999px rgba(43,27,18,.62);outline:3px solid #fff;pointer-events:none}
+#tuto .bulle{position:fixed;width:min(360px,calc(100vw - 16px));background:#fff;border-radius:22px;padding:18px 20px;box-shadow:0 10px 60px rgba(43,27,18,.35)}
 #tuto .bulle small{font-weight:700;color:var(--gris)}#tuto .bulle h3{margin:2px 0 6px}#tuto .bulle p{margin:0 0 14px;font-size:16px;line-height:1.35}
-dialog{border:0;border-radius:22px;padding:22px;max-width:min(880px,92vw);max-height:92vh;overflow:auto;box-shadow:0 10px 60px rgba(20,20,20,.35)}
-dialog::backdrop{background:rgba(20,20,20,.45)}
+dialog{border:0;border-radius:22px;padding:22px;max-width:min(880px,92vw);max-height:92vh;overflow:auto;box-shadow:0 10px 60px rgba(43,27,18,.35)}
+dialog::backdrop{background:rgba(43,27,18,.45)}
 dialog h3{margin:0 0 6px;font-size:24px;font-weight:800;letter-spacing:-.03em}
 .galerie{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:12px;margin:16px 0}
 .galerie button{border-radius:12px;overflow:hidden;background:var(--fond);text-align:center;font-size:12px;font-weight:700;padding-bottom:6px}
@@ -237,7 +237,7 @@ dialog h3{margin:0 0 6px;font-size:24px;font-weight:800;letter-spacing:-.03em}
 <header>
   <a href="./" aria-label="Accueil" title="Accueil"><svg viewBox="0 0 24 24" width="1.6em" height="1.6em" fill="currentColor" aria-hidden="true"><path d="M12 3 2.5 11.2h2.7V21h5.3v-6h3v6h5.3v-9.8h2.7z"/></svg></a>
   <h1>Modifier le test<small>Ici, vous composez la séance que verront les participants.</small></h1>
-  <select class="btn clair" id="test" aria-label="Le test modifié" hidden><option>Carnet 1 · Bien vivre chez soi</option></select>
+  <select class="btn clair" id="test" aria-label="Le test modifié" hidden><option>Séance d'une heure · les trois affiches</option></select>
   <a class="btn clair" id="lancer" href="./?passer" target="_blank" rel="noopener" title="Ouvre la vraie séance dans un autre onglet : grand écran, téléphones, réponses enregistrées. Pour un simple essai, utilisez « Essayer cette version ».">Démarrer la séance</a>
   <details class="plus" id="plus"><summary class="btn clair">Plus ▾</summary><div>
   <button class="btn clair" id="btnNouveau" title="Crée un test à part, avec son propre lien. Le test ouvert ne change pas.">+ Nouveau test</button>
@@ -298,7 +298,7 @@ dialog h3{margin:0 0 6px;font-size:24px;font-weight:800;letter-spacing:-.03em}
 const DEPOT = 'https://api.github.com/repos/augustinmarso/points-de-vue/contents/'; // lecture seule : la liste des affiches du site
 const NOMS = {}; // le nom de fichier des images ajoutées (une image ajoutée est gardée dans le test lui-même, sous forme de data:)
 const nomImage = s => /^data:/.test(s) ? NOMS[s] || 'Image ajoutée' : String(s).split('/').pop().replace(/\.[^.]+$/, '');
-let NOM = TEST ? TEST : 'Carnet 1 · Bien vivre chez soi'; // le nom du test ouvert
+let NOM = TEST ? TEST : "Séance d'une heure · les trois affiches"; // le nom du test ouvert
 const h = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const $ = id => document.getElementById(id);
 let M = null, depart = '', sel = 0, images = [], cible = null; // cible = le champ d'affiche en cours de choix
@@ -306,7 +306,7 @@ let M = null, depart = '', sel = 0, images = [], cible = null; // cible = le cha
 const TYPE = e => ({ accueil: "Salle d'attente", scores: 'Scores du jeu', mission: "Atelier : la consigne", photo: "Atelier : les photos", vote: "Atelier : les tests", palmares: "Atelier : le palmarès", fin: 'Fin', info: 'Texte', flash: 'Affiche ' + (e.s || 5) + ' secondes', echelle: 'Note de 1 à 5', ab: 'Comparer des affiches' }[e.t]
   || (e.t === 'phase' ? "Titre d'étape" : e.zones ? 'Affiche découpée en zones' : e.jeu ? 'Question du jeu' : e.t === 'texte' ? 'Avis libre' : 'Question à choix'));
 const TITRE = e => e.q || e.h || (e.t === 'phase' ? M.phases[e.p].nom : e.t === 'flash' ? nomImage(e.img || '') : TYPE(e));
-const COUL = e => e.p ? `var(--c${e.p})` : '#141414';
+const COUL = e => e.p ? `var(--c${e.p})` : '#2B1B12';
 const fixe = i => (i === 0 && M.ecrans[0].t === 'accueil') || (i === M.ecrans.length - 1 && M.ecrans[i].t === 'fin'); // le début et la fin ne bougent pas
 // revenir en arrière : chaque modification garde l'état d'avant ; une frappe continue (moins de 0,8 s entre deux touches) compte pour une seule
 let pile = [], dernier = '', tPile = 0;
@@ -363,7 +363,7 @@ function liste() {
     const cartes = () => M.ecrans.slice(i, j).map((e, k) => carte(e, i + k)).join(''), ferme = !mots && fermes.has(p);
     if (!dossiers || !NOM_PARTIE[p]) { x += cartes(); continue; }
     if (ferme) M.ecrans.slice(i, j).forEach(e => e.masque || ++n); // les numéros continuent après un dossier fermé
-    x += `<li class="dossier${ferme ? ' ferme' : ''}" data-fin="${j - 1}" data-p="${p > 0 ? p : ''}" style="--c:${p > 0 ? `var(--c${p})` : '#141414'};--f:${p > 0 && p != 3 ? '#141414' : '#fff'}"><span class="nom">${p > 0 ? `<small>${NOM_PARTIE[p]} · </small><span contenteditable="plaintext-only" spellcheck="false" role="textbox" aria-label="Nom de l'étape ${p}" title="Cliquer pour changer le nom de l'étape" data-ph="${p}">${h(M.phases[p].nom)}</span>` : NOM_PARTIE[p]}</span>
+    x += `<li class="dossier${ferme ? ' ferme' : ''}" data-fin="${j - 1}" data-p="${p > 0 ? p : ''}" style="--c:${p > 0 ? `var(--c${p})` : '#2B1B12'};--f:${p > 0 && p != 3 ? '#2B1B12' : '#fff'}"><span class="nom">${p > 0 ? `<small>${NOM_PARTIE[p]} · </small><span contenteditable="plaintext-only" spellcheck="false" role="textbox" aria-label="Nom de l'étape ${p}" title="Cliquer pour changer le nom de l'étape" data-ph="${p}">${h(M.phases[p].nom)}</span>` : NOM_PARTIE[p]}</span>
       <div class="chemise"><button type="button" data-og="${p}" aria-expanded="${!ferme}" aria-label="${ferme ? 'Ouvrir' : 'Refermer'} le dossier ${NOM_PARTIE[p]}, ${j - i} écrans" title="${ferme ? 'Ouvrir ce dossier' : 'Refermer ce dossier'}">${j - i} écran${j - i > 1 ? 's' : ''} ${ferme ? '▸' : '▾'}</button>${ferme ? '' : `<ol class="dedans">${cartes()}</ol>`}</div></li>`;
   }
   const rang = CARNETS.indexOf(TEST), serie = rang >= 0 && CARNETS.every(id => TESTS_CONNUS.some(t => t.id === id)); // la séance à trois carnets : les trois apparaissent dans la colonne, dans l'ordre
@@ -389,7 +389,7 @@ const imgCadree = e => cadree(e) && (e.imgs || [])[0] ? `<span class="im" data-a
 const img = (k, v, retirable) => v ? `<span class="im"><button type="button" data-a="affiche" data-k="${k}" title="Changer l'affiche"><img src="${h(v)}" alt="Affiche ${h(nomImage(v))} : cliquer pour la changer"></button><button type="button" class="chg" data-a="affiche" data-k="${k}">Changer l'affiche</button>${retirable ? `<button type="button" class="x" data-a="sansAffiche" data-k="${k}" aria-label="Retirer l'affiche" title="Retirer l'affiche">×</button>` : ''}</span>`
   : `<button type="button" class="vide" data-a="affiche" data-k="${k}">+ Ajouter une affiche</button>`;
 function apercu(e) {
-  const t = e.p ? `--t:var(--t${e.p});--c:var(--c${e.p})` : '--t:var(--fond);--c:#141414';
+  const t = e.p ? `--t:var(--t${e.p});--c:var(--c${e.p})` : '--t:var(--fond);--c:#2B1B12';
   let g = '', cls = '', im = '';
   if (e.t === 'phase') { cls = ' plein p' + e.p; g = `<div class="sur">Étape ${e.p} sur ${Math.max(3, M.ecrans.filter(x => x.t === 'phase' && !x.masque).length)}</div>${ed('h2', 'ph.nom', M.phases[e.p].nom, "Nom de l'étape")}${ed('b', 'ph.quoi', M.phases[e.p].quoi, "Phrase d'explication")}`; }
   else if (e.t === 'info') { g = ed('div', 's', e.s, 'Petit titre', 'sur') + ed('h2', 'h', e.h, 'Grand titre') + AA(e) + ed('b', 'x', e.x, 'Phrase'); im = imgCadree(e); }
@@ -419,7 +419,7 @@ function bascule(e) {
 }
 function cote(e) {
   if (vue === 'form') return '';
-  const t = e.p ? `--t:var(--t${e.p});--c:var(--c${e.p})` : '--t:var(--fond);--c:#141414', Q = e.q != null, o = e.o || [];
+  const t = e.p ? `--t:var(--t${e.p});--c:var(--c${e.p})` : '--t:var(--fond);--c:#2B1B12', Q = e.q != null, o = e.o || [];
   let x;
   if (vue === 'tel') x = !Q ? `<p class="att">${['mission', 'photo', 'vote'].includes(e.t) ? "Atelier : le binôme photographie son affiche, puis note celles des autres." : e.t === 'accueil' ? 'Le participant écrit son prénom et attend le début.' : 'Regardez le grand écran.'}</p>`
     : `<small>${e.p ? 'Étape ' + e.p : e.jeu ? "Le jeu de l'œil" : ''}</small>${ed('b', 'q', e.q, 'La question', 'q')}` + (e.jeu || e.zones || e.telSans ? '' : `<div class="vu${e.t === 'ab' ? ' pile' : ''}">${(e.imgs || []).filter(Boolean).map((s, i) => `<figure>${e.t === 'ab' ? 'ABCD'[i] : ''}<img src="${h(s)}" alt=""></figure>`).join('')}</div>`) + (
@@ -447,7 +447,7 @@ const lienForm = () => location.origin + location.pathname.replace(/[^/]*$/, '')
 // le QR code du même lien, en PNG net à l'impression (la bibliothèque n'est chargée qu'ici)
 const qrForm = () => (window.qrcode ? Promise.resolve() : new Promise((ok, ko) => { const x = document.createElement('script'); x.src = 'libs/qrcode.min.js'; x.onload = ok; x.onerror = ko; document.head.appendChild(x); })).then(() => {
   const q = qrcode(0, 'M'); q.addData(lienForm()); q.make(); const n = q.getModuleCount(), k = 16, m = 4, c = document.createElement('canvas'); c.width = c.height = (n + m * 2) * k;
-  const x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, c.width, c.height); x.fillStyle = '#141414';
+  const x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, c.width, c.height); x.fillStyle = '#2B1B12';
   for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) if (q.isDark(i, j)) x.fillRect((j + m) * k, (i + m) * k, k, k);
   $('pQR').src = $('pQRdl').href = c.toDataURL('image/png'); $('pQR').hidden = false;
 }).catch(() => { $('pQRdl').hidden = true; }); // sans la bibliothèque, le partage par mail reste entier
@@ -570,7 +570,7 @@ const LZ = 'ABCDEFGHIJ';
 const cadres = (e, poignees = true) => `<img src="${h(e.imgs[0])}" alt="L'affiche à découper" draggable="false">${cachesZones(e)}${e.zones.map((z, i) => `<span class="z" data-z="${i}" style="left:${z[0]}%;top:${z[1]}%;width:${z[2]}%;height:${z[3]}%" title="${h(e.o[i])}"><b>${LZ[i]}</b>${!poignees ? '' : ['nw', 'ne', 'sw', 'se'].map(c => `<i class="coin ${c}" data-c="${c}"></i>`).join('')}</span>`).join('')}`;
 const zonesEd = e => `<span class="zones ed">${cadres(e)}</span>`;
 const lignesZones = e => e.o.map((o, i) => `<div class="rep"><b class="lz">${LZ[i]}</b><input type="text" data-o="${i}" value="${h(o)}" maxlength="60" aria-label="Nom du cadre ${LZ[i]}"><button type="button" data-a="cacher" data-i="${i}" aria-label="Masquer la partie ${LZ[i]} de l'affiche" title="Masquer cette partie de l'affiche : elle est recouverte, et n'est plus une réponse possible" ${e.o.length < 3 ? 'disabled' : ''}>${OEIL(false)}</button><button type="button" data-a="moins" data-i="${i}" aria-label="Supprimer le cadre ${LZ[i]}" title="Supprimer ce cadre" ${e.o.length < 3 ? 'disabled' : ''}>×</button></div>`).join('')
-  + ((e.caches || []).length ? `<b style="margin-top:8px">Parties masquées</b><small>Recouvertes sur l'affiche, pour le téléphone comme pour le grand écran.</small>` + e.caches.map((c, i) => `<div class="rep"><b class="lz" style="background:#CFCFCF;color:#141414">–</b><input type="text" value="${h(c.n)}" disabled aria-label="Partie masquée"><button type="button" data-a="montrer" data-i="${i}" aria-label="Montrer de nouveau : ${h(c.n)}" title="Montrer de nouveau cette partie (elle redevient un cadre)" ${e.o.length > 9 ? 'disabled' : ''}>${OEIL(true)}</button></div>`).join('') : '');
+  + ((e.caches || []).length ? `<b style="margin-top:8px">Parties masquées</b><small>Recouvertes sur l'affiche, pour le téléphone comme pour le grand écran.</small>` + e.caches.map((c, i) => `<div class="rep"><b class="lz" style="background:#D3CAC2;color:#2B1B12">–</b><input type="text" value="${h(c.n)}" disabled aria-label="Partie masquée"><button type="button" data-a="montrer" data-i="${i}" aria-label="Montrer de nouveau : ${h(c.n)}" title="Montrer de nouveau cette partie (elle redevient un cadre)" ${e.o.length > 9 ? 'disabled' : ''}>${OEIL(true)}</button></div>`).join('') : '');
 // l'étape de découpe : elle s'ouvre toute seule quand l'écran vient d'être ajouté, et se rouvre depuis ses réglages
 function dessinerDecoupe() { const e = M.ecrans[sel]; $('decAffiche').innerHTML = (e.imgs || [])[0] ? zonesEd(e) : img('imgs.0', ''); $('decListe').innerHTML = `<b>Les cadres</b><small>Chaque cadre est une réponse possible : donnez-lui le nom que liront les participants.</small>${lignesZones(e)}`; }
 $('decoupe').addEventListener('close', () => zone()); // les noms tapés dans la fenêtre reviennent dans les réglages

@@ -15,7 +15,7 @@ let TOUS = ETAPES; // tous les écrans du fichier, y compris ceux qui sont masqu
 // servent encore : si l'un d'eux est modifié sur GitHub après le dernier enregistrement depuis le site, c'est lui qui est repris.
 const TEST = (new URLSearchParams(location.search).get('test') || '').toLowerCase().replace(/[^a-z0-9-]/g, '').slice(0, 40);
 const FICHIER = TEST ? 'tests/' + TEST + '.txt' : 'seance.txt', TQ = TEST ? '&test=' + TEST : '';
-const lireTests = t => [{ id: '', nom: 'Carnet 1 · Bien vivre chez soi' }, ...String(t || '').split(/\r?\n/).map(l => l.trim()).filter(l => l && l[0] !== '#')
+const lireTests = t => [{ id: '', nom: "Séance d'une heure · les trois affiches" }, ...String(t || '').split(/\r?\n/).map(l => l.trim()).filter(l => l && l[0] !== '#')
   .map(l => { const [id, nom] = l.split('|').map(x => x.trim()); return { id, nom: nom || id }; }).filter(x => /^[a-z0-9-]{1,40}$/.test(x.id))];
 const listeTests = () => Promise.all([ // ceux du Sheet, plus ceux de tests.txt (créés sur GitHub)
   fetch(SCRIPT_GOOGLE + '?vue=tests').then(x => x.json()).catch(() => []), fetch('tests.txt?' + Date.now()).then(x => x.ok ? x.text() : '').catch(() => '')
@@ -146,10 +146,10 @@ const afficheCadree = (e, src) => { const img = `<img src="${h(src)}" alt="L'aff
 const carteZones = (e, src) => `<span class="zones"><img src="${h(src)}" alt="L'affiche, découpée en zones" draggable="false">${cachesZones(e)}${e.zones.map((z, i) => `<button type="button" class="z" data-o="${i}" style="left:${+z[0]}%;top:${+z[1]}%;width:${+z[2]}%;height:${+z[3]}%" aria-label="Zone ${'ABCDEFGHIJ'[i]} : ${h(e.o[i])}"><b>${'ABCDEFGHIJ'[i]}</b></button>`).join('')}</span>`;
 const legendeZones = e => e.o.map((o, i) => `<b>${'ABCDEFGHIJ'[i]}</b> ${h(o)}`).join(' · ');
 if (typeof document !== 'undefined') document.head.insertAdjacentHTML('beforeend', `<style>.zones{position:relative;display:inline-block;line-height:0;vertical-align:top}.zones img{display:block}
-.z{position:absolute;box-sizing:border-box;border:2px solid #141414;border-radius:8px;padding:0;cursor:pointer;font:inherit;line-height:1.3;color:#141414;background:rgba(31,111,224,calc(var(--f,0)*.75));transition:background .4s}
-.z b{position:absolute;right:100%;top:-2px;background:#141414;color:#fff;border-radius:8px 0 0 8px;min-width:1.6em;padding:.1em .3em;font-size:max(13px,.55em);text-align:center;font-weight:800}
+.z{position:absolute;box-sizing:border-box;border:2px solid #2B1B12;border-radius:8px;padding:0;cursor:pointer;font:inherit;line-height:1.3;color:#2B1B12;background:rgba(31,111,224,calc(var(--f,0)*.75));transition:background .4s}
+.z b{position:absolute;right:100%;top:-2px;background:#2B1B12;color:#fff;border-radius:8px 0 0 8px;min-width:1.6em;padding:.1em .3em;font-size:max(13px,.55em);text-align:center;font-weight:800}
 .vz{display:block;overflow:hidden;aspect-ratio:var(--r);border-radius:12px}.vz .pan{position:absolute}.vz .pan img{width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;border-radius:0!important}
-.zones .cache{position:absolute;background:#E2E2E2;border-radius:4px}.z.on{background:rgba(20,20,20,.55)}.z:focus-visible{outline:3px solid #1F6FE0;outline-offset:2px}</style>`);
+.zones .cache{position:absolute;background:#E6DFD8;border-radius:4px}.z.on{background:rgba(43,27,18,.55)}.z:focus-visible{outline:3px solid #1F6FE0;outline-offset:2px}</style>`);
 
 const NB_ETAPES = () => Math.max(3, ETAPES.filter(e => e.t === 'phase').length); // « Étape 2 sur 4 »
 // l'identifiant d'une version : une empreinte courte du contenu utile du fichier (les commentaires ne comptent pas)
@@ -166,7 +166,7 @@ function declarerVersion() {
 }
 // les questions dans l'ordre, numérotées : sert au test papier, à la fiche réponse et à sa lecture
 // Une séance complète teste trois affiches : trois carnets qui se suivent, le test principal puis « affiche-2 » et « affiche-3 ».
-const CARNETS = ['', 'affiche-2', 'affiche-3'], NUM_CARNET = () => CARNETS.indexOf(TEST) + 1; // 0 : un test hors de cette séance
+const CARNETS = ['affiche-1', 'affiche-2', 'affiche-3'], NUM_CARNET = () => CARNETS.indexOf(TEST) + 1; // 0 : un test hors de cette séance
 const carnetSuivant = () => { const n = NUM_CARNET(); return n > 0 && n < 3 ? CARNETS[n] : null; }; // le nom-court du carnet d'après, ou rien après le troisième
 const QUESTIONS = () => { const rang = {}; return ETAPES.filter(e => e.id && e.t !== 'vote').map(e => ({ ...e, n: rang[e.p || 0] = (rang[e.p || 0] || 0) + 1 })); }; // numérotées de 1 à … dans chaque étape, comme sur le carnet papier
 
@@ -189,14 +189,14 @@ function connexion(page, annulable) { // rend une promesse tenue une fois la per
   const noter = () => { try { if (sessionStorage.getItem('pdvVu' + page)) return; sessionStorage.setItem('pdvVu' + page, 1); } catch (e) { } journal('Connexion', page); };
   if (COMPTE()) { noter(); return Promise.resolve(); }
   return new Promise((fini, rate) => {
-    const d = document.createElement('dialog'), champ = 'font:inherit;background:#F3F3F3;border:0;border-radius:14px;padding:12px 14px;min-height:46px;width:100%;box-sizing:border-box';
-    d.style.cssText = 'border:0;border-radius:22px;padding:24px;width:min(420px,92vw);color:#141414;box-shadow:0 10px 60px rgba(20,20,20,.35)';
+    const d = document.createElement('dialog'), champ = 'font:inherit;background:#F4EFEA;border:0;border-radius:14px;padding:12px 14px;min-height:46px;width:100%;box-sizing:border-box';
+    d.style.cssText = 'border:0;border-radius:22px;padding:24px;width:min(420px,92vw);color:#2B1B12;box-shadow:0 10px 60px rgba(43,27,18,.35)';
     d.innerHTML = `<form style="display:flex;flex-direction:column;gap:12px"><b style="font-size:26px;letter-spacing:-.03em;line-height:1">Connexion de l'équipe</b>
       <span>${annulable ? 'Pour enregistrer, connectez-vous avec le compte de l’équipe.' : 'Cette page est réservée à l’équipe.'} À la première connexion, le mot de passe que vous tapez devient le vôtre.</span>
       <label style="display:flex;flex-direction:column;gap:6px;font-weight:800">Adresse mail<input type="email" name="username" required autocomplete="username" style="${champ}"></label>
       <label style="display:flex;flex-direction:column;gap:6px;font-weight:800">Mot de passe<input type="password" name="password" required minlength="8" autocomplete="current-password" style="${champ}"></label>
       <span role="alert" style="font-weight:700;min-height:1.3em"></span>
-      <button style="font:inherit;font-weight:800;background:#141414;color:#fff;border:0;border-radius:99px;padding:10px 20px;min-height:46px;cursor:pointer">Se connecter</button>
+      <button style="font:inherit;font-weight:800;background:#2B1B12;color:#fff;border:0;border-radius:99px;padding:10px 20px;min-height:46px;cursor:pointer">Se connecter</button>
       ${annulable ? '<button type="button" data-annuler style="font:inherit;font-weight:700;background:none;border:0;text-decoration:underline;cursor:pointer;color:inherit">Annuler</button>' : '<a href="./" style="color:inherit;align-self:center">Retour à l’accueil</a>'}</form>`;
     document.body.appendChild(d); d.addEventListener('cancel', ev => ev.preventDefault());
     const f = d.querySelector('form'), dit = d.querySelector('[role=alert]'), b = d.querySelector('button');
@@ -213,7 +213,7 @@ function connexion(page, annulable) { // rend une promesse tenue une fois la per
 
 // ---------- le rond du profil : un petit rond à deux yeux, comme ceux du logo, à côté de la maison et de la même taille ; il mène à la page Profil ----------
 // Sur l'accueil du site, qui n'a pas de maison, il est seul en haut à droite. Il n'est pas sur les écrans de séance (téléphone, grand écran).
-const rondProfil = (seul = '') => `<a href="profil.html" aria-label="Mon profil" title="Mon profil" style="display:inline-flex;align-items:center;justify-content:center;gap:.14em;width:1.35em;height:1.35em;border-radius:50%;background:#F5A0C6;vertical-align:-.3em;margin-left:.5em;flex:none;${seul}"><i style="width:.2em;height:.2em;border-radius:50%;background:#141414"></i><i style="width:.2em;height:.2em;border-radius:50%;background:#141414"></i></a>`;
+const rondProfil = (seul = '') => `<a href="profil.html" aria-label="Mon profil" title="Mon profil" style="display:inline-flex;align-items:center;justify-content:center;gap:.14em;width:1.35em;height:1.35em;border-radius:50%;background:#F5A0C6;vertical-align:-.3em;margin-left:.5em;flex:none;${seul}"><i style="width:.2em;height:.2em;border-radius:50%;background:#2B1B12"></i><i style="width:.2em;height:.2em;border-radius:50%;background:#2B1B12"></i></a>`;
 if (typeof document !== 'undefined') document.addEventListener('DOMContentLoaded', () => document.querySelectorAll('a[aria-label="Accueil"]').forEach(a => a.insertAdjacentHTML('afterend', rondProfil(a.querySelector('[width="1.6em"]') ? 'font-size:1.19em;vertical-align:.1em' : ''))));
 
 // ---------- les icônes : un seul jeu pour toutes les pages, pleines et épaisses comme la Scoutie en gras ----------
@@ -235,7 +235,7 @@ const ICONES = {
   lecture: '<path d="M7 3.500v17L21 12z"/>',
   coche: '<path d="M9.500 20.500 2.500 13.500l3-3 4 4 9-9.500 3 3z"/>',
   croix: '<path d="M5.600 3.500 12 9.900l6.400-6.400 2.100 2.100L14.100 12l6.400 6.400-2.100 2.100L12 14.100l-6.400 6.400-2.100-2.100L9.900 12 3.500 5.600z"/>',
-  question: '<path d="M8 8.500a4 4 0 1 1 6 3.500c-1.400.8-2 1.600-2 3" fill="none" stroke="#000" stroke-width="3.400" stroke-linecap="round"/><circle cx="12" cy="20" r="2"/>',
+  question: '<path d="M8 8.500a4 4 0 1 1 6 3.500c-1.400.8-2 1.600-2 3" fill="none" stroke="#2B1B12" stroke-width="3.400" stroke-linecap="round"/><circle cx="12" cy="20" r="2"/>',
   image: '<path d="M4.500 3h15A2.500 2.500 0 0 1 22 5.500v13a2.500 2.500 0 0 1-2.500 2.500h-15A2.500 2.500 0 0 1 2 18.500v-13A2.500 2.500 0 0 1 4.500 3zM4.500 5.500v13h15v-13zM4.500 18.500l5-6.500 3.500 4 2.500-2.500 4 5zM15.500 7.700a1.800 1.800 0 1 0 0 3.600a1.800 1.800 0 0 0 0-3.600z"/>',
   sortie: '<path d="M3 3h9v3.500H6.500v11H12V21H3z"/><path d="M14 6.500 20.500 12 14 17.500v-3.800H9v-3.400h5z"/>',
   ecran: '<rect x="2" y="3" width="20" height="13" rx="2"/><path d="M10 16h4v3h3v2.500H7V19h3z"/>',

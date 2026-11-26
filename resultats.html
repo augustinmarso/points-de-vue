@@ -10,7 +10,7 @@
 <link rel="preload" href="polices/scoutie.woff2" as="font" type="font/woff2" crossorigin>
 <style>@font-face{font-family:'Scoutie Sans';font-weight:200 800;font-display:swap;src:url(polices/scoutie.woff2) format('woff2')}</style>
 <style>
-:root{--n:#141414;--gris:#6B6B6B;--fond:#F3F3F3}
+:root{--n:#2B1B12;--gris:#6E625A;--fond:#F4EFEA}
 *{box-sizing:border-box}
 body{margin:0;background:#fff;color:var(--n);font-family:'Scoutie Sans',Helvetica,Arial,sans-serif;font-size:18px;line-height:1.3}
 main{max-width:1040px;margin:0 auto;padding:28px 22px 80px}
@@ -97,7 +97,7 @@ article .n{color:var(--gris);font-size:15px;margin:4px 0 12px}
 </head>
 <body>
 <main>
-<header><svg viewBox="0 0 120 112" aria-hidden="true"><circle cx="44" cy="46" r="40" fill="#F5A0C6" style="mix-blend-mode:multiply"/><circle cx="86" cy="38" r="28" fill="#F7C33B" style="mix-blend-mode:multiply"/><circle cx="74" cy="78" r="22" fill="#1F6FE0" style="mix-blend-mode:multiply"/><circle cx="22" cy="36" r="3.4" fill="#141414"/><circle cx="34" cy="34" r="3.4" fill="#141414"/><circle cx="93" cy="24" r="2.7" fill="#141414"/><circle cx="103" cy="26" r="2.7" fill="#141414"/><circle cx="73" cy="91" r="2.2" fill="#141414"/><circle cx="81" cy="91" r="2.2" fill="#141414"/></svg><b>Points<br>de vue</b><a href="./" aria-label="Accueil" title="Accueil"><svg viewBox="0 0 24 24" width="1.35em" height="1.35em" fill="currentColor" aria-hidden="true" style="vertical-align:-.3em"><path d="M12 3 2.5 11.2h2.7V21h5.3v-6h3v6h5.3v-9.8h2.7z"/></svg></a></header>
+<header><svg viewBox="0 0 120 112" aria-hidden="true"><circle cx="44" cy="46" r="40" fill="#F5A0C6" style="mix-blend-mode:multiply"/><circle cx="86" cy="38" r="28" fill="#F7C33B" style="mix-blend-mode:multiply"/><circle cx="74" cy="78" r="22" fill="#1F6FE0" style="mix-blend-mode:multiply"/><circle cx="22" cy="36" r="3.4" fill="#2B1B12"/><circle cx="34" cy="34" r="3.4" fill="#2B1B12"/><circle cx="93" cy="24" r="2.7" fill="#2B1B12"/><circle cx="103" cy="26" r="2.7" fill="#2B1B12"/><circle cx="73" cy="91" r="2.2" fill="#2B1B12"/><circle cx="81" cy="91" r="2.2" fill="#2B1B12"/></svg><b>Points<br>de vue</b><a href="./" aria-label="Accueil" title="Accueil"><svg viewBox="0 0 24 24" width="1.35em" height="1.35em" fill="currentColor" aria-hidden="true" style="vertical-align:-.3em"><path d="M12 3 2.5 11.2h2.7V21h5.3v-6h3v6h5.3v-9.8h2.7z"/></svg></a></header>
 <h1>Étudier les données</h1>
 <p class="maj" id="maj">Chargement…</p>
 <div class="outils">
@@ -123,7 +123,7 @@ article .n{color:var(--gris);font-size:15px;margin:4px 0 12px}
 const SOURCE = 'https://script.google.com/macros/s/AKfycbzPof8sEj8tZLlA-MtVDYyODv32y8lXxc9hLVmaW5zCvHLilyRIxpk4Ix6TPhzJczjn/exec?vue=resultats';
 const COUL = { 'Étape 1': '#F5A0C6', 'Étape 2': '#F7C33B', 'Étape 3': '#1F6FE0', 'Étape 4': '#7BD3A8', 'Étape 5': '#B79CF2', 'Étape 6': '#FF9A6B' };
 const h = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])).replace(/ ([?!:;»])/g, '&nbsp;$1').replace(/« /g, '«&nbsp;');
-const TEINTES = ['#F5A0C6', '#F7C33B', '#1F6FE0', '#7BD3A8', '#B79CF2', '#FF9A6B', '#5BC0DE', '#C2185B', '#B0B0B0', '#C9B037']; // un cercle par réponse : d'abord les trois couleurs de l'identité
+const TEINTES = ['#F5A0C6', '#F7C33B', '#1F6FE0', '#7BD3A8', '#B79CF2', '#FF9A6B', '#5BC0DE', '#C2185B', '#B5AAA1', '#C9B037']; // un cercle par réponse : d'abord les trois couleurs de l'identité
 const fr = (x, d = 1) => x.toFixed(d).replace('.', ','), pc = x => Math.round(x * 100) + ' %';
 const $ = id => document.getElementById(id), plat = x => x.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
 let NOM_TEST = 'Séance Points de vue'; listeTests().then(l => { NOM_TEST = (l.find(x => x.id === TEST) || {}).nom || NOM_TEST; }).catch(() => { }); // le nom du test, pour le titre de la restitution
@@ -159,7 +159,7 @@ function dessiner() {
   // une seule réponse possible : les cercles superposés de l'identité, un par réponse, la surface suit la part des réponses ; puis la légende
   const camembert = (liste, c, n, bon) => { const pris = liste.map((o, i) => [i, n ? (c[o] || 0) / n : 0]).filter(x => x[1]), max = Math.max(...pris.map(x => x[1]), .0001);
     const ronds = pris.map(([i, p], k) => { const r = 7 + 22 * Math.sqrt(p / max), ang = (-90 + 360 * k / pris.length) * Math.PI / 180, d = pris.length > 1 ? 23 : 0, x = 50 + d * Math.cos(ang), y = 50 + d * Math.sin(ang);
-      const gros = r > 11, bx = x + (gros ? r * .3 * Math.cos(ang) : 0), by = y + (gros ? r * .3 * Math.sin(ang) : 0), e = Math.max(1.5, r * .15), ry = Math.max(.9, r * .075), oy = by - (gros ? r * .2 : 0), encre = i % 10 === 2 || i % 10 === 7 ? '#fff' : '#141414'; // le regard est décalé vers l'extérieur, là où le cercle ne se superpose pas aux autres
+      const gros = r > 11, bx = x + (gros ? r * .3 * Math.cos(ang) : 0), by = y + (gros ? r * .3 * Math.sin(ang) : 0), e = Math.max(1.5, r * .15), ry = Math.max(.9, r * .075), oy = by - (gros ? r * .2 : 0), encre = i % 10 === 2 || i % 10 === 7 ? '#fff' : '#2B1B12'; // le regard est décalé vers l'extérieur, là où le cercle ne se superpose pas aux autres
       return [`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${r.toFixed(1)}" fill="${TEINTES[i % 10]}" style="mix-blend-mode:multiply"/>`, `<circle cx="${(bx - e).toFixed(1)}" cy="${oy.toFixed(1)}" r="${ry.toFixed(1)}" fill="${encre}"/><circle cx="${(bx + e).toFixed(1)}" cy="${oy.toFixed(1)}" r="${ry.toFixed(1)}" fill="${encre}"/>` + (gros ? `<text x="${bx.toFixed(1)}" y="${(by + r * .12 + 4.5).toFixed(1)}" text-anchor="middle" font-size="6.5" font-weight="800" fill="${encre}">${pc(p)}</text>` : '')]; });
     return `<div class="camembert"><svg viewBox="-4 -4 108 108" role="img" aria-label="Répartition des réponses">${ronds.map(x => x[0]).join('')}${ronds.map(x => x[1]).join('')}</svg><ul>${liste.map((o, i) => `<li class="${c[o] ? '' : 'zero'}"><i style="background:${TEINTES[i % 10]}"></i><span>${h(o)}${i === bon ? ' (bonne réponse)' : ''}</span><b>${c[o] || 0} · ${pc(n ? (c[o] || 0) / n : 0)}</b></li>`).join('')}</ul></div>`; };
   // une note de 1 à 5 : cinq colonnes
@@ -174,7 +174,7 @@ function dessiner() {
     return `<article><div class="q"><h3>${h(q)}</h3><p class="n">${n} réponse${n > 1 ? 's' : ''}${U ? ` · ${nu} dans l'autre séance` : ''}</p>${nt ? `<div class="moy">${fr(nt[0] / nt[1])} <small>sur 5 en moyenne${ntu ? ` · ${fr(ntu[0] / ntu[1])} dans l'autre séance` : ''}</small></div>` : ''}`
       + liste.map((o, i) => { const k = c[o] || 0, p = n ? k / n : 0, pu = nu ? (cu[o] || 0) / nu : 0;
         if (!k && !nt && i !== bon && !cu[o]) { oubli.push(o); return ''; } // personne ne l'a choisie : citée en une ligne, sans barre
-        return `<div class="barre${k ? '' : ' zero'}${i === bon ? ' bon' : ''}"><span>${h(o)}${i === bon ? ' (bonne réponse)' : ''}</span><b>${k} · ${pc(p)}${U ? ' / ' + pc(pu) : ''}</b><div class="piste"><i style="width:${p * 100}%${bon != null && i !== bon ? ';background:#BDBDBD' : ''}"></i></div>${U ? `<div class="piste autre"><i style="width:${pu * 100}%"></i></div>` : ''}</div>`; }).join('')
+        return `<div class="barre${k ? '' : ' zero'}${i === bon ? ' bon' : ''}"><span>${h(o)}${i === bon ? ' (bonne réponse)' : ''}</span><b>${k} · ${pc(p)}${U ? ' / ' + pc(pu) : ''}</b><div class="piste"><i style="width:${p * 100}%${bon != null && i !== bon ? ';background:#C2B8AF' : ''}"></i></div>${U ? `<div class="piste autre"><i style="width:${pu * 100}%"></i></div>` : ''}</div>`; }).join('')
       + (oubli.length ? `<p class="n" style="margin:10px 0 0">Personne n'a choisi : ${h(oubli.join(', '))}.</p>` : '')
       + (bornes ? `<div class="bornes"><span>1 = ${h(bornes[0])}</span><span>5 = ${h(bornes[1])}</span></div>` : '') + `</div>${affiche(e, c)}</article>`;
   };
@@ -207,7 +207,7 @@ function dessiner() {
     `<div class="chiffres"><div><b>${gens}</b>participant${gens > 1 ? 's' : ''}</div><div><b>${seance ? 1 : codes.length}</b>séance${!seance && codes.length > 1 ? 's' : ''}</div><div><b>${total}</b>réponse${total > 1 ? 's' : ''}</div></div>`
     + (U ? `<div class="legende"><span><i class="a"></i>${seance ? 'Séance ' + h(seance) : 'Toutes les séances'}</span><span><i></i>Séance ${h($('comparer').value)} (barre fine, second pourcentage)</span></div>` : '')
     + (Object.keys(blocs).length ? '' : `<p class="vide">Aucune question ne contient « ${h($('chercher').value)} ».</p>`)
-    + Object.keys(titres).filter(g => blocs[g]).map(g => `<section style="--c:${COUL[g] || '#141414'}"><h2><i></i>${h(titres[g][0])}</h2><p>${h(titres[g][1])}</p><div class="grille">${blocs[g].map(x => x[1]).join('')}</div></section>`).join('');
+    + Object.keys(titres).filter(g => blocs[g]).map(g => `<section style="--c:${COUL[g] || '#2B1B12'}"><h2><i></i>${h(titres[g][0])}</h2><p>${h(titres[g][1])}</p><div class="grille">${blocs[g].map(x => x[1]).join('')}</div></section>`).join('');
 }
 function charger() {
   // tout ce qui doit être un nombre le devient avant d'entrer dans la page

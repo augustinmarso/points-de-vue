@@ -1,0 +1,272 @@
+# LA SÉANCE « POINTS DE VUE », ÉCRAN PAR ÉCRAN
+# ------------------------------------------------------------------
+# Le plus simple pour le modifier : la page « Modifier le test » du site (enregistré dans le Google Sheet, onglet « Tests »).
+# Ce fichier peut aussi se modifier sur GitHub : il reprend alors la main sur la dernière version enregistrée depuis le site.
+#
+# Chaque écran commence par un mot entre crochets. L'ordre du fichier est l'ordre de la séance.
+# Pour retirer un écran : supprimez ses lignes. Pour en déplacer un : coupez-collez ses lignes.
+# Une ligne qui commence par # est un commentaire, l'appli ne la lit pas.
+#
+#   [accueil]              la salle d'attente (QR code, code, participants connectés)
+#   [texte] petit titre | grand titre | phrase
+#   [5 secondes] image     une affiche montrée 5 secondes   (ajoutez « | étape 1 » pour la rattacher à une étape)
+#   [jeu] question         question avec une bonne réponse : « + » devant la bonne, « - » devant les autres
+#   [scores]               les réussites de chacun au jeu
+#   [étape 1]              l'écran de titre d'une étape (de 1 à 6)
+#   [question] question    question à choix : « - » devant chaque réponse
+#                          ligne « réponses : une » ou « réponses : plusieurs »
+#   [note] question        note de 1 à 5, avec les lignes « de : » et « à : »
+#   [a ou b] question      comparaison de 2 à 4 affiches, avec « affiche a : », « affiche b : » (puis c et d)
+#   [zones] question       une affiche découpée en zones : on touche une zone. Une ligne par zone : « - nom @ gauche haut largeur hauteur » (en % de l'affiche) ; « cache : nom @ … » recouvre une partie
+#   [avis] question        avis libre : chacun écrit sa réponse (quelques mots)
+#   [mission] [photos] [tests] [palmarès] [fin]   l'atelier en binômes et la fin
+#
+# Lignes possibles sous une question :
+#   étape : 1                      (1, 2 ou 3 : donne la couleur et le titre de l'étape)
+#   affiche : affiches/nom.jpg     (l'affiche montrée à côté de la question)
+#   précision : une phrase sous la question
+#   noir et blanc : oui            (l'affiche passe en noir et blanc)
+#   masqué : oui                   (l'écran reste dans le fichier mais ne passe pas pendant la séance)
+#   cache : nom @ 10 20 80 30      (une partie de l'affiche recouverte : gauche, haut, largeur, hauteur, en %)
+#   zoom : 10 20 80 30 707         (seule cette partie de l'affiche est montrée, en très gros ; le dernier nombre vient de l'éditeur)
+#
+# Les images sont dans le dossier « affiches » du dépôt.
+# ------------------------------------------------------------------
+
+# Les trois étapes : nom | phrase d'explication
+étape 1 = Étude du message | Ce qu'une affiche fait comprendre.
+étape 2 = Analyse du visuel | La lisibilité des lettres, des couleurs et de l'image.
+étape 3 = Enquête sur le format | Affiche ou flyer, et les lieux de diffusion.
+
+# L'atelier : les informations de santé possibles. La première est celle de la séance (le menu du grand écran permet d'en changer).
+mission = Atelier équilibre pour éviter les chutes
+mission = Dépistage gratuit du cancer du sein
+mission = Un café pour souffler quand on aide un proche
+mission = Vaccin contre la grippe en pharmacie
+mission = Conférence sur les enfants et les écrans
+mission = Bilan de prévention gratuit à 60 ans
+mission = Marche collective du jeudi matin
+mission = Don du sang à la salle des fêtes
+
+# Les logos montrés en bas à droite du grand écran, au début et à la fin de la séance (deux au plus).
+logo = logos/granville-terre-et-mer.svg
+
+# L'atelier : les tests passés par chaque affiche de binôme (question | note 1 | note 5). « test 5 secondes » : l'affiche est cachée au bout de 5 secondes.
+test 5 secondes = Vue 5 secondes : l'information passe-t-elle ? | Pas du tout | Tout de suite
+test = Le message est-il clair ? | Pas du tout | Tout à fait
+test = Se lit-elle facilement, même de loin ? | Difficilement | Très facilement
+test = Donne-t-elle envie d'y aller ? | Pas du tout | Tout à fait
+test = Vous en souviendrez-vous demain ? | Sûrement pas | Sûrement
+
+# ================= LA SÉANCE =================
+
+[accueil]
+
+[texte] Avant de commencer | Votre regard va servir | Aujourd'hui, vous testez des affiches de santé de Granville Terre et Mer. Grâce à vos réponses, elles seront plus claires : vous trouverez plus vite les ateliers, les dates et les aides près de chez vous. Il n'y a pas de bonne ou de mauvaise réponse : si quelque chose n'est pas clair, c'est l'affiche qui est en cause, pas vous.
+
+[étape 1]
+
+[texte] Pour commencer | Le jeu de l'œil | Une affiche apparaît 5 secondes. Ensuite, quelques questions très précises. Si peu de monde trouve, c'est l'affiche qui manque de clarté, pas vous.
+étape : 1
+
+[5 secondes] affiches/origine.jpg | étape 1 | 8 s
+
+[jeu] De quoi parle cette affiche ?
+étape : 1
+affiche : affiches/origine.jpg
+- Un cours de cuisine
++ Des ateliers pour bien vivre chez soi
+- Une sortie en forêt
+- Une séance de cinéma
+
+[avis] Si vous deviez retenir une chose de l'affiche ce serait quoi ?
+étape : 1
+
+[jeu] À quelle heure cela commence-t-il ?
+étape : 1
+affiche : affiches/origine.jpg
+- 10 h
++ 14 h
+- 14 h 30
+- 16 h 30
+
+[jeu] Où cela se passe-t-il ?
+étape : 1
+affiche : affiches/origine.jpg
+- À Bréhal et à Cérences
++ À Granville et à Villedieu-les-Poêles
+- À Saint-Pois et à Percy
+- À Avranches et à Coutances
+
+[scores]
+
+[question] Que propose cette affiche ?
+étape : 1
+réponses : plusieurs
+affiche : affiches/origine.jpg
+- Participer à un atelier
+- Donner mon avis
+- Des conseils pour mieux vivre
+- Faire un dépistage ou un bilan
+- M'inscrire quelque part
+- Je ne vois pas
+téléphone : sans affiche
+
+[question] À votre avis, à qui s'adresse-t-elle ?
+étape : 1
+réponses : plusieurs
+affiche : affiches/origine.jpg
+- Aux personnes âgées
+- Aux familles
+- Aux jeunes
+- Aux professionnels
+- Difficile à dire
+téléphone : sans affiche
+
+[question] Après l'avoir vue, comment vous sentez-vous ?
+étape : 1
+réponses : une
+affiche : affiches/origine.jpg
+- Rassuré
+- Motivé
+- Ni l'un ni l'autre
+- Inquiet
+- Perdu
+
+[étape 2]
+
+[question] Qu'est-ce qui gêne la lecture ?
+étape : 2
+réponses : plusieurs
+affiche : affiches/origine.jpg
+- Des mots trop techniques
+- Des phrases trop longues
+- Des sigles
+- Des lettres trop petites
+- Trop de texte
+- Du texte posé sur l'image
+- Un manque de contraste
+- Rien, tout est clair
+téléphone : sans affiche
+
+[zones] Où votre regard s'est-il posé en premier ?
+étape : 2
+réponses : une
+affiche : affiches/origine.jpg
+- Le titre @ 16 3 67 17
+- Les ateliers et le dessin @ 4 21 92 41
+- Gratuit, animé par @ 8 62 84 8
+- Les dates et les lieux @ 2 70 95 15
+- Les logos @ 10 86 81 11
+
+[a ou b] Sur laquelle le titre se détache-t-il le mieux ?
+étape : 2
+précision : Deux écritures du titre : manuscrite, puis droite.
+affiche a : affiches/origine-refaite.jpg
+affiche b : affiches/origine-titre-droit.jpg
+
+[a ou b] Laquelle liriez-vous de loin ?
+étape : 2
+précision : Deux contrastes.
+affiche a : affiches/origine-refaite.jpg
+affiche b : affiches/origine-contraste-fort.jpg
+
+[a ou b] Laquelle est la plus claire ?
+étape : 2
+précision : Une version chargée, puis une version allégée.
+affiche a : affiches/origine-refaite.jpg
+affiche b : affiches/origine-allegee.jpg
+
+[question] Que vous évoque l'image de cette affiche ?
+étape : 2
+réponses : plusieurs
+affiche : affiches/origine.jpg
+- La convivialité
+- Le travail en groupe
+- Le sérieux
+- La santé
+- L'école
+- La fête
+- Autre chose que le sujet
+- Rien de précis
+téléphone : sans affiche
+
+[a ou b] Quelles couleurs préférez-vous ?
+étape : 2
+précision : Quatre couleurs, une seule couleur, puis un fond foncé.
+affiche a : affiches/origine-refaite.jpg
+affiche b : affiches/origine-une-couleur.jpg
+affiche c : affiches/origine-fond-fonce.jpg
+
+[avis] Que changeriez-vous sur cette affiche ?
+étape : 2
+affiche : affiches/origine.jpg
+
+[étape 3]
+
+[question] Où auriez-vous une chance de croiser cette information ?
+étape : 3
+réponses : plusieurs
+affiche : affiches/origine.jpg
+- Abribus
+- Panneau de ville
+- Pharmacie
+- Salle d'attente
+- Panneau de la mairie
+- Réseaux sociaux
+image : Abribus | affiches/lieu-abribus.jpg
+image : Panneau de ville | affiches/lieu-panneau-ville.jpg
+image : Pharmacie | affiches/lieu-pharmacie.jpg
+image : Salle d'attente | affiches/lieu-salle-attente.jpg
+image : Panneau de la mairie | affiches/lieu-mairie.jpg
+image : Réseaux sociaux | affiches/lieu-reseaux-sociaux.jpg
+téléphone : sans affiche
+
+[question] Sous quelle forme vous serait-elle la plus utile ?
+étape : 3
+réponses : une
+affiche : affiches/origine.jpg
+- Grande affiche (A3)
+- Affiche (A4)
+- Flyer à emporter (A5)
+- Message sur le téléphone
+- De vive voix
+- Dans la presse
+téléphone : sans affiche
+
+[question] Ce flyer, l'emporteriez-vous avec vous ?
+étape : 3
+réponses : une
+affiche : affiches/lieu-prospectus.jpg
+- Oui
+- Je la prendrais en photo
+- Non
+
+[note] Cette information vous serait-elle utile, à vous ou à un proche ?
+étape : 3
+affiche : affiches/origine.jpg
+de : Pas du tout
+à : Tout à fait
+
+[avis] Près de chez vous, où faudrait-il l'afficher ?
+étape : 3
+affiche : affiches/origine.jpg
+
+[question] À quel point faites-vous confiance à cette affiche ?
+étape : 3
+réponses : une
+affiche : affiches/origine.jpg
+- Totalement
+- Plutôt
+- Pas vraiment
+- Pas du tout
+
+[question] Souhaitez-vous participer ?
+étape : 3
+réponses : une
+affiche : affiches/origine.jpg
+- Oui
+- Peut-être
+- Non
+
+[fin]

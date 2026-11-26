@@ -33,10 +33,10 @@
 # Les images sont dans le dossier « affiches » du dépôt.
 # ------------------------------------------------------------------
 
-# Les trois étapes : nom | phrase d'explication
-étape 1 = Étude du message | Ce qu'une affiche fait comprendre.
-étape 2 = Analyse du visuel | La lisibilité des lettres, des couleurs et de l'image.
-étape 3 = Enquête sur le format | Affiche ou flyer, et les lieux de diffusion.
+# Une étape par affiche : nom | phrase d'explication
+étape 1 = Affiche 1 · Bien vivre chez soi | Le message, le visuel, puis le format.
+étape 2 = Affiche 2 · L'art de rester actif | Le message, le visuel, puis le format.
+étape 3 = Affiche 3 · Mémoire tonique | Le message, le visuel, puis le format.
 
 # L'atelier : les informations de santé possibles. La première est celle de la séance (le menu du grand écran permet d'en changer).
 mission = Atelier équilibre pour éviter les chutes
@@ -133,10 +133,11 @@ affiche : affiches/origine.jpg
 - Inquiet
 - Perdu
 
-[étape 2]
+[texte] Affiche 1 sur 3 | Analyse du visuel | La lisibilité des lettres, des couleurs et de l'image.
+étape : 1
 
 [question] Qu'est-ce qui gêne la lecture ?
-étape : 2
+étape : 1
 réponses : plusieurs
 affiche : affiches/origine.jpg
 - Des mots trop techniques
@@ -150,7 +151,7 @@ affiche : affiches/origine.jpg
 téléphone : sans affiche
 
 [zones] Où votre regard s'est-il posé en premier ?
-étape : 2
+étape : 1
 réponses : une
 affiche : affiches/origine.jpg
 - Le titre @ 16 3 67 17
@@ -160,25 +161,25 @@ affiche : affiches/origine.jpg
 - Les logos @ 10 86 81 11
 
 [a ou b] Sur laquelle le titre se détache-t-il le mieux ?
-étape : 2
+étape : 1
 précision : Deux écritures du titre : manuscrite, puis droite.
 affiche a : affiches/origine-refaite.jpg
 affiche b : affiches/origine-titre-droit.jpg
 
 [a ou b] Laquelle liriez-vous de loin ?
-étape : 2
+étape : 1
 précision : Deux contrastes.
 affiche a : affiches/origine-refaite.jpg
 affiche b : affiches/origine-contraste-fort.jpg
 
 [a ou b] Laquelle est la plus claire ?
-étape : 2
+étape : 1
 précision : Une version chargée, puis une version allégée.
 affiche a : affiches/origine-refaite.jpg
 affiche b : affiches/origine-allegee.jpg
 
 [question] Que vous évoque l'image de cette affiche ?
-étape : 2
+étape : 1
 réponses : plusieurs
 affiche : affiches/origine.jpg
 - La convivialité
@@ -192,20 +193,21 @@ affiche : affiches/origine.jpg
 téléphone : sans affiche
 
 [a ou b] Quelles couleurs préférez-vous ?
-étape : 2
+étape : 1
 précision : Quatre couleurs, une seule couleur, puis un fond foncé.
 affiche a : affiches/origine-refaite.jpg
 affiche b : affiches/origine-une-couleur.jpg
 affiche c : affiches/origine-fond-fonce.jpg
 
 [avis] Que changeriez-vous sur cette affiche ?
-étape : 2
+étape : 1
 affiche : affiches/origine.jpg
 
-[étape 3]
+[texte] Affiche 1 sur 3 | Enquête sur le format | Affiche ou flyer, et les lieux de diffusion.
+étape : 1
 
 [question] Où auriez-vous une chance de croiser cette information ?
-étape : 3
+étape : 1
 réponses : plusieurs
 affiche : affiches/origine.jpg
 - Abribus
@@ -223,7 +225,7 @@ image : Réseaux sociaux | affiches/lieu-reseaux-sociaux.jpg
 téléphone : sans affiche
 
 [question] Sous quelle forme vous serait-elle la plus utile ?
-étape : 3
+étape : 1
 réponses : une
 affiche : affiches/origine.jpg
 - Grande affiche (A3)
@@ -235,7 +237,7 @@ affiche : affiches/origine.jpg
 téléphone : sans affiche
 
 [question] Ce flyer, l'emporteriez-vous avec vous ?
-étape : 3
+étape : 1
 réponses : une
 affiche : affiches/lieu-prospectus.jpg
 - Oui
@@ -243,17 +245,17 @@ affiche : affiches/lieu-prospectus.jpg
 - Non
 
 [note] Cette information vous serait-elle utile, à vous ou à un proche ?
-étape : 3
+étape : 1
 affiche : affiches/origine.jpg
 de : Pas du tout
 à : Tout à fait
 
 [avis] Près de chez vous, où faudrait-il l'afficher ?
-étape : 3
+étape : 1
 affiche : affiches/origine.jpg
 
 [question] À quel point faites-vous confiance à cette affiche ?
-étape : 3
+étape : 1
 réponses : une
 affiche : affiches/origine.jpg
 - Totalement
@@ -262,9 +264,370 @@ affiche : affiches/origine.jpg
 - Pas du tout
 
 [question] Souhaitez-vous participer ?
-étape : 3
+étape : 1
 réponses : une
 affiche : affiches/origine.jpg
+- Oui
+- Peut-être
+- Non
+
+[étape 2]
+
+[5 secondes] affiches/lumeen.jpg | étape 2 | 8 s
+
+[jeu] De quoi parle cette affiche ?
+étape : 2
+affiche : affiches/lumeen.jpg
+- Un cours de peinture
++ Un atelier de réalité virtuelle
+- Une sortie en forêt
+- Une séance de cinéma
+
+[avis] Si vous deviez retenir une chose de l'affiche ce serait quoi ?
+étape : 2
+
+[jeu] À quelle heure cela commence-t-il ?
+étape : 2
+affiche : affiches/lumeen.jpg
+- 10 h
+- 14 h
++ 14 h 30
+- 16 h 30
+
+[jeu] Où cela se passe-t-il ?
+étape : 2
+affiche : affiches/lumeen.jpg
+- À Granville
+- À Villedieu-les-Poêles
+- À Saint-Pois
++ À Saint-Martin-le-Bouillant
+
+[scores]
+
+[question] Que propose cette affiche ?
+étape : 2
+réponses : plusieurs
+affiche : affiches/lumeen.jpg
+- Participer à un atelier
+- Donner mon avis
+- Des conseils pour mieux vivre
+- Faire un dépistage ou un bilan
+- M'inscrire quelque part
+- Je ne vois pas
+téléphone : sans affiche
+
+[question] À votre avis, à qui s'adresse-t-elle ?
+étape : 2
+réponses : plusieurs
+affiche : affiches/lumeen.jpg
+- Aux personnes âgées
+- Aux familles
+- Aux jeunes
+- Aux professionnels
+- Difficile à dire
+téléphone : sans affiche
+
+[question] Après l'avoir vue, comment vous sentez-vous ?
+étape : 2
+réponses : une
+affiche : affiches/lumeen.jpg
+- Rassuré
+- Motivé
+- Ni l'un ni l'autre
+- Inquiet
+- Perdu
+
+[texte] Affiche 2 sur 3 | Analyse du visuel | La lisibilité des lettres, des couleurs et de l'image.
+étape : 2
+
+[question] Qu'est-ce qui gêne la lecture ?
+étape : 2
+réponses : plusieurs
+affiche : affiches/lumeen.jpg
+- Des mots trop techniques
+- Des phrases trop longues
+- Des sigles
+- Des lettres trop petites
+- Trop de texte
+- Du texte posé sur l'image
+- Un manque de contraste
+- Rien, tout est clair
+téléphone : sans affiche
+
+[zones] Où votre regard s'est-il posé en premier ?
+étape : 2
+réponses : une
+affiche : affiches/lumeen.jpg
+- Le titre @ 14 2 70 17
+- La phrase sur les chutes @ 22 18 56 7
+- Le dessin @ 6 25 86 40
+- La phrase sur la réalité virtuelle @ 14 64 72 7
+- Le lieu, la date et le téléphone @ 2 71 96 17
+- Les logos @ 2 88 96 11
+
+[question] Que vous évoque l'image de cette affiche ?
+étape : 2
+réponses : plusieurs
+affiche : affiches/lumeen.jpg
+- La convivialité
+- Le travail en groupe
+- Le sérieux
+- La santé
+- L'école
+- La fête
+- Autre chose que le sujet
+- Rien de précis
+téléphone : sans affiche
+
+[avis] Que changeriez-vous sur cette affiche ?
+étape : 2
+affiche : affiches/lumeen.jpg
+
+[texte] Affiche 2 sur 3 | Enquête sur le format | Affiche ou flyer, et les lieux de diffusion.
+étape : 2
+
+[question] Où auriez-vous une chance de croiser cette information ?
+étape : 2
+réponses : plusieurs
+affiche : affiches/lumeen.jpg
+- Abribus
+- Panneau de ville
+- Pharmacie
+- Salle d'attente
+- Panneau de la mairie
+- Réseaux sociaux
+image : Abribus | affiches/lieu-abribus-2.jpg
+image : Panneau de ville | affiches/lieu-panneau-ville-2.jpg
+image : Pharmacie | affiches/lieu-pharmacie-2.jpg
+image : Salle d'attente | affiches/lieu-salle-attente-2.jpg
+image : Panneau de la mairie | affiches/lieu-mairie-2.jpg
+image : Réseaux sociaux | affiches/lieu-reseaux-sociaux-2.jpg
+téléphone : sans affiche
+
+[question] Sous quelle forme vous serait-elle la plus utile ?
+étape : 2
+réponses : une
+affiche : affiches/lumeen.jpg
+- Grande affiche (A3)
+- Affiche (A4)
+- Flyer à emporter (A5)
+- Message sur le téléphone
+- De vive voix
+- Dans la presse
+téléphone : sans affiche
+
+[question] Ce flyer, l'emporteriez-vous avec vous ?
+étape : 2
+réponses : une
+affiche : affiches/lieu-prospectus-2.jpg
+- Oui
+- Je la prendrais en photo
+- Non
+
+[note] Cette information vous serait-elle utile, à vous ou à un proche ?
+étape : 2
+affiche : affiches/lumeen.jpg
+de : Pas du tout
+à : Tout à fait
+
+[avis] Près de chez vous, où faudrait-il l'afficher ?
+étape : 2
+affiche : affiches/lumeen.jpg
+
+[question] À quel point faites-vous confiance à cette affiche ?
+étape : 2
+réponses : une
+affiche : affiches/lumeen.jpg
+- Totalement
+- Plutôt
+- Pas vraiment
+- Pas du tout
+
+[question] Souhaitez-vous participer ?
+étape : 2
+réponses : une
+affiche : affiches/lumeen.jpg
+- Oui
+- Peut-être
+- Non
+
+[étape 3]
+
+[5 secondes] affiches/memoire.jpg | étape 3 | 8 s
+
+[jeu] De quoi parle cette affiche ?
+étape : 3
+affiche : affiches/memoire.jpg
+- Un atelier de cuisine
++ Une conférence sur la mémoire
+- Une sortie en forêt
+- Une séance de cinéma
+
+[avis] Si vous deviez retenir une chose de l'affiche ce serait quoi ?
+étape : 3
+
+[jeu] À quelle heure cela commence-t-il ?
+étape : 3
+affiche : affiches/memoire.jpg
+- 10 h
+- 14 h
++ 14 h 30
+- 16 h 30
+
+[jeu] Où cela se passe-t-il ?
+étape : 3
+affiche : affiches/memoire.jpg
+- À Bréhal
++ À Cérences
+- À Granville
+- À Coutances
+
+[scores]
+
+[question] Que propose cette affiche ?
+étape : 3
+réponses : plusieurs
+affiche : affiches/memoire.jpg
+- Participer à un atelier
+- Donner mon avis
+- Des conseils pour mieux vivre
+- Faire un dépistage ou un bilan
+- M'inscrire quelque part
+- Je ne vois pas
+téléphone : sans affiche
+
+[question] À votre avis, à qui s'adresse-t-elle ?
+étape : 3
+réponses : plusieurs
+affiche : affiches/memoire.jpg
+- Aux personnes âgées
+- Aux familles
+- Aux jeunes
+- Aux professionnels
+- Difficile à dire
+téléphone : sans affiche
+
+[question] Après l'avoir vue, comment vous sentez-vous ?
+étape : 3
+réponses : une
+affiche : affiches/memoire.jpg
+- Rassuré
+- Motivé
+- Ni l'un ni l'autre
+- Inquiet
+- Perdu
+
+[texte] Affiche 3 sur 3 | Analyse du visuel | La lisibilité des lettres, des couleurs et de l'image.
+étape : 3
+
+[question] Qu'est-ce qui gêne la lecture ?
+étape : 3
+réponses : plusieurs
+affiche : affiches/memoire.jpg
+- Des mots trop techniques
+- Des phrases trop longues
+- Des sigles
+- Des lettres trop petites
+- Trop de texte
+- Du texte posé sur l'image
+- Un manque de contraste
+- Rien, tout est clair
+téléphone : sans affiche
+
+[zones] Où votre regard s'est-il posé en premier ?
+étape : 3
+réponses : une
+affiche : affiches/memoire.jpg
+- Les logos du haut @ 2 0 96 8
+- La photo @ 34 4 64 27
+- Le titre de la conférence @ 0 31 100 12
+- La date et le lieu @ 12 44 52 17
+- Le texte @ 7 63 54 21
+- Les quatre mots à droite @ 62 55 33 24
+- Les logos du bas @ 5 88 90 12
+
+[question] Que vous évoque l'image de cette affiche ?
+étape : 3
+réponses : plusieurs
+affiche : affiches/memoire.jpg
+- La convivialité
+- Le travail en groupe
+- Le sérieux
+- La santé
+- L'école
+- La fête
+- Autre chose que le sujet
+- Rien de précis
+téléphone : sans affiche
+
+[avis] Que changeriez-vous sur cette affiche ?
+étape : 3
+affiche : affiches/memoire.jpg
+
+[texte] Affiche 3 sur 3 | Enquête sur le format | Affiche ou flyer, et les lieux de diffusion.
+étape : 3
+
+[question] Où auriez-vous une chance de croiser cette information ?
+étape : 3
+réponses : plusieurs
+affiche : affiches/memoire.jpg
+- Abribus
+- Panneau de ville
+- Pharmacie
+- Salle d'attente
+- Panneau de la mairie
+- Réseaux sociaux
+image : Abribus | affiches/lieu-abribus-3.jpg
+image : Panneau de ville | affiches/lieu-panneau-ville-3.jpg
+image : Pharmacie | affiches/lieu-pharmacie-3.jpg
+image : Salle d'attente | affiches/lieu-salle-attente-3.jpg
+image : Panneau de la mairie | affiches/lieu-mairie-3.jpg
+image : Réseaux sociaux | affiches/lieu-reseaux-sociaux-3.jpg
+téléphone : sans affiche
+
+[question] Sous quelle forme vous serait-elle la plus utile ?
+étape : 3
+réponses : une
+affiche : affiches/memoire.jpg
+- Grande affiche (A3)
+- Affiche (A4)
+- Flyer à emporter (A5)
+- Message sur le téléphone
+- De vive voix
+- Dans la presse
+téléphone : sans affiche
+
+[question] Ce flyer, l'emporteriez-vous avec vous ?
+étape : 3
+réponses : une
+affiche : affiches/lieu-prospectus-3.jpg
+- Oui
+- Je la prendrais en photo
+- Non
+
+[note] Cette information vous serait-elle utile, à vous ou à un proche ?
+étape : 3
+affiche : affiches/memoire.jpg
+de : Pas du tout
+à : Tout à fait
+
+[avis] Près de chez vous, où faudrait-il l'afficher ?
+étape : 3
+affiche : affiches/memoire.jpg
+
+[question] À quel point faites-vous confiance à cette affiche ?
+étape : 3
+réponses : une
+affiche : affiches/memoire.jpg
+- Totalement
+- Plutôt
+- Pas vraiment
+- Pas du tout
+
+[question] Souhaitez-vous participer ?
+étape : 3
+réponses : une
+affiche : affiches/memoire.jpg
 - Oui
 - Peut-être
 - Non

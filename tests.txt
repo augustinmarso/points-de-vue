@@ -1,3 +1,5 @@
-# Les autres tests du site : nom-court | nom affiché. Le test principal (seance.txt) est l'affiche 1.
+# Les autres tests du site : nom-court | nom affiché. Le test principal (seance.txt) est la séance d'une heure : les trois affiches à la suite.
+# Ces trois-là sont les carnets papier, une affiche chacun.
+affiche-1 | Carnet 1 · Bien vivre chez soi
 affiche-2 | Carnet 2 · L'art de rester actif
 affiche-3 | Carnet 3 · Mémoire tonique
