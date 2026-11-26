@@ -143,8 +143,9 @@ function fiche(Q, carnet = 1, affiche = '') {
 }
 // les trois affiches de la séance : celles choisies sur cet appareil, sinon les premières du test (les mises en situation ne comptent pas)
 const affichesDispo = () => [...new Set(ETAPES.flatMap(e => [e.img, ...(e.imgs || [])]).filter(x => x && !/\/lieu-/.test(x)))];
-const affichesCarnets = () => { const l = affichesDispo(); let c = []; try { c = JSON.parse(localStorage.getItem('pdvCarnets' + TEST)) || []; } catch (e) { } return [0, 1, 2].map(i => l.includes(c[i]) ? c[i] : l[i] || l[0] || ''); };
-let seul = 0; // 0 : les trois carnets ; 1, 2 ou 3 : ce carnet seulement (une feuille recto verso)
+const affichesCarnets = () => { const l = affichesDispo(); let c = []; try { c = JSON.parse(localStorage.getItem('pdvCarnets' + TEST)) || []; } catch (e) { } return [0, 1, 2].map(i => l.includes(c[i]) ? c[i] : (NUM_TEST ? l[0] : l[i]) || l[0] || ''); };
+const NUM_TEST = TEST ? +((/-(\d)$/.exec(TEST) || [])[1]) || 0 : 1; // le carnet de ce test : 1 pour le test principal, 2 et 3 pour « affiche-2 » et « affiche-3 » (0 : un test hors séance à trois affiches)
+let seul = NUM_TEST; // 0 : les trois carnets ; 1, 2 ou 3 : ce carnet seulement (une feuille recto verso)
 const livrets = Q => { const A = affichesCarnets(), l = affichesDispo();
   return `<div class="trop reglage"><b>Affiche au dos</b> ${A.map((a, i) => `<label>Carnet ${i + 1} <select data-carnet="${i}">${l.map(x => `<option value="${h(x)}" ${x === a ? 'selected' : ''}>${h(x.replace(/^.*\//, '').replace(/\.\w+$/, ''))}</option>`).join('')}</select></label>`).join(' ')}<br><label>À imprimer <select data-seul><option value="0">les trois carnets (six pages)</option>${[1, 2, 3].map(i => `<option value="${i}" ${i === seul ? 'selected' : ''}>le carnet ${i} seul (une feuille recto verso)</option>`).join('')}</select></label> A3 paysage, recto verso (petit côté).</div>` + A.map((a, i) => seul && seul !== i + 1 ? '' : fiche(Q, i + 1, a)).join(''); };
 // un texte trop long pour sa case rétrécit jusqu'à tenir
@@ -266,7 +267,7 @@ function lignes() { // les réponses lues, au même format que celles des télé
 function vueLire() {
   return `<div class="scan"><h1>Photographier les fiches</h1>
     <ol><li>Dépliez le livret et photographiez la feuille entière, à plat.</li><li>Vérifiez les réponses lues, corrigez d'un clic.</li><li>Recopiez les réponses écrites, puis enregistrez.</li></ol>
-    <div class="deux"><label>Séance<input type="text" id="seance" value="${h(new URLSearchParams(location.search).get('seance') || 'papier')}" maxlength="12"></label><label>Participant n°<input type="number" id="numero" value="1" min="1"></label><label>Carnet (affiche)<select id="carnet"><option>1</option><option>2</option><option>3</option></select></label></div>
+    <div class="deux"><label>Séance<input type="text" id="seance" value="${h(new URLSearchParams(location.search).get('seance') || 'papier')}" maxlength="12"></label><label>Participant n°<input type="number" id="numero" value="1" min="1"></label><label>Carnet (affiche)<select id="carnet">${[1, 2, 3].map(i => `<option${i === (NUM_TEST || 1) ? ' selected' : ''}>${i}</option>`).join('')}</select></label></div>
     <label class="btn noir" style="align-self:flex-start">Photographier ou choisir une photo<input type="file" accept="image/*" capture="environment" hidden id="fichier"></label>
     <p class="etat" id="etat">Aucune photo pour l'instant. La lecture se fait dans ce navigateur, la photo n'est envoyée nulle part.</p>
     <canvas id="photo" width="10" height="10" hidden></canvas>

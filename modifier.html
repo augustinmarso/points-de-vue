@@ -219,7 +219,7 @@ dialog h3{margin:0 0 6px;font-size:24px;font-weight:800;letter-spacing:-.03em}
 <header>
   <a href="./" aria-label="Accueil" title="Accueil"><svg viewBox="0 0 24 24" width="1.6em" height="1.6em" fill="currentColor" aria-hidden="true"><path d="M12 3 2.5 11.2h2.7V21h5.3v-6h3v6h5.3v-9.8h2.7z"/></svg></a>
   <h1>Modifier le test<small>Ici, vous composez la séance que verront les participants.</small></h1>
-  <select class="btn clair" id="test" aria-label="Le test modifié"><option>Séance Points de vue (principale)</option></select>
+  <select class="btn clair" id="test" aria-label="Le test modifié"><option>Affiche 1 · Bien vivre chez soi (test principal)</option></select>
   <a class="btn clair" id="lancer" href="./?passer" target="_blank" rel="noopener" title="Ouvre la vraie séance dans un autre onglet : grand écran, téléphones, réponses enregistrées. Pour un simple essai, utilisez « Essayer cette version ».">Démarrer la séance</a>
   <details class="plus" id="plus"><summary class="btn clair">Plus ▾</summary><div>
   <button class="btn clair" id="btnNouveau" title="Crée un test à part, avec son propre lien. Le test ouvert ne change pas.">+ Nouveau test</button>
@@ -278,7 +278,7 @@ dialog h3{margin:0 0 6px;font-size:24px;font-weight:800;letter-spacing:-.03em}
 const DEPOT = 'https://api.github.com/repos/augustinmarso/points-de-vue/contents/'; // lecture seule : la liste des affiches du site
 const NOMS = {}; // le nom de fichier des images ajoutées (une image ajoutée est gardée dans le test lui-même, sous forme de data:)
 const nomImage = s => /^data:/.test(s) ? NOMS[s] || 'Image ajoutée' : String(s).split('/').pop().replace(/\.[^.]+$/, '');
-let NOM = TEST ? TEST : 'Séance Points de vue (principale)'; // le nom du test ouvert
+let NOM = TEST ? TEST : 'Affiche 1 · Bien vivre chez soi (test principal)'; // le nom du test ouvert
 const h = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const $ = id => document.getElementById(id);
 let M = null, depart = '', sel = 0, images = [], cible = null; // cible = le champ d'affiche en cours de choix

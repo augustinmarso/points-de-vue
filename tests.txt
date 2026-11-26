@@ -1,0 +1,3 @@
+# Les autres tests du site : nom-court | nom affiché. Le test principal (seance.txt) est l'affiche 1.
+affiche-2 | Affiche 2 · L'art de rester actif
+affiche-3 | Affiche 3 · Mémoire tonique

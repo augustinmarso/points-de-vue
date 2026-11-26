@@ -15,7 +15,7 @@ let TOUS = ETAPES; // tous les écrans du fichier, y compris ceux qui sont masqu
 // servent encore : si l'un d'eux est modifié sur GitHub après le dernier enregistrement depuis le site, c'est lui qui est repris.
 const TEST = (new URLSearchParams(location.search).get('test') || '').toLowerCase().replace(/[^a-z0-9-]/g, '').slice(0, 40);
 const FICHIER = TEST ? 'tests/' + TEST + '.txt' : 'seance.txt', TQ = TEST ? '&test=' + TEST : '';
-const lireTests = t => [{ id: '', nom: 'Séance Points de vue (principale)' }, ...String(t || '').split(/\r?\n/).map(l => l.trim()).filter(l => l && l[0] !== '#')
+const lireTests = t => [{ id: '', nom: 'Affiche 1 · Bien vivre chez soi (test principal)' }, ...String(t || '').split(/\r?\n/).map(l => l.trim()).filter(l => l && l[0] !== '#')
   .map(l => { const [id, nom] = l.split('|').map(x => x.trim()); return { id, nom: nom || id }; }).filter(x => /^[a-z0-9-]{1,40}$/.test(x.id))];
 const listeTests = () => Promise.all([ // ceux du Sheet, plus ceux de tests.txt (créés sur GitHub)
   fetch(SCRIPT_GOOGLE + '?vue=tests').then(x => x.json()).catch(() => []), fetch('tests.txt?' + Date.now()).then(x => x.ok ? x.text() : '').catch(() => '')

@@ -416,7 +416,7 @@ function accueilSite() {
     ${carte('?passer', 'fiche', 'Passer le test', "Au téléphone ou sur papier : rejoindre une séance, l'animer sur le grand écran, photographier les fiches remplies.")}
     ${carte('modifier.html', 'crayon', 'Modifier le test', "Ajouter vos affiches, choisir les questions posées sur chacune, régler l'ordre des écrans.")}
     ${carte('resultats.html', 'barres', 'Étudier les données', 'Les réponses question par question, la comparaison des séances, le Google Sheet.')}
-  </nav></div>`;
+  </nav><p class="note"><a href="parcours.html">La pochette du testeur, à ouvrir sur téléphone</a></p></div>`;
   document.body.classList.add('nb');
   regards();
 }
@@ -458,7 +458,7 @@ function telephone() {
   }
   // l'écran redit l'étape en cours toutes les 3 secondes : sans nouvelles depuis 20 secondes, on se rebranche
   const muet = () => Date.now() - vu > 20000;
-  document.addEventListener('visibilitychange', () => { if (!document.hidden && (!lien || muet())) brancher(); });
+  document.addEventListener('visibilitychange', () => { if (SALLE && !document.hidden && (!lien || muet())) brancher(); }); // sans séance choisie, rien à rebrancher (le relais n'est pas chargé)
   setInterval(() => { if (lien && muet() && !document.hidden) brancher(); }, 4000);
 
   function salons() { // sans code : une séance en cours = un gros bouton pour entrer ; plusieurs = on choisit ; aucune = on attend
@@ -759,7 +759,7 @@ function ecran() {
     const vues = im.map((src, i) => ({ l: im.length > 1 ? 'ABCD'[i] : '', src: im.length === 1 && e.p && affiches.A ? affiches.A : src })); // une affiche chargée à la main remplace celle de l'étape
     coin = S.rev || vues.length > 0 || ['scores', 'photo', 'flash', 'vote', 'palmares'].includes(e.t);
     placer();
-    const url = location.origin + location.pathname + '?salle=' + SALLE + TQ;
+    const url = location.origin + location.pathname.replace(/[^/]*$/, '') + 'parcours.html?salle=' + SALLE + TQ;
     let g = '', d = '';
     if (e.t === 'accueil' && PAPIER) g = `<p class="sur">Points de vue · habitants testeurs</p><h1>Bienvenue !</h1><p><b>Vous participez à une recherche pour converger vers l'affiche la plus intéressante.</b></p>
         <p class="cpt">Séance ${h(SALLE)}</p><p style="max-width:19em">Prenez votre fiche et un stylo. En haut de la fiche, écrivez la séance <b>${h(SALLE)}</b> et votre numéro de participant.</p>
@@ -896,7 +896,7 @@ function ecran() {
     if (act === 'avant') aller(S.i - 1, -1);
     if (act === 'mission') { mission = S.mission = (S.mission + 1) % MISSIONS.length; garder(); diffuser(); dessiner(true); }
     if (act === 'auto') { S.auto = S.auto !== true; clearTimeout(tAuto); tAuto = 0; garder(); dessiner(true); }
-    if (act === 'qr') { const q = qrcode(0, 'M'); q.addData(location.origin + location.pathname + '?salle=' + SALLE + TQ); q.make(); a.closest('.cmd').classList.remove('ouvert');
+    if (act === 'qr') { const q = qrcode(0, 'M'); q.addData(location.origin + location.pathname.replace(/[^/]*$/, '') + 'parcours.html?salle=' + SALLE + TQ); q.make(); a.closest('.cmd').classList.remove('ouvert');
       document.body.insertAdjacentHTML('beforeend', `<div id="qrGrand" role="dialog" aria-label="QR code de la séance">${q.createSvgTag({ scalable: true, margin: 0 })}<p>Photographiez ce code. Ou ouvrez ${h(location.host + location.pathname)} et tapez le code <b>${h(SALLE)}</b></p><small>Cliquez n'importe où pour revenir à la séance.</small></div>`); return; }
     if (act === 'plein') document.documentElement.requestFullscreen();
     if (act === 'neuve' && confirm('Commencer une nouvelle séance ? Les réponses déjà données restent dans le Google Sheet.')) { // une nouvelle séance = un nouveau code et un nouveau QR code ; les affiches A et B chargées sont gardées
