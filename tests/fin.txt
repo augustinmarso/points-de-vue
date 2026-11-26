@@ -44,15 +44,16 @@ précision : Touchez la partie de l'affiche.
 - Les dates et les lieux @ 2 70 95 15
 - Les logos @ 10 86 81 11
 
-[question] Après l'avoir vue, que feriez-vous ?
+[jeu] Vite ! À qui s'adressent ces ateliers ?
 étape : 1
-réponses : une
 affiche : affiches/origine.jpg
-précision : Vous avez 30 secondes.
-chrono : 30 s
-- J'appelle pour m'inscrire
-- J'en parle à un proche
-- Je la prends en photo
-- Je passe mon chemin
+précision : Question de rapidité : 10 secondes pour trouver.
+chrono : 10 s
+- Aux enfants
++ Aux plus de 60 ans
+- Aux sportifs
+- Aux étudiants
+
+[scores]
 
 [fin]
