@@ -45,11 +45,13 @@ p{margin:0}
 
 /* accueil du site */
 .site{min-height:100vh;min-height:100dvh;max-width:1100px;margin:0 auto;padding:26vh 22px 60px;display:flex;flex-direction:column;gap:18px}
-.site .dessin{width:min(200px,42vw);height:auto;align-self:flex-end;margin:-14vh 0 -2vh;overflow:visible} /* le logo dessiné à la main, détouré : en haut à droite de l'accueil */
-.dessin g[class^=r-]{transform-box:fill-box;transform-origin:center;animation:flotte 3.6s ease-in-out infinite alternate}
-.dessin .r-jaune{animation-duration:4.3s;animation-delay:-1.4s}.dessin .r-bleu{animation-duration:3.1s;animation-delay:-.7s}
-@keyframes flotte{from{transform:translate(0,-9px) rotate(-2.5deg)}to{transform:translate(0,9px) rotate(2.5deg)}}
-@media (prefers-reduced-motion:reduce){.dessin g[class^=r-]{animation:none}}
+.site .dessin{width:min(400px,80vw);height:auto;align-self:center;margin:-20vh 0 0;overflow:visible} /* le logo dessiné à la main, détouré, en grand en haut de l'accueil */
+/* les ronds flottent doucement, chacun à son rythme, comme les ronds du grand écran ; leurs yeux regardent à gauche, puis à droite */
+.dessin g[class^=r-]{transform-box:fill-box;transform-origin:center;animation:flotte-dessin 3.8s ease-in-out infinite alternate}.dessin .r-jaune{animation-duration:4.5s;animation-delay:-1.6s}.dessin .r-bleu{animation-duration:3.3s;animation-delay:-.8s}
+.dessin .yeux{animation:regarde 7s ease-in-out infinite}.dessin .r-jaune .yeux{animation-delay:-2.3s}.dessin .r-bleu .yeux{animation-delay:-4.6s}
+@keyframes flotte-dessin{from{transform:translate(0,-7px) rotate(-2deg)}to{transform:translate(0,7px) rotate(2deg)}}
+@keyframes regarde{0%,28%,100%{transform:translate(0,0)}34%,54%{transform:translate(-9px,2px)}60%,80%{transform:translate(9px,-2px)}86%{transform:translate(0,0)}}
+@media (prefers-reduced-motion:reduce){.dessin g[class^=r-],.dessin .yeux{animation:none}}
 .site h1{font-size:clamp(44px,7vw,92px)}
 .trois{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:18px}
 .trois a{background:var(--t);color:var(--n);text-decoration:none;border-radius:32px;padding:26px 24px 30px;display:flex;flex-direction:column;gap:10px;min-height:250px;transition:transform .2s cubic-bezier(.45,0,.2,1),background .2s}
@@ -429,11 +431,13 @@ function montrerInstaller() { // le bloc n'apparaît que s'il a quelque chose à
   if (invite) { b.hidden = false; b.onclick = () => { invite.prompt(); invite = null; b.hidden = true; z.hidden = document.getElementById('pourPC').hidden; }; }
   z.hidden = b.hidden && document.getElementById('pourPC').hidden;
 }
-// Le logo dessiné à la main, détouré : le même dessin découpé en trois ronds (et le nom), chaque rond flotte à son rythme.
+// Le logo dessiné à la main, détouré : le même dessin découpé en trois ronds (et le nom) : les ronds flottent, leurs yeux bougent.
 // Les cercles de découpe sont mesurés sur logos/points-de-vue-dessin.webp (882 × 1007) : à refaire si le dessin change.
-const DESSIN = (() => { const R = [['rose', 246, 520, 258], ['jaune', 588, 604, 205], ['bleu', 386, 852, 150]], src = 'logos/points-de-vue-dessin.webp', img = `<image href="${src}" width="882" height="1007"/>`;
-  return `<svg class="dessin" viewBox="0 0 882 1007" role="img" aria-label="Points de vue, le logo dessiné aux crayons de couleur"><defs>${R.map(([n, x, y, r]) => `<clipPath id="d-${n}"><circle cx="${x}" cy="${y}" r="${r}"/></clipPath>`).join('')}<clipPath id="d-nom"><rect x="470" y="90" width="412" height="290"/></clipPath></defs>
-    <g clip-path="url(#d-nom)">${img}</g>${R.map(([n]) => `<g class="r-${n}"><g clip-path="url(#d-${n})">${img}</g></g>`).join('')}</svg>`; })();
+const DESSIN = (() => { // [nom, cercle de découpe du rond (cx, cy, r), cadre de ses deux yeux (x, y, largeur, hauteur)] ; le dessin a perdu ses yeux, ils sont à part pour bouger
+  const R = [['rose', 246, 520, 258, [66, 404, 140, 96]], ['jaune', 588, 604, 205, [639, 477, 121, 105]], ['bleu', 386, 852, 150, [343, 902, 124, 77]]];
+  const img = '<image href="logos/points-de-vue-dessin.webp" width="882" height="1007"/>', yeux = '<image href="logos/points-de-vue-yeux.webp" width="882" height="1007"/>';
+  return `<svg class="dessin" viewBox="0 0 882 1007" role="img" aria-label="Points de vue, le logo dessiné aux crayons de couleur"><defs>${R.map(([n, x, y, r, [yx, yy, yw, yh]]) => `<clipPath id="d-${n}"><circle cx="${x}" cy="${y}" r="${r}"/></clipPath><clipPath id="y-${n}"><rect x="${yx}" y="${yy}" width="${yw}" height="${yh}"/></clipPath>`).join('')}<clipPath id="d-nom"><rect x="470" y="90" width="412" height="290"/></clipPath></defs>
+    <g clip-path="url(#d-nom)">${img}</g>${R.map(([n]) => `<g class="r-${n}"><g clip-path="url(#d-${n})">${img}</g><g clip-path="url(#y-${n})"><g class="yeux">${yeux}</g></g></g>`).join('')}</svg>`; })();
 function accueilSite() {
   placer();
   app.innerHTML = `<div class="site">${DESSIN}<p class="sur">Points de vue · faites tester vos affiches par des habitants</p>${rondProfil('position:fixed;top:16px;right:18px;font-size:20px;margin:0;background:#2B1B12')}<h1>Que voulez-vous faire ?</h1><nav class="trois">
