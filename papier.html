@@ -25,8 +25,8 @@ nav a.lien{font-weight:700}
 .page.fiche{padding:0;width:420mm;height:297mm;overflow:hidden}
 .page.fiche.verso{display:grid;place-items:center}.page.fiche.verso img{width:297mm;height:420mm;object-fit:contain;transform:rotate(90deg);display:block} /* l'affiche au dos, couchée pour remplir la feuille */
 .reglage select{font:inherit;font-weight:700;border:0;border-radius:99px;padding:6px 10px;background:var(--fond);margin:4px 8px 4px 0}
-.ft{position:absolute;overflow:hidden;font-size:3.5mm;line-height:1.1}
-.ft b{font-weight:800}.ft span{display:block;font-size:.8em;color:#444}
+.ft{position:absolute;overflow:hidden;font-size:4.04mm;line-height:1.2;color:#151515}
+.ft b{font-weight:700}.ft span{display:block;font-size:.8em;color:#444}
 .trop{background:#fff;border-radius:14px;padding:12px 16px;font-weight:700;max-width:820px}
 @media screen{.page.fiche{zoom:.62}.page.affiche{zoom:.5}.double{zoom:.9}}
 /* l'aperçu plié : chaque page est une fenêtre de 105 × 148,5 mm sur la feuille */
@@ -79,6 +79,7 @@ h1{margin:0;font-size:34px;line-height:.95;font-weight:800;letter-spacing:-.045e
 </nav>
 <div id="vue"><p>Chargement…</p></div>
 <script src="seance.js"></script>
+<script src="livret-fond.js"></script>
 <script>
 // Version papier de la séance, toujours fabriquée à partir de seance.txt (donc à jour après chaque modification) :
 //  - le livret : une seule feuille A3 par personne, pliée en huit volets (une couleur par étape), avec les questions, un rond par réponse et quatre repères dans les coins (des ronds noirs à deux yeux blancs).
@@ -93,60 +94,49 @@ const choix = e => e.t === 'echelle' ? ['1', '2', '3', '4', '5'] : e.o || []; //
 const groupe = e => e.p ? 'Étape ' + e.p : "Jeu de l'œil";
 let vue = new URLSearchParams(location.search).get('vue'); if (!['diapos', 'lire', 'apercu', 'affiches'].includes(vue)) vue = 'fiche';
 
-// ---------- le livret : une feuille A3 couchée, huit volets (4 × 2), à plier puis à fendre au milieu ----------
-// Rangée du bas, de gauche à droite : le dos, la couverture, puis les deux volets de la 1re étape.
-// Rangée du haut, tête en bas : les deux volets de la 2e étape (à droite), puis ceux de la 3e (à gauche).
-// La géométrie, en millimètres de la feuille dépliée, sert à l'impression ET à la lecture de la photo.
-const VW = 105, VH = 148.5, REPERES = [[15, 15], [405, 15], [15, 282], [405, 282]], RAYON = 3.3, PAS = 8.6;
-const COULEURS = ['#F5A0C6', '#F7C33B', '#1F6FE0'], VOLETS = [[210, 1], [315, 1], [315, 0], [210, 0], [105, 0], [0, 0]]; // [bord gauche du volet, 1 = rangée du bas], dans l'ordre de lecture
-const surFeuille = ([px, bas], x, y) => bas ? [px + x, VH + y] : [px + VW - x, VH - y]; // du volet à la feuille (les volets du haut sont retournés)
+// ---------- le livret : la feuille A3 du modèle d'Augustin (« questionnaire template »), reproduite trait pour trait ----------
+// Le fond (cadres, ronds décoratifs et leurs yeux, titre, logo, pointillé, bulles) vient tel quel de son PDF : livret-fond.js, fabriqué par livret-modele/extraire.py.
+// L'appli n'y ajoute que ce qui change d'un test à l'autre, aux positions mesurées dans le modèle : numéros, questions, ronds de réponse.
+// Rangée du bas : dos, couverture, puis les deux volets du temps 1. Rangée du haut, tête en bas : temps 2 à droite, temps 3 à gauche.
+// Les mêmes positions, en millimètres de la feuille dépliée, servent à l'impression ET à la lecture de la photo.
+const VW = 105, VH = 148.5, PAGES = [[105, 1], [210, 1], [315, 1], [315, 0], [210, 0], [105, 0], [0, 0], [0, 1]]; // les huit pages dans l'ordre de lecture : [bord gauche, 1 = rangée du bas]
+const RAYON = 3.35, PAS = 10.08, RANG = 22, COULEURS = ['#F4A1C6', '#F8C237', '#3E6EB6'], TRAITS = [.35, .35, .18];
+const REPERES = [[15, 15], [405, 15], [15, 282], [405, 265.5]]; // quatre ronds noirs : absents du modèle, ajoutés pour lire la photo (placés là où il n'y a rien)
+// les six volets de questions, dans l'ordre de lecture : x du numéro, x du texte, x du 1er rond, y de la 1re ligne, sens (1 à l'endroit, -1 tête en bas), bord du cadre côté ronds, puis x et y de « Temps N »
+const VOLETS = [[220.2, 226.8, 230.3, 184.8, 1, 308.9, 220.2, 164.8], [324.1, 330.6, 334.1, 184.8, 1, 413.9, 324.1, 164.8], [408, 401.5, 397.9, 113.1, -1, 321.2, 397, 133], [304.1, 297.6, 294.1, 113.1, -1, 216.2, 304.1, 133], [197.9, 191.4, 187.9, 113.3, -1, 111.2, 186, 133], [94.1, 87.6, 84, 113.3, -1, 6.2, 94.1, 133]];
 const EXEMPLE = new URLSearchParams(location.search).has('exemple'); // ?exemple : un livret déjà rempli, pour essayer la lecture par photo
-function geometrie(Q) { // une étape = une couleur = deux volets ; quatre questions par volet quand tout va bien
+function geometrie(Q) { // un temps = une couleur = deux volets de quatre questions, comme dans le modèle
   const etapes = [...new Set(Q.map(e => e.p || 0))].sort((a, b) => a - b), rang = e => Math.min(2, etapes.indexOf(e.p || 0)), G = []; let trop = etapes.length > 3;
-  [0, 1, 2].forEach(k => { const q = Q.filter(e => rang(e) === k), moitie = Math.ceil(q.length / 2);
-    [q.slice(0, moitie), q.slice(moitie)].forEach((l, m) => { const V = VOLETS[k * 2 + m], h = Math.min(21, 84 / Math.max(l.length, 1)); if (h < 15) trop = true; // en dessous, la question n'a plus de place au-dessus des ronds
-      l.forEach((e, i) => { const y = 34 + i * h, g = { e, k, V, y, h };
-        g.loc = choix(e).map((_, j) => [22.5 + j * PAS, y + h - 5.2]); g.ronds = g.loc.map(([x, yy]) => surFeuille(V, x, yy));
-        g.zone = [[19, y + h - 11], [98, y + h - 11], [19, y + h - .5], [98, y + h - .5]].map(([x, yy]) => surFeuille(V, x, yy)); G.push(g); }); }); });
-  G.sort((a, b) => a.e.n - b.e.n); G.trop = trop; return G;
+  [0, 1, 2].forEach(k => { const q = Q.filter(e => rang(e) === k), moitie = Math.min(q.length, Math.max(4, Math.ceil(q.length / 2)));
+    [q.slice(0, moitie), q.slice(moitie)].forEach((l, m) => { const V = VOLETS[k * 2 + m], [, xt, xc, yt, s, bord] = V, R = RANG * Math.min(1, 4 / Math.max(l.length, 1)); if (l.length > 5) trop = true; // au-delà de quatre, les lignes se resserrent
+      l.forEach((e, i) => { const n = choix(e).length, pas = Math.min(PAS, (Math.abs(bord - xc) - RAYON - 2) / Math.max(n - 1, 1)), y = yt + s * i * R, g = { e, k, V, y, i: Q.indexOf(e) }; // plus de huit réponses : les ronds se rapprochent
+        g.ronds = choix(e).map((_, j) => [xc + s * j * pas, y + s * 11.5]);
+        g.zone = [[xt, y + s * 6.5], [bord - s * 4, y + s * 6.5], [xt, y + s * 16], [bord - s * 4, y + s * 16]]; // là où s'écrit un avis libre
+        G.push(g); }); }); });
+  G.sort((a, b) => a.i - b.i); G.trop = trop; return G;
 }
-const hasard = (a, b, k) => { const v = Math.sin(a * 127.1 + b * 311.7 + k * 74.7) * 43758.5453; return v - Math.floor(v); }; // le même tirage à chaque impression
-// deux yeux côte à côte, qui regardent ailleurs dans chaque rond
-const yeux = (x, y, r, a, b, coul, t) => { const an = hasard(a, b, 1) * 6.283, d = (.25 + hasard(a, b, 2) * .75) * r * .5, ox = x + Math.cos(an) * d, oy = y + Math.sin(an) * d, e = Math.max(.45, r * .28);
-  return `<circle cx="${(ox - e).toFixed(2)}" cy="${oy.toFixed(2)}" r="${t}" fill="${coul}"/><circle cx="${(ox + e).toFixed(2)}" cy="${oy.toFixed(2)}" r="${t}" fill="${coul}"/>`; };
-const bulle = (x, y, r, c, a) => `<circle cx="${x}" cy="${y}" r="${r}" fill="${c}"/>` + yeux(x, y, r, a, r, '#141414', Math.max(.35, r * .1));
-const dansVolet = (V, x) => `<g transform="${V[1] ? `translate(${V[0]} ${VH})` : `translate(${V[0] + VW} ${VH}) rotate(180)`}">${x}</g>`;
 // Une séance teste trois affiches : trois carnets par personne, un par affiche. carnet = son numéro ; affiche = l'image imprimée au dos de la feuille (facultatif).
 function fiche(Q, carnet = 1, affiche = '') {
-  const G = geometrie(Q), T = (x, y, t, o = '') => `<text x="${x}" y="${y}" ${o}>${t}</text>`;
-  const volet = v => { const c = COULEURS[v >> 1], V = VOLETS[v]; // un volet de questions : son cadre, ses ronds décoratifs, ses questions
-    return dansVolet(V, `<rect x="6" y="6" width="93" height="136.5" rx="8" fill="none" stroke="${c}" stroke-width=".5"/>` + T(12, 18.5, 'Temps ' + ((v >> 1) + 1), 'font-size="5.4" font-weight="800" letter-spacing="-.2"') + bulle(86, 18, 5, c, v) + bulle(71, 24, 2.4, c, v + 9) + bulle(46, 131, 5, c, v + 18) + bulle(60, 127, 2.6, c, v + 27)
-      + G.filter(g => g.V === V).map(g => T(17, g.y + 4.2, g.e.n + (g.e.t === 'multi' ? '*' : ''), 'font-size="4.2" font-weight="800" text-anchor="end"')
-        + (g.e.t === 'texte' ? [7.5, 2].map(d => `<line x1="19" x2="97" y1="${g.y + g.h - d}" y2="${g.y + g.h - d}" stroke="#141414" stroke-width=".2" stroke-dasharray=".4 1"/>`).join('') : '')
-        + g.loc.map(([x, y], j) => { const r = g.e.t === 'echelle' ? [3.3, 2.9, 2.5, 2.9, 3.3][j] : RAYON; // une note : ronds progressifs. Jamais sous 2,5 mm : la lecture de la photo regarde le cœur du rond
-          return `<circle cx="${x}" cy="${y}" r="${r}" fill="#fff" stroke="${c}" stroke-width=".45"/>` + yeux(x, y, r, g.e.n, j, '#A8A8A8', .42)
-            + (g.e.t === 'echelle' ? '' : T(x - 3.5, y - 2.2, etiq(g.e, j), 'font-size="2.3" font-weight="800" text-anchor="end"'))
-            + (EXEMPLE && (j === (g.e.n * 3 + 1) % g.loc.length || g.e.t === 'multi' && j === g.e.n % g.loc.length) ? `<circle cx="${x + .2}" cy="${y - .1}" r="${r * .86}" fill="#1B2A6B"/>` : ''); }).join('')
-        + (g.e.t === 'echelle' ? T(g.loc[4][0] + 5, g.loc[4][1] + 1.1, h(g.e.b), 'font-size="3" font-weight="700"') : '')).join('')); };
-  const couverture = dansVolet([105, 1], T(8, 37, 'Points', 'font-size="23" font-weight="800" letter-spacing="-1.2"') + T(8, 58, 'de vue', 'font-size="23" font-weight="800" letter-spacing="-1.2"')
-    + T(8.5, 70, 'Habitants testeurs', 'font-size="4" font-weight="700"') + T(8.5, 75.5, 'Granville Terre et Mer', 'font-size="4" font-weight="700"') + T(8.5, 83, 'Carnet ' + carnet + ' sur 3 · affiche ' + carnet, 'font-size="4.4" font-weight="800"')
-    + T(8.5, 90, 'Séance : ....................      N° : ..........', 'font-size="3.6" font-weight="700" xml:space="preserve"') + T(8.5, 96, 'Test ' + h(VERSION), 'font-size="2.6" fill="#6B6B6B"')
-    + (EXEMPLE ? T(26, 89.5, 'essai', 'font-size="3.6" fill="#1B2A6B"') + T(72, 89.5, '1', 'font-size="3.6" fill="#1B2A6B"') : '')
-    // la bulle : un rectangle plein aux coins très ronds, gris clair et sans contour, comme les réponses du test sur le téléphone
-    + '<rect x="8" y="105" width="86" height="27" rx="9" fill="#EFEFEF"/><path d="M13 129.500 9.500 136.500 20 131z" fill="#EFEFEF"/>'
-    + T(14, 114.5, 'Votre affiche est en cours de fabrication.', 'font-size="3.3" font-weight="800"') + T(14, 119.8, 'Nous avons besoin de votre aide !', 'font-size="3.3" font-weight="800"') + T(14, 126, 'Noircissez le rond de votre réponse.', 'font-size="3.1"') + bulle(8, 140, 3.4, COULEURS[0], 40));
-  const dos = dansVolet([0, 1], `<g style="mix-blend-mode:multiply"><circle cx="40" cy="62" r="21" fill="${COULEURS[0]}"/></g><g style="mix-blend-mode:multiply"><circle cx="66" cy="54" r="14.5" fill="${COULEURS[1]}"/></g><g style="mix-blend-mode:multiply"><circle cx="60" cy="80" r="11.5" fill="${COULEURS[2]}"/></g>`
-    + yeux(40, 62, 21, 50, 1, '#141414', 1.9) + yeux(66, 54, 14.5, 51, 1, '#141414', 1.4) + yeux(60, 80, 11.5, 52, 1, '#141414', 1.2)
-    + T(30, 108, 'Pour faire le livret : pliez la feuille en huit,', 'font-size="2.7" fill="#6B6B6B"') + T(30, 112, 'fendez le trait pointillé du milieu, puis repliez.', 'font-size="2.7" fill="#6B6B6B"')
-    + T(30, 119, 'Les quatre ronds noirs servent à lire la photo :', 'font-size="2.7" fill="#6B6B6B"') + T(30, 123, "n'écrivez pas dessus. Les réponses sont sur le grand écran.", 'font-size="2.7" fill="#6B6B6B"'));
-  return (G.trop && carnet === 1 ? `<p class="trop">Il y a trop de questions pour ce livret (huit par étape, trois étapes) : masquez-en quelques-unes dans « Modifier le test ».</p>` : '') + `<div class="page fiche">
-  <svg viewBox="0 0 420 297" xmlns="http://www.w3.org/2000/svg" font-family="'Scoutie Sans',Helvetica,Arial,sans-serif">
-    ${[0, 1, 2, 3, 4, 5].map(volet).join('')}${couverture}${dos}
-    <line x1="105" x2="315" y1="148.5" y2="148.5" stroke="#141414" stroke-width=".3" stroke-dasharray="3 2.4"/>
-    ${REPERES.map(([x, y]) => `<circle cx="${x}" cy="${y}" r="4" fill="#000"/><circle cx="${x - 1.1}" cy="${y}" r=".7" fill="#fff"/><circle cx="${x + 1.1}" cy="${y}" r=".7" fill="#fff"/>`).join('')}
+  const G = geometrie(Q), T = (x, y, t, o = '', s = 1) => `<text ${s < 0 ? `transform="rotate(180 ${x} ${y})" ` : ''}x="${x}" y="${y}" ${o}>${t}</text>`; // s = -1 : écrit tête en bas, comme les volets du haut
+  const petit = 'font-size="2.9" font-weight="700"';
+  const questions = G.map(g => { const [xn, xt, , , s] = g.V, c = COULEURS[g.k], e = g.e, fin = g.ronds.length ? g.ronds[g.ronds.length - 1] : null;
+    return T(xn, g.y + s * .4, e.n, 'font-size="4.23" font-weight="700"', s)
+      + (e.t === 'texte' ? [10.5, 15.5].map(d => `<line x1="${xt}" x2="${g.zone[1][0]}" y1="${g.y + s * d}" y2="${g.y + s * d}" stroke="#151515" stroke-width=".2" stroke-dasharray=".4 1"/>`).join('') : '')
+      + g.ronds.map(([x, y], j) => { const r = e.t === 'echelle' ? [3.35, 2.95, 2.55, 2.95, 3.35][j] : RAYON; // une note : ronds progressifs. Jamais sous 2,5 mm : la lecture de la photo regarde le cœur du rond
+        return `<circle cx="${+x.toFixed(2)}" cy="${+y.toFixed(2)}" r="${r}" fill="#fff" stroke="${c}" stroke-width="${TRAITS[g.k]}"/>`
+          + (EXEMPLE && (j === (g.i * 3 + 1) % g.ronds.length || e.t === 'multi' && j === g.i % g.ronds.length) ? `<circle cx="${+(x + .2).toFixed(2)}" cy="${+(y - .1).toFixed(2)}" r="${+(r * .86).toFixed(2)}" fill="#1B2A6B"/>` : ''); }).join('')
+      + (e.t === 'echelle' ? T(fin[0] + s * 5.5, fin[1] + s * 1, h(e.a) + ' → ' + h(e.b), petit, s) : e.t === 'ab' ? T(fin[0] + s * 5.5, fin[1] + s * 1, '= aucune différence', petit, s) : ''); }).join(''); // « plusieurs réponses possibles » est dit par le grand écran
+  const temps = VOLETS.map((V, v) => G.some(g => g.V === V) ? T(V[6], V[7], 'Temps ' + ((v >> 1) + 1), 'font-size="4.23" font-weight="800"', V[4]) : '').join('');
+  return (G.trop && carnet === 1 ? `<p class="trop">Il y a trop de questions pour ce livret (huit par temps, trois temps) : masquez-en quelques-unes dans « Modifier le test ».</p>` : '') + `<div class="page fiche">
+  <svg viewBox="0 0 420 297" xmlns="http://www.w3.org/2000/svg" font-family="'Scoutie Sans',Helvetica,Arial,sans-serif" fill="#151515">
+    ${LIVRET_FOND}
+    ${T(117, 263.9, 'Votre affiche est en cours de Fabrication', 'font-size="3.3"')}${T(117, 267.8, 'Nous avons besoin de votre aide !', 'font-size="3.3"')}${T(117, 271.8, '...', 'font-size="3.3"')}${T(379.6, 278.4, 'Débattons !', 'font-size="4.04" font-weight="700"')}
+    ${T(111.6, 238, 'Carnet ' + carnet + ' sur 3 · Séance : ' + (EXEMPLE ? 'essai' : '..............') + ' · N° : ' + (EXEMPLE ? '1' : '........'), 'font-size="3.3" font-weight="700"')}${T(111.6, 243, 'Test ' + h(VERSION), 'font-size="2.4" fill="#6B6B6B"')}
+    ${temps}${questions}
+    ${REPERES.map(([x, y]) => `<circle cx="${x}" cy="${y}" r="3.5" fill="#000"/><circle cx="${x - 1}" cy="${y}" r=".65" fill="#fff"/><circle cx="${x + 1}" cy="${y}" r=".65" fill="#fff"/>`).join('')}
   </svg>
-  ${G.map(g => { const e = g.e, w = 78, hh = g.h - (e.t === 'texte' ? 9.5 : 9.3), [x0, y0] = surFeuille(g.V, 19, g.y + .6), [x1, y1] = surFeuille(g.V, 19 + w, g.y + .6 + hh);
-    return `<div class="ft" style="left:${Math.min(x0, x1)}mm;top:${Math.min(y0, y1)}mm;width:${w}mm;height:${hh}mm${g.V[1] ? '' : ';transform:rotate(180deg)'}"><b>${h(e.q)}</b>${e.t === 'echelle' ? `<span>À gauche : ${h(e.a)} · à droite : ${h(e.b)}</span>` : e.t === 'ab' ? '<span>= si vous ne voyez pas de différence.</span>' : ''}</div>`; }).join('')}
+  ${G.map(g => { const [, xt, , , s, bord] = g.V, w = Math.abs(bord - xt) - 4, hh = 9.9; // deux lignes de question, à la place exacte du texte du modèle
+    return `<div class="ft" style="left:${s > 0 ? xt : xt - w}mm;top:${s > 0 ? g.y - 3.55 : g.y + 3.55 - hh}mm;width:${w}mm;height:${hh}mm${s > 0 ? '' : ';transform:rotate(180deg)'}"><b>${h(g.e.q)}</b></div>`; }).join('')}
   </div>` + (affiche ? `<div class="page fiche verso"><img src="${h(affiche)}" alt="L'affiche du carnet ${carnet}, imprimée au dos"></div>` : '');
 }
 // les trois affiches de la séance : celles choisies sur cet appareil, sinon les premières du test (les mises en situation ne comptent pas)
@@ -155,7 +145,7 @@ const affichesCarnets = () => { const l = affichesDispo(); let c = []; try { c =
 const livrets = Q => { const A = affichesCarnets(), l = affichesDispo();
   return `<div class="trop reglage"><b>Trois carnets par personne, un par affiche.</b> L'affiche imprimée au dos de chaque feuille : ${A.map((a, i) => `<label>Carnet ${i + 1} <select data-carnet="${i}">${l.map(x => `<option value="${h(x)}" ${x === a ? 'selected' : ''}>${h(x.replace(/^.*\//, '').replace(/\.\w+$/, ''))}</option>`).join('')}</select></label>`).join(' ')}<br>Impression : A3 paysage, recto verso (retourner sur le petit côté). Six pages : carnet puis affiche, trois fois.</div>` + A.map((a, i) => fiche(Q, i + 1, a)).join(''); };
 // un texte trop long pour sa case rétrécit jusqu'à tenir
-const ajuster = () => document.querySelectorAll('.ft').forEach(d => { let t = parseFloat(d.style.fontSize) || 3.5; while (d.scrollHeight > d.clientHeight + 1 && t > 2.2) d.style.fontSize = (t -= .15) + 'mm'; });
+const ajuster = () => document.querySelectorAll('.ft').forEach(d => { let t = parseFloat(d.style.fontSize) || 4.04; while (d.scrollHeight > d.clientHeight + 1 && t > 2.6) d.style.fontSize = (t -= .15) + 'mm'; });
 
 // ---------- la présentation papier : les écrans du grand écran, sans les résultats ----------
 function diapos(Q) {
@@ -201,7 +191,7 @@ function trouverReperes(gris, W, H) { // dans chaque coin de la photo, la tache 
 function orienter(gris, W, H, P) { // la feuille peut être photographiée debout ou tête en bas : on garde le sens où elle est couchée, le grand titre de la couverture à sa place
   const tour = [P[0], P[1], P[3], P[2]], d = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1]);
   const essais = [0, 1, 2, 3].map(k => { const t = i => tour[(i + k) % 4], coins = [t(0), t(1), t(3), t(2)], Hm = homographie(REPERES, coins); let n = 0;
-    for (let i = 0; i < 40; i++) for (let j = 0; j < 14; j++) { const [u, v] = Hm(113 + i * 1.8, 167 + j * 3).map(Math.round); if (u >= 0 && v >= 0 && u < W && v < H) n += 255 - gris[v * W + u]; } // l'encre de « Points de vue »
+    for (let i = 0; i < 40; i++) for (let j = 0; j < 14; j++) { const [u, v] = Hm(113 + i * 1.8, 156 + j * 3).map(Math.round); if (u >= 0 && v >= 0 && u < W && v < H) n += 255 - gris[v * W + u]; } // l'encre de « Points de vue »
     return { coins, n, couchee: d(coins[0], coins[1]) > d(coins[0], coins[2]) }; });
   const bons = essais.filter(x => x.couchee); return (bons.length ? bons : essais).sort((a, b) => b.n - a.n)[0].coins;
 }
@@ -228,7 +218,7 @@ function tracer() { // la photo, avec un cercle sur chaque rond : plein = lu com
   lu.G.forEach((g, i) => g.ronds.forEach((p, j) => { const [u, v] = lu.H(p[0], p[1]), [u2, v2] = lu.H(p[0] + RAYON, p[1]), r = Math.hypot(u2 - u, v2 - v) * 1.25;
     x.beginPath(); x.arc(u, v, r, 0, 7); x.lineWidth = lu.coche[i][j] ? Math.max(3, r * .35) : 1; x.strokeStyle = lu.coche[i][j] ? '#1F6FE0' : 'rgba(20,20,20,.25)'; x.stroke(); }));
   lu.coins.forEach(([u, v]) => { x.beginPath(); x.arc(u, v, c.width * .022, 0, 7); x.lineWidth = Math.max(3, c.width * .004); x.strokeStyle = '#FF5A36'; x.stroke(); }); // les poignées : une sur chaque repère
-  $('rep').innerHTML = lu.G.map((g, i) => g.ronds.length ? `<div class="${lu.coche[i].some(Boolean) ? '' : 'vide'}"><b>${g.e.n}${g.e.t === 'multi' ? '*' : ''}</b><span>${h(g.e.q)}</span><p>${g.ronds.map((_, j) => `<button type="button" data-r="${i},${j}" aria-pressed="${lu.coche[i][j]}" title="${h(g.e.t === 'echelle' ? j + 1 + ' sur 5' : g.e.o[j])}">${etiq(g.e, j)}</button>`).join('')}</p></div>` : '').join('');
+  $('rep').innerHTML = lu.G.map((g, i) => g.ronds.length ? `<div class="${lu.coche[i].some(Boolean) ? '' : 'vide'}"><b>T${g.k + 1} · ${g.e.n}${g.e.t === 'multi' ? '*' : ''}</b><span>${h(g.e.q)}</span><p>${g.ronds.map((_, j) => `<button type="button" data-r="${i},${j}" aria-pressed="${lu.coche[i][j]}" title="${h(g.e.t === 'echelle' ? j + 1 + ' sur 5' : g.e.o[j])}">${etiq(g.e, j)}</button>`).join('')}</p></div>` : '').join('');
   const n = lu.coche.filter((l, i) => l.some(Boolean) || (lu.txt[i] || '').trim()).length;
   $('etat').textContent = (lu.trouve ? '' : 'Je ne trouve pas les quatre ronds noirs des coins : faites glisser les quatre poignées orange dessus. ') + `${n} question${n > 1 ? 's' : ''} lue${n > 1 ? 's' : ''} sur ${lu.G.length}. Les ronds lus comme cochés sont entourés en bleu : corrigez-les en cliquant sur la photo ou dans la liste dessous.`;
   $('envoyer').disabled = !n;
@@ -243,7 +233,7 @@ function zonesTexte() {
     const c = document.createElement('canvas'); c.width = Math.max(1, Math.round(w)); c.height = Math.max(1, Math.round(hh)); const k = c.getContext('2d');
     if (coins[0][1] > coins[2][1]) { k.translate(c.width, c.height); k.rotate(Math.PI); } // écrit tête en bas sur la photo
     k.drawImage(lu.image, x0, y0, w, hh, 0, 0, c.width, c.height);
-    return `<label><span><b>${g.e.n}.</b> ${h(g.e.q)}</span><img src="${c.toDataURL('image/jpeg', .8)}" alt="Ce que la personne a écrit pour la question ${g.e.n}"><input type="text" data-txt="${i}" maxlength="200" placeholder="Recopiez ici ce qui est écrit (laissez vide si rien)" value="${h(lu.txt[i] || '')}"></label>`; }).join('');
+    return `<label><span><b>Temps ${g.k + 1}, question ${g.e.n}.</b> ${h(g.e.q)}</span><img src="${c.toDataURL('image/jpeg', .8)}" alt="Ce que la personne a écrit pour la question ${g.e.n}"><input type="text" data-txt="${i}" maxlength="200" placeholder="Recopiez ici ce qui est écrit (laissez vide si rien)" value="${h(lu.txt[i] || '')}"></label>`; }).join('');
   z.hidden = !z.innerHTML;
 }
 function lignes() { // les réponses lues, au même format que celles des téléphones
@@ -270,7 +260,7 @@ function vueLire() {
 // ---------- l'aperçu plié : le livret tel qu'on le feuillette, sans rien imprimer ----------
 // Chaque page est une fenêtre sur la feuille dépliée (retournée pour les volets du haut) : l'aperçu ne peut donc pas différer de l'impression.
 function apercu(Q) {
-  const feuille = fiche(Q).replace(/^[\s\S]*?<div class="page fiche">/, '').replace(/<\/div>\s*$/, ''), V = [[105, 1], ...VOLETS, [0, 1]]; // couverture, six pages, dos
+  const feuille = fiche(Q).replace(/^[\s\S]*?<div class="page fiche">/, '').replace(/<\/div>\s*$/, ''), V = PAGES; // couverture, six pages, dos
   const page = ([px, bas]) => `<div class="volet"><div style="transform:${bas ? `translate(${-px}mm,${-VH}mm)` : `translate(${px + VW}mm,${VH}mm) rotate(180deg)`}">${feuille}</div></div>`;
   const noms = ['La couverture', 'Pages 1 et 2', 'Pages 3 et 4', 'Pages 5 et 6', 'Le dos'];
   return `<p class="trop">Le livret une fois plié, page après page. Pour l'imprimer : onglet « Le livret à plier », en A3 paysage, recto verso : l'affiche du carnet est au dos et apparaît quand on déplie la feuille.</p>`

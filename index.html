@@ -834,7 +834,7 @@ function ecran() {
     }
     if (!q.id) return;
     const vals = Object.values(rep), cpt = app.querySelector('.cpt');
-    if (PAPIER) { cpt.textContent = NUM[q.id] ? `Sur votre fiche : ligne ${NUM[q.id]}${q.t === 'multi' ? ' · plusieurs réponses possibles' : ''}` : ''; return; }
+    if (PAPIER) { cpt.textContent = NUM[q.id] ? `Dans votre carnet : question ${NUM[q.id]}${q.t === 'multi' ? ' · plusieurs réponses possibles' : ''}` : ''; return; }
     cpt.textContent = `${vals.length} réponse${vals.length > 1 ? 's' : ''} sur ${Math.max(tous.size, vals.length)} participant${Math.max(tous.size, vals.length) > 1 ? 's' : ''}`;
     // tout le monde a répondu : les réponses se révèlent seules, puis la séance passe à la suite
     const attendus = new Set([...la, ...[...vus].filter(([, t]) => Date.now() - t < 45000).map(([pid]) => pid)]); // une coupure de quelques secondes ne compte pas comme un départ

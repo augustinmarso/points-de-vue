@@ -165,7 +165,7 @@ function declarerVersion() {
   fetch(SCRIPT_GOOGLE, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ version: { id: VERSION, ecrans: ETAPES.length, questions: ETAPES.filter(e => e.id && e.t !== 'vote').length, texte: TEXTE.slice(0, 45000) } }) }).catch(() => { }); // le Sheet n'en garde pas plus (les images ajoutées alourdiraient l'envoi)
 }
 // les questions dans l'ordre, numérotées : sert au test papier, à la fiche réponse et à sa lecture
-const QUESTIONS = () => ETAPES.filter(e => e.id && e.t !== 'vote').map((e, i) => ({ ...e, n: i + 1 }));
+const QUESTIONS = () => { const rang = {}; return ETAPES.filter(e => e.id && e.t !== 'vote').map(e => ({ ...e, n: rang[e.p || 0] = (rang[e.p || 0] || 0) + 1 })); }; // numérotées de 1 à … dans chaque étape, comme sur le carnet papier
 
 // ---------- le compte de l'équipe : adresse et mot de passe, vérifiés par le script Google (onglet « Comptes » du Google Sheet) ----------
 // Les pages de l'équipe (grand écran, modifier, données, papier, participants automatiques) demandent la connexion ;
