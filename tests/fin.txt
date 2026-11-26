@@ -18,8 +18,8 @@ logo = logos/granville-terre-et-mer.svg
 étape : 1
 réponses : plusieurs
 affiche : affiches/memoire.jpg
-précision : Touchez tous les endroits qui vous parlent. Vous avez 30 secondes.
-chrono : 30 s
+précision : Touchez tous les endroits qui vous parlent. Vous avez 8 secondes.
+chrono : 8 s
 - Abribus
 - Panneau de ville
 - Pharmacie
