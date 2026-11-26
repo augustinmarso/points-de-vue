@@ -16,6 +16,13 @@ button,input,textarea,select{font:inherit;color:inherit}
 button{border:0;background:none;cursor:pointer;padding:0}
 :focus-visible{outline:3px solid var(--c3);outline-offset:2px}
 header{display:flex;align-items:center;gap:10px 12px;padding:12px 20px;flex:none;flex-wrap:wrap}
+/* les tests : une bande de miniatures qui défile, l'affiche de chaque test et son nom */
+.tests{flex:none;display:flex;gap:8px;overflow-x:auto;padding:2px 20px 10px;scrollbar-width:thin}
+.tests a,.tests button{flex:none;display:flex;align-items:center;gap:10px;width:190px;padding:6px 12px 6px 6px;border:0;border-radius:16px;background:var(--fond);color:inherit;font:inherit;font-size:13px;font-weight:800;line-height:1.15;text-align:left;text-decoration:none;cursor:pointer}
+.tests a[aria-current]{background:var(--n);color:#fff}
+.tests i{flex:none;width:40px;height:56px;border-radius:8px;background:#fff center/cover no-repeat;box-shadow:inset 0 0 0 1px rgba(20,20,20,.12)}
+.tests span{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.tests button{width:auto;padding:6px 16px;min-height:68px}
 header a{color:inherit;font-weight:700}
 header select{width:auto;max-width:440px}
 header h1{margin:0;font-size:24px;font-weight:800;letter-spacing:-.04em;flex:1 1 230px}
@@ -219,7 +226,7 @@ dialog h3{margin:0 0 6px;font-size:24px;font-weight:800;letter-spacing:-.03em}
 <header>
   <a href="./" aria-label="Accueil" title="Accueil"><svg viewBox="0 0 24 24" width="1.6em" height="1.6em" fill="currentColor" aria-hidden="true"><path d="M12 3 2.5 11.2h2.7V21h5.3v-6h3v6h5.3v-9.8h2.7z"/></svg></a>
   <h1>Modifier le test<small>Ici, vous composez la séance que verront les participants.</small></h1>
-  <select class="btn clair" id="test" aria-label="Le test modifié"><option>Carnet 1 · Bien vivre chez soi</option></select><span id="carnets" style="display:inline-flex;gap:6px;flex-wrap:wrap"></span>
+  <select class="btn clair" id="test" aria-label="Le test modifié" hidden><option>Carnet 1 · Bien vivre chez soi</option></select>
   <a class="btn clair" id="lancer" href="./?passer" target="_blank" rel="noopener" title="Ouvre la vraie séance dans un autre onglet : grand écran, téléphones, réponses enregistrées. Pour un simple essai, utilisez « Essayer cette version ».">Démarrer la séance</a>
   <details class="plus" id="plus"><summary class="btn clair">Plus ▾</summary><div>
   <button class="btn clair" id="btnNouveau" title="Crée un test à part, avec son propre lien. Le test ouvert ne change pas.">+ Nouveau test</button>
@@ -234,6 +241,7 @@ dialog h3{margin:0 0 6px;font-size:24px;font-weight:800;letter-spacing:-.03em}
   <button class="btn clair" id="annuler" disabled title="Rien à annuler pour l'instant" data-ico="annuler">Annuler</button>
   <button class="btn" id="enregistrer" disabled>Enregistrer</button>
 </header>
+<nav class="tests" id="carnets" aria-label="Les tests"></nav>
 <div class="corps">
   <ol id="liste" aria-label="Les écrans de la séance"></ol>
   <div id="zone"><div id="travail"></div>
@@ -868,7 +876,10 @@ $('creer').addEventListener('click', ev => { if (ev.target.closest('[data-a=ferm
 listeTests().then(l => {
   if (TEST && !l.some(x => x.id === TEST)) l.push({ id: TEST, nom: TEST });
   NOM = (l.find(x => x.id === TEST) || {}).nom || NOM;
-  $('carnets').innerHTML = CARNETS.every(id => l.some(x => x.id === id)) ? CARNETS.map((id, i) => `<a class="btn${id === TEST ? '' : ' clair'}" href="modifier.html${id ? '?test=' + id : ''}" ${id === TEST ? 'aria-current="page"' : ''} title="${h((l.find(x => x.id === id) || {}).nom || '')}">Carnet ${i + 1}</a>`).join('') : ''; // la séance à trois affiches : un bouton par carnet
+  $('carnets').innerHTML = l.map(x => `<a href="modifier.html${x.id ? '?test=' + h(x.id) : ''}" ${x.id === TEST ? 'aria-current="page"' : ''} title="${h(x.nom)}"><i data-mini="${h(x.id)}"></i><span>${h(x.nom)}</span></a>`).join('') + '<button type="button" id="miniNouveau">+ Nouveau test</button>';
+  $('miniNouveau').onclick = () => nouveauTest();
+  const ouvert = $('carnets').querySelector('[aria-current]'); if (ouvert) ouvert.scrollIntoView({ block: 'nearest', inline: 'center' });
+  l.forEach(x => lireFichier(x.id).then(t => { const m = /affiches\/[\w.-]+\.(?:jpe?g|png|webp|gif)/i.exec(t.split('\n').filter(x => x[0] !== '#').join('\n')), v = $('carnets').querySelector(`[data-mini="${x.id}"]`); if (m && v) v.style.backgroundImage = `url("${m[0]}")`; }).catch(() => { })); // la première affiche du test sert de miniature
   $('test').innerHTML = l.map(x => `<option value="${h(x.id)}" ${x.id === TEST ? 'selected' : ''}>${h(x.nom)}${x.quand ? ' · créé le ' + new Date(x.quand).toLocaleDateString('fr-FR') : ''}</option>`).join('') + '<option value="+">+ Nouveau test…</option>';
   // chaque test déjà créé est proposé comme modèle (le principal l'est déjà : « Notre structure »)
   $('gabarits').insertAdjacentHTML('beforeend', l.filter(x => x.id).map(x => `<button type="button" data-t="${h(x.id)}"><b>Copie de « ${h(x.nom)} »</b><span>${x.id === TEST ? 'Le test ouvert ici, avec vos modifications en cours : mêmes écrans, mêmes affiches, à changer ensuite.' : 'Un test déjà créé : mêmes écrans, mêmes affiches, à changer ensuite.'}</span></button>`).join(''));
