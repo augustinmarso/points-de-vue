@@ -166,6 +166,7 @@ function declarerVersion() {
 }
 // les questions dans l'ordre, numérotées : sert au test papier, à la fiche réponse et à sa lecture
 // Une séance complète teste trois affiches : trois carnets qui se suivent, le test principal puis « affiche-2 » et « affiche-3 ».
+const TON = p => (p - 1) % 3 + 1; /* la couleur d'une étape : rose (message), jaune (visuel), bleu (format), et ça recommence à chaque affiche */
 const CARNETS = ['affiche-1', 'affiche-2', 'affiche-3'], NUM_CARNET = () => CARNETS.indexOf(TEST) + 1; // 0 : un test hors de cette séance
 const carnetSuivant = () => { const n = NUM_CARNET(); return n > 0 && n < 3 ? CARNETS[n] : null; }; // le nom-court du carnet d'après, ou rien après le troisième
 const QUESTIONS = () => { const rang = {}; return ETAPES.filter(e => e.id && e.t !== 'vote').map(e => ({ ...e, n: rang[e.p || 0] = (rang[e.p || 0] || 0) + 1 })); }; // numérotées de 1 à … dans chaque étape, comme sur le carnet papier

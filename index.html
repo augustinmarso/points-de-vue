@@ -20,7 +20,7 @@
 *{box-sizing:border-box}
 html,body{margin:0;min-height:100%}
 body{background:#fff;color:var(--n);font-family:'Scoutie Sans',Helvetica,Arial,sans-serif;font-size:20px;line-height:1.25;-webkit-tap-highlight-color:transparent}
-body.p1{--c:var(--c1);--t:var(--t1)} body.p2{--c:var(--c2);--t:var(--t2)} body.p3{--c:var(--c3);--t:var(--t3)} /* les étapes 4 à 9 reprennent le rose, le jaune et le bleu, dans l'ordre */ body.p4{--c:var(--c1);--t:var(--t1)} body.p5{--c:var(--c2);--t:var(--t2)} body.p6{--c:var(--c3);--t:var(--t3)} body.p7{--c:var(--c1);--t:var(--t1)} body.p8{--c:var(--c2);--t:var(--t2)} body.p9{--c:var(--c3);--t:var(--t3)}
+body.p1{--c:var(--c1);--t:var(--t1)} body.p2{--c:var(--c2);--t:var(--t2)} body.p3{--c:var(--c3);--t:var(--t3)}
 button,input,textarea{font:inherit;color:inherit}
 button{border:0;cursor:pointer;background:none;padding:0}
 h1{margin:0;font-weight:800;letter-spacing:-.05em;line-height:.9}
@@ -331,7 +331,7 @@ function placer() {
   const B = [...document.querySelectorAll('.blob')];
   const set = (k, x, y, s) => B[k].style.transform = `translate(${x}px,${y}px) scale(${s})`;
   B.forEach(b => delete b.dataset.fixe);
-  document.body.className = (e.p ? 'p' + e.p : '') + (e.t === 'phase' ? ' plein' : '') + (document.body.classList.contains('nb') ? ' nb' : ''); // nb : les écrans de choix restent en noir et blanc au redimensionnement
+  document.body.className = (e.p ? 'p' + TON(e.p) : '') + (e.t === 'phase' ? ' plein' : '') + (document.body.classList.contains('nb') ? ' nb' : ''); // nb : les écrans de choix restent en noir et blanc au redimensionnement
   if (e.t === 'accueil' || e.t === 'fin') { // les trois cercles forment le logo
     const s = ECRAN ? 1.5 : .8, r = D * s / 2, x = ECRAN ? W * .2 : W * .06, y = ECRAN ? -H * .06 : -H * .36;
     set(0, x, y, s); set(1, x + 1.05 * r, y - .2 * r, s * .7); set(2, x + .75 * r, y + .8 * r, s * .55); return;
@@ -645,7 +645,7 @@ function enLigne() {
       if (e.t !== 'multi' && e.t !== 'texte') x += `<button class="btn" data-a="un">Valider</button>`; // dans le formulaire, une réponse se choisit puis se valide : on peut changer d'avis avant d'envoyer
     }
     app.innerHTML = `<div class="tel${e.t === 'accueil' ? ' fixe' : ''}">${x}</div>`;
-    document.body.className = e.p ? 'p' + e.p : ''; // le formulaire reste sur fond blanc ; les réponses prennent la teinte de l'étape
+    document.body.className = e.p ? 'p' + TON(e.p) : ''; // le formulaire reste sur fond blanc ; les réponses prennent la teinte de l'étape
     [ETAPES[M.i], ETAPES[M.i + 1]].filter(Boolean).forEach(z => [...(z.imgs || []), z.img].filter(Boolean).forEach(u => { new Image().src = u; })); // l'affiche à venir est prête avant qu'on y arrive
     regards(); statut();
   }

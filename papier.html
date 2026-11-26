@@ -102,7 +102,9 @@ let vue = new URLSearchParams(location.search).get('vue'); if (!['diapos', 'lire
 // Les mêmes positions, en millimètres de la feuille dépliée, servent à l'impression ET à la lecture de la photo.
 const VW = 105, VH = 148.5, PAGES = [[105, 1], [210, 1], [315, 1], [315, 0], [210, 0], [105, 0], [0, 0], [0, 1]]; // les huit pages dans l'ordre de lecture : [bord gauche, 1 = rangée du bas]
 const RAYON = 3.35, PAS = 10.08, RANG = 22, COULEURS = ['#F4A1C6', '#F8C237', '#3E6EB6'], TRAITS = [.35, .35, .18];
-const REPERES = [[10.5, 28], [405, 15], [15, 282], [405, 265.5]]; // quatre ronds noirs : absents du modèle, ajoutés pour lire la photo (placés là où il n'y a rien)
+const REPERES = [[13.5, 13.5], [406.5, 13.5], [13.5, 283.5], [406.5, 283.5]]; // quatre ronds noirs : absents du modèle, ajoutés pour lire la photo. Un par coin de la feuille, à 13,5 mm des bords.
+// Ce qui se trouvait dans ces coins recule : la bulle « Débattons ! » du modèle, son petit rond et ses yeux (et les deux bulles redessinées en haut, qui suivent).
+const RECUL = -12, FOND = ['M403.36 272.72', 'M407.08 283.86', 'M406.74 285.88', 'M407.87 285.24'].reduce((f, d) => { const a = `<path d="${d}`; if (f.split(a).length !== 2) throw new Error('livret-fond.js a changé : tracé introuvable ' + d); return f.replace(a, `<path transform="translate(${RECUL} 0)" d="${d}`); }, LIVRET_FOND);
 // les six volets de questions, dans l'ordre de lecture : x du numéro, x du texte, x du 1er rond, y de la 1re ligne, sens (1 à l'endroit, -1 tête en bas), bord du cadre côté ronds, puis x et y de « Temps N »
 const VOLETS = [[220.2, 226.8, 230.3, 184.8, 1, 308.9, 220.2, 164.8], [324.1, 330.6, 334.1, 184.8, 1, 413.9, 324.1, 164.8], [408, 401.5, 397.9, 113.1, -1, 321.2, 397, 133], [304.1, 297.6, 294.1, 113.1, -1, 216.2, 304.1, 133], [197.9, 191.4, 187.9, 113.3, -1, 111.2, 186, 133], [94.1, 87.6, 84, 113.3, -1, 6.2, 94.1, 133]];
 const EXEMPLE = new URLSearchParams(location.search).has('exemple'); // ?exemple : un livret déjà rempli, pour essayer la lecture par photo
@@ -128,13 +130,13 @@ function fiche(Q, carnet = 1, affiche = '') {
         return `<circle cx="${+x.toFixed(2)}" cy="${+y.toFixed(2)}" r="${r}" fill="#fff" stroke="${c}" stroke-width="${TRAITS[g.k]}"/>` + (e.t === 'echelle' ? '' : T(+x.toFixed(2), +(y + s * 1.25).toFixed(2), etiq(e, j), 'font-size="3.6" font-weight="700" fill="#A8A8A8" text-anchor="middle"', s))
           + (EXEMPLE && (j === (g.i * 3 + 1) % g.ronds.length || e.t === 'multi' && j === g.i % g.ronds.length) ? `<circle cx="${+(x + .2).toFixed(2)}" cy="${+(y - .1).toFixed(2)}" r="${+(r * .86).toFixed(2)}" fill="#1B2A6B"/>` : ''); }).join('')
       + (e.t === 'echelle' ? T(g.ronds[0][0], g.ronds[0][1] + s * 6.1, h(e.a), petit, s) + T(fin[0], fin[1] + s * 6.1, h(e.b), petit, s) : e.t === 'ab' ? T(fin[0], fin[1] + s * 6.1, 'aucune différence', petit, s) : ''); }).join(''); // « plusieurs réponses possibles » est dit par le grand écran
-  const temps = VOLETS.map((V, v) => G.some(g => g.V === V) ? T(V[6], V[7], 'Temps ' + ((v >> 1) + 1), 'font-size="4.23" font-weight="800"', V[4]) : '').join('');
-  return (G.trop && carnet === 1 ? `<p class="trop">Il y a trop de questions pour ce livret (huit par temps, trois temps) : masquez-en quelques-unes dans « Modifier le test ».</p>` : '') + `<div class="page fiche">
+  const temps = VOLETS.map((V, v) => G.some(g => g.V === V) ? T(V[6], V[7], 'Étape ' + ((v >> 1) + 1), 'font-size="4.23" font-weight="800"', V[4]) : '').join('');
+  return (G.trop && carnet === 1 ? `<p class="trop">Il y a trop de questions pour ce livret (huit par étape, trois étapes) : masquez-en quelques-unes dans « Modifier le test ».</p>` : '') + `<div class="page fiche">
   <svg viewBox="0 0 420 297" xmlns="http://www.w3.org/2000/svg" font-family="'Scoutie Sans',Helvetica,Arial,sans-serif" fill="#151515">
-    ${LIVRET_FOND}
-    ${T(117, 263.9, 'Votre affiche est en cours de Fabrication', 'font-size="3.3"')}${T(117, 267.8, 'Nous avons besoin de votre aide !', 'font-size="3.3"')}${T(379.6, 278.4, 'Débattons !', 'font-size="4.04" font-weight="700"')}
+    ${FOND}
+    ${T(117, 263.9, 'Votre affiche est en cours de Fabrication', 'font-size="3.3"')}${T(117, 267.8, 'Nous avons besoin de votre aide !', 'font-size="3.3"')}${T(379.6 + RECUL, 278.4, 'Débattons !', 'font-size="4.04" font-weight="700"')}
     ${T(111.6, 238, 'Carnet ' + carnet + ' sur 3 · Séance : ' + (EXEMPLE ? 'essai' : '..............') + ' · N° : ' + (EXEMPLE ? '1' : '........'), 'font-size="3.3" font-weight="700"')}
-    ${[[1, 315], [2, 210]].map(([k, cx]) => `<g transform="rotate(180 ${cx} 148.5)"><path d="${LIVRET_BULLE}" fill="${COULEURS[k]}"/>${T(379.6, 278.4, 'Débattons !', 'font-size="4.04" font-weight="700"' + (k === 2 ? ' fill="#fff"' : ''))}</g>`).join('')}
+    ${[[1, 315], [2, 210]].map(([k, cx]) => `<g transform="rotate(180 ${cx} 148.5)"><path transform="translate(${RECUL} 0)" d="${LIVRET_BULLE}" fill="${COULEURS[k]}"/>${T(379.6 + RECUL, 278.4, 'Débattons !', 'font-size="4.04" font-weight="700"' + (k === 2 ? ' fill="#fff"' : ''))}</g>`).join('')}
     ${temps}${questions}
     ${REPERES.map(([x, y]) => `<circle cx="${x}" cy="${y}" r="3.5" fill="#000"/><circle cx="${x - 1}" cy="${y}" r=".65" fill="#fff"/><circle cx="${x + 1}" cy="${y}" r=".65" fill="#fff"/>`).join('')}
   </svg>
@@ -182,16 +184,26 @@ function homographie(src, dst) { // passe des millimètres de la fiche aux pixel
   const k = resoudre(A, b); return (x, y) => { const w = k[6] * x + k[7] * y + 1; return [(k[0] * x + k[1] * y + k[2]) / w, (k[3] * x + k[4] * y + k[5]) / w]; };
 }
 function trouverReperes(gris, W, H) { // dans chaque coin de la photo, la tache sombre et pleine, ronde (ou carrée sur les anciennes fiches), la plus proche du coin
-  const pas = Math.max(1, Math.round(W / 420)), w = Math.floor(W / pas), hh = Math.floor(H / pas), s = new Uint8Array(w * hh); let somme = 0;
+  const pas = Math.max(1, Math.round(W / 840)), w = Math.floor(W / pas), hh = Math.floor(H / pas), s = new Uint8Array(w * hh); let somme = 0;
   for (let y = 0; y < hh; y++) for (let x = 0; x < w; x++) { const v = gris[y * pas * W + x * pas]; s[y * w + x] = v; somme += v; }
   const seuil = somme / (w * hh) * .55, vu = new Uint8Array(w * hh), taches = [];
   for (let d = 0; d < w * hh; d++) { if (vu[d] || s[d] > seuil) continue;
-    const pile = [d]; vu[d] = 1; let n = 0, sx = 0, sy = 0, x0 = w, x1 = 0, y0 = hh, y1 = 0;
-    while (pile.length) { const p = pile.pop(), x = p % w, y = (p - x) / w; n++; sx += x; sy += y; if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y;
+    const pile = [d]; vu[d] = 1; let n = 0, sx = 0, sy = 0, sv = 0, x0 = w, x1 = 0, y0 = hh, y1 = 0;
+    while (pile.length) { const p = pile.pop(), x = p % w, y = (p - x) / w; n++; sx += x; sy += y; sv += s[p]; if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y;
       for (const q of [p - 1, p + 1, p - w, p + w]) { if (q < 0 || q >= w * hh || vu[q] || s[q] > seuil) continue; if ((q === p - 1 && x === 0) || (q === p + 1 && x === w - 1)) continue; vu[q] = 1; pile.push(q); } }
-    const bw = x1 - x0 + 1, bh = y1 - y0 + 1; if (bw < w * .008 || bw > w * .12 || bh < w * .008 || bh > w * .12 || bw / bh < .55 || bw / bh > 1.8 || n / (bw * bh) < .6) continue;
-    taches.push([sx / n * pas, sy / n * pas]); }
-  return [[0, 0], [W, 0], [0, H], [W, H]].map(([cx, cy]) => { const c = taches.filter(([x, y]) => (x < W / 2) === (cx === 0) && (y < H / 2) === (cy === 0)).sort((a, b) => Math.hypot(a[0] - cx, a[1] - cy) - Math.hypot(b[0] - cx, b[1] - cy))[0]; if (!c) throw new Error('repère'); return c; });
+    const bw = x1 - x0 + 1, bh = y1 - y0 + 1; if (bw < w * .005 || bw > w * .12 || bh < w * .005 || bh > w * .12 || bw / bh < .55 || bw / bh > 1.8 || n / (bw * bh) < .6) continue;
+    /* un repère est imprimé sur du papier : autour de lui, c'est clair. Une tache sombre de la table (veine du bois, objet, ombre) n'a pas ce contraste. */
+    const m = Math.ceil(Math.max(bw, bh) * .6), X0 = Math.max(0, x0 - m), X1 = Math.min(w - 1, x1 + m), Y0 = Math.max(0, y0 - m), Y1 = Math.min(hh - 1, y1 + m); let tour = 0, nt = 0;
+    for (let x = X0; x <= X1; x++) { tour += s[Y0 * w + x] + s[Y1 * w + x]; nt += 2; } for (let y = Y0; y <= Y1; y++) { tour += s[y * w + X0] + s[y * w + X1]; nt += 2; }
+    if (tour / nt < 2.5 * Math.max(8, sv / n) || sv / n > seuil * .72) continue; /* et il est noir : les ronds bleus du décor sont sombres, pas noirs */
+    taches.push([sx / n * pas, sy / n * pas, Math.max(bw, bh)]); }
+  // Les quatre repères ont la même taille et sont chacun près d'un coin de la photo. Dans chaque coin, on garde les cinq taches les plus proches,
+  // puis on prend les quatre qui vont le mieux ensemble : à peu près la même taille (un œil du décor est bien plus petit qu'un repère ; la photo de biais change un peu les tailles), au plus près des coins.
+  const diag = Math.hypot(W, H), coins = [[0, 0], [W, 0], [0, H], [W, H]].map(([cx, cy]) => { const c = taches.filter(([x, y]) => (x < W / 2) === (cx === 0) && (y < H / 2) === (cy === 0)).map(t => [t[0], t[1], t[2], Math.hypot(t[0] - cx, t[1] - cy) / diag]).sort((a, b) => a[3] - b[3]).slice(0, 5); if (!c.length) throw new Error('repère'); return c; });
+  const essais = [];
+  for (const a of coins[0]) for (const b of coins[1]) for (const c of coins[2]) for (const e of coins[3]) { const t = [a[2], b[2], c[2], e[2]]; essais.push([a[3] + b[3] + c[3] + e[3] + 2 * Math.max(0, Math.max(...t) / Math.min(...t) - 1.8), [a, b, c, e]]); }
+  essais.sort((x, y) => x[0] - y[0]);
+  return essais[0][1].map(t => [t[0], t[1]]);
 }
 function orienter(gris, W, H, P) { // la feuille peut être photographiée debout ou tête en bas : on garde le sens où elle est couchée, le grand titre de la couverture à sa place
   const tour = [P[0], P[1], P[3], P[2]], d = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1]);
@@ -210,10 +222,12 @@ function lireImage(source, Q) { // source : image ou canevas ; renvoie les ronds
   catch (e) { L.trouve = false; L.coins = [[.1, .08], [.9, .08], [.1, .92], [.9, .92]].map(([a, b]) => [a * W, b * H]); } // introuvables : quatre poignées à poser à la main
   L.caler = () => { Hm = homographie(REPERES, L.coins); L.relire(); }; // après avoir déplacé un repère
   L.H = (mx, my) => Hm(mx + L.dx, my + L.dy);
-  const noir = ([mx, my]) => { const [u, v] = L.H(mx, my), [u2, v2] = L.H(mx + RAYON, my), r = Math.max(2, Math.hypot(u2 - u, v2 - v) * .62); let s = 0, n = 0; // noirceur moyenne au cœur du rond
-    for (let y = Math.round(v - r); y <= v + r; y++) for (let xx = Math.round(u - r); xx <= u + r; xx++) { if (xx < 0 || y < 0 || xx >= W || y >= H || (xx - u) ** 2 + (y - v) ** 2 > r * r) continue; s += 255 - gris[y * W + xx]; n++; } return n ? s / n : 0; };
+  const noir = ([mx, my]) => { const [u, v] = L.H(mx, my), [u2, v2] = L.H(mx + RAYON, my), R = Math.hypot(u2 - u, v2 - v), r = Math.max(2, R * .62), B = Math.ceil(R * 1.7), histo = new Uint32Array(256); let s = 0, n = 0, nb = 0; // noirceur moyenne au cœur du rond, comparée au papier autour
+    for (let y = Math.round(v) - B; y <= v + B; y += 2) for (let xx = Math.round(u) - B; xx <= u + B; xx += 2) { if (xx < 0 || y < 0 || xx >= W || y >= H || (xx - u) ** 2 + (y - v) ** 2 < (R * 1.15) ** 2) continue; histo[gris[y * W + xx]]++; nb++; } // le papier juste autour du rond, sans son trait ni son intérieur
+    let papier = 255, reste = nb * .15; while (papier > 40 && (reste -= histo[papier]) > 0) papier--; // le blanc du papier ici : les 15 % de points les plus clairs autour du rond
+    for (let y = Math.round(v - r); y <= v + r; y++) for (let xx = Math.round(u - r); xx <= u + r; xx++) { if (xx < 0 || y < 0 || xx >= W || y >= H || (xx - u) ** 2 + (y - v) ** 2 > r * r) continue; s += Math.max(0, 1 - gris[y * W + xx] / papier - .08); n++; } return n ? 255 * s / n : 0; }; // - .08 : une ombre légère qui traverse le rond n'est pas de l'encre
   L.relire = () => { // relit tous les ronds là où la grille se trouve maintenant
-    const scores = G.map(g => g.ronds.map(noir)), tous = scores.flat().sort((a, b) => a - b), base = tous[Math.floor(tous.length / 2)] || 0, seuil = Math.max(base * 1.7, base + 28); // un rond vide sert de référence
+    const scores = G.map(g => g.ronds.map(noir)), tous = scores.flat().sort((a, b) => a - b), base = tous[Math.floor(tous.length / 2)] || 0, seuil = Math.max(base * 1.6, base + 9); /* réglé sur des essais : une simple coche au stylo fin doit passer, la lettre grise d'un rond vide non */ // un rond vide sert de référence
     L.coche = scores.map((l, i) => { const m = l.map(v => v > seuil); if (G[i].e.t !== 'multi' && m.filter(Boolean).length > 1) { const top = l.indexOf(Math.max(...l)); return l.map((_, j) => j === top); } return m; });
   };
   L.caler(); return L;
@@ -223,7 +237,7 @@ function tracer() { // la photo, avec un cercle sur chaque rond : plein = lu com
   lu.G.forEach((g, i) => g.ronds.forEach((p, j) => { const [u, v] = lu.H(p[0], p[1]), [u2, v2] = lu.H(p[0] + RAYON, p[1]), r = Math.hypot(u2 - u, v2 - v) * 1.25;
     x.beginPath(); x.arc(u, v, r, 0, 7); x.lineWidth = lu.coche[i][j] ? Math.max(3, r * .35) : 1; x.strokeStyle = lu.coche[i][j] ? '#1F6FE0' : 'rgba(20,20,20,.25)'; x.stroke(); }));
   lu.coins.forEach(([u, v]) => { x.beginPath(); x.arc(u, v, c.width * .022, 0, 7); x.lineWidth = Math.max(3, c.width * .004); x.strokeStyle = '#FF5A36'; x.stroke(); }); // les poignées : une sur chaque repère
-  $('rep').innerHTML = lu.G.map((g, i) => g.ronds.length ? `<div class="${lu.coche[i].some(Boolean) ? '' : 'vide'}"><b>T${g.k + 1} · ${g.e.n}${g.e.t === 'multi' ? '*' : ''}</b><span>${h(g.e.q)}</span><p>${g.ronds.map((_, j) => `<button type="button" data-r="${i},${j}" aria-pressed="${lu.coche[i][j]}" title="${h(g.e.t === 'echelle' ? j + 1 + ' sur 5' : g.e.o[j])}">${etiq(g.e, j)}</button>`).join('')}</p></div>` : '').join('');
+  $('rep').innerHTML = lu.G.map((g, i) => g.ronds.length ? `<div class="${lu.coche[i].some(Boolean) ? '' : 'vide'}"><b>É${g.k + 1} · ${g.e.n}${g.e.t === 'multi' ? '*' : ''}</b><span>${h(g.e.q)}</span><p>${g.ronds.map((_, j) => `<button type="button" data-r="${i},${j}" aria-pressed="${lu.coche[i][j]}" title="${h(g.e.t === 'echelle' ? j + 1 + ' sur 5' : g.e.o[j])}">${etiq(g.e, j)}</button>`).join('')}</p></div>` : '').join('');
   const n = lu.coche.filter((l, i) => l.some(Boolean) || (lu.txt[i] || '').trim()).length;
   $('etat').textContent = (lu.trouve ? '' : 'Je ne trouve pas les quatre ronds noirs des coins : faites glisser les quatre poignées orange dessus. ') + `${n} question${n > 1 ? 's' : ''} lue${n > 1 ? 's' : ''} sur ${lu.G.length}. Les ronds lus comme cochés sont entourés en bleu : corrigez-les en cliquant sur la photo ou dans la liste dessous.`;
   $('envoyer').disabled = !n;
@@ -254,7 +268,7 @@ function zonesTexte() {
     const c = document.createElement('canvas'); c.width = Math.max(1, Math.round(w)); c.height = Math.max(1, Math.round(hh)); const k = c.getContext('2d');
     if (coins[0][1] > coins[2][1]) { k.translate(c.width, c.height); k.rotate(Math.PI); } // écrit tête en bas sur la photo
     k.drawImage(lu.image, x0, y0, w, hh, 0, 0, c.width, c.height);
-    return `<label><span><b>Temps ${g.k + 1}, question ${g.e.n}.</b> ${h(g.e.q)}</span><img src="${c.toDataURL('image/jpeg', .8)}" alt="Ce que la personne a écrit pour la question ${g.e.n}"><input type="text" data-txt="${i}" maxlength="200" placeholder="Recopiez ici ce qui est écrit (laissez vide si rien)" value="${h(lu.txt[i] || '')}"></label>`; }).join('');
+    return `<label><span><b>Étape ${g.k + 1}, question ${g.e.n}.</b> ${h(g.e.q)}</span><img src="${c.toDataURL('image/jpeg', .8)}" alt="Ce que la personne a écrit pour la question ${g.e.n}"><input type="text" data-txt="${i}" maxlength="200" placeholder="Recopiez ici ce qui est écrit (laissez vide si rien)" value="${h(lu.txt[i] || '')}"></label>`; }).join('');
   z.hidden = !z.innerHTML;
 }
 function lignes() { // les réponses lues, au même format que celles des téléphones
