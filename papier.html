@@ -123,7 +123,7 @@ function fiche(Q, carnet = 1, affiche = '') {
     return T(xn, g.y + s * .4, e.n, 'font-size="4.23" font-weight="700"', s)
       + (e.t === 'texte' ? [10.5, 15.5].map(d => `<line x1="${xt}" x2="${g.zone[1][0]}" y1="${g.y + s * d}" y2="${g.y + s * d}" stroke="#151515" stroke-width=".2" stroke-dasharray=".4 1"/>`).join('') : '')
       + g.ronds.map(([x, y], j) => { const r = e.t === 'echelle' ? [3.35, 2.95, 2.55, 2.95, 3.35][j] : RAYON; // une note : ronds progressifs. Jamais sous 2,5 mm : la lecture de la photo regarde le cœur du rond
-        return `<circle cx="${+x.toFixed(2)}" cy="${+y.toFixed(2)}" r="${r}" fill="#fff" stroke="${c}" stroke-width="${TRAITS[g.k]}"/>`
+        return `<circle cx="${+x.toFixed(2)}" cy="${+y.toFixed(2)}" r="${r}" fill="#fff" stroke="${c}" stroke-width="${TRAITS[g.k]}"/>` + (e.t === 'echelle' ? '' : T(+x.toFixed(2), +(y + s * 1.25).toFixed(2), etiq(e, j), 'font-size="3.6" font-weight="700" fill="#A8A8A8" text-anchor="middle"', s))
           + (EXEMPLE && (j === (g.i * 3 + 1) % g.ronds.length || e.t === 'multi' && j === g.i % g.ronds.length) ? `<circle cx="${+(x + .2).toFixed(2)}" cy="${+(y - .1).toFixed(2)}" r="${+(r * .86).toFixed(2)}" fill="#1B2A6B"/>` : ''); }).join('')
       + (e.t === 'echelle' ? T(g.ronds[0][0], g.ronds[0][1] + s * 6.1, h(e.a), petit, s) + T(fin[0], fin[1] + s * 6.1, h(e.b), petit, s) : e.t === 'ab' ? T(fin[0], fin[1] + s * 6.1, 'aucune différence', petit, s) : ''); }).join(''); // « plusieurs réponses possibles » est dit par le grand écran
   const temps = VOLETS.map((V, v) => G.some(g => g.V === V) ? T(V[6], V[7], 'Temps ' + ((v >> 1) + 1), 'font-size="4.23" font-weight="800"', V[4]) : '').join('');
