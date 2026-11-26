@@ -125,8 +125,8 @@ function fiche(Q) {
     + T(8.5, 70, 'Habitants testeurs', 'font-size="4" font-weight="700"') + T(8.5, 75.5, 'Granville Terre et Mer', 'font-size="4" font-weight="700"')
     + T(8.5, 90, 'Séance : ....................      N° : ..........', 'font-size="3.6" font-weight="700" xml:space="preserve"') + T(8.5, 96, 'Test ' + h(VERSION), 'font-size="2.6" fill="#6B6B6B"')
     + (EXEMPLE ? T(26, 89.5, 'essai', 'font-size="3.6" fill="#1B2A6B"') + T(72, 89.5, '1', 'font-size="3.6" fill="#1B2A6B"') : '')
-    // la bulle : un rectangle plein aux coins très ronds, teinté et sans contour, comme les réponses du test sur le téléphone
-    + '<rect x="8" y="105" width="86" height="27" rx="9" fill="#FDE7F1"/><path d="M13 129.500 9.500 136.500 20 131z" fill="#FDE7F1"/>'
+    // la bulle : un rectangle plein aux coins très ronds, gris clair et sans contour, comme les réponses du test sur le téléphone
+    + '<rect x="8" y="105" width="86" height="27" rx="9" fill="#EFEFEF"/><path d="M13 129.500 9.500 136.500 20 131z" fill="#EFEFEF"/>'
     + T(14, 114.5, 'Votre affiche est en cours de fabrication.', 'font-size="3.3" font-weight="800"') + T(14, 119.8, 'Nous avons besoin de votre aide !', 'font-size="3.3" font-weight="800"') + T(14, 126, 'Noircissez le rond de votre réponse.', 'font-size="3.1"') + bulle(8, 140, 3.4, COULEURS[0], 40));
   const dos = dansVolet([0, 1], `<g style="mix-blend-mode:multiply"><circle cx="40" cy="62" r="21" fill="${COULEURS[0]}"/></g><g style="mix-blend-mode:multiply"><circle cx="66" cy="54" r="14.5" fill="${COULEURS[1]}"/></g><g style="mix-blend-mode:multiply"><circle cx="60" cy="80" r="11.5" fill="${COULEURS[2]}"/></g>`
     + yeux(40, 62, 21, 50, 1, '#141414', 1.9) + yeux(66, 54, 14.5, 51, 1, '#141414', 1.4) + yeux(60, 80, 11.5, 52, 1, '#141414', 1.2)
