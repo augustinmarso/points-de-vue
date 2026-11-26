@@ -111,7 +111,8 @@ function geometrie(Q) { // un temps = une couleur = deux volets de quatre questi
     [q.slice(0, moitie), q.slice(moitie)].forEach((l, m) => { const V = VOLETS[k * 2 + m], [, xt, xc, yt, s, bord] = V, R = RANG * Math.min(1, 4 / Math.max(l.length, 1)); if (l.length > 5) trop = true; // au-delà de quatre, les lignes se resserrent
       l.forEach((e, i) => { const n = choix(e).length, pas = Math.min(PAS, (Math.abs(bord - xc) - RAYON - 2) / Math.max(n - 1, 1)), y = yt + s * i * R, g = { e, k, V, y, i: Q.indexOf(e) }; // plus de huit réponses : les ronds se rapprochent
         g.ronds = choix(e).map((_, j) => [xc + s * j * pas, y + s * 11.5]);
-        g.zone = [[xt, y + s * 6.5], [bord - s * 4, y + s * 6.5], [xt, y + s * 16], [bord - s * 4, y + s * 16]]; // là où s'écrit un avis libre
+        g.zone = [[xt, y + s * 6.8], [bord - s * 4, y + s * 6.8], [xt, y + s * 16.4], [bord - s * 4, y + s * 16.4]]; // là où s'écrit un avis libre
+        if (e.t === 'texte') g.crans = [[xt - s * 1.4, y + s * 7.4], [bord - s * 3, y + s * 7.4], [xt - s * 1.4, y + s * 15.8], [bord - s * 3, y + s * 15.8]]; // quatre petits carrés noirs autour : la lecture de la photo s'y recale
         G.push(g); }); }); });
   G.sort((a, b) => a.i - b.i); G.trop = trop; return G;
 }
@@ -121,7 +122,7 @@ function fiche(Q, carnet = 1, affiche = '') {
   const petit = 'font-size="2.3" fill="#8A8A8A" text-anchor="middle"'; // les mots d'une note ou d'une comparaison : petits, gris, sous le rond qu'ils nomment
   const questions = G.map(g => { const [xn, xt, , , s] = g.V, c = COULEURS[g.k], e = g.e, fin = g.ronds.length ? g.ronds[g.ronds.length - 1] : null;
     return T(xn, g.y + s * .4, e.n, 'font-size="4.23" font-weight="700"', s)
-      + (e.t === 'texte' ? [10.5, 15.5].map(d => `<line x1="${xt}" x2="${g.zone[1][0]}" y1="${g.y + s * d}" y2="${g.y + s * d}" stroke="#151515" stroke-width=".2" stroke-dasharray=".4 1"/>`).join('') : '')
+      + (e.t === 'texte' ? [10.5, 15.5].map(d => `<line x1="${xt}" x2="${g.zone[1][0]}" y1="${g.y + s * d}" y2="${g.y + s * d}" stroke="#151515" stroke-width=".2" stroke-dasharray=".4 1"/>`).join('') + g.crans.map(([x, y]) => `<rect x="${+(x - .6).toFixed(2)}" y="${+(y - .6).toFixed(2)}" width="1.2" height="1.2" fill="#151515"/>`).join('') : '')
       + g.ronds.map(([x, y], j) => { const r = e.t === 'echelle' ? [3.35, 2.95, 2.55, 2.95, 3.35][j] : RAYON; // une note : ronds progressifs. Jamais sous 2,5 mm : la lecture de la photo regarde le cœur du rond
         return `<circle cx="${+x.toFixed(2)}" cy="${+y.toFixed(2)}" r="${r}" fill="#fff" stroke="${c}" stroke-width="${TRAITS[g.k]}"/>` + (e.t === 'echelle' ? '' : T(+x.toFixed(2), +(y + s * 1.25).toFixed(2), etiq(e, j), 'font-size="3.6" font-weight="700" fill="#A8A8A8" text-anchor="middle"', s))
           + (EXEMPLE && (j === (g.i * 3 + 1) % g.ronds.length || e.t === 'multi' && j === g.i % g.ronds.length) ? `<circle cx="${+(x + .2).toFixed(2)}" cy="${+(y - .1).toFixed(2)}" r="${+(r * .86).toFixed(2)}" fill="#1B2A6B"/>` : ''); }).join('')
@@ -201,7 +202,7 @@ function lireImage(source, Q) { // source : image ou canevas ; renvoie les ronds
   const x = c.getContext('2d', { willReadFrequently: true }); x.drawImage(source, 0, 0, c.width, c.height);
   const px = x.getImageData(0, 0, c.width, c.height).data, W = c.width, H = c.height, gris = new Uint8Array(W * H);
   for (let i = 0; i < W * H; i++) gris[i] = (px[i * 4] * 3 + px[i * 4 + 1] * 6 + px[i * 4 + 2]) / 10;
-  const G = geometrie(Q), L = { image: c, G, dx: 0, dy: 0, txt: {}, trouve: true }; let Hm;
+  const G = geometrie(Q), L = { image: c, G, gris, larg: W, haut: H, dx: 0, dy: 0, txt: {}, trouve: true }; let Hm;
   try { L.coins = orienter(gris, W, H, trouverReperes(gris, W, H)); } // les quatre repères dans la photo, dans l'ordre de REPERES
   catch (e) { L.trouve = false; L.coins = [[.1, .08], [.9, .08], [.1, .92], [.9, .92]].map(([a, b]) => [a * W, b * H]); } // introuvables : quatre poignées à poser à la main
   L.caler = () => { Hm = homographie(REPERES, L.coins); L.relire(); }; // après avoir déplacé un repère
@@ -226,10 +227,26 @@ function tracer() { // la photo, avec un cercle sur chaque rond : plein = lu com
 }
 // les avis libres : la machine ne lit pas l'écriture à la main. On montre le morceau de photo, et on recopie à côté.
 // shortcut: pas de lecture automatique de l'écriture (il faudrait envoyer la photo à un service extérieur, alors que la page promet de ne l'envoyer nulle part) ; à revoir si l'équipe l'accepte.
+// Les crans d'une zone d'écriture : autour de l'endroit attendu de chaque petit carré noir, on cherche la tache la plus sombre.
+// L'écart médian entre « attendu » et « trouvé » (en pixels) corrige le cadrage de cette zone : le pli du livret décale souvent un volet.
+function ecartCrans(g) {
+  if (!g.crans) return [0, 0, 0];
+  const { gris, larg: W, haut: H } = lu, ecarts = [];
+  g.crans.forEach(([mx, my]) => { const [u, v] = lu.H(mx, my), [u2, v2] = lu.H(mx + 1, my), pm = Math.hypot(u2 - u, v2 - v), R = Math.round(3 * pm); // on cherche à 3 mm à la ronde
+    let max = 0, somme = 0, n = 0;
+    for (let y = Math.round(v) - R; y <= v + R; y++) for (let x = Math.round(u) - R; x <= u + R; x++) { if (x < 0 || y < 0 || x >= W || y >= H) continue; const d = 255 - gris[y * W + x]; somme += d; n++; if (d > max) max = d; }
+    const moy = n ? somme / n : 0; if (max - moy < 50) return; // rien de sombre ici : cran caché ou hors de la photo
+    let sx = 0, sy = 0, p = 0; const seuil = moy + (max - moy) * .6;
+    for (let y = Math.round(v) - R; y <= v + R; y++) for (let x = Math.round(u) - R; x <= u + R; x++) { if (x < 0 || y < 0 || x >= W || y >= H) continue; const d = 255 - gris[y * W + x]; if (d > seuil) { sx += x * d; sy += y * d; p += d; } }
+    if (p) ecarts.push([sx / p - u, sy / p - v]); });
+  if (ecarts.length < 2) return [0, 0, ecarts.length];
+  const med = k => { const l = ecarts.map(e => e[k]).sort((a, b) => a - b), m = l.length >> 1; return l.length % 2 ? l[m] : (l[m - 1] + l[m]) / 2; };
+  return [med(0), med(1), ecarts.length];
+}
 function zonesTexte() {
   const z = $('textes'); if (!z) return;
   z.innerHTML = lu.G.map((g, i) => { if (g.e.t !== 'texte') return '';
-    const coins = g.zone.map(([x, y]) => lu.H(x, y));
+    const [ex, ey] = ecartCrans(g), coins = g.zone.map(([x, y]) => { const q = lu.H(x, y); return [q[0] + ex, q[1] + ey]; }); // le cadrage suit les crans trouvés
     const x0 = Math.max(0, Math.min(...coins.map(q => q[0]))), y0 = Math.max(0, Math.min(...coins.map(q => q[1]))), w = Math.max(...coins.map(q => q[0])) - x0, hh = Math.max(...coins.map(q => q[1])) - y0;
     const c = document.createElement('canvas'); c.width = Math.max(1, Math.round(w)); c.height = Math.max(1, Math.round(hh)); const k = c.getContext('2d');
     if (coins[0][1] > coins[2][1]) { k.translate(c.width, c.height); k.rotate(Math.PI); } // écrit tête en bas sur la photo
