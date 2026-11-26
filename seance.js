@@ -1,4 +1,26 @@
 // Lecteur et écrivain de seance.txt, partagés par l'appli (index.html), l'éditeur (modifier.html) et les résultats (resultats.html).
+// ---------- le chargement des pages : deux boules à yeux qui se croisent (façon TikTok), le temps que la page soit prête ----------
+(() => {
+  const z = document.createElement('div'); z.className = 'pdv-charge'; z.setAttribute('role', 'status'); z.setAttribute('aria-label', 'Chargement');
+  z.innerHTML = `<style>
+.pdv-charge{position:fixed;inset:0;z-index:99999;display:grid;place-items:center;background:#fff;animation:pdvVoir .2s .15s both;transition:opacity .3s}
+.pdv-charge.parti{opacity:0;pointer-events:none}
+.pdv-charge>div{position:relative;width:84px;height:38px}
+.pdv-charge b{position:absolute;left:0;top:0;width:38px;height:38px;border-radius:50%;background:#F5A0C6;mix-blend-mode:multiply;animation:pdvA .9s cubic-bezier(.45,0,.55,1) infinite}
+.pdv-charge b+b{background:#1F6FE0;animation-name:pdvB}
+.pdv-charge b:before{content:"";position:absolute;top:14px;left:12px;width:6px;height:6px;border-radius:50%;background:#2B1B12;box-shadow:9px 0 #2B1B12;animation:pdvOeil .9s steps(1) infinite}
+.pdv-charge b+b:before{animation-direction:reverse}
+@keyframes pdvVoir{from{opacity:0}}
+@keyframes pdvA{0%,100%{transform:translateX(0);z-index:2}25%{transform:translateX(23px) scale(1.18)}50%{transform:translateX(46px);z-index:2}51%,99%{z-index:1}75%{transform:translateX(23px) scale(.82)}}
+@keyframes pdvB{0%,100%{transform:translateX(46px);z-index:1}25%{transform:translateX(23px) scale(.82)}50%{transform:translateX(0);z-index:1}51%,99%{z-index:2}75%{transform:translateX(23px) scale(1.18)}}
+@keyframes pdvOeil{0%{transform:translateX(4px)}50%{transform:translateX(-3px)}}
+@media (prefers-reduced-motion:reduce){.pdv-charge b,.pdv-charge b:before{animation-duration:2.4s}}
+</style><div><b></b><b></b></div>`;
+  (document.body || document.documentElement).appendChild(z);
+  const fin = () => { z.classList.add('parti'); setTimeout(() => z.remove(), 400); };
+  if (document.readyState === 'complete') setTimeout(fin, 0); else addEventListener('load', fin, { once: true });
+  setTimeout(fin, 8000); // connexion très lente : la page passe devant quand même
+})();
 // ---------- le contenu de la séance : il est dans le fichier seance.txt, modifiable directement sur GitHub ----------
 let PHASES = { 1: { nom: 'Étape 1', quoi: '' }, 2: { nom: 'Étape 2', quoi: '' }, 3: { nom: 'Étape 3', quoi: '' } }; // 3 étapes au départ, 6 au plus (une couleur chacune)
 let ETAPES = [{ t: 'accueil' }], MISSIONS = ["L'information à faire passer"], TESTS = [];
