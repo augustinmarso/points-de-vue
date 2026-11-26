@@ -15,7 +15,7 @@ let TOUS = ETAPES; // tous les écrans du fichier, y compris ceux qui sont masqu
 // servent encore : si l'un d'eux est modifié sur GitHub après le dernier enregistrement depuis le site, c'est lui qui est repris.
 const TEST = (new URLSearchParams(location.search).get('test') || '').toLowerCase().replace(/[^a-z0-9-]/g, '').slice(0, 40);
 const FICHIER = TEST ? 'tests/' + TEST + '.txt' : 'seance.txt', TQ = TEST ? '&test=' + TEST : '';
-const lireTests = t => [{ id: '', nom: 'Affiche 1 · Bien vivre chez soi (test principal)' }, ...String(t || '').split(/\r?\n/).map(l => l.trim()).filter(l => l && l[0] !== '#')
+const lireTests = t => [{ id: '', nom: 'Carnet 1 · Bien vivre chez soi' }, ...String(t || '').split(/\r?\n/).map(l => l.trim()).filter(l => l && l[0] !== '#')
   .map(l => { const [id, nom] = l.split('|').map(x => x.trim()); return { id, nom: nom || id }; }).filter(x => /^[a-z0-9-]{1,40}$/.test(x.id))];
 const listeTests = () => Promise.all([ // ceux du Sheet, plus ceux de tests.txt (créés sur GitHub)
   fetch(SCRIPT_GOOGLE + '?vue=tests').then(x => x.json()).catch(() => []), fetch('tests.txt?' + Date.now()).then(x => x.ok ? x.text() : '').catch(() => '')
@@ -165,6 +165,9 @@ function declarerVersion() {
   fetch(SCRIPT_GOOGLE, { method: 'POST', mode: 'no-cors', body: JSON.stringify({ version: { id: VERSION, ecrans: ETAPES.length, questions: ETAPES.filter(e => e.id && e.t !== 'vote').length, texte: TEXTE.slice(0, 45000) } }) }).catch(() => { }); // le Sheet n'en garde pas plus (les images ajoutées alourdiraient l'envoi)
 }
 // les questions dans l'ordre, numérotées : sert au test papier, à la fiche réponse et à sa lecture
+// Une séance complète teste trois affiches : trois carnets qui se suivent, le test principal puis « affiche-2 » et « affiche-3 ».
+const CARNETS = ['', 'affiche-2', 'affiche-3'], NUM_CARNET = () => CARNETS.indexOf(TEST) + 1; // 0 : un test hors de cette séance
+const carnetSuivant = () => { const n = NUM_CARNET(); return n > 0 && n < 3 ? CARNETS[n] : null; }; // le nom-court du carnet d'après, ou rien après le troisième
 const QUESTIONS = () => { const rang = {}; return ETAPES.filter(e => e.id && e.t !== 'vote').map(e => ({ ...e, n: rang[e.p || 0] = (rang[e.p || 0] || 0) + 1 })); }; // numérotées de 1 à … dans chaque étape, comme sur le carnet papier
 
 // ---------- le compte de l'équipe : adresse et mot de passe, vérifiés par le script Google (onglet « Comptes » du Google Sheet) ----------

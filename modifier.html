@@ -219,7 +219,7 @@ dialog h3{margin:0 0 6px;font-size:24px;font-weight:800;letter-spacing:-.03em}
 <header>
   <a href="./" aria-label="Accueil" title="Accueil"><svg viewBox="0 0 24 24" width="1.6em" height="1.6em" fill="currentColor" aria-hidden="true"><path d="M12 3 2.5 11.2h2.7V21h5.3v-6h3v6h5.3v-9.8h2.7z"/></svg></a>
   <h1>Modifier le test<small>Ici, vous composez la séance que verront les participants.</small></h1>
-  <select class="btn clair" id="test" aria-label="Le test modifié"><option>Affiche 1 · Bien vivre chez soi (test principal)</option></select>
+  <select class="btn clair" id="test" aria-label="Le test modifié"><option>Carnet 1 · Bien vivre chez soi</option></select><span id="carnets" style="display:inline-flex;gap:6px;flex-wrap:wrap"></span>
   <a class="btn clair" id="lancer" href="./?passer" target="_blank" rel="noopener" title="Ouvre la vraie séance dans un autre onglet : grand écran, téléphones, réponses enregistrées. Pour un simple essai, utilisez « Essayer cette version ».">Démarrer la séance</a>
   <details class="plus" id="plus"><summary class="btn clair">Plus ▾</summary><div>
   <button class="btn clair" id="btnNouveau" title="Crée un test à part, avec son propre lien. Le test ouvert ne change pas.">+ Nouveau test</button>
@@ -278,7 +278,7 @@ dialog h3{margin:0 0 6px;font-size:24px;font-weight:800;letter-spacing:-.03em}
 const DEPOT = 'https://api.github.com/repos/augustinmarso/points-de-vue/contents/'; // lecture seule : la liste des affiches du site
 const NOMS = {}; // le nom de fichier des images ajoutées (une image ajoutée est gardée dans le test lui-même, sous forme de data:)
 const nomImage = s => /^data:/.test(s) ? NOMS[s] || 'Image ajoutée' : String(s).split('/').pop().replace(/\.[^.]+$/, '');
-let NOM = TEST ? TEST : 'Affiche 1 · Bien vivre chez soi (test principal)'; // le nom du test ouvert
+let NOM = TEST ? TEST : 'Carnet 1 · Bien vivre chez soi'; // le nom du test ouvert
 const h = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const $ = id => document.getElementById(id);
 let M = null, depart = '', sel = 0, images = [], cible = null; // cible = le champ d'affiche en cours de choix
@@ -868,6 +868,7 @@ $('creer').addEventListener('click', ev => { if (ev.target.closest('[data-a=ferm
 listeTests().then(l => {
   if (TEST && !l.some(x => x.id === TEST)) l.push({ id: TEST, nom: TEST });
   NOM = (l.find(x => x.id === TEST) || {}).nom || NOM;
+  $('carnets').innerHTML = CARNETS.every(id => l.some(x => x.id === id)) ? CARNETS.map((id, i) => `<a class="btn${id === TEST ? '' : ' clair'}" href="modifier.html${id ? '?test=' + id : ''}" ${id === TEST ? 'aria-current="page"' : ''} title="${h((l.find(x => x.id === id) || {}).nom || '')}">Carnet ${i + 1}</a>`).join('') : ''; // la séance à trois affiches : un bouton par carnet
   $('test').innerHTML = l.map(x => `<option value="${h(x.id)}" ${x.id === TEST ? 'selected' : ''}>${h(x.nom)}${x.quand ? ' · créé le ' + new Date(x.quand).toLocaleDateString('fr-FR') : ''}</option>`).join('') + '<option value="+">+ Nouveau test…</option>';
   // chaque test déjà créé est proposé comme modèle (le principal l'est déjà : « Notre structure »)
   $('gabarits').insertAdjacentHTML('beforeend', l.filter(x => x.id).map(x => `<button type="button" data-t="${h(x.id)}"><b>Copie de « ${h(x.nom)} »</b><span>${x.id === TEST ? 'Le test ouvert ici, avec vos modifications en cours : mêmes écrans, mêmes affiches, à changer ensuite.' : 'Un test déjà créé : mêmes écrans, mêmes affiches, à changer ensuite.'}</span></button>`).join(''));

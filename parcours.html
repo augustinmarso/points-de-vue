@@ -21,45 +21,54 @@ a{color:inherit;font-weight:700}
 .petit{font-size:16px;color:#6B6B6B}
 /* la pochette : un volet blanc, deux rabats de côté (rose, jaune) et un rabat rond bleu qui la ferme, comme la pochette A3 en papier */
 html,body{overflow-x:clip} /* les rabats ouverts dépassent sur les côtés : pas de défilement horizontal */
-.pochette{--l:min(74vw,300px);position:relative;width:var(--l);height:calc(var(--l)*1.402);margin:30px auto 0;perspective:1100px;cursor:pointer;transition:margin-bottom .9s cubic-bezier(.45,0,.2,1)}
+:root{--l:min(74vw,300px)}
+/* la bande : assez large pour les deux rabats ouverts à plat ; elle ne se fait glisser que pochette ouverte */
+.scene{overflow:hidden;margin:0 -20px;scrollbar-width:none}.scene::-webkit-scrollbar{display:none}.ouvert .scene{overflow-x:auto}
+.piste{width:max-content;padding:0 calc(var(--l)*.72) 26px calc(var(--l)*.81)}
+.pochette{position:relative;width:var(--l);height:calc(var(--l)*1.402);margin:30px 0 0;perspective:1100px;cursor:pointer;transition:margin-bottom .9s cubic-bezier(.45,0,.2,1)}
 .pochette::before{content:'';position:absolute;left:4%;right:4%;bottom:-10px;height:22px;border-radius:50%;background:rgba(20,20,20,.28);filter:blur(12px)} /* l'ombre portée sur la table */
 .pochette.ouverte{cursor:default;margin-bottom:calc(var(--l)*.47)}
 /* le grain du papier, posé sur chaque face */
 .papier{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .09 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23g)'/%3E%3C/svg%3E")}
-.interieur{position:absolute;inset:0;background-color:#fff;border-radius:3px;padding:9% 9% 0;overflow:hidden;box-shadow:inset 0 0 0 1px rgba(20,20,20,.06),inset 14px 0 14px -14px rgba(20,20,20,.22),inset -14px 0 14px -14px rgba(20,20,20,.22)} /* l'ombre des plis, à gauche et à droite */
-.interieur .sur{font-weight:800;font-size:14px;margin-bottom:8px}
-.interieur h1{font-size:calc(var(--l)*.098);margin-bottom:6px}
-.interieur p{font-size:calc(var(--l)*.048);line-height:1.25;margin:0}
+.interieur{position:absolute;inset:0;background-color:#fff;border-radius:3px;overflow:hidden;box-shadow:inset 0 0 0 1px rgba(20,20,20,.06),inset 14px 0 14px -14px rgba(20,20,20,.22),inset -14px 0 14px -14px rgba(20,20,20,.22)} /* l'ombre des plis, à gauche et à droite */
+.imprime{position:absolute;inset:0;display:block}.imprime svg{display:block;width:100%;height:100%} /* l'imprimé de l'intérieur, découpé volet par volet */
+[hidden]{display:none!important} /* les onglets et le flyer ont un « display » : sans cela ils resteraient visibles */
 /* les objets glissés dans la poche du bas : ils dépassent de la bande de papier */
-.objets{position:absolute;left:0;right:0;bottom:0;height:52%}
-.objet{position:absolute;bottom:9%;display:block;border-radius:2px;box-shadow:0 2px 5px rgba(20,20,20,.28);transition:transform .25s cubic-bezier(.45,0,.2,1);text-decoration:none;overflow:hidden;background-color:#fff}
+.objets{position:absolute;left:0;right:0;bottom:0;height:36%}
+.objet{position:absolute;bottom:-34%;display:block;border-radius:2px;box-shadow:0 2px 5px rgba(20,20,20,.28);transition:transform .25s cubic-bezier(.45,0,.2,1);text-decoration:none;overflow:hidden;background-color:#fff}
 .objet:hover,.objet:focus-visible{transform:translateY(-10%) rotate(var(--r,0deg))}
 .objet{transform:rotate(var(--r,0deg))}
 .objet.carnet{--r:-7deg;left:7%;width:30%;aspect-ratio:105/148;padding:8% 0 0 3.5%;font-size:calc(var(--l)*.047);font-weight:800;line-height:.9;letter-spacing:-.05em}
 .objet.flyer{--r:5deg;left:33%;width:33%;aspect-ratio:822/1150}.objet.flyer img{width:100%;height:100%;object-fit:cover;display:block}
 .objet.passeport{--r:-3deg;right:6%;width:27%;aspect-ratio:105/148;display:grid;place-items:start center;padding-top:5%}.objet.passeport svg{width:78%}
-.bande{position:absolute;left:0;right:0;bottom:0;height:24%;background-color:#fff;border-radius:50% 50% 0 0 / 34% 34% 0 0;box-shadow:0 -3px 8px rgba(20,20,20,.16)} /* la poche : une bande de papier arrondie, comme le dos du rond bleu */
-.logo{position:absolute;left:50%;bottom:5%;width:22%;aspect-ratio:1;margin-left:-11%;animation:tourne 14s linear infinite}
+.bande{position:absolute;left:0;right:0;bottom:0;height:30%;background-color:#fff;border-radius:50% 50% 0 0 / 34% 34% 0 0;box-shadow:0 -3px 8px rgba(20,20,20,.16)} /* la poche : une bande de papier arrondie, comme le dos du rond bleu */
+.logo{position:absolute;left:50%;bottom:3%;width:17%;aspect-ratio:1;margin-left:-8.5%;animation:tourne 14s linear infinite}
 .logo::after{content:'';position:absolute;left:46%;top:46%;width:8%;height:8%;border-radius:50%;background:radial-gradient(circle at 35% 30%,#F3DFA0,#B08A2E)} /* l'attache parisienne */
 @keyframes tourne{to{transform:rotate(360deg)}}
-/* les rabats : une face de couleur, un dos blanc ; ils restent dressés une fois ouverts */
+/* Les rabats, aux mesures de la pochette papier (volet central 582 × 816) :
+   - le jaune (462 de large) s'articule à gauche, le rose (409) à droite et passe par-dessus ; le rond bleu (269 de haut) ferme le bas ;
+   - leurs bords libres sont des arcs de grands cercles (rayons 680 et 500), d'où les deux formes qui se croisent ;
+   - là où le rose recouvre le jaune, il est imprimé en orange, comme sur le papier.
+   Chaque rabat a une face de couleur et un dos blanc, et reste dressé une fois ouvert. */
 .rabat{position:absolute;top:0;bottom:0;transform-style:preserve-3d;transition:transform 1s cubic-bezier(.45,0,.2,1)}
 .rabat b{position:absolute;inset:0;backface-visibility:hidden;display:block}
 .rabat .dos{background-color:#fff}
-.rabat.g{left:0;width:70%;transform-origin:left}.rabat.g b{border-radius:3px 0 0 3px}
-.rabat.g .face{background-color:var(--c1);box-shadow:inset 18px 0 16px -16px rgba(20,20,20,.3)}
-.rabat.g .dos{transform:rotateY(180deg);box-shadow:inset -18px 0 16px -16px rgba(20,20,20,.25)}
-.rabat.d{right:0;width:79%;transform-origin:right}.rabat.d b{border-radius:0 3px 3px 0}
-.rabat.d .face{background:linear-gradient(90deg,#EE7B30 62%,var(--c2) 62%);box-shadow:inset -18px 0 16px -16px rgba(20,20,20,.3),-3px 0 7px rgba(20,20,20,.2)} /* orange là où le jaune recouvre le rose */
-.rabat.d .dos{transform:rotateY(180deg);box-shadow:inset 18px 0 16px -16px rgba(20,20,20,.25)}
+.rabat.d{left:0;width:79.4%;transform-origin:left}
+.rabat.d .face{clip-path:ellipse(147.2% 83.3% at -47.2% 63.7%)}.rabat.d .dos{clip-path:ellipse(147.2% 83.3% at 147.2% 63.7%)}
+.rabat.d .face{background-color:var(--c2);box-shadow:inset 20px 0 18px -18px rgba(20,20,20,.3)}
+.rabat.d .dos{transform:rotateY(180deg);box-shadow:inset -20px 0 18px -18px rgba(20,20,20,.22)}
+.rabat.g{right:0;width:70.3%;transform-origin:right}
+.rabat.g .face{clip-path:ellipse(122.2% 61.3% at 122.2% 50%)}.rabat.g .dos{clip-path:ellipse(122.2% 61.3% at -22.2% 50%)}
+.rabat.g .face{background-color:var(--c1);box-shadow:inset -20px 0 18px -18px rgba(20,20,20,.3)}
+.rabat.g .face::before{content:'';position:absolute;inset:0;background:#EE7B30;clip-path:ellipse(166.3% 83.3% at -95.6% 75%)} /* la part du rond jaune imprimée sur le rose */
+.rabat.g .dos{transform:rotateY(180deg);box-shadow:inset 20px 0 18px -18px rgba(20,20,20,.22)}
 .rabat.b{top:auto;left:0;right:0;height:33%;transform-origin:bottom}.rabat.b b{border-radius:50% 50% 0 0 / 100% 100% 0 0}
-.rabat.b .face{background-color:var(--c3);box-shadow:0 -3px 8px rgba(20,20,20,.25)}
+.rabat.b .face{background-color:var(--c3)}
 .rabat.b .dos{transform:rotateX(180deg);box-shadow:inset 0 -16px 14px -14px rgba(20,20,20,.25)}
-.rabat i{position:absolute;display:flex;gap:16px}.rabat i::before,.rabat i::after{content:'';width:18px;height:18px;border-radius:50%;background:var(--n)}
-.rabat.g i{left:5%;top:24%;gap:10px}.rabat.g i::before,.rabat.g i::after{width:15px;height:15px}
-.rabat.d i{right:16%;top:52%}.rabat.b i{left:50%;top:48%;transform:translateX(-50%)}
-.rabat.g{transition-delay:0s}.rabat.d{transition-delay:.2s}.rabat.b{transition-delay:.45s} /* pour refermer : rose, jaune, puis le rond bleu par-dessus */
-.ouverte .rabat.b{transform:rotateX(-180deg);transition-delay:0s}.ouverte .rabat.d{transform:rotateY(103deg);transition-delay:.3s}.ouverte .rabat.g{transform:rotateY(-103deg);transition-delay:.55s}
+.rabat i{position:absolute;display:flex;gap:calc(var(--l)*.034)}.rabat i::before,.rabat i::after{content:'';width:calc(var(--l)*.045);height:calc(var(--l)*.045);border-radius:50%;background:var(--n)}
+.rabat.g i{left:50.9%;top:25.5%}.rabat.d i{left:35.1%;top:72.5%}.rabat.b i{left:43.8%;top:29.4%}
+.rabat.d{transition-delay:0s}.rabat.g{transition-delay:.2s}.rabat.b{transition-delay:.45s} /* pour refermer : le jaune, le rose par-dessus, puis le rond bleu */
+.ouverte .rabat.b{transform:rotateX(-180deg);transition-delay:0s}.ouverte .rabat.g{transform:rotateY(180deg);transition-delay:.3s}.ouverte .rabat.d{transform:rotateY(-180deg);transition-delay:.55s}
 .invite{text-align:center;font-weight:800;margin-top:22px}
 .suite{display:none}.ouvert .suite{display:block}.ouvert .invite{display:none}
 .objetsNoms{font-size:16px;color:#6B6B6B;text-align:center;margin-top:14px}
@@ -91,11 +100,10 @@ html,body{overflow-x:clip} /* les rabats ouverts dépassent sur les côtés : pa
   <button class="retour" onclick="history.length > 1 ? history.back() : location.href = './'">← Retour</button>
   <a href="./" aria-label="Accueil" title="Accueil" style="color:inherit;float:right"><svg viewBox="0 0 24 24" width="1.6em" height="1.6em" fill="currentColor" aria-hidden="true"><path d="M12 3 2.5 11.2h2.7V21h5.3v-6h3v6h5.3v-9.8h2.7z"/></svg></a>
 
+  <div class="scene" id="scene"><div class="piste">
   <div class="pochette" id="pochette" role="button" tabindex="0" aria-expanded="false" aria-label="Ouvrir la pochette Points de vue">
     <div class="interieur papier">
-      <p class="sur">Points de vue</p>
-      <h1>Votre avis change l'affiche.</h1>
-      <p>Le groupe d'habitants qui teste les affiches de santé de Granville Terre et Mer.</p>
+      <span class="imprime" data-vue="503 19 582 816"></span>
       <div class="objets">
         <a class="objet carnet papier" href="./?passer=tel" aria-label="Le carnet de test : répondre sur ce téléphone">Points<br>de vue</a>
         <a class="objet flyer" href="affiches/origine.jpg" aria-label="Le flyer, à regarder"><img src="affiches/origine.jpg" alt=""></a>
@@ -104,14 +112,15 @@ html,body{overflow-x:clip} /* les rabats ouverts dépassent sur les côtés : pa
         <svg class="logo" viewBox="0 0 100 100" aria-hidden="true"><g style="isolation:isolate"><circle cx="40" cy="52" r="33" fill="#F5A0C6" style="mix-blend-mode:multiply"/><circle cx="68" cy="34" r="23" fill="#F7C33B" style="mix-blend-mode:multiply"/><circle cx="64" cy="72" r="18" fill="#1F6FE0" style="mix-blend-mode:multiply"/></g><circle cx="30" cy="46" r="3" fill="#141414"/><circle cx="40" cy="44" r="3" fill="#141414"/><circle cx="70" cy="28" r="2.3" fill="#141414"/><circle cx="77" cy="30" r="2.3" fill="#141414"/><circle cx="60" cy="76" r="2" fill="#141414"/><circle cx="67" cy="76" r="2" fill="#141414"/></svg>
       </div>
     </div>
-    <span class="rabat g" aria-hidden="true"><b class="face papier"><i></i></b><b class="dos papier"></b></span>
-    <span class="rabat d" aria-hidden="true"><b class="face papier"><i></i></b><b class="dos papier"></b></span>
+    <span class="rabat d" aria-hidden="true"><b class="face papier"><i></i></b><b class="dos papier"><span class="imprime" data-vue="41 19 462 816"></span></b></span>
+    <span class="rabat g" aria-hidden="true"><b class="face papier"><i></i></b><b class="dos papier"><span class="imprime" data-vue="1085 19 409 816"></span></b></span>
     <span class="rabat b" aria-hidden="true"><b class="face papier"><i></i></b><b class="dos papier"></b></span>
   </div>
+  </div></div>
   <p class="invite">Touchez la pochette pour l'ouvrir</p>
 
   <section class="suite">
-    <p class="objetsNoms">Dans la poche : le carnet de test, le flyer, le passeport et le petit logo animé. Touchez-les.</p>
+    <p class="objetsNoms">Glissez vers la gauche ou la droite pour voir l'intérieur des rabats. Dans la poche : le carnet de test, le flyer, le passeport et le petit logo animé. Touchez-les.</p>
     <h2 id="parcours">Votre parcours en 6 étapes</h2>
     <p>Une séance tous les deux mois, un jeudi soir.</p>
     <p class="petit">Touchez une étape quand vous l'avez faite : c'est votre passeport.</p>
@@ -120,7 +129,7 @@ html,body{overflow-x:clip} /* les rabats ouverts dépassent sur les côtés : pa
     <p style="margin-top:26px"><button class="retour" id="refermer">Refermer la pochette</button></p>
   </section>
 </main>
-<div class="dedans" id="dedans" hidden><iframe id="carnet" title="Le carnet de test" hidden></iframe><div class="flyerVue" id="flyer" hidden><img alt="Le flyer : l'affiche testée"></div></div>
+<div class="dedans" id="dedans" hidden><iframe id="carnet" title="Le carnet de test" hidden></iframe><div class="flyerVue" id="flyer" hidden><figure style="margin:0;height:100%;display:flex;flex-direction:column;gap:10px;align-items:center;justify-content:center"><img alt="Le flyer : l'affiche testée" style="min-height:0;flex:0 1 auto"><figcaption style="font-weight:800;font-size:16px">Le flyer : l'affiche que vous testez</figcaption></figure></div></div>
 <nav class="onglets" id="onglets" hidden aria-label="Dans la pochette">
   <button type="button" data-v="carnet" style="--c:var(--c1)">Le carnet</button><button type="button" data-v="flyer" style="--c:var(--c2)">Le flyer</button><button type="button" data-v="passeport" style="--c:var(--c3)">Le passeport</button><button type="button" data-v="pochette" style="--c:var(--n)">La pochette</button>
 </nav>
@@ -143,10 +152,35 @@ const dessiner = () => liste.innerHTML = ETAPES.map(([date, niveau], k) => `<li>
 liste.addEventListener('click', ev => { const b = ev.target.closest('[data-k]'); if (!b) return; const k = +b.dataset.k;
   faites = faites.includes(k) ? faites.filter(x => x !== k) : [...faites, k]; try { localStorage.setItem('pdvParcours', JSON.stringify(faites)); } catch (e) { /* stockage refusé : la coche tient jusqu'à la fermeture de la page */ }
   dessiner(); liste.querySelector(`[data-k="${k}"]`).focus(); });
-dessiner();
+dessiner(); document.querySelector('.interieur').inert = true;
+// L'imprimé de l'intérieur, aux positions du fichier papier (en pixels de la planche A3 : volet central de x = 503 à 1085, y = 19 à 835).
+// Chaque volet en montre sa part : le rabat jaune (à gauche), le volet central, le rabat rose (à droite).
+const T = (x, y, t, taille, gras = 800, plus = '') => `<text x="${x}" y="${y}" font-size="${taille}" font-weight="${gras}" ${plus}>${t}</text>`;
+const lignes = (x, y, pas, l, taille, gras, plus) => l.map((t, i) => T(x, y + i * pas, t, taille, gras, plus)).join('');
+const PAS = [240, 462, 685, 907, 1130, 1352], COUL = ['#F5A0C6', '#F5A0C6', '#F7C33B', '#F7C33B', '#1F6FE0', '#1F6FE0'];
+const IMPRIME = `<g font-family="'Scoutie Sans',Helvetica,Arial,sans-serif" fill="#141414">
+  ${lignes(244, 228, 35, ['Votre avis', 'change', "l'affiche."], 36, 800, 'letter-spacing="-1.4"')}
+  ${lignes(174, 424, 26, ['Votre parcours', 'en 6 étapes'], 26, 800, 'letter-spacing="-.8"')}${lignes(174, 480, 18, ['Une séance tous les deux mois,', 'un jeudi soir.'], 14, 400)}
+  ${T(551, 108, 'Points de vue', 56, 800, 'letter-spacing="-2.8"')}${lignes(551, 145, 22.5, ["Le groupe d'habitants qui teste les affiches de santé", 'de Granville Terre et Mer.'], 18, 700)}
+  ${T(551, 211, 'Dans cette pochette', 24, 800, 'letter-spacing="-.7"')}
+  ${[['Le carnet de test, au format A6,', 'avec une surprise.'], ['Flyer à regarder, au format A5.'], ['Le petit logo animé, déjà monté', 'sur son attache parisienne.'], ['Le passeport : un sticker à coller', 'à chaque étape.'], ['Un stylo suffit : on noircit un rond', 'par question.']]
+    .reduce((a, l) => { a.h += `<circle cx="554" cy="${a.y - 5}" r="3"/><circle cx="563" cy="${a.y - 5}" r="3"/>` + lignes(572, a.y, 18, l, 14, 400); a.y += l.length * 18 + 6; return a; }, { h: '', y: 242 }).h}
+  ${lignes(849, 220, 18, ["Il n'y a pas de bonne ou de", 'mauvaise réponse. Si quelque', "chose n'est pas clair, c'est", "l'affiche qui est en cause,", 'pas vous.'], 14, 700)}
+  ${lignes(794, 702, 16, ['Le bas de ce volet est caché par le rond bleu une fois replié :', 'le carnet, le flyer, le passeport et le logo animé se glissent ici.'], 12, 400, 'text-anchor="middle" fill="#6B6B6B"')}
+  <g transform="translate(1135 139) scale(1.1)"><circle cx="100" cy="100" r="99"/><circle cx="100" cy="100" r="64" fill="#fff"/><g style="isolation:isolate"><circle cx="75" cy="92" r="50" fill="#F5A0C6" style="mix-blend-mode:multiply"/><circle cx="135" cy="62" r="35" fill="#F7C33B" style="mix-blend-mode:multiply"/><circle cx="115" cy="138" r="28" fill="#1F6FE0" style="mix-blend-mode:multiply"/></g><circle cx="55.25" cy="79.25" r="4.25"/><circle cx="70.25" cy="76.25" r="4.25"/><circle cx="141.25" cy="47.25" r="3.25"/><circle cx="153.25" cy="49.75" r="3.25"/><circle cx="110.25" cy="146.25" r="2.75"/><circle cx="120.25" cy="146.25" r="2.75"/><path id="tourPochette" d="M21 100a79 79 0 1 1 158 0a79 79 0 1 1-158 0" fill="none"/><text font-size="11.5" font-weight="800" fill="#f3efe6"><textPath href="#tourPochette" textLength="490" lengthAdjust="spacing">· CO-TESTÉ PAR DES HABITANTS · GRANVILLE TERRE ET MER</textPath></text></g>
+  ${PAS.slice(0, 5).map(x => [13, 10, 8, 6, 4, 6, 8, 10, 13].map((d, i) => `<circle cx="${x + 45 + [0, 16, 32, 48, 64, 78, 92, 106, 120][i] + d / 2}" cy="600.5" r="${d / 2}" fill="#B8B8B8"/>`).join('')).join('')}
+  ${PAS.map((x, k) => `<circle cx="${x}" cy="600" r="${12 + k * 2.4}" fill="${COUL[k]}"/><circle cx="${x - 4}" cy="597" r="${1.6 + k * .25}"/><circle cx="${x + 3}" cy="597" r="${1.6 + k * .25}"/>`
+    + T(x, k % 2 ? 658 : 550, ETAPES[k][0], 13, 800, 'text-anchor="middle"') + `<text x="${x}" y="${k % 2 ? 556 : 656}" font-size="12" text-anchor="middle"><tspan font-weight="800">Étape ${k + 1}</tspan> · ${ETAPES[k][1]}</text>`).join('')}
+</g>`;
+document.querySelectorAll('.imprime').forEach(el => el.innerHTML = `<svg viewBox="${el.dataset.vue}" preserveAspectRatio="none" role="img" aria-label="L'intérieur de la pochette">${IMPRIME.replace(/tourPochette/g, 'tour' + el.dataset.vue.split(' ')[0])}</svg>`);
+// la bande reste centrée sur le volet central tant qu'on ne l'a pas fait glisser
+const scene = document.getElementById('scene'), centrer = (doux) => scene.scrollTo({ left: pochette.offsetLeft - scene.offsetLeft - (scene.clientWidth - pochette.offsetWidth) / 2, behavior: doux ? 'smooth' : 'auto' });
+centrer(); addEventListener('resize', () => centrer()); if (document.fonts) document.fonts.ready.then(() => centrer());
 document.getElementById('passeport').innerHTML = badge(Math.min(5, faites.length)); // sur la carte du passeport : le badge de la prochaine étape
 // ouvrir et refermer : le rond bleu d'abord, puis le jaune, puis le rose (l'ordre inverse du pliage)
-const ouvrir = oui => { pochette.classList.toggle('ouverte', oui); page.classList.toggle('ouvert', oui); pochette.setAttribute('aria-expanded', oui); pochette.setAttribute('aria-label', oui ? 'La pochette Points de vue, ouverte' : 'Ouvrir la pochette Points de vue'); };
+const ouvrir = oui => { document.querySelector('.interieur').inert = !oui; pochette.classList.toggle('ouverte', oui); page.classList.toggle('ouvert', oui); pochette.setAttribute('aria-expanded', oui); centrer(true); pochette.setAttribute('aria-label', oui ? 'La pochette Points de vue, ouverte' : 'Ouvrir la pochette Points de vue');
+  const o = document.getElementById('onglets'); o.hidden = !oui; page.classList.toggle('avecOnglets', oui); if (oui && !o.querySelector('[aria-pressed=true]')) o.querySelector('[data-v=pochette]').setAttribute('aria-pressed', true);
+  if (!oui) { document.getElementById('dedans').hidden = true; } };
 pochette.addEventListener('click', ev => { if (!pochette.classList.contains('ouverte')) { ev.preventDefault(); ouvrir(true); } }); // fermée : le toucher l'ouvre, sans suivre un lien caché dessous
 pochette.addEventListener('keydown', ev => { if ((ev.key === 'Enter' || ev.key === ' ') && ev.target === pochette) { ev.preventDefault(); ouvrir(true); } });
 // Le test se passe dans la pochette : le carnet s'ouvre par-dessus, dans un cadre, et les onglets du bas mènent aux autres objets à tout moment.
@@ -166,7 +200,7 @@ function montrer(v) {
 onglets.addEventListener('click', ev => { const b = ev.target.closest('[data-v]'); if (b) montrer(b.dataset.v); });
 document.querySelector('.objets').addEventListener('click', ev => { const o = ev.target.closest('.objet'); if (!o || !pochette.classList.contains('ouverte')) return; ev.preventDefault(); montrer(o.classList.contains('carnet') ? 'carnet' : o.classList.contains('flyer') ? 'flyer' : 'passeport'); });
 if (ARRIVEE) { ouvrir(true); setTimeout(() => montrer('carnet'), 1700); } // la pochette s'ouvre et le carnet sort tout seul
-document.getElementById('refermer').addEventListener('click', () => { ouvrir(false); pochette.scrollIntoView({ behavior: 'smooth', block: 'center' }); pochette.focus(); });
+document.getElementById('refermer').addEventListener('click', () => { onglets.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', b.dataset.v === 'pochette')); ouvrir(false); pochette.scrollIntoView({ behavior: 'smooth', block: 'center' }); pochette.focus(); });
 </script>
 </body>
 </html>
