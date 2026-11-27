@@ -175,7 +175,7 @@ textarea.champ{min-height:150px;resize:none}
 .droite img,.flash img{max-height:100%;max-width:calc(36vw*var(--ka,1));border-radius:1.5vw;display:block}
 .droite.deux img{max-width:calc(25vw*var(--ka,1))}.droite.n3 img{max-width:calc(18vw*var(--ka,1))}.droite.n4 img{max-width:calc(14vw*var(--ka,1))}
 /* les logos : en bas à droite, sur l'accueil et la fin seulement (rien d'autre n'occupe ce coin sur ces deux écrans) */
-.logosG{position:fixed;right:4vw;bottom:4vh;display:none;gap:2vw;align-items:center;z-index:1;pointer-events:none}.logosG img{height:8vh;max-width:18vw;object-fit:contain}html.logos .logosG{display:flex}
+.logosG{position:fixed;right:4vw;bottom:4vh;display:none;gap:2vw;align-items:center;z-index:1;pointer-events:none}.logosG img{height:8vh;max-width:18vw;object-fit:contain}.logosG img:only-child{height:15vh;max-width:30vw}/* un logo seul (souvent un bloc de plusieurs partenaires) : plus grand, pour rester lisible */html.logos .logosG{display:flex}
 .droite figure{font-size:1.2em;cursor:zoom-in}
 .droite figure.zoom{position:fixed;inset:0;z-index:6;background:#fff;align-items:center;padding:3vh;cursor:zoom-out;height:auto}.droite figure.zoom img{max-width:92vw;max-height:88vh}
 .droite figure img{min-height:0;flex:0 1 auto;max-height:calc(100% - 2.4em)}

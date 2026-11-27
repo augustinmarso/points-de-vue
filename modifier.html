@@ -741,7 +741,7 @@ async function enregistrer() {
 $('enregistrer').addEventListener('click', enregistrer);
 $('annuler').addEventListener('click', annuler);
 // les logos : ceux du dossier « logos » du site, plus ceux ajoutés depuis cet ordinateur (gardés dans le test, comme les affiches ajoutées)
-const LOGOS_SITE = ['logos/granville-terre-et-mer.svg', 'logos/points-de-vue.svg', 'logos/ensaama.svg'];
+const LOGOS_SITE = ['logos/contrat-local-de-sante.webp', 'logos/granville-terre-et-mer.svg','logos/points-de-vue.svg', 'logos/ensaama.svg'];
 function choixLogos() {
   $('choixLogos').innerHTML = [...new Set([...LOGOS_SITE, ...M.logos])].map(s => `<button type="button" data-logo="${h(s)}" aria-pressed="${M.logos.includes(s)}"><img src="${h(s)}" alt="">${h(nomImage(s))}</button>`).join('');
 }
