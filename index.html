@@ -45,10 +45,9 @@ p{margin:0}
 
 /* accueil du site */
 .site{min-height:100vh;min-height:100dvh;max-width:1100px;margin:0 auto;padding:26vh 22px 60px;display:flex;flex-direction:column;gap:18px}
-.site{position:relative}.site>*:not(.dessin){position:relative;z-index:1} /* le logo dessiné à la main, détouré, en très grand derrière le titre et les boutons */
-.site .dessin{position:absolute;z-index:0;top:calc(26vh - 258px);right:-8%;width:620px;height:auto;overflow:visible;pointer-events:none}
-.site .trois a:not(:hover):not(:focus-visible){background:rgba(255,255,255,.8)} /* les boutons laissent deviner le logo derrière eux */
-@media (max-width:760px){.site .dessin{top:calc(24vh - 168px);right:-3vw;width:calc(100vw - 30px)}} /* le nom « Points de vue » reste au-dessus du texte, les ronds passent derrière */
+/* le logo dessiné à la main, détouré : tout à droite, entier, rien ne passe dessus. Sur ordinateur le texte et les boutons lui laissent sa colonne ; sur téléphone il se pose au-dessus, à droite */
+.site{position:relative}.site .dessin{position:absolute;top:calc(26vh - 150px);right:0;width:min(34%,400px);height:auto;overflow:visible;pointer-events:none}.site>*:not(.dessin){margin-right:min(37%,430px)}
+@media (max-width:760px){.site .dessin{position:static;align-self:flex-end;width:min(78vw,340px);margin:-20vh -8px -2vh 0}.site>*:not(.dessin){margin-right:0}}
 /* les ronds flottent doucement, chacun à son rythme, comme les ronds du grand écran ; leurs yeux regardent à gauche, puis à droite */
 .dessin g[class^=r-]{transform-box:fill-box;transform-origin:center;animation:flotte-dessin 3.8s ease-in-out infinite alternate}.dessin .r-jaune{animation-duration:4.5s;animation-delay:-1.6s}.dessin .r-bleu{animation-duration:3.3s;animation-delay:-.8s}
 .dessin .yeux{animation:regarde 7s ease-in-out infinite}.dessin .cligne{transform-box:view-box;animation:cligne 4.3s infinite}.dessin .r-jaune .cligne{animation-duration:5.6s;animation-delay:-2s}.dessin .r-bleu .cligne{animation-duration:3.7s;animation-delay:-1s}
