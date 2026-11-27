@@ -30,7 +30,7 @@ html,body{overflow-x:clip} /* les rabats ouverts dépassent sur les côtés : pa
 .pochette.ouverte{cursor:default;margin-bottom:calc(var(--l)*.47)}
 /* le grain du papier, posé sur chaque face */
 .papier{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .09 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23g)'/%3E%3C/svg%3E")}
-.interieur{position:absolute;inset:0;background-color:#fff;border-radius:3px;overflow:hidden;box-shadow:inset 0 0 0 1px rgba(43,27,18,.06),inset 14px 0 14px -14px rgba(43,27,18,.22),inset -14px 0 14px -14px rgba(43,27,18,.22)} /* l'ombre des plis, à gauche et à droite */
+.interieur{position:absolute;inset:0;background-color:#fff;border-radius:4px;overflow:hidden;box-shadow:inset 0 0 0 1px rgba(43,27,18,.06),inset 14px 0 14px -14px rgba(43,27,18,.22),inset -14px 0 14px -14px rgba(43,27,18,.22)} /* l'ombre des plis, à gauche et à droite */
 .imprime{position:absolute;inset:0;display:block}.imprime svg{display:block;width:100%;height:100%} /* l'imprimé de l'intérieur, découpé volet par volet */
 [hidden]{display:none!important} /* les onglets et le flyer ont un « display » : sans cela ils resteraient visibles */
 /* Les rabats, aux mesures de la pochette papier (volet central 582 × 816) :
@@ -65,12 +65,12 @@ html,body{overflow-x:clip} /* les rabats ouverts dépassent sur les côtés : pa
 @keyframes arrive{from{opacity:0;transform:translateY(12px)}}
 /* un prospectus regardé en grand, par-dessus le test (qui continue dessous) */
 .grand{position:fixed;inset:0 0 86px 0;z-index:7;background:var(--fond);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:16px}
-.grand img{min-height:0;flex:0 1 auto;max-width:100%;border-radius:6px;box-shadow:0 6px 18px rgba(43,27,18,.22)}
+.grand img{min-height:0;flex:0 1 auto;max-width:100%;border-radius:4px;box-shadow:0 6px 18px rgba(43,27,18,.22)}
 .grand b{font-size:18px;text-align:center}
 .grand button{font:inherit;font-weight:800;border:0;border-radius:99px;background:var(--n);color:#fff;padding:.7em 1.4em;min-height:44px;cursor:pointer}
 /* le chemin : les trois prospectus de la séance, reliés ; celui qu'on teste est cerclé, ceux qui sont faits sont cochés */
-.chemin{position:fixed;left:0;right:0;bottom:0;height:86px;z-index:8;display:flex;align-items:center;justify-content:center;padding:0 22px;background:#fff;box-shadow:0 -3px 10px rgba(43,27,18,.14);border-radius:22px 22px 0 0}
-.chemin button{position:relative;flex:none;width:44px;height:62px;padding:0;border:0;border-radius:8px;background:#fff center/cover no-repeat;cursor:pointer;box-shadow:0 1px 4px rgba(43,27,18,.3);transition:transform .25s,filter .25s,opacity .25s}
+.chemin{position:fixed;left:0;right:0;bottom:0;height:86px;z-index:8;display:flex;align-items:center;justify-content:center;padding:0 22px;background:#fff;box-shadow:0 -3px 10px rgba(43,27,18,.14);border-radius:28px 28px 0 0}
+.chemin button{position:relative;flex:none;width:44px;height:62px;padding:0;border:0;border-radius:14px;background:#fff center/cover no-repeat;cursor:pointer;box-shadow:0 1px 4px rgba(43,27,18,.3);transition:transform .25s,filter .25s,opacity .25s}
 .chemin button.avenir{filter:grayscale(1);opacity:.45}
 .chemin button.ici{transform:scale(1.14);box-shadow:0 0 0 3px #fff,0 0 0 6px var(--n)}
 .chemin button.fait::after{content:'';position:absolute;right:-7px;top:-7px;width:20px;height:20px;border-radius:50%;background:var(--n) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M9.500 17 5 12.500l1.800-1.800 2.700 2.700 7-7.200 1.800 1.800z' fill='%23fff'/%3E%3C/svg%3E") center/16px no-repeat;box-shadow:0 0 0 2px #fff}

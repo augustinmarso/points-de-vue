@@ -4,7 +4,15 @@
 <meta charset="utf-8">
 <link rel="preconnect" href="https://script.google.com">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Points de vue · séance</title>
+<title>Points de vue · faites tester vos affiches par des habitants</title>
+<meta name="description" content="Des habitants de Granville Terre et Mer testent les affiches de santé pour les rendre plus claires. Passer le test, le modifier, étudier les réponses.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Points de vue">
+<meta property="og:description" content="Des habitants testent les affiches de santé pour les rendre plus claires.">
+<meta property="og:url" content="https://augustinmarso.github.io/points-de-vue/">
+<meta property="og:image" content="https://augustinmarso.github.io/points-de-vue/partage.png">
+<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'><rect width='120' height='120' fill='%23fff'/><g style='mix-blend-mode:multiply'><circle cx='44' cy='50' r='40' fill='%23F5A0C6'/></g><g style='mix-blend-mode:multiply'><circle cx='86' cy='42' r='28' fill='%23F7C33B'/></g><g style='mix-blend-mode:multiply'><circle cx='74' cy='82' r='22' fill='%231F6FE0'/></g><circle cx='22' cy='40' r='3.6' fill='%232B1B12'/><circle cx='34' cy='38' r='3.6' fill='%232B1B12'/><circle cx='93' cy='28' r='2.9' fill='%232B1B12'/><circle cx='103' cy='30' r='2.9' fill='%232B1B12'/><circle cx='73' cy='95' r='2.4' fill='%232B1B12'/><circle cx='81' cy='95' r='2.4' fill='%232B1B12'/></svg>">
 <link rel="apple-touch-icon" href="icone.png">
 <link rel="manifest" href="manifest.webmanifest">
@@ -13,7 +21,7 @@
 <style>@font-face{font-family:'Scoutie Sans';font-weight:200 800;font-display:swap;src:url(polices/scoutie.woff2) format('woff2')}</style>
 <style>
 /* le bloc « L'appli Points de vue » de l'accueil : le logo, deux boutons */
-.appli{display:flex;gap:16px;align-items:flex-start;margin-top:22px;padding:18px;border-radius:22px;background:#F4EFEA;text-align:left}.appli[hidden]{display:none}.appli img{flex:none;border-radius:16px;background:#fff}
+.appli{display:flex;gap:16px;align-items:flex-start;margin-top:22px;padding:18px;border-radius:28px;background:#F4EFEA;text-align:left}.appli[hidden]{display:none}.appli img{flex:none;border-radius:14px;background:#fff}
 .appli b{display:block;font-size:20px;font-weight:800}.appli span{display:block;margin-top:2px;font-size:15px}.appli p{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 0}
 .appli button,.appli a{font:inherit;font-weight:700;font-size:15px;border:0;border-radius:99px;padding:10px 18px;cursor:pointer;text-decoration:none;background:#2B1B12;color:#fff}.appli a{background:#fff;color:#2B1B12}.appli button[hidden],.appli a[hidden]{display:none}
 :root{--n:#2B1B12;--c1:#F5A0C6;--c2:#F7C33B;--c3:#1F6FE0;--c4:#7BD3A8;--c5:#B79CF2;--c6:#FF9A6B;--t1:#FDE7F1;--t2:#FDF0CC;--t3:#DCE9FB;--t4:#DDF4E8;--t5:#EBE3FB;--t6:#FFE4D6;--c:var(--c1);--t:var(--t1)}
@@ -58,7 +66,7 @@ p{margin:0}
 @media (prefers-reduced-motion:reduce){.dessin g[class^=r-],.dessin .yeux,.dessin .cligne{animation:none}}
 .site h1{font-size:clamp(44px,7vw,92px)}
 .trois{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:18px}
-.trois a{background:var(--t);color:var(--n);text-decoration:none;border-radius:32px;padding:26px 24px 30px;display:flex;flex-direction:column;gap:10px;min-height:250px;transition:transform .2s cubic-bezier(.45,0,.2,1),background .2s}
+.trois a{background:var(--t);color:var(--n);text-decoration:none;border-radius:28px;padding:26px 24px 30px;display:flex;flex-direction:column;gap:10px;min-height:250px;transition:transform .2s cubic-bezier(.45,0,.2,1),background .2s}
 .trois a:hover,.trois a:focus-visible{transform:translateY(-4px);outline:3px solid var(--n);outline-offset:3px}
 .trois .tete{font-size:64px;margin-bottom:auto}
 .trois .yeux{font-size:1em;gap:.08em}.trois .yeux i{width:.13em;height:.13em}
@@ -82,7 +90,7 @@ body.fondtel,body.fondtel #fond{background:var(--t)}body.fondtel .opt:not(.on),b
 .tel.fixe .haut{height:21vh}
 .tel.fixe h1{font-size:46px}
 .tel.fixe p{font-size:18px}
-.tel .btn{display:block;width:100%;min-height:64px;font-size:22px;border-radius:32px;transition:transform .15s}
+.tel .btn{display:block;width:100%;min-height:64px;font-size:22px;border-radius:28px;transition:transform .15s}
 .tel .btn:active{transform:scale(.97)}
 .tel .lab{font-weight:800;font-size:20px;margin:6px 0 -6px;display:block}
 .tel .champ{min-height:64px;font-weight:700}
@@ -92,7 +100,7 @@ body.fondtel,body.fondtel #fond{background:var(--t)}body.fondtel .opt:not(.on),b
 .tel small{font-weight:400;font-size:.75em}
 .opts{display:flex;flex-direction:column;gap:12px}
 .opts.img{display:grid;grid-template-columns:1fr 1fr;gap:10px}.opts.img .opt{flex-direction:column;align-items:stretch;justify-content:flex-start;padding:8px 8px 12px;text-align:center;font-size:17px;line-height:1.1;position:relative;min-height:0} /* des réponses en images (les lieux) */
-.opts.img img{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:20px;display:block}.opts.img .tete{position:absolute;top:16px;right:16px}
+.opts.img img{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:28px;display:block}.opts.img .tete{position:absolute;top:16px;right:16px}
 .opt{background:var(--t);border-radius:28px;padding:18px 22px;font-size:22px;font-weight:700;text-align:left;display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:68px;transition:background .25s,transform .15s}
 .opt:active{transform:scale(.97)}
 .opt.on{background:var(--c)} body.p3 .opt.on{color:#fff}
@@ -103,11 +111,11 @@ body.fondtel,body.fondtel #fond{background:var(--t)}body.fondtel .opt:not(.on),b
 .chrono{display:inline-block;flex:none;width:1em;height:1em;border-radius:50%;background:conic-gradient(var(--n) var(--ch),transparent 0);box-shadow:inset 0 0 0 .12em var(--n);animation:chrono linear forwards;vertical-align:middle}
 .age{display:flex;flex-direction:column;gap:2px}.age output{font-weight:800;font-size:40px;line-height:1;letter-spacing:-.04em}.age output.vide{font-size:20px;font-weight:400;letter-spacing:0;line-height:2}
 .age input{-webkit-appearance:none;appearance:none;width:100%;height:52px;margin:0;background:none;cursor:pointer;touch-action:pan-y}
-.age input::-webkit-slider-runnable-track{height:6px;border-radius:3px;background:linear-gradient(to right,var(--n) calc(var(--v,.5)*100%),rgba(43,27,18,.14) 0)} /* curseur léger : trait fin, bouton sans contour */
-.age input::-moz-range-track{height:6px;border-radius:3px;background:rgba(43,27,18,.14)}.age input::-moz-range-progress{height:6px;border-radius:3px;background:var(--n)}
+.age input::-webkit-slider-runnable-track{height:6px;border-radius:4px;background:linear-gradient(to right,var(--n) calc(var(--v,.5)*100%),rgba(43,27,18,.14) 0)} /* curseur léger : trait fin, bouton sans contour */
+.age input::-moz-range-track{height:6px;border-radius:4px;background:rgba(43,27,18,.14)}.age input::-moz-range-progress{height:6px;border-radius:4px;background:var(--n)}
 .age input::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;margin-top:-11px;border-radius:50%;background:var(--c);border:0;transition:transform .15s}
 .age input::-moz-range-thumb{width:28px;height:28px;border-radius:50%;background:var(--c);border:0;transition:transform .15s}
-.age input:active::-webkit-slider-thumb{transform:scale(1.2)}.age input:active::-moz-range-thumb{transform:scale(1.2)}.age input:focus-visible{outline:3px solid var(--c3);outline-offset:3px;border-radius:12px}
+.age input:active::-webkit-slider-thumb{transform:scale(1.2)}.age input:active::-moz-range-thumb{transform:scale(1.2)}.age input:focus-visible{outline:3px solid var(--c3);outline-offset:3px;border-radius:14px}
 textarea.champ{min-height:150px;resize:none}
 .echelle{display:flex;align-items:center;justify-content:space-between}
 .echelle>*{width:1em;height:1em;position:relative;border-radius:50%;background:var(--t);transition:background .25s} /* une note : cinq ronds pleins à yeux gris, sans contour, grands aux deux bouts, petit au milieu */
@@ -128,7 +136,7 @@ textarea.champ{min-height:150px;resize:none}
 #statut:empty{display:none}
 .apercu{width:100%;border-radius:28px;display:block}
 /* en ligne, chez soi : les affiches sont sur la page, on les touche pour les agrandir */
-.tel .zones{display:block;margin:4px 0 4px 30px}.tel .zones img{width:100%;border-radius:20px}.tel .z{border-radius:12px}.tel .z b{border-radius:10px 0 0 10px;font-size:15px}
+.tel .zones{display:block;margin:4px 0 4px 30px}.tel .zones img{width:100%;border-radius:28px}.tel .z{border-radius:14px}.tel .z b{border-radius:14px 0 0 14px;font-size:15px}
 .droite .zones img{max-height:calc(74vh*var(--ka,1))}.droite .z{border-width:.25vw;border-radius:.8vw;cursor:inherit}.droite .z b{border-radius:.8vw 0 0 .8vw;font-size:1.3vw;top:-.25vw;white-space:nowrap}
 .vue .zones{display:block}.vue .zones img{max-height:none}.droite .vz{width:min(calc(36vw*var(--ka,1)),calc(72vh*var(--ka,1)*var(--r)))}
 .vue{display:flex;gap:12px}.vue figure{position:relative}
@@ -143,7 +151,7 @@ textarea.champ{min-height:150px;resize:none}
 .vue.pile{flex-direction:column}.vue.pile figure{flex:none;width:60%}
 .vue figure[data-p]{cursor:pointer}.vue figure[data-p] img{outline:4px solid transparent;outline-offset:3px;transition:outline-color .2s}.vue figure.on img{outline-color:#2B1B12}
 .vue figure{margin:0;flex:1;min-width:0;display:flex;flex-direction:column;gap:6px;font-weight:800;font-size:26px;cursor:zoom-in}
-.vue img{width:100%;max-height:58vh;object-fit:contain;object-position:left top;border-radius:20px;display:block}
+.vue img{width:100%;max-height:58vh;object-fit:contain;object-position:left top;border-radius:28px;display:block}
 .vue figure.zoom{position:fixed;inset:0;z-index:6;background:#fff;align-items:center;justify-content:center;padding:16px;cursor:zoom-out}
 .vue figure.zoom img{max-height:90vh;width:auto;max-width:100%;object-position:center}
 .flash.seul{flex-direction:column;gap:3vh}
@@ -231,7 +239,7 @@ textarea.champ{min-height:150px;resize:none}
 .cmd{position:fixed;left:1vw;bottom:1vh;z-index:7;font-size:13px;font-weight:700}
 .cmd .home{opacity:.22;padding:6px 10px;transition:opacity .2s}
 .cmd .home:hover,.cmd.ouvert .home{opacity:1}
-.cmd .liste{display:none;position:absolute;left:0;bottom:100%;flex-direction:column;align-items:flex-start;gap:12px;white-space:nowrap;background:#fff;color:var(--n);border-radius:18px;padding:16px 20px;box-shadow:0 4px 24px rgba(43,27,18,.2)}
+.cmd .liste{display:none;position:absolute;left:0;bottom:100%;flex-direction:column;align-items:flex-start;gap:12px;white-space:nowrap;background:#fff;color:var(--n);border-radius:14px;padding:16px 20px;box-shadow:0 4px 24px rgba(43,27,18,.2)}
 .cmd.ouvert .liste{display:flex}
 .cmd .liste{flex-direction:row;flex-wrap:wrap;align-items:center;gap:8px;width:232px;white-space:normal}.cmd .liste>span{flex-basis:100%}
 .cmd .liste button,.cmd .liste a{cursor:pointer;color:inherit;width:44px;height:44px;border-radius:50%;background:#F4EFEA;display:grid;place-items:center;flex:none}
@@ -444,11 +452,11 @@ const DESSIN = (() => { // [nom, cercle de découpe du rond (cx, cy, r), cadre d
     <g clip-path="url(#d-nom)">${img}</g>${R.map(([n, , , , [yx, yy, yw, yh]]) => `<g class="r-${n}"><g clip-path="url(#d-${n})">${img}</g><g clip-path="url(#y-${n})"><g class="yeux"><g class="cligne" style="transform-origin:${yx + yw / 2}px ${yy + yh / 2}px">${yeux}</g></g></g></g>`).join('')}</svg>`; })();
 function accueilSite() {
   placer();
-  app.innerHTML = `<div class="site">${DESSIN}<p class="sur">Points de vue · faites tester vos affiches par des habitants</p>${rondProfil('position:fixed;top:16px;right:18px;font-size:20px;margin:0;background:#2B1B12')}<h1>Que voulez-vous faire ?</h1><nav class="trois">
+  app.innerHTML = `<div class="site">${DESSIN}<p class="sur">Points de vue · faites tester vos affiches par des habitants</p><h1>Que voulez-vous faire ?</h1><nav class="trois">
     ${carte('?passer', 'fiche', 'Passer le test', "Au téléphone ou sur papier : rejoindre une séance, l'animer sur le grand écran, photographier les fiches remplies.")}
     ${carte('modifier.html', 'crayon', 'Modifier le test', "Ajouter vos affiches, choisir les questions posées sur chacune, régler l'ordre des écrans.")}
     ${carte('resultats.html', 'barres', 'Étudier les données', 'Les réponses question par question, la comparaison des séances, le Google Sheet.')}
-  </nav><p class="note"><a href="parcours.html">La pochette du testeur, à ouvrir sur téléphone</a></p>
+  </nav><p class="note"><a href="parcours.html">La pochette du testeur, à ouvrir sur téléphone</a> · <a href="mentions-legales.html">Mentions légales</a> · <a href="confidentialite.html">Vos données</a></p>
   <section class="appli" id="appli" hidden><img src="icone.png" alt="" width="64" height="64"><div><b>L'appli Points de vue</b><span>Avec son icône, dans sa propre fenêtre. La version PC marche sans internet et range les réponses dans un fichier Excel.</span>
     <p><button type="button" id="installer" hidden>Installer sur cet appareil</button><a id="pourPC" hidden href="https://github.com/augustinmarso/points-de-vue/releases/latest/download/Points-de-vue-PC.zip">Télécharger pour Windows · 55 Mo</a></p></div></section></div>`;
   document.getElementById('pourPC').hidden = location.protocol !== 'https:'; // la version PC (servie en http sur l'ordinateur) ne se propose pas elle-même

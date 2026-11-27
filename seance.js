@@ -168,9 +168,9 @@ const afficheCadree = (e, src) => { const img = `<img src="${h(src)}" alt="L'aff
 const carteZones = (e, src) => `<span class="zones"><img src="${h(src)}" alt="L'affiche, découpée en zones" draggable="false">${cachesZones(e)}${e.zones.map((z, i) => `<button type="button" class="z" data-o="${i}" style="left:${+z[0]}%;top:${+z[1]}%;width:${+z[2]}%;height:${+z[3]}%" aria-label="Zone ${'ABCDEFGHIJ'[i]} : ${h(e.o[i])}"><b>${'ABCDEFGHIJ'[i]}</b></button>`).join('')}</span>`;
 const legendeZones = e => e.o.map((o, i) => `<b>${'ABCDEFGHIJ'[i]}</b> ${h(o)}`).join(' · ');
 if (typeof document !== 'undefined') document.head.insertAdjacentHTML('beforeend', `<style>.zones{position:relative;display:inline-block;line-height:0;vertical-align:top}.zones img{display:block}
-.z{position:absolute;box-sizing:border-box;border:2px solid #2B1B12;border-radius:8px;padding:0;cursor:pointer;font:inherit;line-height:1.3;color:#2B1B12;background:rgba(31,111,224,calc(var(--f,0)*.75));transition:background .4s}
-.z b{position:absolute;right:100%;top:-2px;background:#2B1B12;color:#fff;border-radius:8px 0 0 8px;min-width:1.6em;padding:.1em .3em;font-size:max(13px,.55em);text-align:center;font-weight:800}
-.vz{display:block;overflow:hidden;aspect-ratio:var(--r);border-radius:12px}.vz .pan{position:absolute}.vz .pan img{width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;border-radius:0!important}
+.z{position:absolute;box-sizing:border-box;border:2px solid #2B1B12;border-radius:14px;padding:0;cursor:pointer;font:inherit;line-height:1.3;color:#2B1B12;background:rgba(31,111,224,calc(var(--f,0)*.75));transition:background .4s}
+.z b{position:absolute;right:100%;top:-2px;background:#2B1B12;color:#fff;border-radius:14px 0 0 14px;min-width:1.6em;padding:.1em .3em;font-size:max(13px,.55em);text-align:center;font-weight:800}
+.vz{display:block;overflow:hidden;aspect-ratio:var(--r);border-radius:14px}.vz .pan{position:absolute}.vz .pan img{width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;border-radius:0!important}
 .zones .cache{position:absolute;background:#E6DFD8;border-radius:4px}.z.on{background:rgba(43,27,18,.55)}.z:focus-visible{outline:3px solid #1F6FE0;outline-offset:2px}</style>`);
 
 const NB_ETAPES = () => Math.max(3, ETAPES.filter(e => e.t === 'phase').length); // « Étape 2 sur 4 »
@@ -213,7 +213,7 @@ function connexion(page, annulable) { // rend une promesse tenue une fois la per
   if (COMPTE()) { noter(); return Promise.resolve(); }
   return new Promise((fini, rate) => {
     const d = document.createElement('dialog'), champ = 'font:inherit;background:#F4EFEA;border:0;border-radius:14px;padding:12px 14px;min-height:46px;width:100%;box-sizing:border-box';
-    d.style.cssText = 'border:0;border-radius:22px;padding:24px;width:min(420px,92vw);color:#2B1B12;box-shadow:0 10px 60px rgba(43,27,18,.35)';
+    d.style.cssText = 'border:0;border-radius:28px;padding:24px;width:min(420px,92vw);color:#2B1B12;box-shadow:0 10px 60px rgba(43,27,18,.35)';
     d.innerHTML = `<form style="display:flex;flex-direction:column;gap:12px"><b style="font-size:26px;letter-spacing:-.03em;line-height:1">Connexion de l'équipe</b>
       <span>${annulable ? 'Pour enregistrer, connectez-vous avec le compte de l’équipe.' : 'Cette page est réservée à l’équipe.'} À la première connexion, le mot de passe que vous tapez devient le vôtre.</span>
       <label style="display:flex;flex-direction:column;gap:6px;font-weight:800">Adresse mail<input type="email" name="username" required autocomplete="username" style="${champ}"></label>
